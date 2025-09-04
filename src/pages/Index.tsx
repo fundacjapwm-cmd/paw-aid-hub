@@ -15,51 +15,51 @@ import cat2 from "@/assets/cat-2.jpg";
 const mockAnimals = [
   {
     id: 1,
-    name: "Filemon",
-    age: "2 lata",
-    species: "Kot",
+    name: "Siupek",
+    age: "W siup lat",
+    species: "Pies",
     location: "Warszawa",
-    organization: "Schronisko Paluch",
-    description: "Spokojny i łagodny kot, który uwielbia się przytulać. Szuka ciepłego domu gdzie będzie mógł spędzić resztę życia w spokoju.",
-    image: cat1,
+    organization: "Organizacja testowa",
+    description: "Siupek jest słupowski długi opis. Bardzo przyjazny piesek, który kocha się bawić i potrzebuje kochającego domu.",
+    image: dog1,
     wishlistProgress: 65,
-    urgentNeeds: ["Karma mokra", "Żwirek", "Zabawki"]
+    urgentNeeds: ["Karma mokra", "Zabawki", "Legowisko"]
   },
   {
     id: 2,
-    name: "Burek",
-    age: "5 lat",
+    name: "Cezar",
+    age: "6 lat",
     species: "Pies",
     location: "Kraków",
-    organization: "Fundacja Cztery Łapy",
-    description: "Energiczny golden retriever, który kocha spacery i zabawy. Idealny kompan dla aktywnej rodziny z dziećmi.",
-    image: dog1,
+    organization: "Schronisko Przyjazne Łapy",
+    description: "Cezar to wspaniały pies, który szuka domu pełnego miłości. Jest bardzo posłuszny i uwielbia długie spacery.",
+    image: dog2,
     wishlistProgress: 40,
     urgentNeeds: ["Karma sucha", "Smycz", "Miska"]
   },
   {
     id: 3,
-    name: "Luna",
-    age: "3 lata",
+    name: "Irys",
+    age: "4 lata",
     species: "Pies",
     location: "Gdańsk",
-    organization: "Schronisko Promyk",
-    description: "Inteligentna border collie, która potrzebuje mentalnej stymulacji. Świetnie nadaje się do nauki sztuczek.",
-    image: dog2,
-    wishlistProgress: 80,
-    urgentNeeds: ["Zabawki logiczne", "Karma premium"]
+    organization: "Fundacja Psia Miłość",
+    description: "Irys to delikatna suczka, która potrzebuje cierpliwego opiekuna. Bardzo łagodna i spokojna.",
+    image: cat1,
+    wishlistProgress: 85,
+    urgentNeeds: ["Karma mokra", "Zabawki"]
   },
   {
     id: 4,
-    name: "Micia",
-    age: "1 rok",
+    name: "Fred",
+    age: "4 lata",
     species: "Kot",
     location: "Wrocław",
-    organization: "Kotki Ratunkowe",
-    description: "Młoda kotka pełna energii. Uwielbia bawić się i eksplorować. Szuka domu z ogrodem lub balkonem.",
+    organization: "Koci Azyl",
+    description: "Fred to spokojny kot, który uwielbia się przytulać. Idealny kompan dla osób szukających miękkiego przyjaciela.",
     image: cat2,
-    wishlistProgress: 25,
-    urgentNeeds: ["Drapak", "Karma dla kociąt", "Legowisko"]
+    wishlistProgress: 20,
+    urgentNeeds: ["Drapak", "Karma", "Kuweta"]
   }
 ];
 

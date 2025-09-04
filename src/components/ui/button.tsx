@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -15,12 +15,13 @@ const buttonVariants = cva(
         outline:
           "border-2 border-primary bg-background text-primary hover:bg-primary hover:text-primary-foreground transform hover:scale-105 transition-bubbly",
         secondary:
-          "bg-secondary text-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
+          "bg-secondary text-secondary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
         ghost: "hover:bg-accent hover:text-accent-foreground rounded-2xl",
         link: "text-primary underline-offset-4 hover:underline",
         hero: "bg-hero text-primary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly text-lg font-semibold",
         bubbly: "bg-primary text-primary-foreground hover:bg-accent hover:shadow-bubbly transform hover:scale-105 hover:-translate-y-1 transition-bubbly rounded-3xl",
-        light: "bg-primary-light text-foreground hover:bg-primary hover:text-primary-foreground transform hover:scale-105 transition-bubbly",
+        light: "bg-primary-light text-primary-foreground hover:bg-primary hover:text-primary-foreground transform hover:scale-105 transition-bubbly",
+        success: "bg-green-500 text-white hover:bg-green-600 hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
       },
       size: {
         default: "h-12 px-6 py-3",

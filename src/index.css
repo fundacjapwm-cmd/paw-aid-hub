@@ -18,36 +18,37 @@ All colors MUST be HSL.
     --popover-foreground: 25 15% 15%;
 
     /* Primary: Golden/Orange #E9A52E */
-    --primary: 42 75% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 37 86% 54%;
+    --primary-foreground: 240 5% 26%;
 
     /* Secondary: Green #9FB973 */
-    --secondary: 75 25% 60%;
-    --secondary-foreground: 25 15% 15%;
+    --secondary: 80 31% 72%;
+    --secondary-foreground: 240 10% 3.9%;
 
     --muted: 45 10% 95%;
     --muted-foreground: 25 10% 45%;
 
     /* Accent: Brick Orange #CA7244 */
-    --accent: 20 50% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 24 58% 55%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 45 15% 90%;
     --input: 45 15% 90%;
-    --ring: 42 75% 55%;
+    --ring: 37 86% 54%;
 
     --radius: 1rem;
 
     /* Bubbly design tokens */
-    --primary-light: 42 65% 75%;
-    --secondary-light: 75 30% 85%;
-    --accent-light: 20 40% 75%;
-    --hero-bg: 42 75% 55%;
-    --shadow-bubbly: 0 8px 32px -8px hsl(42 75% 55% / 0.3);
-    --shadow-card: 0 4px 20px -4px hsl(25 15% 15% / 0.1);
+    --primary-light: 37 86% 90%;
+    --secondary-light: 80 31% 88%;
+    --accent-light: 24 58% 85%;
+    --hero-bg: 37 86% 54%;
+    --shadow-bubbly: 0 15px 35px -10px hsl(37 86% 54% / 0.25), 0 5px 15px -5px hsl(37 86% 54% / 0.1);
+    --shadow-card: 0 8px 25px -5px hsl(0 0% 0% / 0.1), 0 3px 10px -3px hsl(0 0% 0% / 0.05);
+    --shadow-soft: 0 4px 15px -2px hsl(0 0% 0% / 0.08);
     --transition-bubbly: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 0 0% 98%;

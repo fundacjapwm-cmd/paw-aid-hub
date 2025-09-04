@@ -6,9 +6,12 @@ const HeroSection = () => {
     <section className="relative bg-hero py-20 px-4 overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-bounce-gentle"></div>
-        <div className="absolute top-32 right-20 w-16 h-16 bg-white/10 rounded-full animate-bounce-gentle delay-1000"></div>
+        <div className="absolute top-10 left-10 w-20 h-20 bg-white/15 rounded-full animate-bounce-gentle"></div>
+        <div className="absolute top-32 right-20 w-16 h-16 bg-white/12 rounded-full animate-bounce-gentle delay-1000"></div>
         <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-bounce-gentle delay-500"></div>
+        <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-white/8 rounded-full animate-bounce-gentle delay-700"></div>
+        <div className="absolute bottom-10 right-10 w-6 h-6 bg-white/12 rounded-full animate-bounce-gentle delay-200"></div>
+        <div className="absolute top-20 left-1/3 w-4 h-4 bg-white/15 rounded-full animate-bounce-gentle delay-1200"></div>
       </div>
 
       <div className="container mx-auto max-w-6xl relative z-10">
@@ -23,14 +26,14 @@ const HeroSection = () => {
             <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Odmień życie<br />
               <span className="text-white/90">bezdomniaczka</span><br />
-              <span className="bg-white text-primary px-4 py-2 rounded-2xl inline-block transform rotate-1">
-                kup mu smaczka!
+              <span className="bg-white text-primary px-6 py-3 rounded-3xl inline-block transform rotate-1 shadow-bubbly font-black">
+                kup mu smaczka! 🐾
               </span>
             </h1>
 
-            <p className="text-xl text-white/90 mb-8 max-w-lg">
-              Karma wraca 🙂 Wspieraj zwierzęta i organizacje kupując im potrzebne produkty. 
-              Każdy zakup to realna pomoc dla naszych czworonożnych przyjaciół.
+            <p className="text-xl text-white/95 mb-8 max-w-lg leading-relaxed font-medium">
+              Karma wraca! 🙂 Wspieraj zwierzęta i organizacje kupując im potrzebne produkty. 
+              Każdy zakup to realna pomoc dla naszych czworonożnych przyjaciół. 💝
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
