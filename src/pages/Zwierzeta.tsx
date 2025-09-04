@@ -4,6 +4,8 @@ import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, ShoppingBag, Sparkles, Footprints } from "lucide-react";
 
+// Force rebuild to clear cached Paw import
+
 // Import animal images
 import cat1 from "@/assets/cat-1.jpg";
 import dog1 from "@/assets/dog-1.jpg";
