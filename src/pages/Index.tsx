@@ -75,34 +75,34 @@ const Index = () => {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <div className="space-y-2">
-                <div className="bg-gradient-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <Heart className="h-8 w-8 text-white fill-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">1,247</p>
-                <p className="text-sm text-muted-foreground">Wspartych zwierząt</p>
+            <div className="space-y-2">
+              <div className="bg-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
+                <Heart className="h-8 w-8 text-white fill-white" />
               </div>
-              <div className="space-y-2">
-                <div className="bg-gradient-secondary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <Users className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">89</p>
-                <p className="text-sm text-muted-foreground">Organizacji</p>
+              <p className="text-2xl font-bold text-foreground">1,247</p>
+              <p className="text-sm text-muted-foreground">Wspartych zwierząt</p>
+            </div>
+            <div className="space-y-2">
+              <div className="bg-secondary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
+                <Users className="h-8 w-8 text-white" />
               </div>
-              <div className="space-y-2">
-                <div className="bg-accent/80 rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <ShoppingBag className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">15,623</p>
-                <p className="text-sm text-muted-foreground">Zakupionych produktów</p>
+              <p className="text-2xl font-bold text-foreground">89</p>
+              <p className="text-sm text-muted-foreground">Organizacji</p>
+            </div>
+            <div className="space-y-2">
+              <div className="bg-accent rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
+                <ShoppingBag className="h-8 w-8 text-white" />
               </div>
-              <div className="space-y-2">
-                <div className="bg-gradient-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <Sparkles className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground ">328,445 zł</p>
-                <p className="text-sm text-muted-foreground">Zebranych środków</p>
+              <p className="text-2xl font-bold text-foreground">15,623</p>
+              <p className="text-sm text-muted-foreground">Zakupionych produktów</p>
+            </div>
+            <div className="space-y-2">
+              <div className="bg-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
+                <Sparkles className="h-8 w-8 text-white" />
               </div>
+              <p className="text-2xl font-bold text-foreground ">328,445 zł</p>
+              <p className="text-sm text-muted-foreground">Zebranych środków</p>
+            </div>
             </div>
           </div>
         </section>
@@ -140,7 +140,7 @@ const Index = () => {
         </section>
 
         {/* Call to Action Section */}
-        <section className="py-20 bg-gradient-hero">
+        <section className="py-20 bg-hero">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6">
@@ -151,7 +151,7 @@ const Index = () => {
                 To proste, szybkie i przynosi prawdziwą radość!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="bubbly" size="hero" className="bg-white text-primary hover:bg-white/90">
+                <Button variant="light" size="hero">
                   Przeglądaj zwierzęta
                   <Heart className="h-6 w-6 fill-current" />
                 </Button>

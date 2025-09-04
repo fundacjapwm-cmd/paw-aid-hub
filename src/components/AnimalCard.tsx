@@ -21,12 +21,17 @@ interface AnimalCardProps {
 
 const AnimalCard = ({ animal }: AnimalCardProps) => {
   return (
-    <Card className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-2 rounded-3xl border-2 border-border/50">
+    <Card 
+      className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-2 rounded-3xl border-2 border-border/50 cursor-pointer"
+      onClick={() => window.location.href = `/zwierze/${animal.id}`}
+    >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden rounded-t-3xl">
-        <div className="absolute inset-0 bg-gradient-primary flex items-center justify-center">
-          <Heart className="h-20 w-20 text-white fill-white opacity-50" />
-        </div>
+        <img 
+          src={animal.image} 
+          alt={`${animal.name} - ${animal.species.toLowerCase()} szukający domu`}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
         <div className="absolute top-4 right-4 z-10">
           <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-sm">
             <Heart className="h-5 w-5 text-accent fill-accent" />
@@ -41,7 +46,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <div 
-                className="bg-gradient-primary h-2 rounded-full transition-all duration-500"
+                className="bg-primary h-2 rounded-full transition-all duration-500"
                 style={{ width: `${animal.wishlistProgress}%` }}
               />
             </div>
@@ -95,7 +100,12 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
           </p>
           
           <div className="flex space-x-2">
-            <Button variant="default" size="sm" className="flex-1">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="flex-1"
+              onClick={() => window.location.href = `/zwierze/${animal.id}`}
+            >
               Zobacz potrzeby
             </Button>
             <Button variant="outline" size="sm">

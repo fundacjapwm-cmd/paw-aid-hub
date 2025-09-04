@@ -9,17 +9,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-primary text-primary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
+        default: "bg-primary text-primary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
           "border-2 border-primary bg-background text-primary hover:bg-primary hover:text-primary-foreground transform hover:scale-105 transition-bubbly",
         secondary:
-          "bg-gradient-secondary text-secondary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
+          "bg-secondary text-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
         ghost: "hover:bg-accent hover:text-accent-foreground rounded-2xl",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-hero text-primary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly text-lg font-semibold",
+        hero: "bg-hero text-primary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly text-lg font-semibold",
         bubbly: "bg-primary text-primary-foreground hover:bg-accent hover:shadow-bubbly transform hover:scale-105 hover:-translate-y-1 transition-bubbly rounded-3xl",
+        light: "bg-primary-light text-foreground hover:bg-primary hover:text-primary-foreground transform hover:scale-105 transition-bubbly",
       },
       size: {
         default: "h-12 px-6 py-3",

@@ -3,7 +3,7 @@ import { Heart, ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="relative bg-gradient-hero py-20 px-4 overflow-hidden">
+    <section className="relative bg-hero py-20 px-4 overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-bounce-gentle"></div>
@@ -34,7 +34,7 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button variant="bubbly" size="hero" className="bg-white text-primary hover:bg-white/90">
+              <Button variant="light" size="hero">
                 Zwierzaki
                 <Heart className="h-5 w-5 fill-current" />
               </Button>
@@ -45,35 +45,35 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Animal Photos Grid */}
-          <div className="relative">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-2 hover:rotate-0 transition-transform duration-300">
-                  <div className="aspect-square bg-gradient-primary rounded-2xl flex items-center justify-center">
-                    <Heart className="h-16 w-16 text-white fill-white" />
-                  </div>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
-                  <div className="aspect-square bg-gradient-secondary rounded-2xl flex items-center justify-center">
-                    <Heart className="h-12 w-12 text-white fill-white" />
-                  </div>
+        {/* Animal Photos Grid */}
+        <div className="relative">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-2 hover:rotate-0 transition-transform duration-300">
+                <div className="aspect-square bg-primary rounded-2xl flex items-center justify-center">
+                  <Heart className="h-16 w-16 text-white fill-white" />
                 </div>
               </div>
-              <div className="space-y-4 mt-8">
-                <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-                  <div className="aspect-square bg-accent/80 rounded-2xl flex items-center justify-center">
-                    <Heart className="h-14 w-14 text-white fill-white" />
-                  </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
+                <div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+                  <Heart className="h-12 w-12 text-white fill-white" />
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-1 hover:rotate-0 transition-transform duration-300">
-                  <div className="aspect-square bg-gradient-primary rounded-2xl flex items-center justify-center">
-                    <Heart className="h-10 w-10 text-white fill-white" />
-                  </div>
+              </div>
+            </div>
+            <div className="space-y-4 mt-8">
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+                <div className="aspect-square bg-accent rounded-2xl flex items-center justify-center">
+                  <Heart className="h-14 w-14 text-white fill-white" />
+                </div>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                <div className="aspect-square bg-primary rounded-2xl flex items-center justify-center">
+                  <Heart className="h-10 w-10 text-white fill-white" />
                 </div>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </section>
