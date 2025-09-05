@@ -13,6 +13,7 @@ import { toast } from '@/hooks/use-toast';
 export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const confirmed = searchParams.get('confirmed');
   const { signIn, signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -95,7 +96,7 @@ export default function Auth() {
     } else {
       toast({
         title: "Konto utworzone!",
-        description: "Sprawdź email aby potwierdzić konto."
+        description: "Sprawdź email aby potwierdzić konto. Po potwierdzeniu będziesz mógł się zalogować."
       });
     }
     
@@ -126,7 +127,7 @@ export default function Auth() {
           <CardHeader>
             <CardTitle>Witamy</CardTitle>
             <CardDescription>
-              Zaloguj się lub utwórz konto, aby korzystać z platformy
+              {confirmed ? "Email potwierdzony! Możesz się teraz zalogować." : "Zaloguj się lub utwórz konto, aby korzystać z platformy"}
             </CardDescription>
           </CardHeader>
           <CardContent>
