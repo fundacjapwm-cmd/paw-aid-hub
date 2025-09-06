@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Heart, ShoppingCart, User, LogOut, Settings } from "lucide-react";
+import { Heart, ShoppingCart, User, LogOut, Settings, Shield } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -91,6 +91,15 @@ const Navigation = () => {
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Ustawienia</span>
                   </DropdownMenuItem>
+                  {profile?.role === 'ADMIN' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Panel Administratora</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />

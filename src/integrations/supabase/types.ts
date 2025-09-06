@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      animals: {
+        Row: {
+          adoption_status: string
+          age: number | null
+          breed: string | null
+          created_at: string
+          description: string | null
+          gender: string | null
+          health_status: string | null
+          id: string
+          name: string
+          organization_id: string
+          photos: Json | null
+          special_needs: string | null
+          species: string
+          updated_at: string
+        }
+        Insert: {
+          adoption_status?: string
+          age?: number | null
+          breed?: string | null
+          created_at?: string
+          description?: string | null
+          gender?: string | null
+          health_status?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          photos?: Json | null
+          special_needs?: string | null
+          species: string
+          updated_at?: string
+        }
+        Update: {
+          adoption_status?: string
+          age?: number | null
+          breed?: string | null
+          created_at?: string
+          description?: string | null
+          gender?: string | null
+          health_status?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          photos?: Json | null
+          special_needs?: string | null
+          species?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string
@@ -108,6 +206,140 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      producers: {
+        Row: {
+          active: boolean
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      product_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          producer_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          producer_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          producer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          category_id: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          producer_id: string
+          stock_quantity: number | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          producer_id: string
+          stock_quantity?: number | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          producer_id?: string
+          stock_quantity?: number | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

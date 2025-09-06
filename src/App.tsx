@@ -14,6 +14,7 @@ import Zwierzeta from "./pages/Zwierzeta";
 import Kontakt from "./pages/Kontakt";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/kontakt" element={<Kontakt />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profil" element={<Profile />} />
+            <Route path="/admin" element={<AdminPanel />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
