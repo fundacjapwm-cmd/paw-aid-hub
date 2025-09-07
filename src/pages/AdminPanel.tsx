@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { 
@@ -49,8 +52,11 @@ interface Animal {
   species: string;
   breed?: string;
   age?: number;
+  gender?: string;
   adoption_status: string;
-  organizations: {
+  description?: string;
+  organization_id: string;
+  organizations?: {
     name: string;
   };
 }
@@ -59,8 +65,18 @@ interface Producer {
   id: string;
   name: string;
   contact_email?: string;
+  contact_phone?: string;
+  description?: string;
   active: boolean;
   created_at: string;
+}
+
+interface ProductCategory {
+  id: string;
+  name: string;
+  description?: string;
+  producer_id: string;
+  active: boolean;
 }
 
 interface Product {
@@ -69,7 +85,13 @@ interface Product {
   price: number;
   unit: string;
   active: boolean;
-  producers: {
+  category_id: string;
+  producer_id: string;
+  description?: string;
+  producers?: {
+    name: string;
+  };
+  product_categories?: {
     name: string;
   };
 }
@@ -90,17 +112,50 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [producers, setProducers] = useState<Producer[]>([]);
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Formularz dodawania organizacji
+  // Edit dialogs state
+  const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
+  const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
+  const [editingProducer, setEditingProducer] = useState<Producer | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // New item forms
   const [newOrg, setNewOrg] = useState({
     name: '',
     slug: '',
     contact_email: '',
     admin_email: '',
     admin_password: ''
+  });
+
+  const [newAnimal, setNewAnimal] = useState({
+    name: '',
+    species: '',
+    breed: '',
+    age: '',
+    gender: '',
+    description: '',
+    organization_id: ''
+  });
+
+  const [newProducer, setNewProducer] = useState({
+    name: '',
+    contact_email: '',
+    contact_phone: '',
+    description: ''
+  });
+
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    price: '',
+    unit: 'szt',
+    description: '',
+    category_id: '',
+    producer_id: ''
   });
 
   // Sprawdź czy użytkownik jest adminem
@@ -163,13 +218,8 @@ export default function AdminPanel() {
     const { data, error } = await supabase
       .from('animals')
       .select(`
-        id,
-        name,
-        species,
-        breed,
-        age,
-        adoption_status,
-        organizations!inner(name)
+        *,
+        organizations(name)
       `)
       .order('created_at', { ascending: false });
     
@@ -201,16 +251,30 @@ export default function AdminPanel() {
     }
   };
 
+  const fetchProductCategories = async () => {
+    const { data, error } = await supabase
+      .from('product_categories')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się pobrać kategorii produktów",
+        variant: "destructive"
+      });
+    } else {
+      setProductCategories(data || []);
+    }
+  };
+
   const fetchProducts = async () => {
     const { data, error } = await supabase
       .from('products')
       .select(`
-        id,
-        name,
-        price,
-        unit,
-        active,
-        producers!inner(name)
+        *,
+        producers(name),
+        product_categories(name)
       `)
       .order('created_at', { ascending: false });
     
@@ -248,6 +312,7 @@ export default function AdminPanel() {
     }
   };
 
+  // Organization CRUD
   const createOrganization = async () => {
     if (!newOrg.name || !newOrg.contact_email || !newOrg.admin_email || !newOrg.admin_password) {
       toast({
@@ -274,30 +339,6 @@ export default function AdminPanel() {
 
       if (orgError) throw orgError;
 
-      // 2. Utwórz konto administratora organizacji
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: newOrg.admin_email,
-        password: newOrg.admin_password,
-        email_confirm: true,
-        user_metadata: {
-          display_name: `Admin ${newOrg.name}`,
-          role: 'ORG'
-        }
-      });
-
-      if (authError) throw authError;
-
-      // 3. Dodaj użytkownika do organizacji jako właściciela
-      const { error: userOrgError } = await supabase
-        .from('organization_users')
-        .insert({
-          user_id: authData.user.id,
-          organization_id: orgData.id,
-          is_owner: true
-        });
-
-      if (userOrgError) throw userOrgError;
-
       toast({
         title: "Sukces",
         description: `Organizacja ${newOrg.name} została utworzona`
@@ -321,6 +362,343 @@ export default function AdminPanel() {
     }
 
     setIsLoading(false);
+  };
+
+  const updateOrganization = async () => {
+    if (!editingOrg) return;
+
+    const { error } = await supabase
+      .from('organizations')
+      .update({
+        name: editingOrg.name,
+        slug: editingOrg.slug,
+        contact_email: editingOrg.contact_email
+      })
+      .eq('id', editingOrg.id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zaktualizować organizacji",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Organizacja została zaktualizowana"
+      });
+      setEditingOrg(null);
+      fetchOrganizations();
+    }
+  };
+
+  const deleteOrganization = async (id: string) => {
+    const { error } = await supabase
+      .from('organizations')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć organizacji",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Organizacja została usunięta"
+      });
+      fetchOrganizations();
+    }
+  };
+
+  // Animal CRUD
+  const createAnimal = async () => {
+    if (!newAnimal.name || !newAnimal.species || !newAnimal.organization_id) {
+      toast({
+        title: "Błąd",
+        description: "Nazwa, gatunek i organizacja są wymagane",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('animals')
+      .insert({
+        name: newAnimal.name,
+        species: newAnimal.species,
+        breed: newAnimal.breed || null,
+        age: newAnimal.age ? parseInt(newAnimal.age) : null,
+        gender: newAnimal.gender || null,
+        description: newAnimal.description || null,
+        organization_id: newAnimal.organization_id
+      });
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się dodać zwierzęcia",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Zwierzę zostało dodane"
+      });
+      setNewAnimal({
+        name: '',
+        species: '',
+        breed: '',
+        age: '',
+        gender: '',
+        description: '',
+        organization_id: ''
+      });
+      fetchAnimals();
+    }
+  };
+
+  const updateAnimal = async () => {
+    if (!editingAnimal) return;
+
+    const { error } = await supabase
+      .from('animals')
+      .update({
+        name: editingAnimal.name,
+        species: editingAnimal.species,
+        breed: editingAnimal.breed,
+        age: editingAnimal.age,
+        gender: editingAnimal.gender,
+        description: editingAnimal.description,
+        adoption_status: editingAnimal.adoption_status
+      })
+      .eq('id', editingAnimal.id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zaktualizować zwierzęcia",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Zwierzę zostało zaktualizowane"
+      });
+      setEditingAnimal(null);
+      fetchAnimals();
+    }
+  };
+
+  const deleteAnimal = async (id: string) => {
+    const { error } = await supabase
+      .from('animals')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć zwierzęcia",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Zwierzę zostało usunięte"
+      });
+      fetchAnimals();
+    }
+  };
+
+  // Producer CRUD
+  const createProducer = async () => {
+    if (!newProducer.name) {
+      toast({
+        title: "Błąd",
+        description: "Nazwa producenta jest wymagana",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('producers')
+      .insert({
+        name: newProducer.name,
+        contact_email: newProducer.contact_email || null,
+        contact_phone: newProducer.contact_phone || null,
+        description: newProducer.description || null
+      });
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się dodać producenta",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Producent został dodany"
+      });
+      setNewProducer({
+        name: '',
+        contact_email: '',
+        contact_phone: '',
+        description: ''
+      });
+      fetchProducers();
+    }
+  };
+
+  const updateProducer = async () => {
+    if (!editingProducer) return;
+
+    const { error } = await supabase
+      .from('producers')
+      .update({
+        name: editingProducer.name,
+        contact_email: editingProducer.contact_email,
+        contact_phone: editingProducer.contact_phone,
+        description: editingProducer.description,
+        active: editingProducer.active
+      })
+      .eq('id', editingProducer.id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zaktualizować producenta",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Producent został zaktualizowany"
+      });
+      setEditingProducer(null);
+      fetchProducers();
+    }
+  };
+
+  const deleteProducer = async (id: string) => {
+    const { error } = await supabase
+      .from('producers')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć producenta",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Producent został usunięty"
+      });
+      fetchProducers();
+    }
+  };
+
+  // Product CRUD
+  const createProduct = async () => {
+    if (!newProduct.name || !newProduct.price || !newProduct.category_id || !newProduct.producer_id) {
+      toast({
+        title: "Błąd",
+        description: "Nazwa, cena, kategoria i producent są wymagane",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('products')
+      .insert({
+        name: newProduct.name,
+        price: parseFloat(newProduct.price),
+        unit: newProduct.unit,
+        description: newProduct.description || null,
+        category_id: newProduct.category_id,
+        producer_id: newProduct.producer_id
+      });
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się dodać produktu",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Produkt został dodany"
+      });
+      setNewProduct({
+        name: '',
+        price: '',
+        unit: 'szt',
+        description: '',
+        category_id: '',
+        producer_id: ''
+      });
+      fetchProducts();
+    }
+  };
+
+  const updateProduct = async () => {
+    if (!editingProduct) return;
+
+    const { error } = await supabase
+      .from('products')
+      .update({
+        name: editingProduct.name,
+        price: editingProduct.price,
+        unit: editingProduct.unit,
+        description: editingProduct.description,
+        active: editingProduct.active
+      })
+      .eq('id', editingProduct.id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zaktualizować produktu",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Produkt został zaktualizowany"
+      });
+      setEditingProduct(null);
+      fetchProducts();
+    }
+  };
+
+  const deleteProduct = async (id: string) => {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć produktu",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Sukces",
+        description: "Produkt został usunięty"
+      });
+      fetchProducts();
+    }
   };
 
   const updateUserRole = async (userId: string, newRole: 'USER' | 'ORG' | 'ADMIN') => {
@@ -349,6 +727,7 @@ export default function AdminPanel() {
     fetchUsers();
     fetchAnimals();
     fetchProducers();
+    fetchProductCategories();
     fetchProducts();
     fetchActivityLogs();
   }, []);
@@ -391,6 +770,7 @@ export default function AdminPanel() {
           </TabsTrigger>
         </TabsList>
 
+        {/* Organizations Tab */}
         <TabsContent value="organizations">
           <div className="grid gap-6">
             <Card>
@@ -400,7 +780,7 @@ export default function AdminPanel() {
                   Dodaj nową organizację
                 </CardTitle>
                 <CardDescription>
-                  Utwórz nową organizację z kontem administratora
+                  Utwórz nową organizację
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -434,28 +814,6 @@ export default function AdminPanel() {
                     placeholder="kontakt@ratujlapki.pl"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="admin-email">Email administratora</Label>
-                    <Input
-                      id="admin-email"
-                      type="email"
-                      value={newOrg.admin_email}
-                      onChange={(e) => setNewOrg({ ...newOrg, admin_email: e.target.value })}
-                      placeholder="admin@ratujlapki.pl"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="admin-password">Hasło startowe</Label>
-                    <Input
-                      id="admin-password"
-                      type="password"
-                      value={newOrg.admin_password}
-                      onChange={(e) => setNewOrg({ ...newOrg, admin_password: e.target.value })}
-                      placeholder="TymczasoweHaslo123"
-                    />
-                  </div>
-                </div>
                 <Button onClick={createOrganization} disabled={isLoading}>
                   {isLoading ? 'Tworzenie...' : 'Utwórz organizację'}
                 </Button>
@@ -476,11 +834,51 @@ export default function AdminPanel() {
                         <p className="text-xs text-muted-foreground">Slug: {org.slug}</p>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <UserCheck className="h-4 w-4" />
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" onClick={() => setEditingOrg(org)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edytuj organizację</DialogTitle>
+                              <DialogDescription>Zmień dane organizacji</DialogDescription>
+                            </DialogHeader>
+                            {editingOrg && (
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Nazwa</Label>
+                                  <Input
+                                    value={editingOrg.name}
+                                    onChange={(e) => setEditingOrg({...editingOrg, name: e.target.value})}
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Slug</Label>
+                                  <Input
+                                    value={editingOrg.slug}
+                                    onChange={(e) => setEditingOrg({...editingOrg, slug: e.target.value})}
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Email kontaktowy</Label>
+                                  <Input
+                                    value={editingOrg.contact_email}
+                                    onChange={(e) => setEditingOrg({...editingOrg, contact_email: e.target.value})}
+                                  />
+                                </div>
+                                <Button onClick={updateOrganization}>Zapisz zmiany</Button>
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                        <Button 
+                          size="sm" 
+                          variant="destructive" 
+                          onClick={() => deleteOrganization(org.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -491,150 +889,489 @@ export default function AdminPanel() {
           </div>
         </TabsContent>
 
+        {/* Animals Tab */}
         <TabsContent value="animals">
-          <Card>
-            <CardHeader>
-              <CardTitle>Zwierzęta w systemie ({animals.length})</CardTitle>
-              <CardDescription>
-                Przegląd wszystkich zwierząt przypisanych do organizacji
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {animals.map((animal) => (
-                  <div key={animal.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-semibold">{animal.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {animal.species} {animal.breed && `• ${animal.breed}`} {animal.age && `• ${animal.age} lat`}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Organizacja: {animal.organizations?.name}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={animal.adoption_status === 'available' ? 'default' : 'secondary'}>
-                        {animal.adoption_status}
-                      </Badge>
-                      <Button size="sm" variant="outline">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
+          <div className="grid gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Dodaj nowe zwierzę
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nazwa</Label>
+                    <Input
+                      value={newAnimal.name}
+                      onChange={(e) => setNewAnimal({ ...newAnimal, name: e.target.value })}
+                      placeholder="Burek"
+                    />
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div>
+                    <Label>Gatunek</Label>
+                    <Select value={newAnimal.species} onValueChange={(value) => setNewAnimal({ ...newAnimal, species: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz gatunek" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pies">Pies</SelectItem>
+                        <SelectItem value="kot">Kot</SelectItem>
+                        <SelectItem value="królik">Królik</SelectItem>
+                        <SelectItem value="inne">Inne</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Rasa</Label>
+                    <Input
+                      value={newAnimal.breed}
+                      onChange={(e) => setNewAnimal({ ...newAnimal, breed: e.target.value })}
+                      placeholder="Labrador"
+                    />
+                  </div>
+                  <div>
+                    <Label>Wiek</Label>
+                    <Input
+                      type="number"
+                      value={newAnimal.age}
+                      onChange={(e) => setNewAnimal({ ...newAnimal, age: e.target.value })}
+                      placeholder="3"
+                    />
+                  </div>
+                  <div>
+                    <Label>Płeć</Label>
+                    <Select value={newAnimal.gender} onValueChange={(value) => setNewAnimal({ ...newAnimal, gender: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz płeć" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="samiec">Samiec</SelectItem>
+                        <SelectItem value="samica">Samica</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label>Organizacja</Label>
+                  <Select value={newAnimal.organization_id} onValueChange={(value) => setNewAnimal({ ...newAnimal, organization_id: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Wybierz organizację" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {organizations.map((org) => (
+                        <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Opis</Label>
+                  <Textarea
+                    value={newAnimal.description}
+                    onChange={(e) => setNewAnimal({ ...newAnimal, description: e.target.value })}
+                    placeholder="Opis zwierzęcia..."
+                  />
+                </div>
+                <Button onClick={createAnimal}>Dodaj zwierzę</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Zwierzęta w systemie ({animals.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {animals.map((animal) => (
+                    <div key={animal.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{animal.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {animal.species} {animal.breed && `- ${animal.breed}`} 
+                          {animal.age && `, ${animal.age} lat`}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Organizacja: {animal.organizations?.name}
+                        </p>
+                        <Badge variant={animal.adoption_status === 'available' ? 'default' : 'secondary'}>
+                          {animal.adoption_status}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" onClick={() => setEditingAnimal(animal)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edytuj zwierzę</DialogTitle>
+                            </DialogHeader>
+                            {editingAnimal && (
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Nazwa</Label>
+                                  <Input
+                                    value={editingAnimal.name}
+                                    onChange={(e) => setEditingAnimal({...editingAnimal, name: e.target.value})}
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Status adopcji</Label>
+                                  <Select 
+                                    value={editingAnimal.adoption_status} 
+                                    onValueChange={(value) => setEditingAnimal({...editingAnimal, adoption_status: value})}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="available">Dostępne</SelectItem>
+                                      <SelectItem value="pending">Rezerwacja</SelectItem>
+                                      <SelectItem value="adopted">Adoptowane</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <Button onClick={updateAnimal}>Zapisz zmiany</Button>
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                        <Button 
+                          size="sm" 
+                          variant="destructive" 
+                          onClick={() => deleteAnimal(animal.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Producers Tab */}
         <TabsContent value="producers">
-          <Card>
-            <CardHeader>
-              <CardTitle>Producenci ({producers.length})</CardTitle>
-              <CardDescription>
-                Zarządzanie producentami produktów dla zwierząt
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {producers.map((producer) => (
-                  <div key={producer.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-semibold">{producer.name}</h3>
-                      {producer.contact_email && (
-                        <p className="text-sm text-muted-foreground">{producer.contact_email}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={producer.active ? 'default' : 'secondary'}>
-                        {producer.active ? 'Aktywny' : 'Nieaktywny'}
-                      </Badge>
-                      <Button size="sm" variant="outline">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
+          <div className="grid gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Dodaj nowego producenta
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Nazwa producenta</Label>
+                  <Input
+                    value={newProducer.name}
+                    onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })}
+                    placeholder="Karma Pro Sp. z o.o."
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Email kontaktowy</Label>
+                    <Input
+                      type="email"
+                      value={newProducer.contact_email}
+                      onChange={(e) => setNewProducer({ ...newProducer, contact_email: e.target.value })}
+                      placeholder="kontakt@karmapro.pl"
+                    />
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div>
+                    <Label>Telefon kontaktowy</Label>
+                    <Input
+                      value={newProducer.contact_phone}
+                      onChange={(e) => setNewProducer({ ...newProducer, contact_phone: e.target.value })}
+                      placeholder="+48 123 456 789"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Opis</Label>
+                  <Textarea
+                    value={newProducer.description}
+                    onChange={(e) => setNewProducer({ ...newProducer, description: e.target.value })}
+                    placeholder="Opis producenta..."
+                  />
+                </div>
+                <Button onClick={createProducer}>Dodaj producenta</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Lista producentów ({producers.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {producers.map((producer) => (
+                    <div key={producer.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{producer.name}</h3>
+                        {producer.contact_email && (
+                          <p className="text-sm text-muted-foreground">{producer.contact_email}</p>
+                        )}
+                        {producer.contact_phone && (
+                          <p className="text-xs text-muted-foreground">{producer.contact_phone}</p>
+                        )}
+                        <Badge variant={producer.active ? 'default' : 'secondary'}>
+                          {producer.active ? 'Aktywny' : 'Nieaktywny'}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" onClick={() => setEditingProducer(producer)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edytuj producenta</DialogTitle>
+                            </DialogHeader>
+                            {editingProducer && (
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Nazwa</Label>
+                                  <Input
+                                    value={editingProducer.name}
+                                    onChange={(e) => setEditingProducer({...editingProducer, name: e.target.value})}
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Email</Label>
+                                  <Input
+                                    value={editingProducer.contact_email || ''}
+                                    onChange={(e) => setEditingProducer({...editingProducer, contact_email: e.target.value})}
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Telefon</Label>
+                                  <Input
+                                    value={editingProducer.contact_phone || ''}
+                                    onChange={(e) => setEditingProducer({...editingProducer, contact_phone: e.target.value})}
+                                  />
+                                </div>
+                                <Button onClick={updateProducer}>Zapisz zmiany</Button>
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                        <Button 
+                          size="sm" 
+                          variant="destructive" 
+                          onClick={() => deleteProducer(producer.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Products Tab */}
         <TabsContent value="products">
-          <Card>
-            <CardHeader>
-              <CardTitle>Produkty ({products.length})</CardTitle>
-              <CardDescription>
-                Katalog produktów dostępnych w sklepie
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {products.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-semibold">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Producent: {product.producers?.name}
-                      </p>
-                      <p className="text-sm font-medium text-primary">
-                        {product.price.toFixed(2)} zł / {product.unit}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={product.active ? 'default' : 'secondary'}>
-                        {product.active ? 'Dostępny' : 'Niedostępny'}
-                      </Badge>
-                      <Button size="sm" variant="outline">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
+          <div className="grid gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Dodaj nowy produkt
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nazwa produktu</Label>
+                    <Input
+                      value={newProduct.name}
+                      onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                      placeholder="Karma sucha dla psów"
+                    />
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div>
+                    <Label>Cena</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={newProduct.price}
+                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                      placeholder="29.99"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Jednostka</Label>
+                    <Select value={newProduct.unit} onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="szt">szt</SelectItem>
+                        <SelectItem value="kg">kg</SelectItem>
+                        <SelectItem value="l">l</SelectItem>
+                        <SelectItem value="g">g</SelectItem>
+                        <SelectItem value="ml">ml</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Producent</Label>
+                    <Select value={newProduct.producer_id} onValueChange={(value) => setNewProduct({ ...newProduct, producer_id: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz producenta" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {producers.filter(p => p.active).map((producer) => (
+                          <SelectItem key={producer.id} value={producer.id}>{producer.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Kategoria</Label>
+                    <Select value={newProduct.category_id} onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz kategorię" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {productCategories.filter(c => c.active && c.producer_id === newProduct.producer_id).map((category) => (
+                          <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label>Opis</Label>
+                  <Textarea
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    placeholder="Opis produktu..."
+                  />
+                </div>
+                <Button onClick={createProduct}>Dodaj produkt</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Lista produktów ({products.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {products.map((product) => (
+                    <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{product.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {product.price} zł/{product.unit}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Producent: {product.producers?.name}
+                        </p>
+                        <Badge variant={product.active ? 'default' : 'secondary'}>
+                          {product.active ? 'Aktywny' : 'Nieaktywny'}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" onClick={() => setEditingProduct(product)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edytuj produkt</DialogTitle>
+                            </DialogHeader>
+                            {editingProduct && (
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Nazwa</Label>
+                                  <Input
+                                    value={editingProduct.name}
+                                    onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Cena</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    value={editingProduct.price}
+                                    onChange={(e) => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})}
+                                  />
+                                </div>
+                                <Button onClick={updateProduct}>Zapisz zmiany</Button>
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                        <Button 
+                          size="sm" 
+                          variant="destructive" 
+                          onClick={() => deleteProduct(product.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Users Tab */}
         <TabsContent value="users">
           <Card>
             <CardHeader>
               <CardTitle>Użytkownicy systemu ({users.length})</CardTitle>
-              <CardDescription>
-                Zarządzanie kontami użytkowników i uprawnieniami
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {users.map((user) => (
                   <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
-                      <h3 className="font-semibold">{user.display_name || 'Brak nazwy'}</h3>
+                      <h3 className="font-semibold">{user.display_name || 'Bez nazwy'}</h3>
                       <p className="text-sm text-muted-foreground">ID: {user.id}</p>
-                      {user.must_change_password && (
-                        <Badge variant="destructive" className="mt-1">
-                          Wymaga zmiany hasła
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant={user.role === 'ADMIN' ? 'destructive' : user.role === 'ORG' ? 'default' : 'secondary'}>
+                          {user.role}
                         </Badge>
-                      )}
+                        {user.must_change_password && (
+                          <Badge variant="outline">Musi zmienić hasło</Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant={
-                          user.role === 'ADMIN' ? 'default' : 
-                          user.role === 'ORG' ? 'secondary' : 'outline'
-                        }
-                      >
-                        {user.role}
-                      </Badge>
-                      <select
-                        value={user.role}
-                        onChange={(e) => updateUserRole(user.id, e.target.value as any)}
-                        className="text-sm border rounded px-2 py-1"
-                      >
-                        <option value="USER">USER</option>
-                        <option value="ORG">ORG</option>
-                        <option value="ADMIN">ADMIN</option>
-                      </select>
+                    <div className="flex gap-2">
+                      <Select value={user.role} onValueChange={(value: 'USER' | 'ORG' | 'ADMIN') => updateUserRole(user.id, value)}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="USER">USER</SelectItem>
+                          <SelectItem value="ORG">ORG</SelectItem>
+                          <SelectItem value="ADMIN">ADMIN</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 ))}
@@ -643,30 +1380,27 @@ export default function AdminPanel() {
           </Card>
         </TabsContent>
 
+        {/* Activity Tab */}
         <TabsContent value="activity">
           <Card>
             <CardHeader>
-              <CardTitle>Logi aktywności ({activityLogs.length})</CardTitle>
-              <CardDescription>
-                Historia zmian wprowadzanych przez administratorów
-              </CardDescription>
+              <CardTitle>Logi aktywności systemu</CardTitle>
+              <CardDescription>Ostatnie 50 akcji w systemie</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-4">
                 {activityLogs.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between p-3 border rounded">
+                  <div key={log.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
-                      <p className="text-sm">
-                        <span className="font-medium">{log.profiles?.display_name || 'System'}</span>
-                        {' '}wykonał{' '}
-                        <span className="font-medium">{log.action}</span>
-                        {' '}na tabeli{' '}
-                        <span className="font-medium">{log.table_name}</span>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-medium">{log.action} - {log.table_name}</p>
+                      <p className="text-sm text-muted-foreground">
                         {new Date(log.created_at).toLocaleString('pl-PL')}
                       </p>
                     </div>
+                    <Badge variant="outline">
+                      <Activity className="h-3 w-3 mr-1" />
+                      System
+                    </Badge>
                   </div>
                 ))}
               </div>
