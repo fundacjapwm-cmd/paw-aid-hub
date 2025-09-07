@@ -339,9 +339,26 @@ export default function AdminPanel() {
 
       if (orgError) throw orgError;
 
+      // 2. Wywołaj edge function do utworzenia konta administratora organizacji
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('create-org-admin', {
+        body: {
+          email: newOrg.admin_email,
+          password: newOrg.admin_password,
+          displayName: `Admin ${newOrg.name}`,
+          organizationId: orgData.id
+        }
+      });
+
+      if (functionError) {
+        console.error('Function error:', functionError);
+        // Jeśli nie udało się utworzyć użytkownika, usuń organizację
+        await supabase.from('organizations').delete().eq('id', orgData.id);
+        throw new Error('Nie udało się utworzyć konta administratora organizacji');
+      }
+
       toast({
         title: "Sukces",
-        description: `Organizacja ${newOrg.name} została utworzona`
+        description: `Organizacja ${newOrg.name} została utworzona wraz z kontem administratora`
       });
 
       setNewOrg({
@@ -814,8 +831,42 @@ export default function AdminPanel() {
                     placeholder="kontakt@ratujlapki.pl"
                   />
                 </div>
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-3">Konto administratora organizacji</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="admin-email">Email administratora</Label>
+                      <Input
+                        id="admin-email"
+                        type="email"
+                        value={newOrg.admin_email}
+                        onChange={(e) => setNewOrg({ ...newOrg, admin_email: e.target.value })}
+                        placeholder="admin@ratujlapki.pl"
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Ten email będzie używany do logowania
+                      </p>
+                    </div>
+                    <div>
+                      <Label htmlFor="admin-password">Hasło startowe</Label>
+                      <Input
+                        id="admin-password"
+                        type="password"
+                        value={newOrg.admin_password}
+                        onChange={(e) => setNewOrg({ ...newOrg, admin_password: e.target.value })}
+                        placeholder="TymczasoweHaslo123"
+                        required
+                        minLength={6}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Minimum 6 znaków. Użytkownik będzie musiał zmienić hasło przy pierwszym logowaniu.
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 <Button onClick={createOrganization} disabled={isLoading}>
-                  {isLoading ? 'Tworzenie...' : 'Utwórz organizację'}
+                  {isLoading ? 'Tworzenie...' : 'Utwórz organizację z kontem administratora'}
                 </Button>
               </CardContent>
             </Card>
