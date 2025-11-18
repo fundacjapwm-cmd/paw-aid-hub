@@ -70,6 +70,11 @@ export default function ProducersProductsTab({
     name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: ''
   });
 
+  const handleCreateProducer = async () => {
+    await onCreateProducer(newProducer);
+    setNewProducer({ name: '', contact_email: '', contact_phone: '', description: '' });
+  };
+
   const handleCreateProduct = async () => {
     await onCreateProduct({ ...newProduct, producer_id: selectedProducerId });
     setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '' });
@@ -178,8 +183,8 @@ export default function ProducersProductsTab({
         </CardHeader>
         <CardContent className="space-y-4">
           <Input value={newProducer.name} onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })} placeholder="Nazwa" />
-          <Button onClick={() => { onCreateProducer(newProducer); setNewProducer({ name: '', contact_email: '', contact_phone: '', description: '' }); }}>
-            Dodaj
+          <Button onClick={handleCreateProducer}>
+            Dodaj producenta
           </Button>
         </CardContent>
       </Card>
