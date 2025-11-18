@@ -75,7 +75,7 @@ export default function Profile() {
         .order('created_at', { ascending: false });
 
       if (ordersData) {
-        setOrders(ordersData);
+        setOrders(ordersData as any);
       }
 
       // Load organizations (if user is ORG role)
