@@ -7,17 +7,28 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Heart, User, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Heart, User, Mail, Lock, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { z } from 'zod';
+
+const emailSchema = z.string().trim().email({ message: "Nieprawidłowy adres email" });
 
 export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const confirmed = searchParams.get('confirmed');
+  const resetPassword = searchParams.get('reset');
   const { signIn, signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   
   const [loginForm, setLoginForm] = useState({
     email: '',
@@ -38,6 +49,13 @@ export default function Auth() {
       navigate(redirect);
     }
   }, [user, loading, navigate, searchParams]);
+
+  // Check if user is resetting password
+  useEffect(() => {
+    if (resetPassword === 'true') {
+      setShowResetForm(true);
+    }
+  }, [resetPassword]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +121,86 @@ export default function Auth() {
     setIsLoading(false);
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    // Validate email
+    const validation = emailSchema.safeParse(resetEmail);
+    if (!validation.success) {
+      setError(validation.error.errors[0].message);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) throw error;
+
+      setResetSent(true);
+      toast({
+        title: "Email wysłany!",
+        description: "Sprawdź swoją skrzynkę email i kliknij w link aby zresetować hasło.",
+      });
+    } catch (error: any) {
+      setError(error.message);
+      toast({
+        title: "Błąd",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    if (newPassword !== confirmNewPassword) {
+      setError('Hasła nie są identyczne');
+      setIsLoading(false);
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('Hasło musi mieć co najmniej 6 znaków');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Hasło zmienione!",
+        description: "Twoje hasło zostało pomyślnie zmienione. Możesz się teraz zalogować.",
+      });
+
+      setShowResetForm(false);
+      navigate('/auth');
+    } catch (error: any) {
+      setError(error.message);
+      toast({
+        title: "Błąd",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -125,25 +223,171 @@ export default function Auth() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Witamy</CardTitle>
+            <CardTitle>
+              {showResetForm 
+                ? 'Ustaw nowe hasło' 
+                : showForgotPassword 
+                  ? 'Resetowanie hasła' 
+                  : 'Witamy'
+              }
+            </CardTitle>
             <CardDescription>
-              {confirmed ? "Email potwierdzony! Możesz się teraz zalogować." : "Zaloguj się lub utwórz konto, aby korzystać z platformy"}
+              {showResetForm
+                ? "Wprowadź nowe hasło dla swojego konta"
+                : showForgotPassword 
+                  ? "Wprowadź swój adres email, a wyślemy Ci link do zresetowania hasła"
+                  : confirmed 
+                    ? "Email potwierdzony! Możesz się teraz zalogować." 
+                    : "Zaloguj się lub utwórz konto, aby korzystać z platformy"
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Logowanie</TabsTrigger>
-                <TabsTrigger value="signup">Rejestracja</TabsTrigger>
-              </TabsList>
+            {showResetForm ? (
+              <div className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
 
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+                <form onSubmit={handleUpdatePassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Nowe hasło</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="new-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Nowe hasło"
+                        className="pl-10 pr-10"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
 
-              <TabsContent value="login">
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-new-password">Potwierdź nowe hasło</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="confirm-new-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Powtórz nowe hasło"
+                        className="pl-10"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Aktualizowanie...' : 'Zmień hasło'}
+                  </Button>
+                </form>
+              </div>
+            ) : showForgotPassword ? (
+              <div className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                {resetSent ? (
+                  <div className="space-y-4">
+                    <Alert>
+                      <AlertDescription>
+                        Link do resetowania hasła został wysłany na adres <strong>{resetEmail}</strong>.
+                        Sprawdź swoją skrzynkę email (również folder spam).
+                      </AlertDescription>
+                    </Alert>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setShowForgotPassword(false);
+                        setResetSent(false);
+                        setResetEmail('');
+                        setError('');
+                      }}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Powrót do logowania
+                    </Button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="reset-email"
+                          type="email"
+                          placeholder="twoj@email.com"
+                          className="pl-10"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Wysyłanie...' : 'Wyślij link resetujący'}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => {
+                        setShowForgotPassword(false);
+                        setError('');
+                        setResetEmail('');
+                      }}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Powrót do logowania
+                    </Button>
+                  </form>
+                )}
+              </div>
+            ) : (
+              <Tabs defaultValue="login" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="login">Logowanie</TabsTrigger>
+                  <TabsTrigger value="signup">Rejestracja</TabsTrigger>
+                </TabsList>
+
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <TabsContent value="login">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
@@ -193,6 +437,20 @@ export default function Auth() {
                   >
                     {isLoading ? 'Logowanie...' : 'Zaloguj się'}
                   </Button>
+
+                  <div className="text-center">
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-sm text-muted-foreground hover:text-primary"
+                      onClick={() => {
+                        setShowForgotPassword(true);
+                        setError('');
+                      }}
+                    >
+                      Zapomniałeś hasła?
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
 
@@ -280,6 +538,7 @@ export default function Auth() {
                 </form>
               </TabsContent>
             </Tabs>
+            )}
           </CardContent>
         </Card>
 
