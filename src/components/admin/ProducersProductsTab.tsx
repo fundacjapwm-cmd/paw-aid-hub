@@ -7,7 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Edit, Trash2, ArrowLeft, Image } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Producer {
   id: string;
@@ -27,6 +29,7 @@ interface Product {
   category_id: string;
   description?: string;
   weight_volume?: string;
+  image_url?: string;
   product_categories?: { name: string };
 }
 
@@ -61,14 +64,44 @@ export default function ProducersProductsTab({
   const [selectedProducerId, setSelectedProducerId] = useState<string | null>(null);
   const [editingProducer, setEditingProducer] = useState<Producer | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [newProducer, setNewProducer] = useState({
     name: '', contact_email: '', contact_phone: '', description: ''
   });
 
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: ''
+    name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: ''
   });
+
+  const handleImageUpload = async (file: File): Promise<string | null> => {
+    if (!file) return null;
+    
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Błąd podczas przesyłania zdjęcia');
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleCreateProducer = async () => {
     await onCreateProducer(newProducer);
@@ -76,8 +109,12 @@ export default function ProducersProductsTab({
   };
 
   const handleCreateProduct = async () => {
+    if (!newProduct.image_url) {
+      toast.error('Zdjęcie produktu jest wymagane');
+      return;
+    }
     await onCreateProduct({ ...newProduct, producer_id: selectedProducerId });
-    setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '' });
+    setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
   };
 
   if (selectedProducerId) {
@@ -105,6 +142,26 @@ export default function ProducersProductsTab({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div>
+              <Label>Zdjęcie produktu *</Label>
+              <div className="flex items-center gap-4">
+                <Input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const url = await handleImageUpload(file);
+                      if (url) setNewProduct({ ...newProduct, image_url: url });
+                    }
+                  }}
+                  disabled={uploadingImage}
+                />
+                {newProduct.image_url && (
+                  <img src={newProduct.image_url} alt="Preview" className="h-16 w-16 object-cover rounded" />
+                )}
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Nazwa produktu</Label>
@@ -155,9 +212,18 @@ export default function ProducersProductsTab({
             <div className="space-y-4">
               {producerProducts.map((product) => (
                 <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h3 className="font-semibold">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground">{product.price} zł / {product.unit}</p>
+                  <div className="flex items-center gap-4">
+                    {product.image_url ? (
+                      <img src={product.image_url} alt={product.name} className="h-16 w-16 object-cover rounded" />
+                    ) : (
+                      <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
+                        <Image className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-semibold">{product.name}</h3>
+                      <p className="text-sm text-muted-foreground">{product.price} zł / {product.unit}</p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => setEditingProduct(product)}><Edit className="h-4 w-4" /></Button>
@@ -214,6 +280,27 @@ export default function ProducersProductsTab({
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label>Zdjęcie *</Label>
+              <div className="flex items-center gap-2">
+                <Input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const url = await handleImageUpload(file);
+                      if (url) setNewProduct({ ...newProduct, image_url: url });
+                    }
+                  }}
+                  disabled={uploadingImage}
+                  className="flex-1"
+                />
+                {newProduct.image_url && (
+                  <img src={newProduct.image_url} alt="Preview" className="h-12 w-12 object-cover rounded" />
+                )}
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label>Nazwa</Label>
@@ -239,14 +326,18 @@ export default function ProducersProductsTab({
                 if (!newProduct.producer_id) {
                   return;
                 }
+                if (!newProduct.image_url) {
+                  toast.error('Zdjęcie produktu jest wymagane');
+                  return;
+                }
                 await onCreateProduct({ 
                   ...newProduct, 
                   producer_id: newProduct.producer_id 
                 });
-                setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '' });
+                setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
               }} 
               className="w-full"
-              disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price}
+              disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price || !newProduct.image_url || uploadingImage}
             >
               Dodaj produkt
             </Button>
