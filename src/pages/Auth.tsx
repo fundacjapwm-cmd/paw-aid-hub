@@ -18,7 +18,6 @@ export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const confirmed = searchParams.get('confirmed');
-  const resetPassword = searchParams.get('reset');
   const { signIn, signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -42,20 +41,31 @@ export default function Auth() {
     displayName: ''
   });
 
-  // Redirect if already logged in
+  // Check for password recovery from email link
   useEffect(() => {
-    if (user && !loading) {
+    const checkRecoverySession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // If user came from password reset email, Supabase will auto-login and add access_token to URL
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get('type');
+      
+      if (type === 'recovery' || (session && window.location.hash.includes('type=recovery'))) {
+        console.log('Password recovery detected');
+        setShowResetForm(true);
+      }
+    };
+    
+    checkRecoverySession();
+  }, []);
+
+  // Redirect if already logged in (but not during password reset)
+  useEffect(() => {
+    if (user && !loading && !showResetForm) {
       const redirect = searchParams.get('redirect') || '/';
       navigate(redirect);
     }
-  }, [user, loading, navigate, searchParams]);
-
-  // Check if user is resetting password
-  useEffect(() => {
-    if (resetPassword === 'true') {
-      setShowResetForm(true);
-    }
-  }, [resetPassword]);
+  }, [user, loading, navigate, searchParams, showResetForm]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,8 +203,15 @@ export default function Auth() {
         description: "Twoje hasło zostało pomyślnie zmienione. Możesz się teraz zalogować.",
       });
 
+      // Sign out user after password change
+      await supabase.auth.signOut();
+      
       setShowResetForm(false);
-      navigate('/auth');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      
+      // Clear hash from URL
+      window.history.replaceState(null, '', '/auth');
     } catch (error: any) {
       setError(error.message);
       toast({
