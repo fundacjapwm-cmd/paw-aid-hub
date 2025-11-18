@@ -264,7 +264,7 @@ export default function AdminPanel() {
         variant: "destructive"
       });
     } else {
-      setProductCategories(data || []);
+      setProductCategories((data || []) as any);
     }
   };
 
@@ -308,7 +308,7 @@ export default function AdminPanel() {
         variant: "destructive"
       });
     } else {
-      setActivityLogs(data || []);
+      setActivityLogs((data || []) as any);
     }
   };
 
@@ -445,13 +445,13 @@ export default function AdminPanel() {
       .from('animals')
       .insert({
         name: newAnimal.name,
-        species: newAnimal.species,
+        species: newAnimal.species as any,
         breed: newAnimal.breed || null,
         age: newAnimal.age ? parseInt(newAnimal.age) : null,
         gender: newAnimal.gender || null,
         description: newAnimal.description || null,
         organization_id: newAnimal.organization_id
-      });
+      } as any);
 
     if (error) {
       toast({
@@ -484,12 +484,12 @@ export default function AdminPanel() {
       .from('animals')
       .update({
         name: editingAnimal.name,
-        species: editingAnimal.species,
+        species: editingAnimal.species as any,
         breed: editingAnimal.breed,
         age: editingAnimal.age,
         gender: editingAnimal.gender,
         description: editingAnimal.description,
-        adoption_status: editingAnimal.adoption_status
+        adoption_status: editingAnimal.adoption_status as any
       })
       .eq('id', editingAnimal.id);
 
