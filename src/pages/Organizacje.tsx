@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Heart, MapPin, Users, ShoppingBag, Phone, Mail, Filter, Search } from "lucide-react";
+import { Heart, MapPin, Users, ShoppingBag, Phone, Mail, Filter, Search, X } from "lucide-react";
 import { useState, useMemo } from "react";
 
 const organizationData = [
@@ -52,6 +52,15 @@ const Organizacje = () => {
       return matchesSearch && matchesCity;
     });
   }, [search, city]);
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setOrgType("wszystkie");
+    setProvince("wszystkie");
+    setCity("");
+  };
+
+  const hasActiveFilters = search !== "" || orgType !== "wszystkie" || province !== "wszystkie" || city !== "";
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -75,9 +84,22 @@ const Organizacje = () => {
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="bg-card rounded-3xl p-4 sm:p-6 shadow-card border border-border/50">
-              <div className="flex items-center space-x-2 mb-4 sm:mb-6">
-                <Filter className="h-5 w-5 text-primary" />
-                <h2 className="text-base sm:text-lg font-semibold text-foreground">Filtry</h2>
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <div className="flex items-center space-x-2">
+                  <Filter className="h-5 w-5 text-primary" />
+                  <h2 className="text-base sm:text-lg font-semibold text-foreground">Filtry</h2>
+                </div>
+                {hasActiveFilters && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleClearFilters}
+                    className="text-xs sm:text-sm"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Wyczyść
+                  </Button>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
