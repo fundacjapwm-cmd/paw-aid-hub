@@ -107,9 +107,13 @@ serve(async (req) => {
 
     const { access_token } = await authResponse.json();
 
+    // Get the origin URL from the request for redirect URLs
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || supabaseUrl;
+
     // Create PayU order
     const payuOrder = {
       notifyUrl: `${supabaseUrl}/functions/v1/payu-webhook`,
+      continueUrl: `${origin}/payment-success?extOrderId=${order.id}`,
       customerIp: req.headers.get('x-forwarded-for') || '127.0.0.1',
       merchantPosId: posId,
       description: `Darowizna - Zamówienie ${order.id.substring(0, 8)}`,
