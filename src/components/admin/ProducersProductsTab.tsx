@@ -67,7 +67,7 @@ export default function ProducersProductsTab({
   });
 
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: ''
+    name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: ''
   });
 
   const handleCreateProducer = async () => {
@@ -77,7 +77,7 @@ export default function ProducersProductsTab({
 
   const handleCreateProduct = async () => {
     await onCreateProduct({ ...newProduct, producer_id: selectedProducerId });
-    setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '' });
+    setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '' });
   };
 
   if (selectedProducerId) {
@@ -174,36 +174,117 @@ export default function ProducersProductsTab({
 
   return (
     <div className="grid gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            Dodaj nowego producenta
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input value={newProducer.name} onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })} placeholder="Nazwa" />
-          <Button onClick={handleCreateProducer}>
-            Dodaj producenta
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Dodaj producenta
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input value={newProducer.name} onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })} placeholder="Nazwa producenta" />
+            <Button onClick={handleCreateProducer} className="w-full">
+              Dodaj producenta
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Szybkie dodawanie produktu
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Producent</Label>
+              <Select 
+                value={newProduct.producer_id || ''} 
+                onValueChange={(value) => setNewProduct({ ...newProduct, producer_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Wybierz producenta" />
+                </SelectTrigger>
+                <SelectContent>
+                  {producers.filter(p => p.active).map((producer) => (
+                    <SelectItem key={producer.id} value={producer.id}>{producer.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label>Nazwa</Label>
+                <Input 
+                  value={newProduct.name} 
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
+                  placeholder="Produkt"
+                />
+              </div>
+              <div>
+                <Label>Cena</Label>
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  value={newProduct.price} 
+                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+            <Button 
+              onClick={async () => {
+                if (!newProduct.producer_id) {
+                  return;
+                }
+                await onCreateProduct({ 
+                  ...newProduct, 
+                  producer_id: newProduct.producer_id 
+                });
+                setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '' });
+              }} 
+              className="w-full"
+              disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price}
+            >
+              Dodaj produkt
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Producenci ({producers.length})</CardTitle>
-          <CardDescription>Kliknij na producenta, aby zobaczyć produkty</CardDescription>
+          <CardDescription>Kliknij na producenta, aby zobaczyć i zarządzać jego produktami</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            {producers.map((producer) => (
-              <Card key={producer.id} className="cursor-pointer hover:border-primary" onClick={() => setSelectedProducerId(producer.id)}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{producer.name}</CardTitle>
-                  <Badge variant={producer.active ? 'default' : 'secondary'}>{producer.active ? 'Aktywny' : 'Nieaktywny'}</Badge>
-                </CardHeader>
-              </Card>
-            ))}
+            {producers.map((producer) => {
+              const productCount = products.filter(p => p.producer_id === producer.id).length;
+              return (
+                <Card 
+                  key={producer.id} 
+                  className="cursor-pointer hover:border-primary transition-colors" 
+                  onClick={() => setSelectedProducerId(producer.id)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{producer.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
+                        </p>
+                      </div>
+                      <Badge variant={producer.active ? 'default' : 'secondary'}>
+                        {producer.active ? 'Aktywny' : 'Nieaktywny'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
