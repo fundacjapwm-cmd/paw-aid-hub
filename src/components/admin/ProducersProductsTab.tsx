@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { producerSchema } from '@/lib/validations/producer';
 
 interface Producer {
   id: string;
@@ -555,6 +556,7 @@ function ProducerCard({
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editData, setEditData] = useState<Producer>(producer);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -573,6 +575,7 @@ function ProducerCard({
 
   useEffect(() => {
     setEditData(producer);
+    setValidationErrors({});
   }, [producer]);
 
   const handleLogoUpload = async (file: File) => {
@@ -605,8 +608,27 @@ function ProducerCard({
   };
 
   const handleSave = async () => {
+    // Clear previous errors
+    setValidationErrors({});
+    
+    // Validate form data
+    const validation = producerSchema.safeParse(editData);
+    
+    if (!validation.success) {
+      // Format validation errors
+      const errors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setValidationErrors(errors);
+      toast.error('Proszę poprawić błędy w formularzu');
+      return;
+    }
+
     try {
-      await onUpdate(editData);
+      await onUpdate(validation.data);
       setIsEditOpen(false);
       toast.success('Dane producenta zostały zaktualizowane');
     } catch (error) {
@@ -729,18 +751,36 @@ function ProducerCard({
                 <Label>Nazwa firmy *</Label>
                 <Input
                   value={editData.name}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, name: e.target.value });
+                    if (validationErrors.name) {
+                      setValidationErrors({ ...validationErrors, name: '' });
+                    }
+                  }}
                   placeholder="Nazwa producenta"
+                  className={validationErrors.name ? 'border-destructive' : ''}
                 />
+                {validationErrors.name && (
+                  <p className="text-sm text-destructive mt-1">{validationErrors.name}</p>
+                )}
               </div>
               <div>
                 <Label>NIP</Label>
                 <Input
                   value={editData.nip || ''}
-                  onChange={(e) => setEditData({ ...editData, nip: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, nip: e.target.value });
+                    if (validationErrors.nip) {
+                      setValidationErrors({ ...validationErrors, nip: '' });
+                    }
+                  }}
                   placeholder="1234567890"
                   maxLength={10}
+                  className={validationErrors.nip ? 'border-destructive' : ''}
                 />
+                {validationErrors.nip && (
+                  <p className="text-sm text-destructive mt-1">{validationErrors.nip}</p>
+                )}
               </div>
             </div>
 
@@ -751,18 +791,36 @@ function ProducerCard({
                 <Input
                   type="email"
                   value={editData.contact_email || ''}
-                  onChange={(e) => setEditData({ ...editData, contact_email: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, contact_email: e.target.value });
+                    if (validationErrors.contact_email) {
+                      setValidationErrors({ ...validationErrors, contact_email: '' });
+                    }
+                  }}
                   placeholder="kontakt@firma.pl"
+                  className={validationErrors.contact_email ? 'border-destructive' : ''}
                 />
+                {validationErrors.contact_email && (
+                  <p className="text-sm text-destructive mt-1">{validationErrors.contact_email}</p>
+                )}
               </div>
               <div>
                 <Label>Telefon kontaktowy</Label>
                 <Input
                   type="tel"
                   value={editData.contact_phone || ''}
-                  onChange={(e) => setEditData({ ...editData, contact_phone: e.target.value })}
+                  onChange={(e) => {
+                    setEditData({ ...editData, contact_phone: e.target.value });
+                    if (validationErrors.contact_phone) {
+                      setValidationErrors({ ...validationErrors, contact_phone: '' });
+                    }
+                  }}
                   placeholder="+48 123 456 789"
+                  className={validationErrors.contact_phone ? 'border-destructive' : ''}
                 />
+                {validationErrors.contact_phone && (
+                  <p className="text-sm text-destructive mt-1">{validationErrors.contact_phone}</p>
+                )}
               </div>
             </div>
 
@@ -771,10 +829,19 @@ function ProducerCard({
               <Label>Opis</Label>
               <Textarea
                 value={editData.description || ''}
-                onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                onChange={(e) => {
+                  setEditData({ ...editData, description: e.target.value });
+                  if (validationErrors.description) {
+                    setValidationErrors({ ...validationErrors, description: '' });
+                  }
+                }}
                 placeholder="Opis firmy..."
                 rows={3}
+                className={validationErrors.description ? 'border-destructive' : ''}
               />
+              {validationErrors.description && (
+                <p className="text-sm text-destructive mt-1">{validationErrors.description}</p>
+              )}
             </div>
 
             {/* Notes */}
@@ -782,10 +849,19 @@ function ProducerCard({
               <Label>Notatki wewnętrzne</Label>
               <Textarea
                 value={editData.notes || ''}
-                onChange={(e) => setEditData({ ...editData, notes: e.target.value })}
+                onChange={(e) => {
+                  setEditData({ ...editData, notes: e.target.value });
+                  if (validationErrors.notes) {
+                    setValidationErrors({ ...validationErrors, notes: '' });
+                  }
+                }}
                 placeholder="Opiekun: Jan Kowalski, Rabat: 10%, Uwagi..."
                 rows={4}
+                className={validationErrors.notes ? 'border-destructive' : ''}
               />
+              {validationErrors.notes && (
+                <p className="text-sm text-destructive mt-1">{validationErrors.notes}</p>
+              )}
               <p className="text-xs text-muted-foreground mt-1">
                 Informacje widoczne tylko dla administratorów (opiekun, rabaty, uwagi)
               </p>
