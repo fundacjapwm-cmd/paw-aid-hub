@@ -130,8 +130,7 @@ export default function AdminPanel() {
     name: '',
     slug: '',
     contact_email: '',
-    admin_email: '',
-    admin_password: ''
+    admin_email: ''
   });
 
   const [newAnimal, setNewAnimal] = useState({
@@ -316,7 +315,7 @@ export default function AdminPanel() {
 
   // Organization CRUD
   const createOrganization = async () => {
-    if (!newOrg.name || !newOrg.contact_email || !newOrg.admin_email || !newOrg.admin_password) {
+    if (!newOrg.name || !newOrg.contact_email || !newOrg.admin_email) {
       toast({
         title: "Błąd",
         description: "Wszystkie pola są wymagane",
@@ -341,34 +340,32 @@ export default function AdminPanel() {
 
       if (orgError) throw orgError;
 
-      // 2. Wywołaj edge function do utworzenia konta administratora organizacji
-      const { data: functionData, error: functionError } = await supabase.functions.invoke('create-org-admin', {
+      // 2. Wyślij zaproszenie do organizacji
+      const { data: inviteData, error: inviteError } = await supabase.functions.invoke('invite-organization', {
         body: {
           email: newOrg.admin_email,
-          password: newOrg.admin_password,
-          displayName: `Admin ${newOrg.name}`,
+          organizationName: newOrg.name,
           organizationId: orgData.id
         }
       });
 
-      if (functionError) {
-        console.error('Function error:', functionError);
-        // Jeśli nie udało się utworzyć użytkownika, usuń organizację
+      if (inviteError) {
+        console.error('Invite error:', inviteError);
+        // Jeśli nie udało się wysłać zaproszenia, usuń organizację
         await supabase.from('organizations').delete().eq('id', orgData.id);
-        throw new Error('Nie udało się utworzyć konta administratora organizacji');
+        throw new Error('Nie udało się wysłać zaproszenia do organizacji');
       }
 
       toast({
         title: "Sukces",
-        description: `Organizacja ${newOrg.name} została utworzona wraz z kontem administratora`
+        description: `Organizacja ${newOrg.name} została utworzona. Zaproszenie zostało wysłane na ${newOrg.admin_email}`
       });
 
       setNewOrg({
         name: '',
         slug: '',
         contact_email: '',
-        admin_email: '',
-        admin_password: ''
+        admin_email: ''
       });
 
       fetchOrganizations();
@@ -831,40 +828,23 @@ export default function AdminPanel() {
                 </div>
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-3">Konto administratora organizacji</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="admin-email">Email administratora</Label>
-                      <Input
-                        id="admin-email"
-                        type="email"
-                        value={newOrg.admin_email}
-                        onChange={(e) => setNewOrg({ ...newOrg, admin_email: e.target.value })}
-                        placeholder="admin@ratujlapki.pl"
-                        required
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Ten email będzie używany do logowania
-                      </p>
-                    </div>
-                    <div>
-                      <Label htmlFor="admin-password">Hasło startowe</Label>
-                      <Input
-                        id="admin-password"
-                        type="password"
-                        value={newOrg.admin_password}
-                        onChange={(e) => setNewOrg({ ...newOrg, admin_password: e.target.value })}
-                        placeholder="TymczasoweHaslo123"
-                        required
-                        minLength={6}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Minimum 6 znaków. Użytkownik będzie musiał zmienić hasło przy pierwszym logowaniu.
-                      </p>
-                    </div>
+                  <div>
+                    <Label htmlFor="admin-email">Email administratora</Label>
+                    <Input
+                      id="admin-email"
+                      type="email"
+                      value={newOrg.admin_email}
+                      onChange={(e) => setNewOrg({ ...newOrg, admin_email: e.target.value })}
+                      placeholder="admin@ratujlapki.pl"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Na ten adres zostanie wysłane zaproszenie z linkiem do ustawienia hasła
+                    </p>
                   </div>
                 </div>
                 <Button onClick={createOrganization} disabled={isLoading}>
-                  {isLoading ? 'Tworzenie...' : 'Utwórz organizację z kontem administratora'}
+                  {isLoading ? 'Wysyłanie zaproszenia...' : 'Utwórz organizację i wyślij zaproszenie'}
                 </Button>
               </CardContent>
             </Card>

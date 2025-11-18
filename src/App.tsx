@@ -20,6 +20,7 @@ import OrganizationDashboard from "./pages/OrganizationDashboard";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
+import SetPassword from "./pages/SetPassword";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/zwierzeta" element={<Zwierzeta />} />
             <Route path="/kontakt" element={<Kontakt />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/set-password" element={<SetPassword />} />
             <Route path="/profil" element={<Profile />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/organizacja" element={<OrganizationDashboard />} />
