@@ -275,6 +275,7 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          nip: string | null
           province: string | null
           slug: string
           updated_at: string | null
@@ -291,6 +292,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
+          nip?: string | null
           province?: string | null
           slug: string
           updated_at?: string | null
@@ -307,6 +309,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
+          nip?: string | null
           province?: string | null
           slug?: string
           updated_at?: string | null
@@ -384,6 +387,7 @@ export type Database = {
           producer_id: string | null
           unit: string | null
           updated_at: string | null
+          weight_volume: string | null
         }
         Insert: {
           active?: boolean | null
@@ -397,6 +401,7 @@ export type Database = {
           producer_id?: string | null
           unit?: string | null
           updated_at?: string | null
+          weight_volume?: string | null
         }
         Update: {
           active?: boolean | null
@@ -410,6 +415,7 @@ export type Database = {
           producer_id?: string | null
           unit?: string | null
           updated_at?: string | null
+          weight_volume?: string | null
         }
         Relationships: [
           {
