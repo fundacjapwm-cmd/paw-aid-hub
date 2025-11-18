@@ -156,58 +156,6 @@ const Kontakt = () => {
             </div>
           </div>
         </section>
-
-        {/* FAQ Section */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Często zadawane pytania
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Może znajdziesz odpowiedź na swoje pytanie poniżej
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-card">
-                <h3 className="text-lg font-bold text-foreground mb-3">
-                  Jak mogę zostać wolontariuszem?
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Napisz do nas! Zawsze szukamy osób chętnych do pomocy zwierzętom.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-card">
-                <h3 className="text-lg font-bold text-foreground mb-3">
-                  Czy mogę odwiedzić schronisko?
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Oczywiście! Skontaktuj się z nami wcześniej, aby umówić wizytę.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-card">
-                <h3 className="text-lg font-bold text-foreground mb-3">
-                  Jak mogę zgłosić potrzebującego pomoc?
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Zadzwoń lub napisz do nas - postaramy się pomóc jak najszybciej.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-card">
-                <h3 className="text-lg font-bold text-foreground mb-3">
-                  Czy wydajecie faktury?
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Tak, na życzenie wystawiamy faktury za wszystkie zakupy.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
