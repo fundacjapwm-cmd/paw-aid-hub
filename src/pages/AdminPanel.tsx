@@ -116,6 +116,7 @@ export default function AdminPanel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedProducerId, setSelectedProducerId] = useState<string | null>(null);
 
   // Edit dialogs state
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
@@ -760,7 +761,7 @@ export default function AdminPanel() {
       </div>
 
       <Tabs defaultValue="organizations" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="organizations" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             Organizacje
@@ -771,11 +772,7 @@ export default function AdminPanel() {
           </TabsTrigger>
           <TabsTrigger value="producers" className="flex items-center gap-2">
             <Factory className="h-4 w-4" />
-            Producenci
-          </TabsTrigger>
-          <TabsTrigger value="products" className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            Produkty
+            Producenci i Produkty
           </TabsTrigger>
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
