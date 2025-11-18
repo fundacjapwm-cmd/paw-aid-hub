@@ -317,6 +317,38 @@ export type Database = {
         }
         Relationships: []
       }
+      producer_images: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          producer_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          producer_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          producer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "producer_images_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       producers: {
         Row: {
           active: boolean | null

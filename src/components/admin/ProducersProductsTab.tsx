@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Trash2, ArrowLeft, Image } from 'lucide-react';
+import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -18,6 +18,13 @@ interface Producer {
   contact_phone?: string;
   description?: string;
   active: boolean;
+}
+
+interface ProducerImage {
+  id: string;
+  producer_id: string;
+  image_url: string;
+  display_order: number;
 }
 
 interface Product {
@@ -65,6 +72,7 @@ export default function ProducersProductsTab({
   const [editingProducer, setEditingProducer] = useState<Producer | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [producerImages, setProducerImages] = useState<ProducerImage[]>([]);
 
   const [newProducer, setNewProducer] = useState({
     name: '', contact_email: '', contact_phone: '', description: ''
@@ -117,29 +125,157 @@ export default function ProducersProductsTab({
     setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
   };
 
+  // Fetch producer images when a producer is selected
+  useEffect(() => {
+    if (selectedProducerId) {
+      fetchProducerImages(selectedProducerId);
+    } else {
+      setProducerImages([]);
+    }
+  }, [selectedProducerId]);
+
+  const fetchProducerImages = async (producerId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('producer_images')
+        .select('*')
+        .eq('producer_id', producerId)
+        .order('display_order');
+
+      if (error) throw error;
+      setProducerImages(data || []);
+    } catch (error) {
+      console.error('Error fetching producer images:', error);
+      toast.error('Nie udało się pobrać zdjęć producenta');
+    }
+  };
+
+  const handleUploadProducerImage = async (file: File, producerId: string) => {
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `producer-${producerId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      // Get the highest display_order and add 1
+      const maxOrder = producerImages.length > 0 
+        ? Math.max(...producerImages.map(img => img.display_order))
+        : -1;
+
+      const { error: insertError } = await supabase
+        .from('producer_images')
+        .insert({
+          producer_id: producerId,
+          image_url: publicUrl,
+          display_order: maxOrder + 1
+        });
+
+      if (insertError) throw insertError;
+
+      toast.success('Zdjęcie zostało dodane');
+      fetchProducerImages(producerId);
+    } catch (error) {
+      console.error('Error uploading producer image:', error);
+      toast.error('Błąd podczas przesyłania zdjęcia');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleDeleteProducerImage = async (imageId: string, producerId: string) => {
+    try {
+      const { error } = await supabase
+        .from('producer_images')
+        .delete()
+        .eq('id', imageId);
+
+      if (error) throw error;
+
+      toast.success('Zdjęcie zostało usunięte');
+      fetchProducerImages(producerId);
+    } catch (error) {
+      console.error('Error deleting producer image:', error);
+      toast.error('Nie udało się usunąć zdjęcia');
+    }
+  };
+
   if (selectedProducerId) {
     const producer = producers.find(p => p.id === selectedProducerId);
     const producerProducts = products.filter(p => p.producer_id === selectedProducerId);
 
     return (
-      <div className="grid gap-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => setSelectedProducerId(null)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Powrót do producentów
-          </Button>
-          <div>
-            <h2 className="text-2xl font-bold">{producer?.name}</h2>
-            <p className="text-muted-foreground">Produkty producenta</p>
-          </div>
-        </div>
+      <div className="space-y-6">
+        <Button 
+          variant="outline" 
+          onClick={() => setSelectedProducerId(null)}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Powrót do listy producentów
+        </Button>
+
+        {/* Producer Gallery Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Galeria zdjęć - {producer?.name}</CardTitle>
+            <CardDescription>Zarządzaj zdjęciami producenta</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {producerImages.map((image) => (
+                <div key={image.id} className="relative group">
+                  <img 
+                    src={image.image_url} 
+                    alt={`${producer?.name} zdjęcie ${image.display_order + 1}`}
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => handleDeleteProducerImage(image.id, selectedProducerId)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-40 flex items-center justify-center hover:border-primary/50 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file && selectedProducerId) {
+                      await handleUploadProducerImage(file, selectedProducerId);
+                    }
+                  }}
+                  disabled={uploadingImage}
+                />
+                <div className="text-center pointer-events-none">
+                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    {uploadingImage ? 'Przesyłanie...' : 'Dodaj zdjęcie'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5" />
-              Dodaj nowy produkt
-            </CardTitle>
+            <CardTitle>Produkty - {producer?.name}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -234,9 +370,76 @@ export default function ProducersProductsTab({
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
+    </div>
+  );
+}
+
+// Separate component for producer card with gallery preview
+function ProducerCard({ 
+  producer, 
+  productCount, 
+  onClick 
+}: { 
+  producer: Producer; 
+  productCount: number; 
+  onClick: () => void;
+}) {
+  const [images, setImages] = useState<ProducerImage[]>([]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const { data } = await supabase
+        .from('producer_images')
+        .select('*')
+        .eq('producer_id', producer.id)
+        .order('display_order')
+        .limit(3);
+      
+      setImages(data || []);
+    };
+    
+    fetchImages();
+  }, [producer.id]);
+
+  return (
+    <Card 
+      className="cursor-pointer hover:border-primary transition-colors overflow-hidden" 
+      onClick={onClick}
+    >
+      {images.length > 0 && (
+        <div className="grid grid-cols-3 gap-1 h-32 overflow-hidden">
+          {images.map((img) => (
+            <div key={img.id} className="relative">
+              <img 
+                src={img.image_url} 
+                alt={producer.name}
+                className="w-full h-32 object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <CardTitle className="text-lg">{producer.name}</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
+            </p>
+            {images.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {images.length} {images.length === 1 ? 'zdjęcie' : images.length < 5 ? 'zdjęcia' : 'zdjęć'}
+              </p>
+            )}
+          </div>
+          <Badge variant={producer.active ? 'default' : 'secondary'}>
+            {producer.active ? 'Aktywny' : 'Nieaktywny'}
+          </Badge>
+        </div>
+      </CardHeader>
+    </Card>
+  );
+}
 
   return (
     <div className="grid gap-6">
@@ -355,30 +558,84 @@ export default function ProducersProductsTab({
             {producers.map((producer) => {
               const productCount = products.filter(p => p.producer_id === producer.id).length;
               return (
-                <Card 
-                  key={producer.id} 
-                  className="cursor-pointer hover:border-primary transition-colors" 
+                <ProducerCard 
+                  key={producer.id}
+                  producer={producer}
+                  productCount={productCount}
                   onClick={() => setSelectedProducerId(producer.id)}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">{producer.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
-                        </p>
-                      </div>
-                      <Badge variant={producer.active ? 'default' : 'secondary'}>
-                        {producer.active ? 'Aktywny' : 'Nieaktywny'}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                </Card>
+                />
               );
             })}
           </div>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// Separate component for producer card with gallery preview
+function ProducerCard({ 
+  producer, 
+  productCount, 
+  onClick 
+}: { 
+  producer: Producer; 
+  productCount: number; 
+  onClick: () => void;
+}) {
+  const [images, setImages] = useState<ProducerImage[]>([]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const { data } = await supabase
+        .from('producer_images')
+        .select('*')
+        .eq('producer_id', producer.id)
+        .order('display_order')
+        .limit(3);
+      
+      setImages(data || []);
+    };
+    
+    fetchImages();
+  }, [producer.id]);
+
+  return (
+    <Card 
+      className="cursor-pointer hover:border-primary transition-colors overflow-hidden" 
+      onClick={onClick}
+    >
+      {images.length > 0 && (
+        <div className="grid grid-cols-3 gap-1 h-32 overflow-hidden">
+          {images.map((img) => (
+            <div key={img.id} className="relative">
+              <img 
+                src={img.image_url} 
+                alt={producer.name}
+                className="w-full h-32 object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <CardTitle className="text-lg">{producer.name}</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
+            </p>
+            {images.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {images.length} {images.length === 1 ? 'zdjęcie' : images.length < 5 ? 'zdjęcia' : 'zdjęć'}
+              </p>
+            )}
+          </div>
+          <Badge variant={producer.active ? 'default' : 'secondary'}>
+            {producer.active ? 'Aktywny' : 'Nieaktywny'}
+          </Badge>
+        </div>
+      </CardHeader>
+    </Card>
   );
 }
