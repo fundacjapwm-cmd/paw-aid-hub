@@ -23,7 +23,7 @@ const JakToDziala = () => {
         </section>
 
         {/* Steps Section */}
-        <section className="py-20 px-4">
+        <section className="py-16 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
