@@ -11,7 +11,7 @@ const ONas = () => {
         {/* Header Section */}
         <section className="py-8 px-4">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-12">
+            <div className="text-center mb-6">
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 O nas
               </h2>
