@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ArrowLeft, MapPin, Calendar, Share2, ShoppingCart, Users } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 
 // Import generated animal images
 import cat1 from "@/assets/cat-1.jpg";
@@ -105,7 +106,7 @@ const AnimalProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [cart, setCart] = useState<number[]>([]);
+  const { addToCart, cart: globalCart } = useCart();
 
   const animal = mockAnimalsData[id || "1"];
 
@@ -121,25 +122,32 @@ const AnimalProfile = () => {
     );
   }
 
-  const addToCart = (itemId: number) => {
-    if (!cart.includes(itemId)) {
-      setCart([...cart, itemId]);
-    }
+  const handleAddToCart = (item: any) => {
+    addToCart({
+      productId: item.id.toString(),
+      productName: item.name,
+      price: item.price,
+      animalId: id,
+      animalName: animal.name,
+    });
   };
 
-  const removeFromCart = (itemId: number) => {
-    setCart(cart.filter(id => id !== itemId));
+  const handleAddAllToCart = () => {
+    const availableItems = animal.wishlist.filter((item: any) => !item.bought);
+    availableItems.forEach((item: any) => {
+      addToCart({
+        productId: item.id.toString(),
+        productName: item.name,
+        price: item.price,
+        animalId: id,
+        animalName: animal.name,
+      });
+    });
   };
 
-  const addAllToCart = () => {
-    const availableItems = animal.wishlist.filter((item: any) => !item.bought).map((item: any) => item.id);
-    setCart([...new Set([...cart, ...availableItems])]);
+  const isInCart = (itemId: number) => {
+    return globalCart.some(cartItem => cartItem.productId === itemId.toString());
   };
-
-  const totalCartValue = cart.reduce((sum, itemId) => {
-    const item = animal.wishlist.find((w: any) => w.id === itemId);
-    return sum + (item ? item.price : 0);
-  }, 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -303,15 +311,11 @@ const AnimalProfile = () => {
                     </div>
                     {!item.bought && (
                       <Button
-                        variant={cart.includes(item.id) ? "secondary" : "outline"}
+                        variant={isInCart(item.id) ? "secondary" : "outline"}
                         size="sm"
-                        onClick={() => 
-                          cart.includes(item.id) 
-                            ? removeFromCart(item.id) 
-                            : addToCart(item.id)
-                        }
+                        onClick={() => handleAddToCart(item)}
                       >
-                        {cart.includes(item.id) ? 'W koszyku' : 'Dodaj'}
+                        {isInCart(item.id) ? 'W koszyku' : 'Dodaj'}
                       </Button>
                     )}
                     {item.bought && (
@@ -328,22 +332,11 @@ const AnimalProfile = () => {
                   variant="default" 
                   size="lg" 
                   className="w-full"
-                  onClick={addAllToCart}
+                  onClick={handleAddAllToCart}
                 >
                   Kup wszystko dla {animal.name}
                   <ShoppingCart className="h-4 w-4 ml-2" />
                 </Button>
-                
-                {cart.length > 0 && (
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      W koszyku: {cart.length} przedmiotów
-                    </p>
-                    <p className="text-lg font-bold text-primary">
-                      {totalCartValue.toFixed(2)} zł
-                    </p>
-                  </div>
-                )}
               </div>
             </Card>
           </div>
