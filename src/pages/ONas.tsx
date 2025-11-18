@@ -8,6 +8,20 @@ const ONas = () => {
       <Navigation />
       
       <main>
+        {/* Header Section */}
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-7xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                O nas
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Poznaj ludzi z wielkimi sercami, którzy każdego dnia pomagają zwierzętom w potrzebie. 💝
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Foundation Logo Section */}
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4 text-center">
