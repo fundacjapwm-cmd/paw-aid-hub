@@ -1,0 +1,214 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Loader2, Package, ArrowRight } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
+import { Separator } from '@/components/ui/separator';
+
+const PaymentSuccess = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        // Get order ID from URL params (PayU sends it as extOrderId)
+        const orderId = searchParams.get('extOrderId');
+        
+        if (!orderId) {
+          setError('Brak identyfikatora zamówienia');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch order details
+        const { data: order, error: orderError } = await supabase
+          .from('orders')
+          .select(`
+            *,
+            order_items (
+              *,
+              products (name, price),
+              animals (name)
+            )
+          `)
+          .eq('id', orderId)
+          .single();
+
+        if (orderError) throw orderError;
+
+        setOrderDetails(order);
+      } catch (err: any) {
+        console.error('Error fetching order:', err);
+        setError('Nie udało się pobrać szczegółów zamówienia');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderDetails();
+  }, [searchParams]);
+
+  if (loading) {
+    return (
+      <>
+        <Navigation />
+        <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background flex items-center justify-center">
+          <Card className="max-w-md w-full mx-4">
+            <CardContent className="pt-6 text-center">
+              <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-primary" />
+              <p className="text-muted-foreground">Sprawdzanie statusu płatności...</p>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !orderDetails) {
+    return (
+      <>
+        <Navigation />
+        <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background flex items-center justify-center">
+          <Card className="max-w-md w-full mx-4">
+            <CardHeader>
+              <CardTitle className="text-destructive">Wystąpił błąd</CardTitle>
+              <CardDescription>{error || 'Nie znaleziono zamówienia'}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate('/')} className="w-full">
+                Wróć do strony głównej
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background pt-24 pb-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Success Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/20 mb-4">
+              <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
+            </div>
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+              Płatność zakończona sukcesem!
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Dziękujemy za Twoje wsparcie ❤️
+            </p>
+          </div>
+
+          {/* Order Details Card */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5" />
+                Potwierdzenie zamówienia
+              </CardTitle>
+              <CardDescription>
+                Numer zamówienia: <span className="font-mono font-semibold">{orderDetails.id.substring(0, 8).toUpperCase()}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Status płatności</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      orderDetails.payment_status === 'completed' 
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                        : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+                    }`}>
+                      {orderDetails.payment_status === 'completed' ? 'Opłacono' : 'W trakcie weryfikacji'}
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h3 className="font-semibold mb-3">Zakupione produkty:</h3>
+                  <div className="space-y-3">
+                    {orderDetails.order_items?.map((item: any, index: number) => (
+                      <div key={index} className="flex justify-between items-start p-3 bg-secondary/50 rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium">{item.products?.name}</p>
+                          {item.animals?.name && (
+                            <p className="text-sm text-muted-foreground">dla {item.animals.name}</p>
+                          )}
+                          <p className="text-sm text-muted-foreground">Ilość: {item.quantity}</p>
+                        </div>
+                        <p className="font-semibold">
+                          {(item.unit_price * item.quantity).toFixed(2)} zł
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-between items-center text-lg font-bold">
+                  <span>Suma całkowita:</span>
+                  <span className="text-primary">{orderDetails.total_amount.toFixed(2)} zł</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Info Card */}
+          <Card className="mb-6 bg-primary/5 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="space-y-3">
+                <p className="text-sm">
+                  <strong>✉️ Potwierdzenie email:</strong> Wysłaliśmy szczegóły zamówienia na Twój adres email
+                </p>
+                <p className="text-sm">
+                  <strong>📦 Dostawa produktów:</strong> Produkty zostaną dostarczone bezpośrednio do schroniska/organizacji
+                </p>
+                <p className="text-sm">
+                  <strong>🏆 Historia:</strong> Wszystkie Twoje darowizny znajdziesz w profilu użytkownika
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button
+              onClick={() => navigate('/profil')}
+              variant="outline"
+              className="flex-1"
+            >
+              Zobacz historię darowizn
+            </Button>
+            <Button
+              onClick={() => navigate('/')}
+              className="flex-1"
+            >
+              Wróć do strony głównej
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
+};
+
+export default PaymentSuccess;
