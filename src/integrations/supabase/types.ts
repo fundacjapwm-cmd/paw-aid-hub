@@ -14,16 +14,467 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      animal_wishlists: {
+        Row: {
+          animal_id: string | null
+          created_at: string | null
+          id: string
+          priority: number | null
+          product_id: string | null
+          quantity: number | null
+        }
+        Insert: {
+          animal_id?: string | null
+          created_at?: string | null
+          id?: string
+          priority?: number | null
+          product_id?: string | null
+          quantity?: number | null
+        }
+        Update: {
+          animal_id?: string | null
+          created_at?: string | null
+          id?: string
+          priority?: number | null
+          product_id?: string | null
+          quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_wishlists_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animal_wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animals: {
+        Row: {
+          active: boolean | null
+          adoption_status: Database["public"]["Enums"]["adoption_status"] | null
+          age: number | null
+          breed: string | null
+          created_at: string | null
+          description: string | null
+          gender: string | null
+          id: string
+          image_url: string | null
+          name: string
+          organization_id: string | null
+          species: Database["public"]["Enums"]["animal_species"]
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          adoption_status?:
+            | Database["public"]["Enums"]["adoption_status"]
+            | null
+          age?: number | null
+          breed?: string | null
+          created_at?: string | null
+          description?: string | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          organization_id?: string | null
+          species: Database["public"]["Enums"]["animal_species"]
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          adoption_status?:
+            | Database["public"]["Enums"]["adoption_status"]
+            | null
+          age?: number | null
+          breed?: string | null
+          created_at?: string | null
+          description?: string | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          organization_id?: string | null
+          species?: Database["public"]["Enums"]["animal_species"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          animal_id: string | null
+          created_at: string | null
+          id: string
+          order_id: string | null
+          product_id: string | null
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          animal_id?: string | null
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          quantity: number
+          unit_price: number
+        }
+        Update: {
+          animal_id?: string | null
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          id: string
+          payment_method: string | null
+          payment_status: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      organization_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_owner: boolean | null
+          organization_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_owner?: boolean | null
+          organization_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_owner?: boolean | null
+          organization_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_users_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          active: boolean | null
+          address: string | null
+          city: string | null
+          contact_email: string
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          province: string | null
+          slug: string
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          address?: string | null
+          city?: string | null
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          province?: string | null
+          slug: string
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: string | null
+          city?: string | null
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          province?: string | null
+          slug?: string
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      producers: {
+        Row: {
+          active: boolean | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      product_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          active: boolean | null
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          producer_id: string | null
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          producer_id?: string | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          producer_id?: string | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          must_change_password: boolean | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          must_change_password?: boolean | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          must_change_password?: boolean | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      adoption_status: "Dostępny" | "Zarezerwowany" | "Adoptowany"
+      animal_species: "Pies" | "Kot" | "Inne"
+      app_role: "ADMIN" | "ORG" | "USER"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +601,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      adoption_status: ["Dostępny", "Zarezerwowany", "Adoptowany"],
+      animal_species: ["Pies", "Kot", "Inne"],
+      app_role: ["ADMIN", "ORG", "USER"],
+    },
   },
 } as const
