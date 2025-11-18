@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Heart, User, LogOut, Settings, Shield } from "lucide-react";
+import { Heart, User, LogOut, Settings, Shield, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import CartDrawer from "@/components/CartDrawer";
@@ -89,6 +89,15 @@ const Navigation = () => {
                       <DropdownMenuItem onClick={() => navigate('/admin')}>
                         <Shield className="mr-2 h-4 w-4" />
                         <span>Panel Administratora</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {profile?.role === 'ORG' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate('/organizacja')}>
+                        <Building2 className="mr-2 h-4 w-4" />
+                        <span>Panel Organizacji</span>
                       </DropdownMenuItem>
                     </>
                   )}
