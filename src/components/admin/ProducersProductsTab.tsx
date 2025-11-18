@@ -17,6 +17,9 @@ interface Producer {
   contact_email?: string;
   contact_phone?: string;
   description?: string;
+  logo_url?: string;
+  nip?: string;
+  notes?: string;
   active: boolean;
 }
 
@@ -75,7 +78,7 @@ export default function ProducersProductsTab({
   const [producerImages, setProducerImages] = useState<ProducerImage[]>([]);
 
   const [newProducer, setNewProducer] = useState({
-    name: '', contact_email: '', contact_phone: '', description: ''
+    name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: ''
   });
 
   const [newProduct, setNewProduct] = useState({
@@ -113,7 +116,36 @@ export default function ProducersProductsTab({
 
   const handleCreateProducer = async () => {
     await onCreateProducer(newProducer);
-    setNewProducer({ name: '', contact_email: '', contact_phone: '', description: '' });
+    setNewProducer({ name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: '' });
+  };
+
+  const handleLogoUpload = async (file: File): Promise<string | null> => {
+    if (!file) return null;
+    
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Błąd podczas przesyłania logo');
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleCreateProduct = async () => {
@@ -374,73 +406,6 @@ export default function ProducersProductsTab({
   );
 }
 
-// Separate component for producer card with gallery preview
-function ProducerCard({ 
-  producer, 
-  productCount, 
-  onClick 
-}: { 
-  producer: Producer; 
-  productCount: number; 
-  onClick: () => void;
-}) {
-  const [images, setImages] = useState<ProducerImage[]>([]);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      const { data } = await supabase
-        .from('producer_images')
-        .select('*')
-        .eq('producer_id', producer.id)
-        .order('display_order')
-        .limit(3);
-      
-      setImages(data || []);
-    };
-    
-    fetchImages();
-  }, [producer.id]);
-
-  return (
-    <Card 
-      className="cursor-pointer hover:border-primary transition-colors overflow-hidden" 
-      onClick={onClick}
-    >
-      {images.length > 0 && (
-        <div className="grid grid-cols-3 gap-1 h-32 overflow-hidden">
-          {images.map((img) => (
-            <div key={img.id} className="relative">
-              <img 
-                src={img.image_url} 
-                alt={producer.name}
-                className="w-full h-32 object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      )}
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg">{producer.name}</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
-            </p>
-            {images.length > 0 && (
-              <p className="text-xs text-muted-foreground mt-1">
-                {images.length} {images.length === 1 ? 'zdjęcie' : images.length < 5 ? 'zdjęcia' : 'zdjęć'}
-              </p>
-            )}
-          </div>
-          <Badge variant={producer.active ? 'default' : 'secondary'}>
-            {producer.active ? 'Aktywny' : 'Nieaktywny'}
-          </Badge>
-        </div>
-      </CardHeader>
-    </Card>
-  );
-}
-
   return (
     <div className="grid gap-6">
       <div className="grid md:grid-cols-2 gap-6">
@@ -563,6 +528,7 @@ function ProducerCard({
                   producer={producer}
                   productCount={productCount}
                   onClick={() => setSelectedProducerId(producer.id)}
+                  onUpdate={onUpdateProducer}
                 />
               );
             })}
@@ -577,13 +543,18 @@ function ProducerCard({
 function ProducerCard({ 
   producer, 
   productCount, 
-  onClick 
+  onClick,
+  onUpdate
 }: { 
   producer: Producer; 
   productCount: number; 
   onClick: () => void;
+  onUpdate: (data: any) => Promise<void>;
 }) {
   const [images, setImages] = useState<ProducerImage[]>([]);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editData, setEditData] = useState<Producer>(producer);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -600,42 +571,250 @@ function ProducerCard({
     fetchImages();
   }, [producer.id]);
 
+  useEffect(() => {
+    setEditData(producer);
+  }, [producer]);
+
+  const handleLogoUpload = async (file: File) => {
+    if (!file) return;
+    
+    setUploadingLogo(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${producer.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      setEditData({ ...editData, logo_url: publicUrl });
+      toast.success('Logo zostało przesłane');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Błąd podczas przesyłania logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      await onUpdate(editData);
+      setIsEditOpen(false);
+      toast.success('Dane producenta zostały zaktualizowane');
+    } catch (error) {
+      console.error('Error updating producer:', error);
+      toast.error('Nie udało się zaktualizować danych');
+    }
+  };
+
   return (
-    <Card 
-      className="cursor-pointer hover:border-primary transition-colors overflow-hidden" 
-      onClick={onClick}
-    >
-      {images.length > 0 && (
-        <div className="grid grid-cols-3 gap-1 h-32 overflow-hidden">
-          {images.map((img) => (
-            <div key={img.id} className="relative">
-              <img 
-                src={img.image_url} 
-                alt={producer.name}
-                className="w-full h-32 object-cover"
+    <>
+      <Card 
+        className="cursor-pointer hover:border-primary transition-colors overflow-hidden relative group" 
+      >
+        {/* Logo overlay */}
+        {producer.logo_url && (
+          <div className="absolute top-2 left-2 z-10 bg-white rounded-lg p-2 shadow-sm">
+            <img 
+              src={producer.logo_url} 
+              alt={`${producer.name} logo`}
+              className="h-8 w-8 object-contain"
+            />
+          </div>
+        )}
+        
+        {/* Edit button */}
+        <Button
+          variant="secondary"
+          size="icon"
+          className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditOpen(true);
+          }}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+
+        <div onClick={onClick}>
+          {images.length > 0 && (
+            <div className="grid grid-cols-3 gap-1 h-32 overflow-hidden">
+              {images.map((img) => (
+                <div key={img.id} className="relative">
+                  <img 
+                    src={img.image_url} 
+                    alt={producer.name}
+                    className="w-full h-32 object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg">{producer.name}</CardTitle>
+                {producer.nip && (
+                  <p className="text-xs text-muted-foreground">NIP: {producer.nip}</p>
+                )}
+                <p className="text-sm text-muted-foreground mt-1">
+                  {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
+                </p>
+                {images.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {images.length} {images.length === 1 ? 'zdjęcie' : images.length < 5 ? 'zdjęcia' : 'zdjęć'}
+                  </p>
+                )}
+              </div>
+              <Badge variant={producer.active ? 'default' : 'secondary'}>
+                {producer.active ? 'Aktywny' : 'Nieaktywny'}
+              </Badge>
+            </div>
+          </CardHeader>
+        </div>
+      </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edytuj producenta</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Logo Upload */}
+            <div>
+              <Label>Logo firmy</Label>
+              <div className="flex items-center gap-4 mt-2">
+                {editData.logo_url && (
+                  <div className="relative">
+                    <img 
+                      src={editData.logo_url} 
+                      alt="Logo preview"
+                      className="h-20 w-20 object-contain border rounded-lg p-2"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6"
+                      onClick={() => setEditData({ ...editData, logo_url: '' })}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleLogoUpload(file);
+                  }}
+                  disabled={uploadingLogo}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            {/* Basic Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Nazwa firmy *</Label>
+                <Input
+                  value={editData.name}
+                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  placeholder="Nazwa producenta"
+                />
+              </div>
+              <div>
+                <Label>NIP</Label>
+                <Input
+                  value={editData.nip || ''}
+                  onChange={(e) => setEditData({ ...editData, nip: e.target.value })}
+                  placeholder="1234567890"
+                  maxLength={10}
+                />
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Email kontaktowy</Label>
+                <Input
+                  type="email"
+                  value={editData.contact_email || ''}
+                  onChange={(e) => setEditData({ ...editData, contact_email: e.target.value })}
+                  placeholder="kontakt@firma.pl"
+                />
+              </div>
+              <div>
+                <Label>Telefon kontaktowy</Label>
+                <Input
+                  type="tel"
+                  value={editData.contact_phone || ''}
+                  onChange={(e) => setEditData({ ...editData, contact_phone: e.target.value })}
+                  placeholder="+48 123 456 789"
+                />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <Label>Opis</Label>
+              <Textarea
+                value={editData.description || ''}
+                onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                placeholder="Opis firmy..."
+                rows={3}
               />
             </div>
-          ))}
-        </div>
-      )}
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg">{producer.name}</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
-            </p>
-            {images.length > 0 && (
+
+            {/* Notes */}
+            <div>
+              <Label>Notatki wewnętrzne</Label>
+              <Textarea
+                value={editData.notes || ''}
+                onChange={(e) => setEditData({ ...editData, notes: e.target.value })}
+                placeholder="Opiekun: Jan Kowalski, Rabat: 10%, Uwagi..."
+                rows={4}
+              />
               <p className="text-xs text-muted-foreground mt-1">
-                {images.length} {images.length === 1 ? 'zdjęcie' : images.length < 5 ? 'zdjęcia' : 'zdjęć'}
+                Informacje widoczne tylko dla administratorów (opiekun, rabaty, uwagi)
               </p>
-            )}
+            </div>
+
+            {/* Active Status */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="active"
+                checked={editData.active}
+                onChange={(e) => setEditData({ ...editData, active: e.target.checked })}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="active">Producent aktywny</Label>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 justify-end pt-4">
+              <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+                Anuluj
+              </Button>
+              <Button onClick={handleSave} disabled={!editData.name}>
+                Zapisz zmiany
+              </Button>
+            </div>
           </div>
-          <Badge variant={producer.active ? 'default' : 'secondary'}>
-            {producer.active ? 'Aktywny' : 'Nieaktywny'}
-          </Badge>
-        </div>
-      </CardHeader>
-    </Card>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
