@@ -135,8 +135,14 @@ export default function Auth() {
     }
 
     try {
+      // Get the correct app URL from environment or construct it
+      const appUrl = window.location.origin;
+      const redirectUrl = `${appUrl}/auth?reset=true`;
+      
+      console.log('Reset password redirect URL:', redirectUrl);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
+        redirectTo: redirectUrl,
       });
 
       if (error) throw error;
