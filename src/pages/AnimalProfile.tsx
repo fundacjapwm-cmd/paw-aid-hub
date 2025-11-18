@@ -168,75 +168,73 @@ const AnimalProfile = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column - Photos, Info and Description */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Main Photo */}
-            <Card className="overflow-hidden rounded-3xl">
-              <div className="aspect-square relative">
-                <img 
-                  src={animal.images[currentImageIndex]} 
-                  alt={`${animal.name} - zdjęcie ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 right-4">
-                  <Button variant="outline" size="sm" className="bg-white/90 backdrop-blur-sm">
-                    <Heart className="h-4 w-4" />
-                  </Button>
+            {/* Photo and Basic Info Side by Side */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Main Photo */}
+              <Card className="overflow-hidden rounded-3xl">
+                <div className="aspect-square relative">
+                  <img 
+                    src={animal.images[currentImageIndex]} 
+                    alt={`${animal.name} - zdjęcie ${currentImageIndex + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              </div>
-              
-              {/* Photo thumbnails */}
-              {animal.images.length > 1 && (
-                <div className="p-4 flex space-x-2">
-                  {animal.images.map((_: any, index: number) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                        currentImageIndex === index ? 'border-primary' : 'border-border'
-                      }`}
-                    >
-                      <img 
-                        src={animal.images[index]} 
-                        alt={`Miniatura ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </Card>
+                
+                {/* Photo thumbnails */}
+                {animal.images.length > 1 && (
+                  <div className="p-4 flex space-x-2">
+                    {animal.images.map((_: any, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                          currentImageIndex === index ? 'border-primary' : 'border-border'
+                        }`}
+                      >
+                        <img 
+                          src={animal.images[index]} 
+                          alt={`Miniatura ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Card>
 
-            {/* Basic Info Card */}
-            <Card className="p-6 rounded-3xl">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-2xl font-bold text-foreground">{animal.name}</h1>
-                  <Button variant="outline" size="sm">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{animal.age}</span>
+              {/* Basic Info Card */}
+              <Card className="p-6 rounded-3xl">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h1 className="text-2xl font-bold text-foreground">{animal.name}</h1>
+                    <Button variant="outline" size="sm">
+                      <Share2 className="h-4 w-4" />
+                    </Button>
                   </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>{animal.age}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>{animal.location}</span>
+                    </div>
+                  </div>
+                  
                   <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span>{animal.location}</span>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <Link 
+                      to="/organizacje" 
+                      className="text-sm font-medium text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
+                    >
+                      {animal.organization}
+                    </Link>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <Link 
-                    to="/organizacje" 
-                    className="text-sm font-medium text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
-                  >
-                    {animal.organization}
-                  </Link>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
 
             {/* Description and Story */}
             <Card className="p-6 rounded-3xl">
