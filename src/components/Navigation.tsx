@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Heart, ShoppingCart, User, LogOut, Settings, Shield } from "lucide-react";
-import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
-  const [cartCount] = useState(0);
   const { user, profile, signOut, loading } = useAuth();
+  const { cartCount, cartTotal } = useCart();
   const navigate = useNavigate();
 
   return (
@@ -48,10 +48,13 @@ const Navigation = () => {
 
           {/* Cart and Actions */}
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" className="relative">
-              <ShoppingCart className="h-4 w-4" />
+            <Button variant="outline" size="sm" className="relative group">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline text-sm font-medium">
+                {cartTotal.toFixed(2)} zł
+              </span>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
