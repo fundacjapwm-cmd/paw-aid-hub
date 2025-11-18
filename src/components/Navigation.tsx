@@ -116,17 +116,13 @@ const Navigation = () => {
               </DropdownMenu>
             ) : (
               <Button 
-                variant="outline" 
+                variant="default" 
                 size="sm" 
                 onClick={() => navigate('/auth')}
               >
                 Zaloguj się
               </Button>
             )}
-            
-            <Button variant="hero" size="sm">
-              Pomagaj
-            </Button>
           </div>
         </div>
       </div>
