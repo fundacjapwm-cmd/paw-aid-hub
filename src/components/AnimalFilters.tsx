@@ -60,25 +60,6 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
           />
         </div>
       </div>
-
-      {/* Quick Filters */}
-      <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/50">
-        <p className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Szybkie filtry:</p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
-            Pilne potrzeby
-          </Button>
-          <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
-            Młode zwierzęta
-          </Button>
-          <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
-            Seniorzy
-          </Button>
-          <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
-            Chorujące
-          </Button>
-        </div>
-      </div>
     </div>
   );
 };
