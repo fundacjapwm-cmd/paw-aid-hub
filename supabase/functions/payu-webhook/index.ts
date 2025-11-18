@@ -1,11 +1,32 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { createHmac } from "https://deno.land/std@0.190.0/node/crypto.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Helper function to create HMAC signature using Web Crypto API
+async function createSignature(key: string, data: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(key);
+  const dataBuffer = encoder.encode(data);
+  
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, dataBuffer);
+  
+  // Convert to hex string
+  return Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -30,9 +51,7 @@ serve(async (req) => {
       const signatureParts = signature.split(';');
       const receivedSignature = signatureParts.find(part => part.startsWith('signature='))?.split('=')[1];
       
-      const expectedSignature = createHmac('sha256', md5Key)
-        .update(body)
-        .digest('hex');
+      const expectedSignature = await createSignature(md5Key, body);
 
       if (receivedSignature !== expectedSignature) {
         console.error('Invalid signature');
