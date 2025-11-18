@@ -8,41 +8,6 @@ const JakToDziala = () => {
       <Navigation />
       
       <main>
-        {/* Hero Section */}
-        <section className="relative bg-primary py-20 px-4 overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-10 left-10 w-16 h-16 bg-white/15 rounded-full animate-bounce-gentle"></div>
-            <div className="absolute top-32 right-20 w-12 h-12 bg-white/12 rounded-full animate-float delay-1000"></div>
-            <div className="absolute bottom-20 left-1/4 w-8 h-8 bg-white/10 rounded-full animate-bounce-gentle delay-500"></div>
-          </div>
-
-          <div className="container mx-auto max-w-6xl relative z-10">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="text-center lg:text-left">
-                <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                  Jak to działa?
-                </h1>
-                <p className="text-xl text-white/95 mb-8 leading-relaxed font-medium">
-                  Dowiedz się jak pomagać mądrze 🧠
-                </p>
-                
-                <Button variant="light" size="hero" className="mb-8">
-                  <Play className="h-6 w-6 fill-current" />
-                  Zobacz jak to działa
-                </Button>
-              </div>
-
-              <div className="relative">
-                <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-8 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
-                  <div className="aspect-square bg-white rounded-2xl flex items-center justify-center">
-                    <Heart className="h-20 w-20 text-primary fill-current animate-pulse" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Steps Section */}
         <section className="py-20 px-4">
           <div className="container mx-auto max-w-6xl">
