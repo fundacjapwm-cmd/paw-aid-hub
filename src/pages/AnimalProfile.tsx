@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -166,8 +166,8 @@ const AnimalProfile = () => {
         </Button>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Photos and Basic Info */}
-          <div className="lg:col-span-1 space-y-6">
+          {/* Left Column - Photos, Info and Description */}
+          <div className="lg:col-span-2 space-y-6">
             {/* Main Photo */}
             <Card className="overflow-hidden rounded-3xl">
               <div className="aspect-square relative">
@@ -228,27 +228,19 @@ const AnimalProfile = () => {
                 
                 <div className="flex items-center space-x-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">{animal.organization}</span>
-                </div>
-
-                <div className="pt-4 border-t border-border/50">
-                  <p className="text-sm font-medium text-foreground mb-2">Cechy charakteru:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {animal.personality.map((trait: string, index: number) => (
-                      <Badge key={index} variant="secondary" className="rounded-full">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
+                  <Link 
+                    to="/organizacje" 
+                    className="text-sm font-medium text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
+                  >
+                    {animal.organization}
+                  </Link>
                 </div>
               </div>
             </Card>
-          </div>
 
-          {/* Middle Column - Story and Details */}
-          <div className="lg:col-span-1 space-y-6">
+            {/* Description and Story */}
             <Card className="p-6 rounded-3xl">
-              <h2 className="text-xl font-bold text-foreground mb-4">Historia {animal.name}</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">O {animal.name}</h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
                 {animal.description}
               </p>
@@ -256,23 +248,6 @@ const AnimalProfile = () => {
                 <p className="text-sm text-muted-foreground">
                   <strong>Historia:</strong> {animal.story}
                 </p>
-              </div>
-            </Card>
-
-            <Card className="p-6 rounded-3xl">
-              <h3 className="text-lg font-bold text-foreground mb-4">Informacje medyczne</h3>
-              <p className="text-muted-foreground">{animal.medicalInfo}</p>
-            </Card>
-
-            <Card className="p-6 rounded-3xl">
-              <h3 className="text-lg font-bold text-foreground mb-4">Pilne potrzeby</h3>
-              <div className="space-y-2">
-                {animal.urgentNeeds.map((need: string, index: number) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <div className="h-2 w-2 bg-accent rounded-full" />
-                    <span className="text-sm text-foreground">{need}</span>
-                  </div>
-                ))}
               </div>
             </Card>
           </div>
