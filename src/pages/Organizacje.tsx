@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Heart, MapPin, Users, ShoppingBag, Phone, Mail, Filter, Search } from "lucide-react";
+import { useState, useMemo } from "react";
 
 const organizationData = [
   {
@@ -35,6 +36,22 @@ const organizationData = [
 ];
 
 const Organizacje = () => {
+  const [search, setSearch] = useState("");
+  const [orgType, setOrgType] = useState("wszystkie");
+  const [province, setProvince] = useState("wszystkie");
+  const [city, setCity] = useState("");
+
+  const filteredOrganizations = useMemo(() => {
+    return organizationData.filter((org) => {
+      const matchesSearch = org.name.toLowerCase().includes(search.toLowerCase()) ||
+                           org.description.toLowerCase().includes(search.toLowerCase());
+      
+      const matchesCity = city === "" || 
+                         org.location.toLowerCase().includes(city.toLowerCase());
+      
+      return matchesSearch && matchesCity;
+    });
+  }, [search, city]);
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -70,11 +87,13 @@ const Organizacje = () => {
                   <Input 
                     placeholder="Szukaj..." 
                     className="pl-10 rounded-2xl border-2 text-sm"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
 
                 {/* Organization Type Filter */}
-                <Select>
+                <Select value={orgType} onValueChange={setOrgType}>
                   <SelectTrigger className="rounded-2xl border-2 text-sm">
                     <SelectValue placeholder="Rodzaj" />
                   </SelectTrigger>
@@ -87,7 +106,7 @@ const Organizacje = () => {
                 </Select>
 
                 {/* Province Filter */}
-                <Select>
+                <Select value={province} onValueChange={setProvince}>
                   <SelectTrigger className="rounded-2xl border-2 text-sm">
                     <SelectValue placeholder="Województwo" />
                   </SelectTrigger>
@@ -105,6 +124,8 @@ const Organizacje = () => {
                   <Input 
                     placeholder="Miejscowość..." 
                     className="rounded-2xl border-2 text-sm"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                   />
                 </div>
               </div>
@@ -131,8 +152,19 @@ const Organizacje = () => {
         {/* Organizations List */}
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {organizationData.map((org) => (
+            {filteredOrganizations.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-lg text-muted-foreground">
+                  Nie znaleziono organizacji spełniających wybrane kryteria.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="text-sm text-muted-foreground mb-4">
+                  Znaleziono {filteredOrganizations.length} {filteredOrganizations.length === 1 ? 'organizację' : 'organizacji'}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {filteredOrganizations.map((org) => (
                 <Card 
                   key={org.id}
                   className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer"
@@ -224,16 +256,18 @@ const Organizacje = () => {
                     </div>
                   </div>
                 </Card>
-              ))}
-            </div>
+                ))}
+                </div>
 
-            {/* Load More */}
-            <div className="text-center mt-12">
-              <Button variant="hero" size="lg">
-                Pokaż więcej organizacji
-                <Users className="h-5 w-5" />
-              </Button>
-            </div>
+                {/* Load More */}
+                <div className="text-center mt-12">
+                  <Button variant="hero" size="lg">
+                    Pokaż więcej organizacji
+                    <Users className="h-5 w-5" />
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </section>
 
