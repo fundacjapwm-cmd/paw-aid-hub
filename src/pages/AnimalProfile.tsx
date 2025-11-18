@@ -169,7 +169,7 @@ const AnimalProfile = () => {
           {/* Left Column - Photos, Info and Description */}
           <div className="lg:col-span-2 space-y-6">
             {/* Photo and Basic Info Side by Side */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Main Photo */}
               <Card className="overflow-hidden rounded-3xl">
                 <div className="aspect-square relative">
