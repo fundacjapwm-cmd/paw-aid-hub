@@ -119,8 +119,11 @@ const Organizacje = () => {
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Lista organizacji
+                Nasi partnerzy
               </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Poznaj organizacje, które codziennie pomagają zwierzętom w potrzebie. Wspieraj ich działania!
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
