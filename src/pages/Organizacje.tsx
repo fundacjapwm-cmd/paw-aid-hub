@@ -1,8 +1,9 @@
 import Navigation from "@/components/Navigation";
-import AnimalFilters from "@/components/AnimalFilters";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, MapPin, Users, ShoppingBag, Phone, Mail } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Heart, MapPin, Users, ShoppingBag, Phone, Mail, Filter, Search } from "lucide-react";
 
 const organizationData = [
   {
@@ -42,34 +43,71 @@ const Organizacje = () => {
         {/* Filters Section */}
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4 max-w-7xl">
-            <div className="bg-white rounded-3xl p-6 shadow-card">
-              <h2 className="text-lg font-semibold text-foreground mb-4">Filtry</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Wybierz rodzaj</label>
-                  <select className="w-full p-3 border-2 border-border rounded-xl focus:border-primary focus:outline-none">
-                    <option>Wszystkie</option>
-                    <option>Schronisko</option>
-                    <option>Fundacja</option>
-                    <option>Stowarzyszenie</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Województwo</label>
-                  <select className="w-full p-3 border-2 border-border rounded-xl focus:border-primary focus:outline-none">
-                    <option>Wszystkie</option>
-                    <option>Mazowieckie</option>
-                    <option>Śląskie</option>
-                    <option>Małopolskie</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Miejscowość</label>
-                  <input 
-                    type="text" 
-                    placeholder="Wpisz miejscowość..."
-                    className="w-full p-3 border-2 border-border rounded-xl focus:border-primary focus:outline-none"
+            <div className="bg-card rounded-3xl p-4 sm:p-6 shadow-card border border-border/50">
+              <div className="flex items-center space-x-2 mb-4 sm:mb-6">
+                <Filter className="h-5 w-5 text-primary" />
+                <h2 className="text-base sm:text-lg font-semibold text-foreground">Filtry</h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Szukaj..." 
+                    className="pl-10 rounded-2xl border-2 text-sm"
                   />
+                </div>
+
+                {/* Organization Type Filter */}
+                <Select>
+                  <SelectTrigger className="rounded-2xl border-2 text-sm">
+                    <SelectValue placeholder="Rodzaj" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
+                    <SelectItem value="wszystkie">Wszystkie</SelectItem>
+                    <SelectItem value="schronisko">Schronisko</SelectItem>
+                    <SelectItem value="fundacja">Fundacja</SelectItem>
+                    <SelectItem value="stowarzyszenie">Stowarzyszenie</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Province Filter */}
+                <Select>
+                  <SelectTrigger className="rounded-2xl border-2 text-sm">
+                    <SelectValue placeholder="Województwo" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
+                    <SelectItem value="wszystkie">Wszystkie</SelectItem>
+                    <SelectItem value="mazowieckie">Mazowieckie</SelectItem>
+                    <SelectItem value="slaskie">Śląskie</SelectItem>
+                    <SelectItem value="malopolskie">Małopolskie</SelectItem>
+                    <SelectItem value="wielkopolskie">Wielkopolskie</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* City Filter */}
+                <div>
+                  <Input 
+                    placeholder="Miejscowość..." 
+                    className="rounded-2xl border-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Quick Filters */}
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/50">
+                <p className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Szybkie filtry:</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
+                    Najwięcej zwierząt
+                  </Button>
+                  <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
+                    Pilne potrzeby
+                  </Button>
+                  <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
+                    W mojej okolicy
+                  </Button>
                 </div>
               </div>
             </div>
