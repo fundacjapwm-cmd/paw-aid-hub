@@ -3,6 +3,7 @@ import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, ShoppingBag, Sparkles, Footprints } from "lucide-react";
+import { useState, useMemo } from "react";
 
 // Force rebuild to clear cached Paw import
 
@@ -112,6 +113,28 @@ const allAnimals = [
 ];
 
 const Zwierzeta = () => {
+  const [filters, setFilters] = useState({
+    search: "",
+    species: "wszystkie",
+    province: "wszystkie",
+    city: ""
+  });
+
+  const filteredAnimals = useMemo(() => {
+    return allAnimals.filter((animal) => {
+      const matchesSearch = animal.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+                           animal.description.toLowerCase().includes(filters.search.toLowerCase()) ||
+                           animal.organization.toLowerCase().includes(filters.search.toLowerCase());
+      
+      const matchesSpecies = filters.species === "wszystkie" || 
+                            animal.species.toLowerCase() === filters.species.toLowerCase();
+      
+      const matchesCity = filters.city === "" || 
+                         animal.location.toLowerCase().includes(filters.city.toLowerCase());
+      
+      return matchesSearch && matchesSpecies && matchesCity;
+    });
+  }, [filters]);
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -134,25 +157,38 @@ const Zwierzeta = () => {
         {/* Filters Section */}
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4 max-w-7xl">
-            <AnimalFilters />
+            <AnimalFilters onFilterChange={setFilters} />
           </div>
         </section>
 
         {/* Animals Section */}
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {allAnimals.map((animal) => (
-                <AnimalCard key={animal.id} animal={animal} />
-              ))}
-            </div>
+            {filteredAnimals.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-lg text-muted-foreground">
+                  Nie znaleziono zwierząt spełniających wybrane kryteria.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="text-sm text-muted-foreground mb-4">
+                  Znaleziono {filteredAnimals.length} {filteredAnimals.length === 1 ? 'zwierzę' : 'zwierząt'}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredAnimals.map((animal) => (
+                    <AnimalCard key={animal.id} animal={animal} />
+                  ))}
+                </div>
 
-            <div className="text-center mt-12">
-              <Button variant="hero" size="lg">
-                Załaduj więcej zwierząt
-                <Heart className="h-5 w-5 fill-current" />
-              </Button>
-            </div>
+                <div className="text-center mt-12">
+                  <Button variant="hero" size="lg">
+                    Załaduj więcej zwierząt
+                    <Heart className="h-5 w-5 fill-current" />
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </section>
 
