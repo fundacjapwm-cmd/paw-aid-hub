@@ -11,24 +11,24 @@ const PartnersSection = () => {
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             Partnerzy
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Współpracujemy z najlepszymi organizacjami i specjalistami
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {partners.map((partner, index) => (
             <a
               key={index}
               href={partner.url}
-              className="bg-card rounded-2xl p-8 shadow-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-1 flex items-center justify-center text-center group"
+              className="bg-card rounded-2xl p-6 sm:p-8 shadow-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-1 flex items-center justify-center text-center group"
             >
               <div>
-                <Heart className="h-12 w-12 text-primary mx-auto mb-3 group-hover:fill-primary transition-all" />
-                <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                <Heart className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-3 group-hover:fill-primary transition-all" />
+                <h3 className="text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors">
                   {partner.name}
                 </h3>
               </div>

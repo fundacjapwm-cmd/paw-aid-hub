@@ -5,6 +5,7 @@ import { Heart, User, LogOut, Settings, Shield, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import CartDrawer from "@/components/CartDrawer";
+import MobileMenu from "@/components/MobileMenu";
 
 const Navigation = () => {
   const { user, profile, signOut, loading } = useAuth();
@@ -14,13 +15,18 @@ const Navigation = () => {
     <nav className="bg-background/95 backdrop-blur-sm sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
+          {/* Mobile Menu */}
+          <div className="md:hidden">
+            <MobileMenu />
+          </div>
+
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-1">
-              <Heart className="h-8 w-8 text-primary fill-current" />
-              <Heart className="h-6 w-6 text-accent fill-current -ml-2" />
+              <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-primary fill-current" />
+              <Heart className="h-4 w-4 sm:h-6 sm:w-6 text-accent fill-current -ml-2" />
             </div>
-            <span className="text-xl font-bold text-primary">Pączki w Maśle</span>
+            <span className="text-lg sm:text-xl font-bold text-primary">Pączki w Maśle</span>
           </div>
 
           {/* Navigation Menu */}
