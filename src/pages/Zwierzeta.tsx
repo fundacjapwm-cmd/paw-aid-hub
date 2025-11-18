@@ -117,7 +117,7 @@ const Zwierzeta = () => {
       <Navigation />
       
       <main>
-        {/* Animals Section */}
+        {/* Header Section */}
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-12">
@@ -128,11 +128,19 @@ const Zwierzeta = () => {
                 Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
               </p>
             </div>
+          </div>
+        </section>
 
-            <div className="mb-8">
-              <AnimalFilters />
-            </div>
+        {/* Filters Section */}
+        <section className="py-8 bg-muted/30">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <AnimalFilters />
+          </div>
+        </section>
 
+        {/* Animals Section */}
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {allAnimals.map((animal) => (
                 <AnimalCard key={animal.id} animal={animal} />
