@@ -26,7 +26,7 @@ const Kontakt = () => {
         </section>
 
         {/* Contact Form Section */}
-        <section className="py-20 px-4">
+        <section className="py-16 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="grid lg:grid-cols-2 gap-16">
               {/* Contact Form */}
