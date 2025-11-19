@@ -107,7 +107,7 @@ const AnimalProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { addToCart, cart: globalCart } = useCart();
+  const { addToCart, addAllForAnimal, cart: globalCart } = useCart();
 
   const animal = mockAnimalsData[id || "1"];
 
@@ -135,15 +135,14 @@ const AnimalProfile = () => {
 
   const handleAddAllToCart = () => {
     const availableItems = animal.wishlist.filter((item: any) => !item.bought);
-    availableItems.forEach((item: any) => {
-      addToCart({
-        productId: item.id.toString(),
-        productName: item.name,
-        price: item.price,
-        animalId: id,
-        animalName: animal.name,
-      });
-    });
+    const items = availableItems.map((item: any) => ({
+      productId: item.id.toString(),
+      productName: item.name,
+      price: item.price,
+      animalId: id,
+      animalName: animal.name,
+    }));
+    addAllForAnimal(items, animal.name);
   };
 
   const isInCart = (itemId: number) => {
@@ -291,15 +290,23 @@ const AnimalProfile = () => {
               </div>
 
               <div className="space-y-3 pt-4 border-t border-border/50">
-                <Button 
-                  variant="default" 
-                  size="lg" 
-                  className="w-full"
-                  onClick={handleAddAllToCart}
-                >
-                  Kup wszystko dla {animal.name}
-                  <ShoppingCart className="h-4 w-4 ml-2" />
-                </Button>
+                {(() => {
+                  const availableItems = animal.wishlist.filter((item: any) => !item.bought);
+                  const allBought = availableItems.length === 0;
+                  
+                  return (
+                    <Button 
+                      variant="default" 
+                      size="lg" 
+                      className="w-full"
+                      onClick={handleAddAllToCart}
+                      disabled={allBought}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {allBought ? 'Wszystko kupione!' : `Dodaj wszystko do koszyka!`}
+                    </Button>
+                  );
+                })()}
               </div>
             </Card>
           </div>

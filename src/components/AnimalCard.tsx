@@ -52,7 +52,14 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
 
   const handleBuyAll = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const items = wishlistItems.map(item => ({
+    // Filter out items that are already bought
+    const availableItems = wishlistItems.filter(item => !item.bought);
+    
+    if (availableItems.length === 0) {
+      return; // Don't add anything if all items are bought
+    }
+    
+    const items = availableItems.map(item => ({
       productId: `${animal.id}-${item.id}`,
       productName: item.name,
       price: item.price,
@@ -167,14 +174,23 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
 
         {/* Buy All Button */}
         <div className="pt-3 border-t border-border/30">
-          <Button 
-            variant="success" 
-            size="sm" 
-            className="w-full rounded-xl font-bold shadow-sm"
-            onClick={handleBuyAll}
-          >
-            Dodaj wszystko do koszyka!
-          </Button>
+          {(() => {
+            const availableItems = wishlistItems.filter(item => !item.bought);
+            const allBought = availableItems.length === 0;
+            
+            return (
+              <Button 
+                variant="success" 
+                size="sm" 
+                className="w-full rounded-xl font-bold shadow-sm"
+                onClick={handleBuyAll}
+                disabled={allBought}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                {allBought ? 'Wszystko kupione!' : 'Dodaj wszystko do koszyka!'}
+              </Button>
+            );
+          })()}
         </div>
       </div>
     </Card>
