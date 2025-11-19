@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating user invitation for:", email);
 
-    // Create user with invitation
+    // Create user with invitation - Supabase will send the email automatically
     const { data: authData, error: authError } = await supabase.auth.admin.inviteUserByEmail(
       email,
       {
@@ -49,43 +49,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("User invited successfully:", authData);
-
-    // Get the invite URL from the auth data
-    const inviteUrl = `${req.headers.get('origin')}/set-password`;
-    
-    // Send custom invitation email with Resend
-    const emailResponse = await resend.emails.send({
-      from: "Adopcja Zwierząt <onboarding@resend.dev>",
-      to: [email],
-      subject: `Zaproszenie do zarządzania - ${organizationName}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">Witamy w systemie Adopcja Zwierząt!</h1>
-          <p>Zostałeś zaproszony do zarządzania organizacją: <strong>${organizationName}</strong></p>
-          
-          <p>Aby rozpocząć, musisz ustawić swoje hasło:</p>
-          
-          <div style="margin: 30px 0;">
-            <a href="${inviteUrl}" 
-               style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Ustaw hasło i zaloguj się
-            </a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px;">
-            Link jest ważny przez 24 godziny. Jeśli nie utworzyłeś tego konta, zignoruj tę wiadomość.
-          </p>
-          
-          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-          
-          <p style="color: #999; font-size: 12px;">
-            Ta wiadomość została wysłana automatycznie. Nie odpowiadaj na nią.
-          </p>
-        </div>
-      `,
-    });
-
-    console.log("Invitation email sent successfully:", emailResponse);
+    console.log("Supabase will send invitation email with proper tokens to:", email);
 
     return new Response(
       JSON.stringify({ 
