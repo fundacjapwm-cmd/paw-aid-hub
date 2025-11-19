@@ -54,10 +54,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addAllForAnimal = (items: Omit<CartItem, 'quantity'>[], animalName: string) => {
+    if (items.length === 0) {
+      toast({
+        title: "Brak produktów",
+        description: `Wszystkie produkty dla ${animalName} zostały już kupione`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     items.forEach(item => addToCart(item, 1));
     toast({
-      title: "Dodano wszystko do koszyka",
-      description: `Wszystkie produkty dla ${animalName} zostały dodane`,
+      title: "Dodano do koszyka",
+      description: `${items.length} ${items.length === 1 ? 'produkt' : items.length < 5 ? 'produkty' : 'produktów'} dla ${animalName}`,
     });
   };
 
