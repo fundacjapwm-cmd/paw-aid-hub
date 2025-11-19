@@ -173,7 +173,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
             className="w-full rounded-xl font-bold shadow-sm"
             onClick={handleBuyAll}
           >
-            Kup wszystko na liście
+            Dodaj wszystko do koszyka!
           </Button>
         </div>
       </div>
