@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ArrowLeft, MapPin, Calendar, Share2, ShoppingCart, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
+import { WishlistCelebration } from "@/components/WishlistCelebration";
 
 // Import generated animal images
 import cat1 from "@/assets/cat-1.jpg";
@@ -107,9 +108,21 @@ const AnimalProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationShown, setCelebrationShown] = useState(false);
   const { addToCart, addAllForAnimal, cart: globalCart } = useCart();
 
   const animal = mockAnimalsData[id || "1"];
+
+  // Check if wishlist is 100% complete
+  const allItemsBought = animal?.wishlist?.length > 0 && animal.wishlist.every((item: any) => item.bought);
+  
+  useEffect(() => {
+    if (allItemsBought && !celebrationShown) {
+      setShowCelebration(true);
+      setCelebrationShown(true);
+    }
+  }, [allItemsBought, celebrationShown]);
 
   if (!animal) {
     return (
@@ -150,7 +163,14 @@ const AnimalProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      {showCelebration && animal && (
+        <WishlistCelebration 
+          animalName={animal.name} 
+          onComplete={() => setShowCelebration(false)}
+        />
+      )}
+      <div className="min-h-screen bg-background">
       <Navigation />
       
       <main className="container mx-auto max-w-7xl px-4 py-8">
@@ -313,6 +333,7 @@ const AnimalProfile = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 
