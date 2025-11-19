@@ -4,6 +4,7 @@ import { MapPin, Calendar, ShoppingCart } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
+import WishlistProgressBar from "@/components/WishlistProgressBar";
 
 interface WishlistItem {
   id: number;
@@ -37,18 +38,6 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
   const navigate = useNavigate();
   
   const wishlistItems = animal.wishlist || [];
-  
-  // Calculate progress based on bought items
-  const boughtCount = wishlistItems.filter(item => item.bought).length;
-  const totalCount = wishlistItems.length;
-  const progressPercent = totalCount > 0 ? Math.round((boughtCount / totalCount) * 100) : 0;
-  
-  // Dynamic gradient based on progress (red → yellow → green)
-  const getProgressGradient = (percent: number) => {
-    if (percent < 33) return 'from-red-500 to-red-400';
-    if (percent < 66) return 'from-orange-500 to-yellow-400';
-    return 'from-green-500 to-emerald-400';
-  };
 
   const handleAddToCart = (e: React.MouseEvent, item: WishlistItem) => {
     e.stopPropagation();
@@ -97,24 +86,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         
         {/* Progress indicator overlay */}
         <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 shadow-soft">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-foreground">
-                Brzuszek pełny na {progressPercent}%
-              </span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-              <div 
-                className={`h-3 rounded-full transition-all duration-700 bg-gradient-to-r ${getProgressGradient(progressPercent)} relative overflow-hidden`}
-                style={{ width: `${progressPercent}%` }}
-              >
-                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {boughtCount} z {totalCount} produktów zakupionych
-            </p>
-          </div>
+          <WishlistProgressBar wishlist={wishlistItems} compact />
         </div>
       </div>
 
