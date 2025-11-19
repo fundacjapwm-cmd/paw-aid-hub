@@ -8,6 +8,7 @@ export interface WishlistItem {
   urgent: boolean;
   bought: boolean;
   product_id: string;
+  quantity: number; // Max quantity from wishlist
 }
 
 export interface Animal {
@@ -66,6 +67,7 @@ export const useAnimalsWithWishlists = () => {
           id,
           animal_id,
           priority,
+          quantity,
           products (
             id,
             name,
@@ -111,6 +113,7 @@ export const useAnimalsWithWishlists = () => {
             urgent: w.priority === 1,
             bought: purchasedSet.has(`${animal.id}-${w.products?.id}`),
             product_id: w.products?.id || '',
+            quantity: w.quantity || 1,
           })),
         };
       }) || [];

@@ -7,6 +7,7 @@ export interface CartItem {
   productName: string;
   price: number;
   quantity: number;
+  maxQuantity?: number; // Max quantity from wishlist
   animalId?: string;
   animalName?: string;
 }
@@ -21,12 +22,15 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number) => void;
   addAllForAnimal: (items: Omit<CartItem, 'quantity'>[], animalName: string) => void;
   completePurchase: () => Promise<{ success: boolean; orderId?: string }>;
+  isAnimalFullyAdded: (animalId: string) => boolean;
+  markAnimalAsAdded: (animalId: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [addedAnimals, setAddedAnimals] = useState<Set<string>>(new Set());
 
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
@@ -36,16 +40,40 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const existingItem = prevCart.find((cartItem) => cartItem.productId === item.productId);
       
       if (existingItem) {
+        // Check if adding would exceed max quantity
+        const newQuantity = existingItem.quantity + quantity;
+        const maxQty = item.maxQuantity || Infinity;
+        
+        if (newQuantity > maxQty) {
+          toast({
+            title: "Limit osiągnięty",
+            description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
+            variant: "destructive",
+          });
+          return prevCart;
+        }
+        
         toast({
           title: "Zaktualizowano koszyk",
           description: `Zwiększono ilość: ${item.productName}`,
         });
         return prevCart.map((cartItem) =>
           cartItem.productId === item.productId
-            ? { ...cartItem, quantity: cartItem.quantity + quantity }
+            ? { ...cartItem, quantity: newQuantity }
             : cartItem
         );
       } else {
+        // Check if initial quantity exceeds max
+        const maxQty = item.maxQuantity || Infinity;
+        if (quantity > maxQty) {
+          toast({
+            title: "Limit osiągnięty",
+            description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
+            variant: "destructive",
+          });
+          return prevCart;
+        }
+        
         toast({
           title: "Dodano do koszyka",
           description: `${item.productName} - ${item.price.toFixed(2)} zł`,
@@ -65,11 +93,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    items.forEach(item => addToCart(item, 1));
+    items.forEach(item => addToCart(item, item.maxQuantity || 1));
     toast({
       title: "Dodano do koszyka",
       description: `${items.length} ${items.length === 1 ? 'produkt' : items.length < 5 ? 'produkty' : 'produktów'} dla ${animalName}`,
     });
+  };
+
+  const isAnimalFullyAdded = (animalId: string) => {
+    return addedAnimals.has(animalId);
+  };
+
+  const markAnimalAsAdded = (animalId: string) => {
+    setAddedAnimals(prev => new Set([...prev, animalId]));
   };
 
   const completePurchase = async (): Promise<{ success: boolean; orderId?: string }> => {
@@ -173,6 +209,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateQuantity,
         addAllForAnimal,
         completePurchase,
+        isAnimalFullyAdded,
+        markAnimalAsAdded,
       }}
     >
       {children}
