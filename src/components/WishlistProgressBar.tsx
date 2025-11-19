@@ -1,9 +1,10 @@
 interface WishlistItem {
-  id: number;
+  id: string | number;
   name: string;
   price: number;
   urgent?: boolean;
   bought?: boolean;
+  product_id?: string;
 }
 
 interface WishlistProgressBarProps {

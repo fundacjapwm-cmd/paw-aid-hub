@@ -7,15 +7,16 @@ import { useNavigate } from "react-router-dom";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 
 interface WishlistItem {
-  id: number;
+  id: string | number;
   name: string;
   price: number;
   urgent?: boolean;
   bought?: boolean;
+  product_id?: string;
 }
 
 interface Animal {
-  id: number;
+  id: string | number;
   name: string;
   age: string;
   species: string;
@@ -24,8 +25,6 @@ interface Animal {
   organizationSlug?: string;
   description: string;
   image: string;
-  wishlistProgress: number;
-  urgentNeeds: string[];
   wishlist?: WishlistItem[];
 }
 
@@ -42,7 +41,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
   const handleAddToCart = (e: React.MouseEvent, item: WishlistItem) => {
     e.stopPropagation();
     addToCart({
-      productId: `${animal.id}-${item.id}`,
+      productId: item.product_id || String(item.id),
       productName: item.name,
       price: item.price,
       animalId: String(animal.id),
@@ -60,7 +59,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
     }
     
     const items = availableItems.map(item => ({
-      productId: `${animal.id}-${item.id}`,
+      productId: item.product_id || String(item.id),
       productName: item.name,
       price: item.price,
       animalId: String(animal.id),

@@ -4,94 +4,39 @@ import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, ShoppingBag, Sparkles } from "lucide-react";
-
-// Import generated animal images
-import cat1 from "@/assets/cat-1.jpg";
-import dog1 from "@/assets/dog-1.jpg";
-import dog2 from "@/assets/dog-2.jpg";
-import cat2 from "@/assets/cat-2.jpg";
-
-// Mock data for demonstration
-const mockAnimals = [
-  {
-    id: 1,
-    name: "Siupek",
-    age: "W siup lat",
-    species: "Pies",
-    location: "Warszawa",
-    organization: "Organizacja testowa",
-    organizationSlug: "organizacja-testowa",
-    description: "Siupek jest słupowski długi opis. Bardzo przyjazny piesek, który kocha się bawić i potrzebuje kochającego domu.",
-    image: dog1,
-    wishlistProgress: 65,
-    urgentNeeds: ["Karma mokra", "Zabawki", "Legowisko"],
-    wishlist: [
-      { id: 1, name: "Karma mokra Premium", price: 89.99, urgent: true, bought: false },
-      { id: 2, name: "Zabawki dla psów - zestaw", price: 45.50, urgent: true, bought: false },
-      { id: 3, name: "Legowisko ortopedyczne", price: 320.00, urgent: true, bought: false },
-      { id: 4, name: "Miska stalowa", price: 45.00, urgent: false, bought: false },
-      { id: 5, name: "Smycz treningowa", price: 75.00, urgent: false, bought: false }
-    ]
-  },
-  {
-    id: 2,
-    name: "Cezar",
-    age: "6 lat",
-    species: "Pies",
-    location: "Kraków",
-    organization: "Schronisko Przyjazne Łapy",
-    organizationSlug: "schronisko-przyjazne-lapy",
-    description: "Cezar to wspaniały pies, który szuka domu pełnego miłości. Jest bardzo posłuszny i uwielbia długie spacery.",
-    image: dog2,
-    wishlistProgress: 40,
-    urgentNeeds: ["Karma sucha", "Smycz", "Miska"],
-    wishlist: [
-      { id: 1, name: "Karma sucha dla psów dużych ras", price: 159.99, urgent: true, bought: false },
-      { id: 2, name: "Smycz treningowa", price: 75.00, urgent: true, bought: false },
-      { id: 3, name: "Miska stalowa antypoślizgowa", price: 45.00, urgent: true, bought: false },
-      { id: 4, name: "Zabawki gryzakowe", price: 80.00, urgent: false, bought: true }
-    ]
-  },
-  {
-    id: 3,
-    name: "Irys",
-    age: "4 lata",
-    species: "Pies",
-    location: "Gdańsk",
-    organization: "Fundacja Psia Miłość",
-    organizationSlug: "fundacja-psia-milosc",
-    description: "Irys to delikatna suczka, która potrzebuje cierpliwego opiekuna. Bardzo łagodna i spokojna.",
-    image: cat1,
-    wishlistProgress: 85,
-    urgentNeeds: ["Karma mokra", "Zabawki"],
-    wishlist: [
-      { id: 1, name: "Karma mokra dla psów małych ras", price: 65.00, urgent: true, bought: true },
-      { id: 2, name: "Zabawki pluszowe", price: 35.00, urgent: true, bought: true },
-      { id: 3, name: "Legowisko miękkie", price: 120.00, urgent: false, bought: false }
-    ]
-  },
-  {
-    id: 4,
-    name: "Fred",
-    age: "4 lata",
-    species: "Kot",
-    location: "Wrocław",
-    organization: "Koci Azyl",
-    organizationSlug: "koci-azyl",
-    description: "Fred to spokojny kot, który uwielbia się przytulać. Idealny kompan dla osób szukających miękkiego przyjaciela.",
-    image: cat2,
-    wishlistProgress: 20,
-    urgentNeeds: ["Drapak", "Karma", "Kuweta"],
-    wishlist: [
-      { id: 1, name: "Drapak sizalowy", price: 180.00, urgent: true, bought: false },
-      { id: 2, name: "Karma dla kotów", price: 85.00, urgent: true, bought: false },
-      { id: 3, name: "Kuweta zamknięta", price: 150.00, urgent: true, bought: false },
-      { id: 4, name: "Żwirek bentonitowy", price: 45.00, urgent: false, bought: false }
-    ]
-  }
-];
+import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
+import { useState } from "react";
 
 const Index = () => {
+  const { animals, loading, error } = useAnimalsWithWishlists();
+  const [selectedSpecies, setSelectedSpecies] = useState<string>('all');
+
+  const filteredAnimals = selectedSpecies === 'all' 
+    ? animals 
+    : animals.filter(animal => animal.species.toLowerCase() === selectedSpecies.toLowerCase());
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <p className="text-lg text-destructive">Błąd ładowania: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -153,9 +98,15 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {mockAnimals.map((animal) => (
-                <AnimalCard key={animal.id} animal={animal} />
-              ))}
+              {filteredAnimals.length > 0 ? (
+                filteredAnimals.map((animal) => (
+                  <AnimalCard key={animal.id} animal={animal} />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-lg text-muted-foreground">Brak zwierząt do wyświetlenia</p>
+                </div>
+              )}
             </div>
 
             <div className="text-center mt-12">
