@@ -1,4 +1,5 @@
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -11,13 +12,35 @@ import {
 import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 const CartDrawer = () => {
-  const { cart, cartTotal, cartCount, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { cart, cartTotal, cartCount, removeFromCart, updateQuantity, clearCart, completePurchase } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleCheckout = () => {
-    navigate('/checkout');
+  const handleCompletePurchase = async () => {
+    if (!user) {
+      toast.error('Musisz być zalogowany, aby dokończyć zakup');
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const result = await completePurchase();
+      
+      if (result.success) {
+        toast.success('Zamówienie zostało złożone pomyślnie!');
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      toast.error('Wystąpił błąd podczas składania zamówienia');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -118,17 +141,19 @@ const CartDrawer = () => {
                 </div>
 
                 <Button
-                  onClick={handleCheckout}
+                  onClick={handleCompletePurchase}
                   className="w-full"
                   size="lg"
+                  disabled={isProcessing}
                 >
-                  Przejdź do płatności
+                  {isProcessing ? 'Przetwarzanie...' : 'Zakończ zakup'}
                 </Button>
 
                 <Button
                   onClick={clearCart}
                   variant="outline"
                   className="w-full"
+                  disabled={isProcessing}
                 >
                   Wyczyść koszyk
                 </Button>
