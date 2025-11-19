@@ -99,13 +99,8 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         <div className="absolute bottom-4 left-4 right-4">
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 shadow-soft">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-foreground">Postęp realizacji</span>
-              <span className={`text-sm font-bold px-2 py-1 rounded-full ${
-                progressPercent < 33 ? 'bg-red-100 text-red-700' :
-                progressPercent < 66 ? 'bg-orange-100 text-orange-700' :
-                'bg-green-100 text-green-700'
-              }`}>
-                {progressPercent}%
+              <span className="text-sm font-semibold text-foreground">
+                Brzuszek pełny na {progressPercent}%
               </span>
             </div>
             <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
