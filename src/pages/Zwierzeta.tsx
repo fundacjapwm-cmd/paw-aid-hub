@@ -21,10 +21,17 @@ const allAnimals = [
     species: "Pies",
     location: "Warszawa",
     organization: "Organizacja testowa",
+    organizationSlug: "organizacja-testowa",
     description: "Siupek jest słupowski długi opis. Bardzo przyjazny piesek, który kocha się bawić i potrzebuje kochającego domu. Uwielbia długie spacery i jest idealny dla rodziny z dziećmi.",
     image: dog1,
     wishlistProgress: 65,
-    urgentNeeds: ["Karma mokra", "Zabawki", "Legowisko"]
+    urgentNeeds: ["Karma mokra", "Zabawki", "Legowisko"],
+    wishlist: [
+      { id: 1, name: "Karma mokra Premium", price: 89.99, urgent: true, bought: false },
+      { id: 2, name: "Zabawki dla psów - zestaw", price: 45.50, urgent: true, bought: false },
+      { id: 3, name: "Legowisko ortopedyczne", price: 320.00, urgent: true, bought: false },
+      { id: 4, name: "Miska stalowa", price: 45.00, urgent: false, bought: false }
+    ]
   },
   {
     id: 2,
@@ -33,10 +40,16 @@ const allAnimals = [
     species: "Pies",
     location: "Kraków",
     organization: "Schronisko Przyjazne Łapy",
+    organizationSlug: "schronisko-przyjazne-lapy",
     description: "Cezar to wspaniały pies, który szuka domu pełnego miłości. Jest bardzo posłuszny i uwielbia długie spacery. Ma łagodny charakter i świetnie dogaduje się z innymi psami.",
     image: dog2,
     wishlistProgress: 40,
-    urgentNeeds: ["Karma sucha", "Smycz", "Miska"]
+    urgentNeeds: ["Karma sucha", "Smycz", "Miska"],
+    wishlist: [
+      { id: 1, name: "Karma sucha dla psów dużych ras", price: 159.99, urgent: true, bought: false },
+      { id: 2, name: "Smycz treningowa", price: 75.00, urgent: true, bought: false },
+      { id: 3, name: "Miska stalowa antypoślizgowa", price: 45.00, urgent: true, bought: false }
+    ]
   },
   {
     id: 3,
@@ -45,10 +58,15 @@ const allAnimals = [
     species: "Pies",
     location: "Gdańsk",
     organization: "Fundacja Psia Miłość",
+    organizationSlug: "fundacja-psia-milosc",
     description: "Irys to delikatna suczka, która potrzebuje cierpliwego opiekuna. Bardzo łagodna i spokojna. Idealnie nadaje się dla osób szukających spokojnego towarzysza na długie spacery.",
     image: cat1,
     wishlistProgress: 85,
-    urgentNeeds: ["Karma mokra", "Zabawki"]
+    urgentNeeds: ["Karma mokra", "Zabawki"],
+    wishlist: [
+      { id: 1, name: "Karma mokra dla psów małych ras", price: 65.00, urgent: true, bought: true },
+      { id: 2, name: "Zabawki pluszowe", price: 35.00, urgent: true, bought: true }
+    ]
   },
   {
     id: 4,
@@ -57,10 +75,16 @@ const allAnimals = [
     species: "Kot", 
     location: "Wrocław",
     organization: "Koci Azyl",
+    organizationSlug: "koci-azyl",
     description: "Fred to spokojny kot, który uwielbia się przytulać. Idealny kompan dla osób szukających miękkiego przyjaciela. Lubi spać w ciepłych miejscach i obserwować świat przez okno.",
     image: cat2,
     wishlistProgress: 20,
-    urgentNeeds: ["Drapak", "Karma", "Kuweta"]
+    urgentNeeds: ["Drapak", "Karma", "Kuweta"],
+    wishlist: [
+      { id: 1, name: "Drapak sizalowy", price: 180.00, urgent: true, bought: false },
+      { id: 2, name: "Karma dla kotów", price: 85.00, urgent: true, bought: false },
+      { id: 3, name: "Kuweta zamknięta", price: 150.00, urgent: true, bought: false }
+    ]
   },
   {
     id: 5,
@@ -69,10 +93,16 @@ const allAnimals = [
     species: "Kot",
     location: "Poznań",
     organization: "Kotki Ratunkowe",
+    organizationSlug: "kotki-ratunkowe",
     description: "Młody i energiczny kot, który uwielbia zabawę. Potrzebuje aktywnego domu gdzie będzie mógł się wyszaleć. Ma piękne oczy i jest bardzo fotogeniczny.",
     image: cat1,
     wishlistProgress: 50,
-    urgentNeeds: ["Zabawki", "Drapak", "Karma dla młodych kotów"]
+    urgentNeeds: ["Zabawki", "Drapak", "Karma dla młodych kotów"],
+    wishlist: [
+      { id: 1, name: "Zabawki dla kotów", price: 55.00, urgent: true, bought: false },
+      { id: 2, name: "Drapak", price: 120.00, urgent: true, bought: false },
+      { id: 3, name: "Karma dla młodych kotów", price: 95.00, urgent: true, bought: false }
+    ]
   },
   {
     id: 6,
@@ -81,10 +111,16 @@ const allAnimals = [
     species: "Pies",
     location: "Szczecin", 
     organization: "Schronisko Nowa Nadzieja",
+    organizationSlug: "schronisko-nowa-nadzieja",
     description: "Jamie to przyjazny pies rasy mieszanej, który kocha wszystkich ludzi. Ma wyjątkowo dobry charakter i nigdy nie odmówił zabawy. Świetny wybór dla rodzin.",
     image: dog1,
     wishlistProgress: 75,
-    urgentNeeds: ["Karma sucha", "Zabawki gryzakowe", "Legowisko"]
+    urgentNeeds: ["Karma sucha", "Zabawki gryzakowe", "Legowisko"],
+    wishlist: [
+      { id: 1, name: "Karma sucha", price: 125.00, urgent: true, bought: true },
+      { id: 2, name: "Zabawki gryzakowe", price: 60.00, urgent: true, bought: false },
+      { id: 3, name: "Legowisko", price: 180.00, urgent: true, bought: false }
+    ]
   },
   {
     id: 7,
@@ -93,10 +129,16 @@ const allAnimals = [
     species: "Pies",
     location: "Lublin",
     organization: "Fundacja Cztery Łapy",
+    organizationSlug: "fundacja-cztery-lapy",
     description: "Starszy pies o złotym sercu. Budyt szuka spokojnego domu na emeryturę. Jest bardzo wdzięczny za każdą okazaną mu życzliwość i kocha spokojne spacery.",
     image: dog2,
     wishlistProgress: 30,
-    urgentNeeds: ["Karma dla seniorów", "Witaminy", "Miękkie legowisko"]
+    urgentNeeds: ["Karma dla seniorów", "Witaminy", "Miękkie legowisko"],
+    wishlist: [
+      { id: 1, name: "Karma dla seniorów", price: 140.00, urgent: true, bought: false },
+      { id: 2, name: "Witaminy", price: 85.00, urgent: true, bought: false },
+      { id: 3, name: "Miękkie legowisko", price: 250.00, urgent: true, bought: false }
+    ]
   },
   {
     id: 8,
@@ -105,10 +147,17 @@ const allAnimals = [
     species: "Kot",
     location: "Gdynia",
     organization: "Miau Fundacja",
+    organizationSlug: "miau-fundacja",
     description: "Gustek to młody kocur pełen energii i ciekawości świata. Uwielbia eksplorować i bawić się wszystkim co się rusza. Potrzebuje cierpliwego opiekuna.",
     image: cat2,
     wishlistProgress: 10,
-    urgentNeeds: ["Karma dla kociąt", "Zabawki", "Drapak", "Kuweta"]
+    urgentNeeds: ["Karma dla kociąt", "Zabawki", "Drapak", "Kuweta"],
+    wishlist: [
+      { id: 1, name: "Karma dla kociąt", price: 75.00, urgent: true, bought: false },
+      { id: 2, name: "Zabawki", price: 45.00, urgent: true, bought: false },
+      { id: 3, name: "Drapak", price: 130.00, urgent: true, bought: false },
+      { id: 4, name: "Kuweta", price: 95.00, urgent: true, bought: false }
+    ]
   }
 ];
 

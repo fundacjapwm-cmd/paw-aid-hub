@@ -50,48 +50,62 @@ const CartDrawer = () => {
             </div>
           ) : (
             <>
-              {cart.map((item) => (
-                <div key={item.productId} className="flex gap-4 p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-medium">{item.productName}</h4>
-                    {item.animalName && (
-                      <p className="text-sm text-muted-foreground">dla {item.animalName}</p>
-                    )}
-                    <p className="text-sm font-semibold mt-1">{item.price.toFixed(2)} zł</p>
-                    
-                    <div className="flex items-center gap-2 mt-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
+              {/* Group items by animal */}
+              {Object.entries(
+                cart.reduce((groups, item) => {
+                  const animalName = item.animalName || 'Inne';
+                  if (!groups[animalName]) {
+                    groups[animalName] = [];
+                  }
+                  groups[animalName].push(item);
+                  return groups;
+                }, {} as Record<string, typeof cart>)
+              ).map(([animalName, items]) => (
+                <div key={animalName} className="space-y-3">
+                  <h3 className="font-bold text-foreground text-lg sticky top-0 bg-background py-2 border-b">
+                    {animalName}
+                  </h3>
+                  {items.map((item) => (
+                    <div key={item.productId} className="flex gap-4 p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium">{item.productName}</h4>
+                        <p className="text-sm font-semibold mt-1">{item.price.toFixed(2)} zł</p>
+                        
+                        <div className="flex items-center gap-2 mt-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="w-8 text-center">{item.quantity}</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
 
-                  <div className="flex flex-col items-end justify-between">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromCart(item.productId)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                    <p className="font-semibold">
-                      {(item.price * item.quantity).toFixed(2)} zł
-                    </p>
-                  </div>
+                      <div className="flex flex-col items-end justify-between">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeFromCart(item.productId)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                        <p className="font-semibold">
+                          {(item.price * item.quantity).toFixed(2)} zł
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))}
 

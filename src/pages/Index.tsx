@@ -20,10 +20,18 @@ const mockAnimals = [
     species: "Pies",
     location: "Warszawa",
     organization: "Organizacja testowa",
+    organizationSlug: "organizacja-testowa",
     description: "Siupek jest słupowski długi opis. Bardzo przyjazny piesek, który kocha się bawić i potrzebuje kochającego domu.",
     image: dog1,
     wishlistProgress: 65,
-    urgentNeeds: ["Karma mokra", "Zabawki", "Legowisko"]
+    urgentNeeds: ["Karma mokra", "Zabawki", "Legowisko"],
+    wishlist: [
+      { id: 1, name: "Karma mokra Premium", price: 89.99, urgent: true, bought: false },
+      { id: 2, name: "Zabawki dla psów - zestaw", price: 45.50, urgent: true, bought: false },
+      { id: 3, name: "Legowisko ortopedyczne", price: 320.00, urgent: true, bought: false },
+      { id: 4, name: "Miska stalowa", price: 45.00, urgent: false, bought: false },
+      { id: 5, name: "Smycz treningowa", price: 75.00, urgent: false, bought: false }
+    ]
   },
   {
     id: 2,
@@ -32,10 +40,17 @@ const mockAnimals = [
     species: "Pies",
     location: "Kraków",
     organization: "Schronisko Przyjazne Łapy",
+    organizationSlug: "schronisko-przyjazne-lapy",
     description: "Cezar to wspaniały pies, który szuka domu pełnego miłości. Jest bardzo posłuszny i uwielbia długie spacery.",
     image: dog2,
     wishlistProgress: 40,
-    urgentNeeds: ["Karma sucha", "Smycz", "Miska"]
+    urgentNeeds: ["Karma sucha", "Smycz", "Miska"],
+    wishlist: [
+      { id: 1, name: "Karma sucha dla psów dużych ras", price: 159.99, urgent: true, bought: false },
+      { id: 2, name: "Smycz treningowa", price: 75.00, urgent: true, bought: false },
+      { id: 3, name: "Miska stalowa antypoślizgowa", price: 45.00, urgent: true, bought: false },
+      { id: 4, name: "Zabawki gryzakowe", price: 80.00, urgent: false, bought: true }
+    ]
   },
   {
     id: 3,
@@ -44,10 +59,16 @@ const mockAnimals = [
     species: "Pies",
     location: "Gdańsk",
     organization: "Fundacja Psia Miłość",
+    organizationSlug: "fundacja-psia-milosc",
     description: "Irys to delikatna suczka, która potrzebuje cierpliwego opiekuna. Bardzo łagodna i spokojna.",
     image: cat1,
     wishlistProgress: 85,
-    urgentNeeds: ["Karma mokra", "Zabawki"]
+    urgentNeeds: ["Karma mokra", "Zabawki"],
+    wishlist: [
+      { id: 1, name: "Karma mokra dla psów małych ras", price: 65.00, urgent: true, bought: true },
+      { id: 2, name: "Zabawki pluszowe", price: 35.00, urgent: true, bought: true },
+      { id: 3, name: "Legowisko miękkie", price: 120.00, urgent: false, bought: false }
+    ]
   },
   {
     id: 4,
@@ -56,10 +77,17 @@ const mockAnimals = [
     species: "Kot",
     location: "Wrocław",
     organization: "Koci Azyl",
+    organizationSlug: "koci-azyl",
     description: "Fred to spokojny kot, który uwielbia się przytulać. Idealny kompan dla osób szukających miękkiego przyjaciela.",
     image: cat2,
     wishlistProgress: 20,
-    urgentNeeds: ["Drapak", "Karma", "Kuweta"]
+    urgentNeeds: ["Drapak", "Karma", "Kuweta"],
+    wishlist: [
+      { id: 1, name: "Drapak sizalowy", price: 180.00, urgent: true, bought: false },
+      { id: 2, name: "Karma dla kotów", price: 85.00, urgent: true, bought: false },
+      { id: 3, name: "Kuweta zamknięta", price: 150.00, urgent: true, bought: false },
+      { id: 4, name: "Żwirek bentonitowy", price: 45.00, urgent: false, bought: false }
+    ]
   }
 ];
 
