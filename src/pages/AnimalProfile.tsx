@@ -250,17 +250,41 @@ const AnimalProfile = () => {
             <Card className="p-6 rounded-3xl sticky top-24">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-foreground">Lista życzeń</h2>
-                <span className="text-sm text-muted-foreground">
-                  {animal.wishlistProgress}% spełnione
-                </span>
               </div>
               
-              <div className="w-full bg-muted rounded-full h-3 mb-6">
-                <div 
-                  className="bg-primary h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${animal.wishlistProgress}%` }}
-                />
-              </div>
+              {(() => {
+                const boughtCount = animal.wishlist.filter((item: any) => item.bought).length;
+                const totalCount = animal.wishlist.length;
+                const progressPercent = totalCount > 0 ? Math.round((boughtCount / totalCount) * 100) : 0;
+                const getProgressGradient = (percent: number) => {
+                  if (percent < 33) return 'from-red-500 to-red-400';
+                  if (percent < 66) return 'from-orange-500 to-yellow-400';
+                  return 'from-green-500 to-emerald-400';
+                };
+                
+                return (
+                  <>
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-soft mb-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-foreground">
+                          Brzuszek pełny na {progressPercent}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                        <div 
+                          className={`h-3 rounded-full transition-all duration-700 bg-gradient-to-r ${getProgressGradient(progressPercent)} relative overflow-hidden`}
+                          style={{ width: `${progressPercent}%` }}
+                        >
+                          <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {boughtCount} z {totalCount} produktów zakupionych
+                      </p>
+                    </div>
+                  </>
+                );
+              })()}
 
               <div className="space-y-3 mb-6">
                 {animal.wishlist.map((item: any) => (
