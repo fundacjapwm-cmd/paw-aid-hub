@@ -37,6 +37,18 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
   const navigate = useNavigate();
   
   const wishlistItems = animal.wishlist || [];
+  
+  // Calculate progress based on bought items
+  const boughtCount = wishlistItems.filter(item => item.bought).length;
+  const totalCount = wishlistItems.length;
+  const progressPercent = totalCount > 0 ? Math.round((boughtCount / totalCount) * 100) : 0;
+  
+  // Dynamic gradient based on progress (red → yellow → green)
+  const getProgressGradient = (percent: number) => {
+    if (percent < 33) return 'from-red-500 to-red-400';
+    if (percent < 66) return 'from-orange-500 to-yellow-400';
+    return 'from-green-500 to-emerald-400';
+  };
 
   const handleAddToCart = (e: React.MouseEvent, item: WishlistItem) => {
     e.stopPropagation();
@@ -82,6 +94,33 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
           alt={`${animal.name} - ${animal.species.toLowerCase()} szukający domu`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
+        
+        {/* Progress indicator overlay */}
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 shadow-soft">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-foreground">Postęp realizacji</span>
+              <span className={`text-sm font-bold px-2 py-1 rounded-full ${
+                progressPercent < 33 ? 'bg-red-100 text-red-700' :
+                progressPercent < 66 ? 'bg-orange-100 text-orange-700' :
+                'bg-green-100 text-green-700'
+              }`}>
+                {progressPercent}%
+              </span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+              <div 
+                className={`h-3 rounded-full transition-all duration-700 bg-gradient-to-r ${getProgressGradient(progressPercent)} relative overflow-hidden`}
+                style={{ width: `${progressPercent}%` }}
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {boughtCount} z {totalCount} produktów zakupionych
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
@@ -117,20 +156,41 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 {wishlistItems.map((item) => (
                   <div 
                     key={item.id} 
-                    className="flex items-center justify-between gap-2 p-2 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                    className={`flex items-center justify-between gap-2 p-2 rounded-lg transition-all ${
+                      item.bought 
+                        ? 'bg-green-50 border border-green-200' 
+                        : 'bg-muted/30 hover:bg-muted/50'
+                    }`}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
-                      <p className="text-xs text-primary font-semibold">{item.price.toFixed(2)} zł</p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-sm font-medium truncate ${
+                          item.bought ? 'text-green-700 line-through' : 'text-foreground'
+                        }`}>
+                          {item.name}
+                        </p>
+                        {item.bought && (
+                          <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
+                            ✓ Kupione
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-xs font-semibold ${
+                        item.bought ? 'text-green-600' : 'text-primary'
+                      }`}>
+                        {item.price.toFixed(2)} zł
+                      </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 flex-shrink-0"
-                      onClick={(e) => handleAddToCart(e, item)}
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                    </Button>
+                    {!item.bought && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 flex-shrink-0"
+                        onClick={(e) => handleAddToCart(e, item)}
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
