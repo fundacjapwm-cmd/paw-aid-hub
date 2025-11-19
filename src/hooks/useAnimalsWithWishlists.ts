@@ -32,25 +32,25 @@ export const useAnimalsWithWishlists = () => {
     try {
       setLoading(true);
       
-      // Fetch animals with organizations
+      // Fetch animals with organizations - simplified to avoid RLS recursion
       const { data: animalsData, error: animalsError } = await supabase
         .from('animals')
-        .select(`
-          id,
-          name,
-          species,
-          age,
-          breed,
-          description,
-          image_url,
-          organizations (
-            name,
-            slug
-          )
-        `)
+        .select('id, name, species, age, breed, description, image_url, organization_id')
         .eq('active', true);
 
       if (animalsError) throw animalsError;
+
+      // Fetch organizations separately
+      const orgIds = animalsData?.map(a => a.organization_id).filter(Boolean) || [];
+      const { data: orgsData, error: orgsError } = await supabase
+        .from('organizations')
+        .select('id, name, slug')
+        .in('id', orgIds);
+
+      if (orgsError) throw orgsError;
+
+      // Create org lookup map
+      const orgMap = new Map(orgsData?.map(org => [org.id, org]) || []);
 
       // Fetch wishlists for all animals
       const animalIds = animalsData?.map(a => a.id) || [];
@@ -86,6 +86,7 @@ export const useAnimalsWithWishlists = () => {
 
       // Transform data to match component interface
       const transformedAnimals: Animal[] = animalsData?.map(animal => {
+        const org = orgMap.get(animal.organization_id);
         const animalWishlists = wishlistsData?.filter(w => w.animal_id === animal.id) || [];
         
         return {
@@ -94,8 +95,8 @@ export const useAnimalsWithWishlists = () => {
           age: animal.age ? `${animal.age} lat` : 'nieznany',
           species: animal.species,
           location: 'Polska', // Default since we don't have city in animals table
-          organization: animal.organizations?.name || 'Nieznana organizacja',
-          organizationSlug: animal.organizations?.slug || '',
+          organization: org?.name || 'Nieznana organizacja',
+          organizationSlug: org?.slug || '',
           description: animal.description || '',
           image: animal.image_url || '/placeholder.svg',
           wishlist: animalWishlists.map(w => ({
