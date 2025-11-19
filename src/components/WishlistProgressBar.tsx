@@ -18,9 +18,9 @@ const WishlistProgressBar = ({ wishlist, compact = false }: WishlistProgressBarP
   
   // Dynamic gradient based on progress (red → yellow → green)
   const getProgressGradient = (percent: number) => {
-    if (percent < 33) return 'from-red-500 to-red-400';
-    if (percent < 66) return 'from-orange-500 to-yellow-400';
-    return 'from-green-500 to-emerald-400';
+    if (percent < 33) return 'from-red-500 via-red-400 to-orange-400';
+    if (percent < 66) return 'from-orange-500 via-yellow-400 to-yellow-300';
+    return 'from-green-500 via-emerald-400 to-green-400';
   };
 
   return (
