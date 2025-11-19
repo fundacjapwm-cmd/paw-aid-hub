@@ -236,17 +236,12 @@ const AnimalProfile = () => {
               </Card>
             </div>
 
-            {/* Description and Story */}
+            {/* Description */}
             <Card className="p-6 rounded-3xl">
               <h2 className="text-xl font-bold text-foreground mb-4">O {animal.name}</h2>
-              <p className="text-muted-foreground leading-relaxed mb-6">
+              <p className="text-muted-foreground leading-relaxed">
                 {animal.description}
               </p>
-              <div className="bg-muted/50 rounded-2xl p-4">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Historia:</strong> {animal.story}
-                </p>
-              </div>
             </Card>
           </div>
 
