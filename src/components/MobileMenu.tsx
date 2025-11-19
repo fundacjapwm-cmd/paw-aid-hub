@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Heart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const MobileMenu = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   const menuItems = [
     { label: 'Strona główna', path: '/' },
@@ -43,9 +46,16 @@ const MobileMenu = () => {
             <button
               key={item.path}
               onClick={() => handleNavigation(item.path)}
-              className="text-left text-lg font-medium text-foreground hover:text-primary transition-colors py-2"
+              className={`relative text-left text-lg font-medium transition-colors py-2 ${
+                isActive(item.path) 
+                  ? 'text-primary' 
+                  : 'text-foreground hover:text-primary'
+              }`}
             >
               {item.label}
+              {isActive(item.path) && (
+                <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary animate-scale-in" />
+              )}
             </button>
           ))}
         </nav>

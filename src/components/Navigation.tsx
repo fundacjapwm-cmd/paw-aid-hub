@@ -3,13 +3,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Heart, User, LogOut, Settings, Shield, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import CartDrawer from "@/components/CartDrawer";
 import MobileMenu from "@/components/MobileMenu";
 
 const Navigation = () => {
   const { user, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <nav className="bg-background/95 backdrop-blur-sm sticky top-0 z-50 border-b border-border shadow-sm">
@@ -31,23 +34,71 @@ const Navigation = () => {
 
           {/* Navigation Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/" className="text-foreground hover:text-primary transition-colors font-medium">
+            <a 
+              href="/" 
+              className={`relative text-foreground hover:text-primary transition-colors font-medium ${
+                isActive('/') ? 'text-primary' : ''
+              }`}
+            >
               Strona główna
+              {isActive('/') && (
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
+              )}
             </a>
-            <a href="/o-nas" className="text-foreground hover:text-primary transition-colors font-medium">
+            <a 
+              href="/o-nas" 
+              className={`relative text-foreground hover:text-primary transition-colors font-medium ${
+                isActive('/o-nas') ? 'text-primary' : ''
+              }`}
+            >
               O nas
+              {isActive('/o-nas') && (
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
+              )}
             </a>
-            <a href="/jak-to-dziala" className="text-foreground hover:text-primary transition-colors font-medium">
+            <a 
+              href="/jak-to-dziala" 
+              className={`relative text-foreground hover:text-primary transition-colors font-medium ${
+                isActive('/jak-to-dziala') ? 'text-primary' : ''
+              }`}
+            >
               Jak to działa?
+              {isActive('/jak-to-dziala') && (
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
+              )}
             </a>
-            <a href="/organizacje" className="text-foreground hover:text-primary transition-colors font-medium">
+            <a 
+              href="/organizacje" 
+              className={`relative text-foreground hover:text-primary transition-colors font-medium ${
+                isActive('/organizacje') ? 'text-primary' : ''
+              }`}
+            >
               Organizacje
+              {isActive('/organizacje') && (
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
+              )}
             </a>
-            <a href="/zwierzeta" className="text-foreground hover:text-primary transition-colors font-medium">
+            <a 
+              href="/zwierzeta" 
+              className={`relative text-foreground hover:text-primary transition-colors font-medium ${
+                isActive('/zwierzeta') ? 'text-primary' : ''
+              }`}
+            >
               Zwierzęta
+              {isActive('/zwierzeta') && (
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
+              )}
             </a>
-            <a href="/kontakt" className="text-foreground hover:text-primary transition-colors font-medium">
+            <a 
+              href="/kontakt" 
+              className={`relative text-foreground hover:text-primary transition-colors font-medium ${
+                isActive('/kontakt') ? 'text-primary' : ''
+              }`}
+            >
               Kontakt
+              {isActive('/kontakt') && (
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
+              )}
             </a>
           </div>
 
