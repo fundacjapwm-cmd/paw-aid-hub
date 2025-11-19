@@ -15,6 +15,7 @@ interface WishlistItem {
   urgent?: boolean;
   bought?: boolean;
   product_id?: string;
+  quantity: number;
 }
 
 interface Animal {
@@ -35,7 +36,7 @@ interface AnimalCardProps {
 }
 
 const AnimalCard = ({ animal }: AnimalCardProps) => {
-  const { addToCart, addAllForAnimal } = useCart();
+  const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded } = useCart();
   const navigate = useNavigate();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationShown, setCelebrationShown] = useState(false);
@@ -44,6 +45,9 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
   
   // Check if wishlist is 100% complete
   const allItemsBought = wishlistItems.length > 0 && wishlistItems.every(item => item.bought);
+  
+  // Check if "Add All" was already used
+  const fullyAdded = isAnimalFullyAdded(String(animal.id));
   
   useEffect(() => {
     if (allItemsBought && !celebrationShown) {
@@ -58,6 +62,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       productId: item.product_id || String(item.id),
       productName: item.name,
       price: item.price,
+      maxQuantity: item.quantity,
       animalId: String(animal.id),
       animalName: animal.name,
     });
@@ -76,10 +81,12 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       productId: item.product_id || String(item.id),
       productName: item.name,
       price: item.price,
+      maxQuantity: item.quantity,
       animalId: String(animal.id),
       animalName: animal.name,
     }));
     addAllForAnimal(items, animal.name);
+    markAnimalAsAdded(String(animal.id));
   };
 
   const handleOrganizationClick = (e: React.MouseEvent) => {
@@ -172,7 +179,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                       <p className={`text-xs font-semibold ${
                         item.bought ? 'text-green-600' : 'text-primary'
                       }`}>
-                        {item.price.toFixed(2)} zł
+                        {item.price.toFixed(2)} zł {item.quantity > 1 && `(x${item.quantity})`}
                       </p>
                     </div>
                     {!item.bought && (
@@ -204,10 +211,10 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 size="sm" 
                 className="w-full rounded-xl font-bold shadow-sm"
                 onClick={handleBuyAll}
-                disabled={allBought}
+                disabled={allBought || fullyAdded}
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                {allBought ? 'Wszystko kupione!' : 'Dodaj wszystko do koszyka!'}
+                {allBought ? 'Wszystko kupione!' : fullyAdded ? 'Już dodano do koszyka!' : 'Dodaj wszystko do koszyka!'}
               </Button>
             );
           })()}
