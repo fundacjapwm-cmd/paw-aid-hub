@@ -42,12 +42,17 @@ export const useAnimalsWithWishlists = () => {
 
       // Fetch organizations separately
       const orgIds = animalsData?.map(a => a.organization_id).filter(Boolean) || [];
-      const { data: orgsData, error: orgsError } = await supabase
-        .from('organizations')
-        .select('id, name, slug')
-        .in('id', orgIds);
+      
+      let orgsData = [];
+      if (orgIds.length > 0) {
+        const { data, error: orgsError } = await supabase
+          .from('organizations')
+          .select('id, name, slug')
+          .in('id', orgIds);
 
-      if (orgsError) throw orgsError;
+        if (orgsError) throw orgsError;
+        orgsData = data || [];
+      }
 
       // Create org lookup map
       const orgMap = new Map(orgsData?.map(org => [org.id, org]) || []);

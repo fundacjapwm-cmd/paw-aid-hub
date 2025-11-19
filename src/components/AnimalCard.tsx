@@ -5,6 +5,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
+import { WishlistCelebration } from "@/components/WishlistCelebration";
+import { useState, useEffect } from "react";
 
 interface WishlistItem {
   id: string | number;
@@ -35,8 +37,20 @@ interface AnimalCardProps {
 const AnimalCard = ({ animal }: AnimalCardProps) => {
   const { addToCart, addAllForAnimal } = useCart();
   const navigate = useNavigate();
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationShown, setCelebrationShown] = useState(false);
   
   const wishlistItems = animal.wishlist || [];
+  
+  // Check if wishlist is 100% complete
+  const allItemsBought = wishlistItems.length > 0 && wishlistItems.every(item => item.bought);
+  
+  useEffect(() => {
+    if (allItemsBought && !celebrationShown) {
+      setShowCelebration(true);
+      setCelebrationShown(true);
+    }
+  }, [allItemsBought, celebrationShown]);
 
   const handleAddToCart = (e: React.MouseEvent, item: WishlistItem) => {
     e.stopPropagation();
@@ -74,7 +88,14 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
   };
 
   return (
-    <Card 
+    <>
+      {showCelebration && (
+        <WishlistCelebration 
+          animalName={animal.name} 
+          onComplete={() => setShowCelebration(false)}
+        />
+      )}
+      <Card
       className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col"
       onClick={() => navigate(`/zwierze/${animal.id}`)}
     >
@@ -193,6 +214,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         </div>
       </div>
     </Card>
+    </>
   );
 };
 
