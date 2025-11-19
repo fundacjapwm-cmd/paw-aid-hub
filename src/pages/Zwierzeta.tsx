@@ -4,164 +4,10 @@ import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, ShoppingBag, Sparkles, Footprints } from "lucide-react";
 import { useState, useMemo } from "react";
-
-// Force rebuild to clear cached Paw import
-
-// Import animal images
-import cat1 from "@/assets/cat-1.jpg";
-import dog1 from "@/assets/dog-1.jpg";
-import dog2 from "@/assets/dog-2.jpg";
-import cat2 from "@/assets/cat-2.jpg";
-
-const allAnimals = [
-  {
-    id: 1,
-    name: "Siupek",
-    age: "W siup lat",
-    species: "Pies",
-    location: "Warszawa",
-    organization: "Organizacja testowa",
-    organizationSlug: "organizacja-testowa",
-    description: "Siupek jest słupowski długi opis. Bardzo przyjazny piesek, który kocha się bawić i potrzebuje kochającego domu. Uwielbia długie spacery i jest idealny dla rodziny z dziećmi.",
-    image: dog1,
-    wishlistProgress: 65,
-    urgentNeeds: ["Karma mokra", "Zabawki", "Legowisko"],
-    wishlist: [
-      { id: 1, name: "Karma mokra Premium", price: 89.99, urgent: true, bought: false },
-      { id: 2, name: "Zabawki dla psów - zestaw", price: 45.50, urgent: true, bought: false },
-      { id: 3, name: "Legowisko ortopedyczne", price: 320.00, urgent: true, bought: false },
-      { id: 4, name: "Miska stalowa", price: 45.00, urgent: false, bought: false }
-    ]
-  },
-  {
-    id: 2,
-    name: "Cezar", 
-    age: "6 lat",
-    species: "Pies",
-    location: "Kraków",
-    organization: "Schronisko Przyjazne Łapy",
-    organizationSlug: "schronisko-przyjazne-lapy",
-    description: "Cezar to wspaniały pies, który szuka domu pełnego miłości. Jest bardzo posłuszny i uwielbia długie spacery. Ma łagodny charakter i świetnie dogaduje się z innymi psami.",
-    image: dog2,
-    wishlistProgress: 40,
-    urgentNeeds: ["Karma sucha", "Smycz", "Miska"],
-    wishlist: [
-      { id: 1, name: "Karma sucha dla psów dużych ras", price: 159.99, urgent: true, bought: false },
-      { id: 2, name: "Smycz treningowa", price: 75.00, urgent: true, bought: false },
-      { id: 3, name: "Miska stalowa antypoślizgowa", price: 45.00, urgent: true, bought: false }
-    ]
-  },
-  {
-    id: 3,
-    name: "Irys",
-    age: "4 lata", 
-    species: "Pies",
-    location: "Gdańsk",
-    organization: "Fundacja Psia Miłość",
-    organizationSlug: "fundacja-psia-milosc",
-    description: "Irys to delikatna suczka, która potrzebuje cierpliwego opiekuna. Bardzo łagodna i spokojna. Idealnie nadaje się dla osób szukających spokojnego towarzysza na długie spacery.",
-    image: cat1,
-    wishlistProgress: 85,
-    urgentNeeds: ["Karma mokra", "Zabawki"],
-    wishlist: [
-      { id: 1, name: "Karma mokra dla psów małych ras", price: 65.00, urgent: true, bought: true },
-      { id: 2, name: "Zabawki pluszowe", price: 35.00, urgent: true, bought: true }
-    ]
-  },
-  {
-    id: 4,
-    name: "Fred",
-    age: "4 lata",
-    species: "Kot", 
-    location: "Wrocław",
-    organization: "Koci Azyl",
-    organizationSlug: "koci-azyl",
-    description: "Fred to spokojny kot, który uwielbia się przytulać. Idealny kompan dla osób szukających miękkiego przyjaciela. Lubi spać w ciepłych miejscach i obserwować świat przez okno.",
-    image: cat2,
-    wishlistProgress: 20,
-    urgentNeeds: ["Drapak", "Karma", "Kuweta"],
-    wishlist: [
-      { id: 1, name: "Drapak sizalowy", price: 180.00, urgent: true, bought: false },
-      { id: 2, name: "Karma dla kotów", price: 85.00, urgent: true, bought: false },
-      { id: 3, name: "Kuweta zamknięta", price: 150.00, urgent: true, bought: false }
-    ]
-  },
-  {
-    id: 5,
-    name: "Elf",
-    age: "2 lata",
-    species: "Kot",
-    location: "Poznań",
-    organization: "Kotki Ratunkowe",
-    organizationSlug: "kotki-ratunkowe",
-    description: "Młody i energiczny kot, który uwielbia zabawę. Potrzebuje aktywnego domu gdzie będzie mógł się wyszaleć. Ma piękne oczy i jest bardzo fotogeniczny.",
-    image: cat1,
-    wishlistProgress: 50,
-    urgentNeeds: ["Zabawki", "Drapak", "Karma dla młodych kotów"],
-    wishlist: [
-      { id: 1, name: "Zabawki dla kotów", price: 55.00, urgent: true, bought: false },
-      { id: 2, name: "Drapak", price: 120.00, urgent: true, bought: false },
-      { id: 3, name: "Karma dla młodych kotów", price: 95.00, urgent: true, bought: false }
-    ]
-  },
-  {
-    id: 6,
-    name: "Jamie",
-    age: "4 lata",
-    species: "Pies",
-    location: "Szczecin", 
-    organization: "Schronisko Nowa Nadzieja",
-    organizationSlug: "schronisko-nowa-nadzieja",
-    description: "Jamie to przyjazny pies rasy mieszanej, który kocha wszystkich ludzi. Ma wyjątkowo dobry charakter i nigdy nie odmówił zabawy. Świetny wybór dla rodzin.",
-    image: dog1,
-    wishlistProgress: 75,
-    urgentNeeds: ["Karma sucha", "Zabawki gryzakowe", "Legowisko"],
-    wishlist: [
-      { id: 1, name: "Karma sucha", price: 125.00, urgent: true, bought: true },
-      { id: 2, name: "Zabawki gryzakowe", price: 60.00, urgent: true, bought: false },
-      { id: 3, name: "Legowisko", price: 180.00, urgent: true, bought: false }
-    ]
-  },
-  {
-    id: 7,
-    name: "Budyt",
-    age: "7 lat", 
-    species: "Pies",
-    location: "Lublin",
-    organization: "Fundacja Cztery Łapy",
-    organizationSlug: "fundacja-cztery-lapy",
-    description: "Starszy pies o złotym sercu. Budyt szuka spokojnego domu na emeryturę. Jest bardzo wdzięczny za każdą okazaną mu życzliwość i kocha spokojne spacery.",
-    image: dog2,
-    wishlistProgress: 30,
-    urgentNeeds: ["Karma dla seniorów", "Witaminy", "Miękkie legowisko"],
-    wishlist: [
-      { id: 1, name: "Karma dla seniorów", price: 140.00, urgent: true, bought: false },
-      { id: 2, name: "Witaminy", price: 85.00, urgent: true, bought: false },
-      { id: 3, name: "Miękkie legowisko", price: 250.00, urgent: true, bought: false }
-    ]
-  },
-  {
-    id: 8,
-    name: "Gustek", 
-    age: "1 rok",
-    species: "Kot",
-    location: "Gdynia",
-    organization: "Miau Fundacja",
-    organizationSlug: "miau-fundacja",
-    description: "Gustek to młody kocur pełen energii i ciekawości świata. Uwielbia eksplorować i bawić się wszystkim co się rusza. Potrzebuje cierpliwego opiekuna.",
-    image: cat2,
-    wishlistProgress: 10,
-    urgentNeeds: ["Karma dla kociąt", "Zabawki", "Drapak", "Kuweta"],
-    wishlist: [
-      { id: 1, name: "Karma dla kociąt", price: 75.00, urgent: true, bought: false },
-      { id: 2, name: "Zabawki", price: 45.00, urgent: true, bought: false },
-      { id: 3, name: "Drapak", price: 130.00, urgent: true, bought: false },
-      { id: 4, name: "Kuweta", price: 95.00, urgent: true, bought: false }
-    ]
-  }
-];
+import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 
 const Zwierzeta = () => {
+  const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
   const [filters, setFilters] = useState({
     search: "",
     species: "wszystkie",
@@ -183,7 +29,37 @@ const Zwierzeta = () => {
       
       return matchesSearch && matchesSpecies && matchesCity;
     });
-  }, [filters]);
+  }, [allAnimals, filters]);
+
+  const totalAnimals = allAnimals.length;
+  const totalCats = allAnimals.filter(a => a.species.toLowerCase() === 'kot').length;
+  const totalDogs = allAnimals.filter(a => a.species.toLowerCase() === 'pies').length;
+  const urgentNeedsCount = allAnimals.filter(a => 
+    a.wishlist?.some(item => item.urgent && !item.bought)
+  ).length;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <p className="text-lg text-destructive">Błąd ładowania: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -296,51 +172,6 @@ const Zwierzeta = () => {
           </div>
         </section>
 
-        {/* Emergency Needs */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="bg-accent-light rounded-3xl p-8 text-center">
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-3xl lg:text-4xl font-bold text-accent mb-6">
-                  Pilne potrzeby! 🚨
-                </h2>
-                <p className="text-lg text-accent/80 mb-8">
-                  Te zwierzęta potrzebują Twojej pomocy już dziś. Ich listy życzeń są prawie puste!
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {allAnimals
-                    .filter(animal => animal.wishlistProgress < 30)
-                    .slice(0, 3)
-                    .map((animal) => (
-                      <div key={animal.id} className="bg-white rounded-2xl p-6 shadow-card">
-                        <div className="w-16 h-16 bg-accent/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                          <Heart className="h-8 w-8 text-accent fill-current" />
-                        </div>
-                        <h3 className="font-bold text-foreground mb-2">{animal.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-3">{animal.location}</p>
-                        <div className="w-full bg-muted rounded-full h-2 mb-3">
-                          <div 
-                            className="bg-accent h-2 rounded-full"
-                            style={{ width: `${animal.wishlistProgress}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-accent font-semibold">
-                          {animal.wishlistProgress}% listy wypełnione
-                        </p>
-                      </div>
-                    ))
-                  }
-                </div>
-
-                <Button variant="default" size="hero" className="bg-accent hover:bg-accent/90">
-                  Pomóż im już dziś!
-                  <Heart className="h-6 w-6 fill-current" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Call to Action */}
         <section className="py-20 bg-hero">

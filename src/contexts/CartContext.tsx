@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface CartItem {
   productId: string;
@@ -19,6 +20,7 @@ interface CartContextType {
   clearCart: () => void;
   updateQuantity: (productId: string, quantity: number) => void;
   addAllForAnimal: (items: Omit<CartItem, 'quantity'>[], animalName: string) => void;
+  completePurchase: () => Promise<{ success: boolean; orderId?: string }>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -70,6 +72,66 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const completePurchase = async (): Promise<{ success: boolean; orderId?: string }> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Błąd",
+          description: "Musisz być zalogowany aby dokonać zakupu",
+          variant: "destructive",
+        });
+        return { success: false };
+      }
+
+      // Create order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          total_amount: cartTotal,
+          status: 'completed',
+          payment_status: 'paid'
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cart.map(item => ({
+        order_id: order.id,
+        product_id: item.productId,
+        animal_id: item.animalId,
+        quantity: item.quantity,
+        unit_price: item.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      toast({
+        title: "Zakup zakończony!",
+        description: "Dziękujemy za wsparcie zwierząt ❤️",
+      });
+
+      setCart([]);
+      return { success: true, orderId: order.id };
+    } catch (error) {
+      console.error('Purchase error:', error);
+      toast({
+        title: "Błąd zakupu",
+        description: "Nie udało się dokończyć zakupu. Spróbuj ponownie.",
+        variant: "destructive",
+      });
+      return { success: false };
+    }
+  };
+
   const removeFromCart = (productId: string) => {
     setCart((prevCart) => prevCart.filter((item) => item.productId !== productId));
     toast({
@@ -110,6 +172,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         updateQuantity,
         addAllForAnimal,
+        completePurchase,
       }}
     >
       {children}
