@@ -17,7 +17,10 @@ import Kontakt from "./pages/Kontakt";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
-import OrganizationDashboard from "./pages/OrganizationDashboard";
+import OrgDashboard from "./pages/OrgDashboard";
+import OrgAnimals from "./pages/OrgAnimals";
+import OrgProfile from "./pages/OrgProfile";
+import OrgRequests from "./pages/OrgRequests";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
@@ -46,7 +49,10 @@ const App = () => (
             <Route path="/set-password" element={<SetPassword />} />
             <Route path="/profil" element={<Profile />} />
             <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/organizacja" element={<OrganizationDashboard />} />
+            <Route path="/organizacja" element={<OrgDashboard />} />
+            <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
+            <Route path="/organizacja/profil" element={<OrgProfile />} />
+            <Route path="/organizacja/zgloszenia" element={<OrgRequests />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-failure" element={<PaymentFailure />} />
