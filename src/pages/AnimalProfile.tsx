@@ -101,11 +101,11 @@ const AnimalProfile = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="grid md:grid-cols-2 gap-6 mb-6">
-                {/* Hero Card with Name and Image */}
+                {/* Hero Card with Name, Image and Description */}
                 <Card className="p-8 rounded-3xl md:col-span-2">
-                  <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+                  <div className="flex flex-col md:flex-row gap-6 items-start">
                     <div className="flex-shrink-0">
-                      <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly">
+                      <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly">
                         <img 
                           src={animal.image || '/placeholder.svg'} 
                           alt={animal.name}
@@ -113,9 +113,9 @@ const AnimalProfile = () => {
                         />
                       </div>
                     </div>
-                    <div className="flex-1 text-center md:text-left">
+                    <div className="flex-1">
                       <h1 className="text-4xl font-bold text-foreground mb-4">{animal.name}</h1>
-                      <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                      <div className="flex flex-wrap gap-3 mb-4">
                         <Badge variant="secondary" className="text-sm px-3 py-1">
                           <PawPrint className="h-4 w-4 mr-1" />
                           {animal.species}
@@ -125,7 +125,7 @@ const AnimalProfile = () => {
                           {animal.location}
                         </Badge>
                       </div>
-                      <div className="mt-4">
+                      <div className="mb-4">
                         <Link 
                           to={`/organizacje/${animal.organizationSlug}`} 
                           className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors"
@@ -134,6 +134,14 @@ const AnimalProfile = () => {
                           {animal.organization}
                         </Link>
                       </div>
+                      {animal.description && (
+                        <div className="mt-6">
+                          <h2 className="text-xl font-bold text-foreground mb-3">O mnie</h2>
+                          <p className="text-muted-foreground leading-relaxed">
+                            {animal.description}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -231,16 +239,6 @@ const AnimalProfile = () => {
                   </div>
                 </Card>
               </div>
-
-              {/* About Me Section */}
-              {animal.description && (
-                <Card className="p-6 rounded-3xl">
-                  <h2 className="text-xl font-bold text-foreground mb-4">O mnie</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {animal.description}
-                  </p>
-                </Card>
-              )}
             </div>
 
             <div className="space-y-6">
