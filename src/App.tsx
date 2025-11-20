@@ -25,6 +25,7 @@ import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import SetPassword from "./pages/SetPassword";
+import OrganizationPublicProfile from "./pages/OrganizationPublicProfile";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/o-nas" element={<ONas />} />
             <Route path="/jak-to-dziala" element={<JakToDziala />} />
             <Route path="/organizacje" element={<Organizacje />} />
+            <Route path="/organizacje/:slug" element={<OrganizationPublicProfile />} />
             <Route path="/zwierzeta" element={<Zwierzeta />} />
             <Route path="/kontakt" element={<Kontakt />} />
             <Route path="/auth" element={<Auth />} />
