@@ -1,5 +1,4 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -127,7 +126,6 @@ const AnimalProfile = () => {
   if (!animal) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Zwierzę nie zostało znalezione</h1>
           <Button onClick={() => navigate("/")}>Wróć do strony głównej</Button>
@@ -171,8 +169,6 @@ const AnimalProfile = () => {
         />
       )}
       <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main className="container mx-auto max-w-7xl px-4 py-8">
         {/* Back button */}
         <Button 
