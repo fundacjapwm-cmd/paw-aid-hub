@@ -100,73 +100,85 @@ const AnimalProfile = () => {
 
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                {/* Hero Card with Name, Image and Description */}
-                <Card className="p-8 rounded-3xl md:col-span-2">
-                  <div className="flex flex-col md:flex-row gap-6 items-start">
-                    <div className="flex-shrink-0">
-                      <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly">
-                        <img 
-                          src={animal.image || '/placeholder.svg'} 
-                          alt={animal.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+              {/* Main Card with Name, Image, Details and Gallery */}
+              <Card className="p-8 rounded-3xl">
+                <div className="flex flex-col md:flex-row gap-6 items-start mb-8">
+                  <div className="flex-shrink-0">
+                    <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly">
+                      <img 
+                        src={animal.image || '/placeholder.svg'} 
+                        alt={animal.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    <div className="flex-1">
+                  </div>
+                  <div className="flex-1 space-y-6">
+                    <div>
                       <h1 className="text-4xl font-bold text-foreground mb-4">{animal.name}</h1>
                       <div className="flex flex-wrap gap-3 mb-4">
                         <Badge variant="secondary" className="text-sm px-3 py-1">
                           <PawPrint className="h-4 w-4 mr-1" />
                           {animal.species}
                         </Badge>
-                        <Badge variant="outline" className="text-sm px-3 py-1">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {animal.location}
-                        </Badge>
                       </div>
-                      <div className="mb-4">
-                        <Link 
-                          to={`/organizacje/${animal.organizationSlug}`} 
-                          className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors"
-                        >
-                          <Users className="h-4 w-4 mr-2" />
-                          {animal.organization}
-                        </Link>
-                      </div>
-                      {animal.description && (
-                        <div className="mt-6">
-                          <h2 className="text-xl font-bold text-foreground mb-3">O mnie</h2>
-                          <p className="text-muted-foreground leading-relaxed">
-                            {animal.description}
-                          </p>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                </Card>
 
-                {/* Gallery Card */}
-                <Card className="p-6 rounded-3xl">
-                  <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-primary" />
-                    Galeria
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Main Image */}
-                    <div className="col-span-2">
-                      <div className="aspect-video rounded-2xl overflow-hidden border-2 border-border">
-                        <img 
-                          src={animal.image || '/placeholder.svg'} 
-                          alt={animal.name}
-                          className="w-full h-full object-cover"
-                        />
+                    {/* Metryczka */}
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                        <Heart className="h-5 w-5 text-primary" />
+                        Metryczka
+                      </h3>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                          <div className="flex items-center gap-2">
+                            <PawPrint className="h-4 w-4 text-primary" />
+                            <span className="text-sm text-muted-foreground">Gatunek</span>
+                          </div>
+                          <span className="text-sm font-semibold text-foreground">{animal.species}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                          <div className="flex items-center gap-2">
+                            <Cake className="h-4 w-4 text-primary" />
+                            <span className="text-sm text-muted-foreground">Wiek</span>
+                          </div>
+                          <span className="text-sm font-semibold text-foreground">{animal.age}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-primary" />
+                            <span className="text-sm text-muted-foreground">Organizacja</span>
+                          </div>
+                          <Link 
+                            to={`/organizacje/${animal.organizationSlug}`}
+                            className="text-sm font-semibold text-primary hover:text-primary/80 hover:underline"
+                          >
+                            {animal.organization}
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                    
-                    {/* Gallery Images */}
-                    {animal.gallery && animal.gallery.length > 0 ? (
-                      animal.gallery.map((img: any) => (
+
+                    {/* O mnie */}
+                    {animal.description && (
+                      <div>
+                        <h2 className="text-lg font-bold text-foreground mb-3">O mnie</h2>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {animal.description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Gallery */}
+                {animal.gallery && animal.gallery.length > 0 && (
+                  <div className="border-t border-border pt-6">
+                    <h3 className="text-lg font-bold text-foreground mb-4">Galeria</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {animal.gallery.map((img: any) => (
                         <div key={img.id} className="aspect-square rounded-xl overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
                           <img 
                             src={img.image_url} 
@@ -174,71 +186,11 @@ const AnimalProfile = () => {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                      ))
-                    ) : (
-                      <div className="col-span-2 text-center py-4 text-muted-foreground text-sm">
-                        Brak dodatkowych zdjęć
-                      </div>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Details Card */}
-                <Card className="p-6 rounded-3xl">
-                  <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-primary" />
-                    Metryczka
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
-                      <div className="flex items-center gap-3">
-                        <PawPrint className="h-5 w-5 text-primary" />
-                        <span className="text-muted-foreground">Gatunek</span>
-                      </div>
-                      <span className="font-semibold text-foreground">{animal.species}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
-                      <div className="flex items-center gap-3">
-                        <Cake className="h-5 w-5 text-primary" />
-                        <span className="text-muted-foreground">Wiek</span>
-                      </div>
-                      <span className="font-semibold text-foreground">{animal.age}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
-                      <div className="flex items-center gap-3">
-                        <MapPin className="h-5 w-5 text-primary" />
-                        <span className="text-muted-foreground">Lokalizacja</span>
-                      </div>
-                      <span className="font-semibold text-foreground">{animal.location}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
-                      <div className="flex items-center gap-3">
-                        <ShoppingCart className="h-5 w-5 text-primary" />
-                        <span className="text-muted-foreground">Lista potrzeb</span>
-                      </div>
-                      <Badge variant="default" className="font-semibold">
-                        {animal.wishlist.length} {animal.wishlist.length === 1 ? 'produkt' : 'produktów'}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
-                      <div className="flex items-center gap-3">
-                        <Users className="h-5 w-5 text-primary" />
-                        <span className="text-muted-foreground">Organizacja</span>
-                      </div>
-                      <Link 
-                        to={`/organizacje/${animal.organizationSlug}`}
-                        className="font-semibold text-primary hover:text-primary/80 hover:underline"
-                      >
-                        {animal.organization}
-                      </Link>
+                      ))}
                     </div>
                   </div>
-                </Card>
-              </div>
+                )}
+              </Card>
             </div>
 
             <div className="space-y-6">
