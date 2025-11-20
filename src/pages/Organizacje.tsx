@@ -218,15 +218,16 @@ const Organizacje = () => {
                     >
                       {/* Header with Background Image */}
                       <div 
-                        className="relative h-48 bg-gradient-to-br from-primary via-primary/90 to-primary/80 overflow-hidden"
+                        className="relative h-48 bg-muted overflow-hidden"
                         style={{
-                          backgroundImage: org.logo_url 
-                            ? `linear-gradient(to bottom right, rgba(239, 126, 50, 0.85), rgba(239, 126, 50, 0.95)), url(${org.logo_url})`
-                            : undefined,
+                          backgroundImage: org.logo_url ? `url(${org.logo_url})` : undefined,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                         }}
                       >
+                        {/* Shadow gradient at bottom for text readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                        
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
                           <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">{org.name}</h3>
                           {(org.city || org.province) && (
@@ -257,19 +258,19 @@ const Organizacje = () => {
                             <p className="text-lg font-bold text-foreground">{org.animalsCount || 0}</p>
                             <p className="text-xs text-muted-foreground">podopiecznych</p>
                           </div>
-                          <div className="bg-muted/30 rounded-2xl p-4 text-center">
+                          <div className="bg-muted/30 rounded-2xl p-4">
                             <div className="flex items-center justify-center mb-2">
-                              <Users className="h-5 w-5 text-secondary" />
+                              <MapPin className="h-5 w-5 text-primary" />
                             </div>
-                            <p className="text-lg font-bold text-foreground">Aktywna</p>
-                            <p className="text-xs text-muted-foreground">organizacja</p>
-                            {(org.address || org.city) && (
-                              <div className="text-xs text-muted-foreground mt-2">
-                                {org.address && <div>{org.address}</div>}
+                            {(org.address || org.city) ? (
+                              <div className="text-sm text-foreground text-center">
+                                {org.address && <div className="font-medium">{org.address}</div>}
                                 {org.postal_code && org.city && (
-                                  <div>{org.postal_code} {org.city}</div>
+                                  <div className="text-muted-foreground">{org.postal_code} {org.city}</div>
                                 )}
                               </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground text-center">Brak adresu</p>
                             )}
                           </div>
                         </div>
