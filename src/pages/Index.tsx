@@ -1,4 +1,3 @@
-import Navigation from "@/components/Navigation";
 import HeroSection from "@/components/HeroSection";
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
@@ -18,7 +17,6 @@ const Index = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-20 text-center">
           <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
         </div>
@@ -29,7 +27,6 @@ const Index = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-20 text-center">
           <p className="text-lg text-destructive">Błąd ładowania: {error}</p>
         </div>
@@ -39,8 +36,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main>
         <HeroSection />
         

@@ -1,12 +1,9 @@
-import Navigation from "@/components/Navigation";
 import { Search, ShoppingCart, CreditCard, Truck, Heart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const JakToDziala = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main>
         {/* Header Section */}
         <section className="py-8 px-4">

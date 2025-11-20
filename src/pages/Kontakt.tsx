@@ -1,4 +1,3 @@
-import Navigation from "@/components/Navigation";
 import { Heart, Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +7,6 @@ import { Label } from "@/components/ui/label";
 const Kontakt = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main>
         {/* Header Section */}
         <section className="py-8 px-4">

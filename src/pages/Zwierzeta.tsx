@@ -1,4 +1,3 @@
-import Navigation from "@/components/Navigation";
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
@@ -41,7 +40,6 @@ const Zwierzeta = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-20 text-center">
           <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
         </div>
@@ -52,7 +50,6 @@ const Zwierzeta = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-20 text-center">
           <p className="text-lg text-destructive">Błąd ładowania: {error}</p>
         </div>
@@ -62,8 +59,6 @@ const Zwierzeta = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main>
         {/* Header Section */}
         <section className="py-8 px-4">

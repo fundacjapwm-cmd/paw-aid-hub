@@ -1,4 +1,3 @@
-import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -63,8 +62,6 @@ const Organizacje = () => {
   const hasActiveFilters = search !== "" || orgType !== "wszystkie" || province !== "wszystkie" || city !== "";
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main>
         {/* Header Section */}
         <section className="py-8 px-4">

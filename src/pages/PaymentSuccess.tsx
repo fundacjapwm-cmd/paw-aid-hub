@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Loader2, Package, ArrowRight } from 'lucide-react';
-import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Separator } from '@/components/ui/separator';
 
@@ -58,7 +57,6 @@ const PaymentSuccess = () => {
   if (loading) {
     return (
       <>
-        <Navigation />
         <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background flex items-center justify-center">
           <Card className="max-w-md w-full mx-4">
             <CardContent className="pt-6 text-center">
@@ -75,7 +73,6 @@ const PaymentSuccess = () => {
   if (error || !orderDetails) {
     return (
       <>
-        <Navigation />
         <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background flex items-center justify-center">
           <Card className="max-w-md w-full mx-4">
             <CardHeader>
@@ -96,7 +93,6 @@ const PaymentSuccess = () => {
 
   return (
     <>
-      <Navigation />
       <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Success Header */}

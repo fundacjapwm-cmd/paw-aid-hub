@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { XCircle, RefreshCw, Home, HelpCircle } from 'lucide-react';
-import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -48,7 +47,6 @@ const PaymentFailure = () => {
 
   return (
     <>
-      <Navigation />
       <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-2xl">
           {/* Error Header */}

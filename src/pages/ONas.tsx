@@ -1,12 +1,9 @@
-import Navigation from "@/components/Navigation";
 import { Heart, Users, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const ONas = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main>
         {/* Header Section */}
         <section className="py-8 px-4">

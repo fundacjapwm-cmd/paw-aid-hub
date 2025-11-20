@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Loader2, ShoppingCart, CreditCard } from 'lucide-react';
 
@@ -89,7 +88,6 @@ const Checkout = () => {
   if (cart.length === 0) {
     return (
       <>
-        <Navigation />
         <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background pt-24 pb-12">
           <div className="container mx-auto px-4">
             <Card className="max-w-2xl mx-auto text-center py-12">
@@ -115,7 +113,6 @@ const Checkout = () => {
 
   return (
     <>
-      <Navigation />
       <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-6xl">
           <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
