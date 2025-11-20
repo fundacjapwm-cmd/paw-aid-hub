@@ -65,81 +65,99 @@ Deno.serve(async (req) => {
     console.log('Fetching data for NIP:', nip);
 
     // Try CEIDG API first (for businesses)
-    const ceidgResponse = await fetch(
-      `https://dane.biznes.gov.pl/api/ceidg/v1/firmy?nip=${nip}`,
-      {
-        headers: {
-          'Accept': 'application/json',
-        },
+    try {
+      const ceidgResponse = await fetch(
+        `https://dane.biznes.gov.pl/api/ceidg/v1/firmy?nip=${nip}`,
+        {
+          headers: {
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      console.log('CEIDG Response status:', ceidgResponse.status);
+      console.log('CEIDG Response Content-Type:', ceidgResponse.headers.get('content-type'));
+
+      // Check if response is JSON
+      const contentType = ceidgResponse.headers.get('content-type');
+      if (ceidgResponse.ok && contentType?.includes('application/json')) {
+        const ceidgData = await ceidgResponse.json();
+        console.log('CEIDG Response:', JSON.stringify(ceidgData));
+
+        if (ceidgData && ceidgData.firma && ceidgData.firma.length > 0) {
+          const firma = ceidgData.firma[0];
+          const result: KRSData = {
+            name: firma.nazwa || undefined,
+            nip: firma.nip || nip,
+            regon: firma.regon || undefined,
+            address: firma.adres?.ulica 
+              ? `${firma.adres.ulica} ${firma.adres.nrNieruchomosci || ''}${firma.adres.nrLokalu ? `/${firma.adres.nrLokalu}` : ''}`
+              : undefined,
+            city: firma.adres?.miejscowosc || undefined,
+            postal_code: firma.adres?.kodPocztowy || undefined,
+            province: firma.adres?.wojewodztwo || undefined,
+          };
+
+          console.log('Parsed CEIDG data:', result);
+
+          return new Response(
+            JSON.stringify({ success: true, data: result }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
       }
-    );
-
-    if (ceidgResponse.ok) {
-      const ceidgData = await ceidgResponse.json();
-      console.log('CEIDG Response:', JSON.stringify(ceidgData));
-
-      if (ceidgData && ceidgData.firma && ceidgData.firma.length > 0) {
-        const firma = ceidgData.firma[0];
-        const result: KRSData = {
-          name: firma.nazwa || undefined,
-          nip: firma.nip || nip,
-          regon: firma.regon || undefined,
-          address: firma.adres?.ulica 
-            ? `${firma.adres.ulica} ${firma.adres.nrNieruchomosci || ''}${firma.adres.nrLokalu ? `/${firma.adres.nrLokalu}` : ''}`
-            : undefined,
-          city: firma.adres?.miejscowosc || undefined,
-          postal_code: firma.adres?.kodPocztowy || undefined,
-          province: firma.adres?.wojewodztwo || undefined,
-        };
-
-        console.log('Parsed CEIDG data:', result);
-
-        return new Response(
-          JSON.stringify({ success: true, data: result }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+    } catch (ceidgError) {
+      console.log('CEIDG API error (will try KRS):', ceidgError);
     }
 
     // Try KRS API (for foundations, associations, companies)
-    const krsResponse = await fetch(
-      `https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/${nip}?rejestr=P&format=json`,
-      {
-        headers: {
-          'Accept': 'application/json',
-        },
+    try {
+      const krsResponse = await fetch(
+        `https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/${nip}?rejestr=P&format=json`,
+        {
+          headers: {
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      console.log('KRS Response status:', krsResponse.status);
+      console.log('KRS Response Content-Type:', krsResponse.headers.get('content-type'));
+
+      // Check if response is JSON
+      const contentType = krsResponse.headers.get('content-type');
+      if (krsResponse.ok && contentType?.includes('application/json')) {
+        const krsData = await krsResponse.json();
+        console.log('KRS Response:', JSON.stringify(krsData));
+
+        if (krsData && krsData.odpis) {
+          const dane = krsData.odpis.dane;
+          const dzial1 = dane?.dzial1;
+          const siedziba = dzial1?.siedziba;
+          const adres = siedziba?.adres;
+
+          const result: KRSData = {
+            name: dzial1?.danePodmiotu?.nazwa || undefined,
+            nip: dzial1?.danePodmiotu?.identyfikatory?.nip || nip,
+            regon: dzial1?.danePodmiotu?.identyfikatory?.regon || undefined,
+            address: adres?.ulica 
+              ? `${adres.ulica} ${adres.nrDomu || ''}${adres.nrLokalu ? `/${adres.nrLokalu}` : ''}`
+              : undefined,
+            city: adres?.miejscowosc || undefined,
+            postal_code: adres?.kodPocztowy || undefined,
+            province: adres?.wojewodztwo || undefined,
+          };
+
+          console.log('Parsed KRS data:', result);
+
+          return new Response(
+            JSON.stringify({ success: true, data: result }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
       }
-    );
-
-    if (krsResponse.ok) {
-      const krsData = await krsResponse.json();
-      console.log('KRS Response:', JSON.stringify(krsData));
-
-      if (krsData && krsData.odpis) {
-        const dane = krsData.odpis.dane;
-        const dzial1 = dane?.dzial1;
-        const siedziba = dzial1?.siedziba;
-        const adres = siedziba?.adres;
-
-        const result: KRSData = {
-          name: dzial1?.danePodmiotu?.nazwa || undefined,
-          nip: dzial1?.danePodmiotu?.identyfikatory?.nip || nip,
-          regon: dzial1?.danePodmiotu?.identyfikatory?.regon || undefined,
-          address: adres?.ulica 
-            ? `${adres.ulica} ${adres.nrDomu || ''}${adres.nrLokalu ? `/${adres.nrLokalu}` : ''}`
-            : undefined,
-          city: adres?.miejscowosc || undefined,
-          postal_code: adres?.kodPocztowy || undefined,
-          province: adres?.wojewodztwo || undefined,
-        };
-
-        console.log('Parsed KRS data:', result);
-
-        return new Response(
-          JSON.stringify({ success: true, data: result }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+    } catch (krsError) {
+      console.log('KRS API error:', krsError);
     }
 
     // If no data found in either API
