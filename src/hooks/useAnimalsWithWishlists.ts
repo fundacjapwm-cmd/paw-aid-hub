@@ -11,6 +11,12 @@ export interface WishlistItem {
   quantity: number; // Max quantity from wishlist
 }
 
+export interface GalleryImage {
+  id: string;
+  image_url: string;
+  display_order: number;
+}
+
 export interface Animal {
   id: string;
   name: string;
@@ -22,6 +28,7 @@ export interface Animal {
   description: string;
   image: string;
   wishlist: WishlistItem[];
+  gallery: GalleryImage[];
 }
 
 export const useAnimalsWithWishlists = () => {
@@ -86,15 +93,38 @@ export const useAnimalsWithWishlists = () => {
 
       if (purchasedError) throw purchasedError;
 
+      // Fetch gallery images for all animals
+      const { data: galleryData, error: galleryError } = await supabase
+        .from('animal_images')
+        .select('id, animal_id, image_url, display_order')
+        .in('animal_id', animalIds)
+        .order('display_order', { ascending: true });
+
+      if (galleryError) throw galleryError;
+
       // Create a set of purchased product IDs for quick lookup
       const purchasedSet = new Set(
         purchasedItems?.map(item => `${item.animal_id}-${item.product_id}`) || []
       );
 
+      // Create gallery lookup map
+      const galleryMap = new Map<string, GalleryImage[]>();
+      galleryData?.forEach((img) => {
+        if (!galleryMap.has(img.animal_id)) {
+          galleryMap.set(img.animal_id, []);
+        }
+        galleryMap.get(img.animal_id)?.push({
+          id: img.id,
+          image_url: img.image_url,
+          display_order: img.display_order
+        });
+      });
+
       // Transform data to match component interface
       const transformedAnimals: Animal[] = animalsData?.map(animal => {
         const org = orgMap.get(animal.organization_id);
         const animalWishlists = wishlistsData?.filter(w => w.animal_id === animal.id) || [];
+        const gallery = galleryMap.get(animal.id) || [];
         
         return {
           id: animal.id,
@@ -115,6 +145,7 @@ export const useAnimalsWithWishlists = () => {
             product_id: w.products?.id || '',
             quantity: w.quantity || 1,
           })),
+          gallery: gallery,
         };
       }) || [];
 
