@@ -123,31 +123,49 @@ export default function OrganizationPublicProfile() {
       {/* Main Section - Hero Photo + Info Card */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
-          {/* Main Organization Photo */}
-          <div 
-            className="relative h-[400px] lg:h-[500px] rounded-3xl overflow-hidden shadow-card"
-            style={{
-              backgroundImage: organization.logo_url ? `url(${organization.logo_url})` : undefined,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            {!organization.logo_url && (
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                <Heart className="h-24 w-24 text-white/20" />
+          {/* Left Column - Main Photo + Gallery */}
+          <div>
+            {/* Main Organization Photo */}
+            <div 
+              className="relative h-[350px] rounded-3xl overflow-hidden shadow-card mb-4"
+              style={{
+                backgroundImage: organization.logo_url ? `url(${organization.logo_url})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            >
+              {!organization.logo_url && (
+                <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                  <Heart className="h-24 w-24 text-white/20" />
+                </div>
+              )}
+              {/* Shadow gradient at bottom for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+              
+              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <h1 className="text-3xl font-bold mb-2 drop-shadow-lg">
+                  {organization.name}
+                </h1>
+              </div>
+            </div>
+
+            {/* Gallery Miniatures */}
+            {galleryImages.length > 0 && (
+              <div className="grid grid-cols-6 gap-2">
+                {galleryImages.slice(0, 6).map((image) => (
+                  <div 
+                    key={image.id} 
+                    className="aspect-square overflow-hidden rounded-xl border border-border hover:scale-105 transition-transform cursor-pointer"
+                  >
+                    <img
+                      src={image.image_url}
+                      alt="Miniatura galerii"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
               </div>
             )}
-            {/* Shadow gradient at bottom for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-            
-            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-              <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
-                {organization.name}
-              </h1>
-              {organization.description && (
-                <p className="text-white/90 text-lg drop-shadow">{organization.description}</p>
-              )}
-            </div>
           </div>
 
           {/* Info Card */}
@@ -160,50 +178,66 @@ export default function OrganizationPublicProfile() {
                 <div className="text-muted-foreground">podopiecznych czeka na pomoc</div>
               </div>
 
-              {/* Address */}
-              {(organization.address || organization.city) && (
+              {/* Address and Contact - Side by Side */}
+              <div className="grid grid-cols-2 gap-4 pb-6 border-b border-border">
+                {/* Address */}
+                {(organization.address || organization.city) && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      Adres
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {organization.address && <div>{organization.address}</div>}
+                      {organization.postal_code && organization.city && (
+                        <div>{organization.postal_code} {organization.city}</div>
+                      )}
+                      {!organization.address && organization.city && (
+                        <div>{organization.city}{organization.province && `, ${organization.province}`}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact Info */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    Adres
+                    <Phone className="h-4 w-4 text-primary" />
+                    Kontakt
                   </div>
-                  <div className="text-sm text-muted-foreground pl-6">
-                    {organization.address && <div>{organization.address}</div>}
-                    {organization.postal_code && organization.city && (
-                      <div>{organization.postal_code} {organization.city}</div>
+                  <div className="space-y-2">
+                    {organization.contact_phone && (
+                      <a 
+                        href={`tel:${organization.contact_phone}`} 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        <Phone className="h-3.5 w-3.5" />
+                        {organization.contact_phone}
+                      </a>
                     )}
-                    {!organization.address && organization.city && (
-                      <div>{organization.city}{organization.province && `, ${organization.province}`}</div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Contact Info */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <Phone className="h-4 w-4 text-primary" />
-                  Kontakt
-                </div>
-                <div className="space-y-2 pl-6">
-                  {organization.contact_phone && (
                     <a 
-                      href={`tel:${organization.contact_phone}`} 
+                      href={`mailto:${organization.contact_email}`} 
                       className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                     >
-                      <Phone className="h-3.5 w-3.5" />
-                      {organization.contact_phone}
+                      <Mail className="h-3.5 w-3.5" />
+                      {organization.contact_email}
                     </a>
-                  )}
-                  <a 
-                    href={`mailto:${organization.contact_email}`} 
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <Mail className="h-3.5 w-3.5" />
-                    {organization.contact_email}
-                  </a>
+                  </div>
                 </div>
               </div>
+
+              {/* About Us Section */}
+              {organization.description && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Users className="h-4 w-4 text-primary" />
+                    O nas
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {organization.description}
+                  </p>
+                </div>
+              )}
 
               {/* CTA Button */}
               <Button 
@@ -217,32 +251,6 @@ export default function OrganizationPublicProfile() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Gallery Section - Below main photo */}
-        {galleryImages.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Galeria</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {galleryImages.slice(0, 8).map((image) => (
-                <div 
-                  key={image.id} 
-                  className="aspect-square overflow-hidden rounded-2xl border border-border shadow-soft hover:scale-105 transition-transform cursor-pointer"
-                >
-                  <img
-                    src={image.image_url}
-                    alt="Zdjęcie organizacji"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-            {galleryImages.length > 8 && (
-              <p className="text-sm text-muted-foreground mt-4 text-center">
-                i {galleryImages.length - 8} więcej zdjęć
-              </p>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Animals Section */}
