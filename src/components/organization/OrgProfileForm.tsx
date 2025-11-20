@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { AlertCircle, Upload, Download } from "lucide-react";
+import { AlertCircle, Upload, Download, CheckCircle2, XCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -57,6 +57,10 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [fetchingKRS, setFetchingKRS] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [nipValidation, setNipValidation] = useState<{
+    isValid: boolean | null;
+    message: string;
+  }>({ isValid: null, message: "" });
 
   const form = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
@@ -101,6 +105,54 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       // Check if onboarding is needed (only NIP and city are required)
       const incomplete = !data.nip || !data.city;
       setNeedsOnboarding(incomplete);
+      
+      // Validate NIP if it exists
+      if (data.nip) {
+        validateNipRealtime(data.nip);
+      }
+    }
+  };
+
+  const validateNipRealtime = (nip: string) => {
+    // Reset validation if empty
+    if (!nip) {
+      setNipValidation({ isValid: null, message: "" });
+      return;
+    }
+
+    // Check format (10 digits)
+    if (!/^\d{10}$/.test(nip)) {
+      if (nip.length > 0 && nip.length < 10) {
+        setNipValidation({ 
+          isValid: false, 
+          message: `Wpisano ${nip.length}/10 cyfr` 
+        });
+      } else if (nip.length > 10) {
+        setNipValidation({ 
+          isValid: false, 
+          message: "NIP musi mieć dokładnie 10 cyfr" 
+        });
+      } else if (!/^\d+$/.test(nip)) {
+        setNipValidation({ 
+          isValid: false, 
+          message: "NIP może zawierać tylko cyfry" 
+        });
+      }
+      return;
+    }
+
+    // Validate checksum
+    const isValid = validateNIP(nip);
+    if (isValid) {
+      setNipValidation({ 
+        isValid: true, 
+        message: "NIP jest poprawny ✓" 
+      });
+    } else {
+      setNipValidation({ 
+        isValid: false, 
+        message: "Nieprawidłowa suma kontrolna NIP" 
+      });
     }
   };
 
@@ -324,8 +376,39 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>NIP *</FormLabel>
                       <FormControl>
-                        <Input placeholder="0000000000" {...field} disabled={!isOwner} />
+                        <div className="relative">
+                          <Input 
+                            placeholder="0000000000" 
+                            {...field} 
+                            disabled={!isOwner}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              validateNipRealtime(e.target.value);
+                            }}
+                            className={
+                              nipValidation.isValid === true 
+                                ? "border-green-500 focus-visible:ring-green-500" 
+                                : nipValidation.isValid === false 
+                                ? "border-red-500 focus-visible:ring-red-500"
+                                : ""
+                            }
+                          />
+                          {nipValidation.isValid !== null && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              {nipValidation.isValid ? (
+                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-red-500" />
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
+                      {nipValidation.message && (
+                        <p className={`text-sm ${nipValidation.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                          {nipValidation.message}
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
