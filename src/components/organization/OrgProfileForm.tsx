@@ -74,7 +74,10 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       .eq("id", organizationId)
       .single();
 
+    console.log('Fetched organization data:', data);
+
     if (error) {
+      console.error('Fetch error:', error);
       toast({
         title: "Błąd",
         description: "Nie udało się pobrać danych organizacji",
@@ -84,17 +87,25 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
     }
 
     if (data) {
+      console.log('Resetting form with:', {
+        name: data.name,
+        nip: data.nip,
+        regon: data.regon,
+        postal_code: data.postal_code,
+        bank_account_number: data.bank_account_number,
+      });
+
       form.reset({
         name: data.name,
         nip: data.nip || "",
-        regon: (data as any).regon || "",
+        regon: data.regon || "",
         contact_email: data.contact_email,
         contact_phone: data.contact_phone || "",
         address: data.address || "",
-        postal_code: (data as any).postal_code || "",
+        postal_code: data.postal_code || "",
         city: data.city || "",
         province: data.province || "",
-        bank_account_number: (data as any).bank_account_number || "",
+        bank_account_number: data.bank_account_number || "",
         website: data.website || "",
         description: data.description || "",
       });
@@ -102,7 +113,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       setLogoUrl(data.logo_url);
 
       // Check if onboarding is needed
-      const incomplete = !data.nip || !data.city || !(data as any).bank_account_number;
+      const incomplete = !data.nip || !data.city || !data.bank_account_number;
       setNeedsOnboarding(incomplete);
     }
   };
@@ -217,7 +228,9 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
   const onSubmit = async (data: OrganizationFormData) => {
     setIsLoading(true);
 
-    const { error } = await supabase
+    console.log('Submitting organization data:', data);
+
+    const { data: updateData, error } = await supabase
       .from("organizations")
       .update({
         name: data.name,
@@ -233,16 +246,20 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
         website: data.website || null,
         description: data.description || null,
       })
-      .eq("id", organizationId);
+      .eq("id", organizationId)
+      .select()
+      .single();
 
-    setIsLoading(false);
+    console.log('Update response:', updateData, error);
 
     if (error) {
+      console.error('Update error:', error);
       toast({
         title: "Błąd",
         description: "Nie udało się zapisać zmian",
         variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -251,7 +268,9 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       description: "Profil organizacji został zaktualizowany",
     });
 
-    fetchOrganization();
+    // Odśwież dane
+    await fetchOrganization();
+    setIsLoading(false);
   };
 
   return (
