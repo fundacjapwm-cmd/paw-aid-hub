@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, PawPrint, Building2, ClipboardList, LogOut } from "lucide-react";
+import { Home, PawPrint, ClipboardList, Settings, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
@@ -27,8 +27,8 @@ interface OrgLayoutProps {
 const menuItems = [
   { title: "Pulpit", url: "/organizacja", icon: Home },
   { title: "Zwierzęta", url: "/organizacja/zwierzeta", icon: PawPrint },
-  { title: "Profil", url: "/organizacja/profil", icon: Building2 },
   { title: "Zgłoszenia", url: "/organizacja/zgloszenia", icon: ClipboardList },
+  { title: "Ustawienia", url: "/organizacja/profil", icon: Settings },
 ];
 
 function OrgSidebarContent() {

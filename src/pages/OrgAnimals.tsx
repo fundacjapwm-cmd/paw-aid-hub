@@ -12,11 +12,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Plus, Pencil, ShoppingCart } from "lucide-react";
+import { Plus, Pencil, ShoppingCart, AlertCircle, Upload } from "lucide-react";
 
 const animalSchema = z.object({
   name: z.string().min(2, "Imię musi mieć minimum 2 znaki"),
@@ -36,8 +38,12 @@ export default function OrgAnimals() {
   const [selectedAnimal, setSelectedAnimal] = useState<any | null>(null);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
   const [organizationName, setOrganizationName] = useState("");
+  const [organization, setOrganization] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [wishlistDialogOpen, setWishlistDialogOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const form = useForm<AnimalFormData>({
     resolver: zodResolver(animalSchema),
@@ -68,13 +74,15 @@ export default function OrgAnimals() {
   const fetchOrganization = async () => {
     const { data: orgUser } = await supabase
       .from("organization_users")
-      .select("organization_id, organizations(name)")
+      .select("organization_id, organizations(*)")
       .eq("user_id", user?.id)
       .single();
 
     if (orgUser) {
       setOrganizationId(orgUser.organization_id);
-      setOrganizationName((orgUser.organizations as any).name);
+      const org = orgUser.organizations as any;
+      setOrganizationName(org.name);
+      setOrganization(org);
       fetchAnimals(orgUser.organization_id);
     }
   };
@@ -93,9 +101,33 @@ export default function OrgAnimals() {
     try {
       if (!organizationId) return;
 
+      let imageUrl = null;
+
+      // Upload image if selected
+      if (imageFile) {
+        setUploading(true);
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `animals/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+        setUploading(false);
+      }
+
       const { error } = await supabase.from("animals").insert({
         ...data,
         organization_id: organizationId,
+        image_url: imageUrl,
       } as any);
 
       if (error) throw error;
@@ -103,9 +135,24 @@ export default function OrgAnimals() {
       toast.success("Podopieczny został dodany!");
       setDialogOpen(false);
       form.reset();
+      setImagePreview(null);
+      setImageFile(null);
       fetchAnimals(organizationId);
     } catch (error: any) {
       toast.error("Błąd podczas dodawania: " + error.message);
+      setUploading(false);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -118,9 +165,21 @@ export default function OrgAnimals() {
     return null;
   }
 
+  const isProfileComplete = organization?.nip && organization?.city && organization?.bank_account_number;
+
   return (
     <OrgLayout organizationName={organizationName}>
       <div className="space-y-6">
+        {/* Profile Validation Alert */}
+        {!isProfileComplete && (
+          <Alert variant="destructive" className="rounded-2xl">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Uzupełnij NIP, Miasto i Konto Bankowe w zakładce Ustawienia, aby móc dodawać zwierzęta.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Podopieczni</h2>
@@ -130,12 +189,15 @@ export default function OrgAnimals() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="rounded-2xl shadow-soft hover:scale-105 transition-transform">
+              <Button 
+                disabled={!isProfileComplete}
+                className="rounded-2xl shadow-soft hover:scale-105 transition-transform"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Dodaj podopiecznego
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-3xl">
+            <DialogContent className="rounded-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Dodaj nowego podopiecznego</DialogTitle>
                 <DialogDescription>
@@ -144,6 +206,29 @@ export default function OrgAnimals() {
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  {/* Image Upload */}
+                  <div className="space-y-2">
+                    <FormLabel>Zdjęcie</FormLabel>
+                    <div className="flex flex-col items-center gap-4">
+                      {imagePreview && (
+                        <Avatar className="h-32 w-32">
+                          <AvatarImage src={imagePreview} alt="Podgląd" />
+                          <AvatarFallback>Zdjęcie</AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="max-w-xs"
+                        />
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ... keep existing code (all form fields) */}
                   <FormField
                     control={form.control}
                     name="name"
@@ -231,8 +316,12 @@ export default function OrgAnimals() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full rounded-2xl">
-                    Dodaj
+                  <Button 
+                    type="submit" 
+                    disabled={uploading}
+                    className="w-full rounded-2xl"
+                  >
+                    {uploading ? "Przesyłanie..." : "Dodaj"}
                   </Button>
                 </form>
               </Form>
@@ -251,6 +340,7 @@ export default function OrgAnimals() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Zdjęcie</TableHead>
                   <TableHead>Imię</TableHead>
                   <TableHead>Gatunek</TableHead>
                   <TableHead>Rasa</TableHead>
@@ -261,6 +351,14 @@ export default function OrgAnimals() {
               <TableBody>
                 {animals.map((animal) => (
                   <TableRow key={animal.id}>
+                    <TableCell>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={animal.image_url || ''} alt={animal.name} />
+                        <AvatarFallback>
+                          {animal.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TableCell>
                     <TableCell className="font-medium">{animal.name}</TableCell>
                     <TableCell>{animal.species}</TableCell>
                     <TableCell>{animal.breed || "-"}</TableCell>
@@ -269,8 +367,8 @@ export default function OrgAnimals() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
                         onClick={() => handleWishlistClick(animal)}
-                        className="rounded-full hover:scale-110 transition-transform"
                       >
                         <ShoppingCart className="h-4 w-4" />
                       </Button>
@@ -281,24 +379,24 @@ export default function OrgAnimals() {
             </Table>
           </CardContent>
         </Card>
-      </div>
 
-      <Dialog open={wishlistDialogOpen} onOpenChange={setWishlistDialogOpen}>
-        <DialogContent className="max-w-6xl rounded-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Lista potrzeb - {selectedAnimal?.name}</DialogTitle>
-            <DialogDescription>
-              Wybierz produkty z katalogu, których potrzebuje {selectedAnimal?.name}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedAnimal && (
-            <WishlistBuilder
-              animalId={selectedAnimal.id}
-              animalName={selectedAnimal.name}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+        <Dialog open={wishlistDialogOpen} onOpenChange={setWishlistDialogOpen}>
+          <DialogContent className="max-w-4xl rounded-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Lista potrzeb dla {selectedAnimal?.name}</DialogTitle>
+              <DialogDescription>
+                Dodaj lub usuń produkty z listy potrzeb
+              </DialogDescription>
+            </DialogHeader>
+            {selectedAnimal && (
+              <WishlistBuilder
+                animalId={selectedAnimal.id}
+                animalName={selectedAnimal.name}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
     </OrgLayout>
   );
 }

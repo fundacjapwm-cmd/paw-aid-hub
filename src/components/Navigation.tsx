@@ -132,29 +132,31 @@ const Navigation = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/profil')}>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profil</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/profil?tab=settings')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Ustawienia</span>
-                  </DropdownMenuItem>
+                  {profile?.role === 'ORG' ? (
+                    <>
+                      <DropdownMenuItem onClick={() => navigate('/organizacja')}>
+                        <Building2 className="mr-2 h-4 w-4" />
+                        <span>Panel Organizacji</span>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem onClick={() => navigate('/profil')}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/profil?tab=settings')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Ustawienia</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   {profile?.role === 'ADMIN' && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => navigate('/admin')}>
                         <Shield className="mr-2 h-4 w-4" />
                         <span>Panel Administratora</span>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                  {profile?.role === 'ORG' && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate('/organizacja')}>
-                        <Building2 className="mr-2 h-4 w-4" />
-                        <span>Panel Organizacji</span>
                       </DropdownMenuItem>
                     </>
                   )}
