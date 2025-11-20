@@ -192,7 +192,47 @@ export default function OrganizationDashboard() {
   useEffect(() => {
     fetchOrganization();
     fetchProducts();
-  }, []);
+
+    // Real-time subscriptions for automatic data sync
+    const organizationsChannel = supabase
+      .channel('org-dashboard-orgs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'organizations' }, () => {
+        fetchOrganization();
+      })
+      .subscribe();
+
+    const animalsChannel = supabase
+      .channel('org-dashboard-animals')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'animals' }, () => {
+        if (organization) {
+          fetchAnimals(organization.id);
+        }
+      })
+      .subscribe();
+
+    const productsChannel = supabase
+      .channel('org-dashboard-products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        fetchProducts();
+      })
+      .subscribe();
+
+    const wishlistsChannel = supabase
+      .channel('org-dashboard-wishlists')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'animal_wishlists' }, () => {
+        if (selectedAnimal) {
+          fetchWishlist(selectedAnimal);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(organizationsChannel);
+      supabase.removeChannel(animalsChannel);
+      supabase.removeChannel(productsChannel);
+      supabase.removeChannel(wishlistsChannel);
+    };
+  }, [organization, selectedAnimal]);
 
   const handleUpdateOrganization = async (e: React.FormEvent) => {
     e.preventDefault();
