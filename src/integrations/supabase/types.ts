@@ -44,6 +44,38 @@ export type Database = {
         }
         Relationships: []
       }
+      animal_images: {
+        Row: {
+          animal_id: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+        }
+        Insert: {
+          animal_id: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+        }
+        Update: {
+          animal_id?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_images_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       animal_wishlists: {
         Row: {
           animal_id: string | null

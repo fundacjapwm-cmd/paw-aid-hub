@@ -101,15 +101,34 @@ const AnimalProfile = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="overflow-hidden rounded-3xl">
-                  <div className="aspect-square relative">
-                    <img 
-                      src={animal.image || '/placeholder.svg'} 
-                      alt={animal.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </Card>
+                <div className="space-y-4">
+                  <Card className="overflow-hidden rounded-3xl">
+                    <div className="aspect-square relative">
+                      <img 
+                        src={animal.image || '/placeholder.svg'} 
+                        alt={animal.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Card>
+                  
+                  {/* Gallery Images */}
+                  {animal.gallery && animal.gallery.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {animal.gallery.map((img: any) => (
+                        <Card key={img.id} className="overflow-hidden rounded-2xl">
+                          <div className="aspect-square relative">
+                            <img 
+                              src={img.image_url} 
+                              alt={`${animal.name} gallery`}
+                              className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                            />
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <Card className="p-6">
                   <h1 className="text-3xl font-bold text-foreground mb-2">{animal.name}</h1>

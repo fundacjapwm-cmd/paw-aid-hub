@@ -44,6 +44,8 @@ export default function OrgAnimals() {
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
   const form = useForm<AnimalFormData>({
     resolver: zodResolver(animalSchema),
@@ -101,11 +103,11 @@ export default function OrgAnimals() {
     try {
       if (!organizationId) return;
 
+      setUploading(true);
       let imageUrl = null;
 
-      // Upload image if selected
+      // Upload main image if selected
       if (imageFile) {
-        setUploading(true);
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `animals/${fileName}`;
@@ -121,22 +123,58 @@ export default function OrgAnimals() {
           .getPublicUrl(filePath);
 
         imageUrl = publicUrl;
-        setUploading(false);
       }
 
-      const { error } = await supabase.from("animals").insert({
-        ...data,
-        organization_id: organizationId,
-        image_url: imageUrl,
-      } as any);
+      // Insert animal
+      const { data: newAnimal, error } = await supabase.from("animals")
+        .insert({
+          ...data,
+          organization_id: organizationId,
+          image_url: imageUrl,
+        } as any)
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Upload gallery images if any
+      if (galleryFiles.length > 0 && newAnimal) {
+        for (let i = 0; i < galleryFiles.length; i++) {
+          const file = galleryFiles[i];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `animals/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(filePath, file);
+
+          if (uploadError) {
+            console.error('Gallery upload error:', uploadError);
+            continue;
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(filePath);
+
+          // Insert to animal_images table
+          await supabase.from('animal_images').insert({
+            animal_id: newAnimal.id,
+            image_url: publicUrl,
+            display_order: i,
+          });
+        }
+      }
 
       toast.success("Podopieczny został dodany!");
       setDialogOpen(false);
       form.reset();
       setImagePreview(null);
       setImageFile(null);
+      setGalleryFiles([]);
+      setGalleryPreviews([]);
+      setUploading(false);
       fetchAnimals(organizationId);
     } catch (error: any) {
       toast.error("Błąd podczas dodawania: " + error.message);
@@ -154,6 +192,29 @@ export default function OrgAnimals() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 6) {
+      toast.error("Maksymalnie 6 zdjęć w galerii");
+      return;
+    }
+    
+    setGalleryFiles(files);
+    
+    // Create previews
+    const previews: string[] = [];
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews.push(reader.result as string);
+        if (previews.length === files.length) {
+          setGalleryPreviews(previews);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleWishlistClick = (animal: any) => {
@@ -206,9 +267,9 @@ export default function OrgAnimals() {
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  {/* Image Upload */}
+                  {/* Main Image Upload */}
                   <div className="space-y-2">
-                    <FormLabel>Zdjęcie</FormLabel>
+                    <FormLabel>Zdjęcie główne</FormLabel>
                     <div className="flex flex-col items-center gap-4">
                       {imagePreview && (
                         <Avatar className="h-32 w-32">
@@ -216,7 +277,7 @@ export default function OrgAnimals() {
                           <AvatarFallback>Zdjęcie</AvatarFallback>
                         </Avatar>
                       )}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-full">
                         <Input
                           type="file"
                           accept="image/*"
@@ -225,6 +286,36 @@ export default function OrgAnimals() {
                         />
                         <Upload className="h-4 w-4 text-muted-foreground" />
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Gallery Images Upload */}
+                  <div className="space-y-2">
+                    <FormLabel>Galeria zdjęć (max 6)</FormLabel>
+                    <div className="flex flex-col gap-4">
+                      {galleryPreviews.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {galleryPreviews.map((preview, idx) => (
+                            <Avatar key={idx} className="h-20 w-20">
+                              <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
+                              <AvatarFallback>{idx + 1}</AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 w-full">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleGalleryChange}
+                          className="max-w-xs"
+                        />
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Wybierz do 6 zdjęć dla galerii
+                      </p>
                     </div>
                   </div>
 
