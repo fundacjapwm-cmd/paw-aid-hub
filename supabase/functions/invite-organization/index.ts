@@ -179,7 +179,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: true, 
         message: "Zaproszenie zostało wysłane",
-        userId: authData.user.id
+        userId: userId
       }),
       {
         status: 200,
