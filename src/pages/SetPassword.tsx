@@ -15,13 +15,26 @@ interface PasswordRequirement {
 }
 
 const SetPassword = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Musisz być zalogowany, aby zmienić hasło');
+        navigate('/auth');
+      }
+      setIsCheckingAuth(false);
+    };
+    checkAuth();
+  }, [navigate]);
   
   const [requirements, setRequirements] = useState<PasswordRequirement[]>([
     { label: 'Minimum 8 znaków', test: (p) => p.length >= 8, met: false },
@@ -68,21 +81,12 @@ const SetPassword = () => {
     setIsLoading(true);
 
     try {
-      // Get the access token from URL
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
       
-      if (!accessToken) {
-        throw new Error('Brak tokenu dostępu. Link może być nieprawidłowy lub wygasł.');
+      if (!user) {
+        throw new Error('Musisz być zalogowany');
       }
-
-      // Set the session using the tokens from URL
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken || '',
-      });
-
-      if (sessionError) throw sessionError;
 
       // Update the password
       const { error: updateError } = await supabase.auth.updateUser({
@@ -91,26 +95,47 @@ const SetPassword = () => {
 
       if (updateError) throw updateError;
 
-      toast.success('Hasło zostało ustawione! Możesz się teraz zalogować.');
+      // Update profile to remove must_change_password flag
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ must_change_password: false })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+      }
+
+      toast.success('Hasło zostało zmienione! Zaloguj się ponownie nowym hasłem.');
       
       // Sign out and redirect to login
       await supabase.auth.signOut();
       navigate('/auth');
     } catch (error: any) {
       console.error('Error setting password:', error);
-      toast.error(error.message || 'Nie udało się ustawić hasła');
+      toast.error(error.message || 'Nie udało się zmienić hasła');
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Sprawdzanie autoryzacji...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Ustaw hasło</CardTitle>
+          <CardTitle>Zmień hasło</CardTitle>
           <CardDescription>
-            Ustaw silne hasło dla swojego konta
+            Ustaw nowe hasło dla swojego konta
           </CardDescription>
         </CardHeader>
         <CardContent>

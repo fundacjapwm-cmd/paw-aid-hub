@@ -61,10 +61,25 @@ export default function Auth() {
 
   // Redirect if already logged in (but not during password reset)
   useEffect(() => {
-    if (user && !loading && !showResetForm) {
-      const redirect = searchParams.get('redirect') || '/';
-      navigate(redirect);
-    }
+    const checkUserAndRedirect = async () => {
+      if (user && !loading && !showResetForm) {
+        // Check if user must change password
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('must_change_password')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.must_change_password) {
+          navigate('/set-password');
+        } else {
+          const redirect = searchParams.get('redirect') || '/';
+          navigate(redirect);
+        }
+      }
+    };
+    
+    checkUserAndRedirect();
   }, [user, loading, navigate, searchParams, showResetForm]);
 
   const handleLogin = async (e: React.FormEvent) => {
