@@ -62,18 +62,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("User created successfully:", authData.user.id);
 
-    // Create profile with must_change_password flag
+    // Update profile (created automatically by trigger) with organization details
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({
-        id: authData.user.id,
+      .update({
         role: 'ORG',
         must_change_password: true,
         display_name: organizationName
-      });
+      })
+      .eq('id', authData.user.id);
 
     if (profileError) {
-      console.error("Error creating profile:", profileError);
+      console.error("Error updating profile:", profileError);
       throw profileError;
     }
 
