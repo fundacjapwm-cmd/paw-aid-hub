@@ -4,8 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "@/components/AnimalCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Shield, Heart } from "lucide-react";
+import { MapPin, Heart } from "lucide-react";
 
 interface Organization {
   id: string;
@@ -133,13 +132,7 @@ export default function OrganizationPublicProfile() {
             </Avatar>
 
             <div className="flex-1 text-center md:text-left">
-              <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
-                <h1 className="text-4xl font-bold">{organization.name}</h1>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Shield className="h-3 w-3" />
-                  Zweryfikowana
-                </Badge>
-              </div>
+              <h1 className="text-4xl font-bold mb-2">{organization.name}</h1>
 
               {(organization.city || organization.province || organization.address) && (
                 <div className="flex items-center gap-2 text-muted-foreground mb-4 justify-center md:justify-start">
