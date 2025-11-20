@@ -114,8 +114,8 @@ const AnimalProfile = () => {
                     
                     {/* Gallery thumbnails - small under profile photo */}
                     {animal.gallery && animal.gallery.length > 0 && (
-                      <div className="grid grid-cols-4 gap-1.5 w-64">
-                        {animal.gallery.slice(0, 4).map((img: any) => (
+                      <div className="grid grid-cols-3 gap-2 w-64">
+                        {animal.gallery.slice(0, 3).map((img: any) => (
                           <div key={img.id} className="aspect-square rounded-lg overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
                             <img 
                               src={img.image_url} 
