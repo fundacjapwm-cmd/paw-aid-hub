@@ -15,8 +15,13 @@ interface Organization {
   description?: string;
   city?: string;
   province?: string;
+  address?: string;
+  postal_code?: string;
   website?: string;
   contact_email: string;
+  contact_phone?: string;
+  nip?: string;
+  regon?: string;
 }
 
 export default function OrganizationPublicProfile() {
@@ -120,10 +125,12 @@ export default function OrganizationPublicProfile() {
                 </Badge>
               </div>
 
-              {(organization.city || organization.province) && (
+              {(organization.city || organization.province || organization.address) && (
                 <div className="flex items-center gap-2 text-muted-foreground mb-4 justify-center md:justify-start">
                   <MapPin className="h-4 w-4" />
                   <span>
+                    {organization.address && `${organization.address}, `}
+                    {organization.postal_code && `${organization.postal_code} `}
                     {organization.city}
                     {organization.province && `, ${organization.province}`}
                   </span>
