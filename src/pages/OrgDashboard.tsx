@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PawPrint, Package, AlertCircle } from "lucide-react";
@@ -9,12 +10,6 @@ import { PawPrint, Package, AlertCircle } from "lucide-react";
 export default function OrgDashboard() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    animals: 0,
-    wishlistItems: 0,
-    requests: 0,
-  });
-  const [organizationName, setOrganizationName] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -26,26 +21,24 @@ export default function OrgDashboard() {
       navigate("/");
       return;
     }
-
-    fetchStats();
   }, [user, profile, navigate]);
 
-  const fetchStats = async () => {
-    try {
+  const { data: orgData } = useQuery({
+    queryKey: ["organization-dashboard", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+
       // Get organization
       const { data: orgUser } = await supabase
         .from("organization_users")
         .select("organization_id, organizations(name)")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .single();
 
-      if (orgUser?.organizations) {
-        setOrganizationName((orgUser.organizations as any).name);
-      }
-
       const orgId = orgUser?.organization_id;
+      const organizationName = orgUser?.organizations ? (orgUser.organizations as any).name : "";
 
-      if (!orgId) return;
+      if (!orgId) return { organizationName, stats: { animals: 0, wishlistItems: 0, requests: 0 } };
 
       // Count animals
       const { count: animalsCount } = await supabase
@@ -72,15 +65,21 @@ export default function OrgDashboard() {
         .select("*", { count: "exact", head: true })
         .eq("organization_id", orgId);
 
-      setStats({
-        animals: animalsCount || 0,
-        wishlistItems: wishlistCount || 0,
-        requests: requestsCount || 0,
-      });
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    }
-  };
+      return {
+        organizationName,
+        stats: {
+          animals: animalsCount || 0,
+          wishlistItems: wishlistCount || 0,
+          requests: requestsCount || 0,
+        },
+      };
+    },
+    enabled: !!user && profile?.role === "ORG",
+    staleTime: 300000, // 5 minutes
+  });
+
+  const organizationName = orgData?.organizationName || "";
+  const stats = orgData?.stats || { animals: 0, wishlistItems: 0, requests: 0 };
 
   if (!user || profile?.role !== "ORG") {
     return null;
