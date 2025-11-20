@@ -16,6 +16,8 @@ interface Organization {
   description?: string;
   city?: string;
   province?: string;
+  address?: string;
+  postal_code?: string;
   contact_phone?: string;
   contact_email: string;
   logo_url?: string;
@@ -214,21 +216,21 @@ const Organizacje = () => {
                       onClick={() => navigate(`/organizacje/${org.slug}`)}
                       className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer"
                     >
-                      {/* Header with Logo */}
-                      <div className="bg-gradient-to-br from-primary/80 to-primary p-8 relative overflow-hidden">
-                        <div className="absolute top-2 right-2 w-4 h-4 bg-white/20 rounded-full animate-bounce-gentle"></div>
-                        <div className="absolute bottom-4 left-4 w-3 h-3 bg-white/15 rounded-full animate-float delay-300"></div>
-                        
-                        <div className="flex flex-col items-center text-center">
-                          <Avatar className="h-24 w-24 mb-4 border-4 border-white/30">
-                            <AvatarImage src={org.logo_url || ''} alt={org.name} />
-                            <AvatarFallback className="text-3xl font-bold bg-white/20 text-white">
-                              {org.name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <h3 className="text-2xl font-bold text-white mb-2">{org.name}</h3>
+                      {/* Header with Background Image */}
+                      <div 
+                        className="relative h-48 bg-gradient-to-br from-primary via-primary/90 to-primary/80 overflow-hidden"
+                        style={{
+                          backgroundImage: org.logo_url 
+                            ? `linear-gradient(to bottom right, rgba(239, 126, 50, 0.85), rgba(239, 126, 50, 0.95)), url(${org.logo_url})`
+                            : undefined,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      >
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
+                          <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">{org.name}</h3>
                           {(org.city || org.province) && (
-                            <div className="flex items-center justify-center space-x-2 text-white/90">
+                            <div className="flex items-center justify-center space-x-2 text-white/90 drop-shadow">
                               <MapPin className="h-4 w-4" />
                               <span className="font-medium">
                                 {org.city}{org.province && `, ${org.province}`}
@@ -261,6 +263,14 @@ const Organizacje = () => {
                             </div>
                             <p className="text-lg font-bold text-foreground">Aktywna</p>
                             <p className="text-xs text-muted-foreground">organizacja</p>
+                            {(org.address || org.city) && (
+                              <div className="text-xs text-muted-foreground mt-2">
+                                {org.address && <div>{org.address}</div>}
+                                {org.postal_code && org.city && (
+                                  <div>{org.postal_code} {org.city}</div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
 
