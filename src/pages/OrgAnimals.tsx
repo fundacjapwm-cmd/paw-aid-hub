@@ -114,6 +114,10 @@ export default function OrgAnimals() {
     setWishlistDialogOpen(true);
   };
 
+  if (!user || profile?.role !== "ORG") {
+    return null;
+  }
+
   return (
     <OrgLayout organizationName={organizationName}>
       <div className="space-y-6">
