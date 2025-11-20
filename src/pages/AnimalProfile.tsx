@@ -102,8 +102,8 @@ const AnimalProfile = () => {
             <div className="lg:col-span-2">
               {/* Main Card with Name, Image, Details and Gallery */}
               <Card className="p-8 rounded-3xl">
-                <div className="flex flex-col md:flex-row gap-6 items-start mb-8">
-                  <div className="flex-shrink-0">
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  <div className="flex-shrink-0 space-y-4">
                     <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly">
                       <img 
                         src={animal.image || '/placeholder.svg'} 
@@ -111,6 +111,21 @@ const AnimalProfile = () => {
                         className="w-full h-full object-cover"
                       />
                     </div>
+                    
+                    {/* Gallery thumbnails */}
+                    {animal.gallery && animal.gallery.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {animal.gallery.map((img: any) => (
+                          <div key={img.id} className="aspect-square rounded-xl overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
+                            <img 
+                              src={img.image_url} 
+                              alt={`${animal.name} gallery`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 space-y-6">
                     <div>
@@ -172,24 +187,6 @@ const AnimalProfile = () => {
                     )}
                   </div>
                 </div>
-
-                {/* Gallery */}
-                {animal.gallery && animal.gallery.length > 0 && (
-                  <div className="border-t border-border pt-6">
-                    <h3 className="text-lg font-bold text-foreground mb-4">Galeria</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {animal.gallery.map((img: any) => (
-                        <div key={img.id} className="aspect-square rounded-xl overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
-                          <img 
-                            src={img.image_url} 
-                            alt={`${animal.name} gallery`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </Card>
             </div>
 
