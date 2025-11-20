@@ -744,6 +744,58 @@ export default function AdminPanel() {
     fetchProductCategories();
     fetchProducts();
     fetchActivityLogs();
+
+    // Real-time subscriptions for automatic data sync
+    const organizationsChannel = supabase
+      .channel('organizations-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'organizations' }, () => {
+        fetchOrganizations();
+      })
+      .subscribe();
+
+    const animalsChannel = supabase
+      .channel('animals-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'animals' }, () => {
+        fetchAnimals();
+      })
+      .subscribe();
+
+    const producersChannel = supabase
+      .channel('producers-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'producers' }, () => {
+        fetchProducers();
+      })
+      .subscribe();
+
+    const productsChannel = supabase
+      .channel('products-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        fetchProducts();
+      })
+      .subscribe();
+
+    const categoriesChannel = supabase
+      .channel('categories-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_categories' }, () => {
+        fetchProductCategories();
+      })
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel('profiles-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchUsers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(organizationsChannel);
+      supabase.removeChannel(animalsChannel);
+      supabase.removeChannel(producersChannel);
+      supabase.removeChannel(productsChannel);
+      supabase.removeChannel(categoriesChannel);
+      supabase.removeChannel(profilesChannel);
+    };
   }, []);
 
   return (
