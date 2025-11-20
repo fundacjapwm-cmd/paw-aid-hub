@@ -6,16 +6,7 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-// Generate temporary password
-function generateTemporaryPassword(): string {
-  const length = 12;
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    password += charset.charAt(Math.floor(Math.random() * charset.length));
-  }
-  return password;
-}
+// No longer needed - using recovery link instead
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,9 +32,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating user account for:", email);
 
-    // Generate temporary password
-    const temporaryPassword = generateTemporaryPassword();
-
     // Check if user already exists
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
     const existingUser = existingUsers?.users.find(u => u.email === email);
@@ -51,13 +39,12 @@ const handler = async (req: Request): Promise<Response> => {
     let userId: string;
 
     if (existingUser) {
-      console.log("User already exists, updating password:", existingUser.id);
+      console.log("User already exists, updating metadata:", existingUser.id);
       
-      // Update existing user's password and metadata
+      // Update existing user's metadata
       const { data: updateData, error: updateError } = await supabase.auth.admin.updateUserById(
         existingUser.id,
         {
-          password: temporaryPassword,
           user_metadata: {
             organization_id: organizationId,
             organization_name: organizationName
@@ -73,10 +60,9 @@ const handler = async (req: Request): Promise<Response> => {
       userId = existingUser.id;
       console.log("User updated successfully:", userId);
     } else {
-      // Create new user with temporary password
+      // Create new user WITHOUT password (will be set via recovery link)
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
-        password: temporaryPassword,
         email_confirm: true,
         user_metadata: {
           organization_id: organizationId,
@@ -134,40 +120,41 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Organization user record already exists");
     }
 
-    // Send email with credentials
+    // Generate recovery link (magic link for setting password)
+    const origin = req.headers.get("origin") || "https://your-app.lovable.app";
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
+      email: email,
+      options: {
+        redirectTo: `${origin}/set-password`
+      }
+    });
+
+    if (linkError) {
+      console.error("Error generating recovery link:", linkError);
+      throw linkError;
+    }
+
+    console.log("Sending invitation email to:", email);
+
+    // Send invitation email with recovery link
     const emailResponse = await resend.emails.send({
-      from: "Adopcja Zwierząt <onboarding@resend.dev>",
+      from: "Pączki w Maśle <noreply@lovable.app>",
       to: [email],
-      subject: `Zaproszenie do zarządzania - ${organizationName}`,
+      subject: `Zaproszenie do organizacji ${organizationName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">Witamy w systemie Adopcja Zwierząt!</h1>
-          <p>Zostałeś zaproszony do zarządzania organizacją: <strong>${organizationName}</strong></p>
-          
-          <p>Możesz zalogować się używając poniższych danych:</p>
-          
-          <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p style="margin: 0;"><strong>Email:</strong> ${email}</p>
-            <p style="margin: 10px 0 0 0;"><strong>Tymczasowe hasło:</strong> <code style="background-color: #fff; padding: 4px 8px; border-radius: 4px;">${temporaryPassword}</code></p>
-          </div>
-          
-          <p style="color: #d97706; font-weight: 600;">⚠️ Po zalogowaniu zostaniesz poproszony o zmianę hasła.</p>
-          
-          <div style="margin: 30px 0;">
-            <a href="${req.headers.get('origin')}/auth" 
-               style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Zaloguj się teraz
+          <h2 style="color: #E9A52E;">Witaj w organizacji ${organizationName}!</h2>
+          <p>Zostałeś dodany jako administrator organizacji w systemie "Pączki w Maśle".</p>
+          <p>Kliknij poniższy przycisk, aby aktywować konto i ustawić hasło:</p>
+          <p style="margin: 30px 0;">
+            <a href="${linkData.properties.action_link}" 
+               style="background-color: #E9A52E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 12px; display: inline-block;">
+              Aktywuj konto i ustaw hasło
             </a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px;">
-            Jeśli nie utworzyłeś tego konta, zignoruj tę wiadomość.
           </p>
-          
-          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-          
-          <p style="color: #999; font-size: 12px;">
-            Ta wiadomość została wysłana automatycznie. Nie odpowiadaj na nią.
+          <p style="color: #666; font-size: 14px;">
+            Link jest ważny przez 24 godziny. Jeśli nie spodziewałeś się tego zaproszenia, możesz zignorować tę wiadomość.
           </p>
         </div>
       `,
