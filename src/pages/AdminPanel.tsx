@@ -158,6 +158,74 @@ export default function AdminPanel() {
     producer_id: ''
   });
 
+  // useEffect musi być przed early returns (React Rules of Hooks)
+  useEffect(() => {
+    // Guard: nie rób niczego jeśli user nie jest gotowy lub nie jest adminem
+    if (loading || !user || profile?.role !== 'ADMIN') {
+      return;
+    }
+
+    fetchOrganizations();
+    fetchUsers();
+    fetchAnimals();
+    fetchProducers();
+    fetchProductCategories();
+    fetchProducts();
+    fetchActivityLogs();
+
+    // Real-time subscriptions for automatic data sync
+    const organizationsChannel = supabase
+      .channel('organizations-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'organizations' }, () => {
+        fetchOrganizations();
+      })
+      .subscribe();
+
+    const animalsChannel = supabase
+      .channel('animals-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'animals' }, () => {
+        fetchAnimals();
+      })
+      .subscribe();
+
+    const producersChannel = supabase
+      .channel('producers-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'producers' }, () => {
+        fetchProducers();
+      })
+      .subscribe();
+
+    const productsChannel = supabase
+      .channel('products-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        fetchProducts();
+      })
+      .subscribe();
+
+    const categoriesChannel = supabase
+      .channel('categories-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_categories' }, () => {
+        fetchProductCategories();
+      })
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel('profiles-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchUsers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(organizationsChannel);
+      supabase.removeChannel(animalsChannel);
+      supabase.removeChannel(producersChannel);
+      supabase.removeChannel(productsChannel);
+      supabase.removeChannel(categoriesChannel);
+      supabase.removeChannel(profilesChannel);
+    };
+  }, [loading, user, profile]);
+
   // Sprawdź czy użytkownik jest adminem
   if (loading) {
     return (
@@ -735,67 +803,6 @@ export default function AdminPanel() {
     }
   };
 
-  useEffect(() => {
-    fetchOrganizations();
-    fetchUsers();
-    fetchAnimals();
-    fetchProducers();
-    fetchProductCategories();
-    fetchProducts();
-    fetchActivityLogs();
-
-    // Real-time subscriptions for automatic data sync
-    const organizationsChannel = supabase
-      .channel('organizations-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'organizations' }, () => {
-        fetchOrganizations();
-      })
-      .subscribe();
-
-    const animalsChannel = supabase
-      .channel('animals-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'animals' }, () => {
-        fetchAnimals();
-      })
-      .subscribe();
-
-    const producersChannel = supabase
-      .channel('producers-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'producers' }, () => {
-        fetchProducers();
-      })
-      .subscribe();
-
-    const productsChannel = supabase
-      .channel('products-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
-        fetchProducts();
-      })
-      .subscribe();
-
-    const categoriesChannel = supabase
-      .channel('categories-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_categories' }, () => {
-        fetchProductCategories();
-      })
-      .subscribe();
-
-    const profilesChannel = supabase
-      .channel('profiles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-        fetchUsers();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(organizationsChannel);
-      supabase.removeChannel(animalsChannel);
-      supabase.removeChannel(producersChannel);
-      supabase.removeChannel(productsChannel);
-      supabase.removeChannel(categoriesChannel);
-      supabase.removeChannel(profilesChannel);
-    };
-  }, []);
 
   return (
     <div className="container mx-auto py-8 px-4">
