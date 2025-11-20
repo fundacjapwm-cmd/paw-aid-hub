@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { AlertCircle, Upload } from "lucide-react";
+import { AlertCircle, Upload, Download } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -50,6 +50,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
   const [isLoading, setIsLoading] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [fetchingKRS, setFetchingKRS] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   const form = useForm<OrganizationFormData>({
@@ -97,6 +98,61 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       // Check if onboarding is needed
       const incomplete = !data.nip || !data.city || !(data as any).bank_account_number;
       setNeedsOnboarding(incomplete);
+    }
+  };
+
+  const handleFetchKRS = async () => {
+    const nip = form.getValues("nip");
+    
+    if (!nip || !/^\d{10}$/.test(nip)) {
+      toast({
+        title: "Błąd",
+        description: "Najpierw wpisz poprawny NIP (10 cyfr)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFetchingKRS(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-krs-data', {
+        body: { nip },
+      });
+
+      if (error) throw error;
+
+      if (data.success && data.data) {
+        const krsData = data.data;
+        
+        // Update form with fetched data
+        if (krsData.name) form.setValue("name", krsData.name);
+        if (krsData.regon) form.setValue("regon", krsData.regon);
+        if (krsData.address) form.setValue("address", krsData.address);
+        if (krsData.city) form.setValue("city", krsData.city);
+        if (krsData.postal_code) form.setValue("postal_code", krsData.postal_code);
+        if (krsData.province) form.setValue("province", krsData.province);
+
+        toast({
+          title: "Sukces",
+          description: "Dane zostały pobrane z rejestru",
+        });
+      } else {
+        toast({
+          title: "Nie znaleziono",
+          description: data.error || "Nie znaleziono danych dla podanego NIP",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching KRS data:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się pobrać danych z rejestru",
+        variant: "destructive",
+      });
+    } finally {
+      setFetchingKRS(false);
     }
   };
 
@@ -281,6 +337,19 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     </FormItem>
                   )}
                 />
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleFetchKRS}
+                  disabled={fetchingKRS || !isOwner}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  {fetchingKRS ? "Pobieranie..." : "Pobierz dane z KRS"}
+                </Button>
               </div>
 
               <FormField
