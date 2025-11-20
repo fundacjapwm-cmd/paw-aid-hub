@@ -18,7 +18,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Plus, Pencil, ShoppingCart, AlertCircle, Upload } from "lucide-react";
+import { Plus, Pencil, ShoppingCart, AlertCircle, Upload, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const animalSchema = z.object({
   name: z.string().min(2, "Imię musi mieć minimum 2 znaki"),
@@ -40,12 +41,16 @@ export default function OrgAnimals() {
   const [organizationName, setOrganizationName] = useState("");
   const [organization, setOrganization] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [wishlistDialogOpen, setWishlistDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [editingAnimal, setEditingAnimal] = useState<any | null>(null);
+  const [animalToDelete, setAnimalToDelete] = useState<any | null>(null);
 
   const form = useForm<AnimalFormData>({
     resolver: zodResolver(animalSchema),
@@ -220,6 +225,127 @@ export default function OrgAnimals() {
   const handleWishlistClick = (animal: any) => {
     setSelectedAnimal(animal);
     setWishlistDialogOpen(true);
+  };
+
+  const handleEditClick = (animal: any) => {
+    setEditingAnimal(animal);
+    form.reset({
+      name: animal.name,
+      species: animal.species,
+      breed: animal.breed || "",
+      age: animal.age || 0,
+      gender: animal.gender || "",
+      description: animal.description || "",
+    });
+    setImagePreview(animal.image_url);
+    setEditDialogOpen(true);
+  };
+
+  const handleDeleteClick = (animal: any) => {
+    setAnimalToDelete(animal);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!animalToDelete) return;
+
+    try {
+      // Delete animal from database
+      const { error } = await supabase
+        .from("animals")
+        .delete()
+        .eq("id", animalToDelete.id);
+
+      if (error) throw error;
+
+      toast.success("Podopieczny został usunięty");
+      setDeleteDialogOpen(false);
+      setAnimalToDelete(null);
+      if (organizationId) fetchAnimals(organizationId);
+    } catch (error: any) {
+      toast.error("Błąd podczas usuwania: " + error.message);
+    }
+  };
+
+  const onEditSubmit = async (data: AnimalFormData) => {
+    if (!editingAnimal || !organizationId) return;
+
+    try {
+      setUploading(true);
+      let imageUrl = editingAnimal.image_url;
+
+      // Upload new main image if selected
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `animals/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+
+      // Update animal
+      const { error } = await supabase.from("animals")
+        .update({
+          ...data,
+          image_url: imageUrl,
+        } as any)
+        .eq("id", editingAnimal.id);
+
+      if (error) throw error;
+
+      // Handle gallery images if any new ones
+      if (galleryFiles.length > 0) {
+        for (let i = 0; i < galleryFiles.length; i++) {
+          const file = galleryFiles[i];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `animals/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(filePath, file);
+
+          if (uploadError) {
+            console.error('Gallery upload error:', uploadError);
+            continue;
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(filePath);
+
+          await supabase.from('animal_images').insert({
+            animal_id: editingAnimal.id,
+            image_url: publicUrl,
+            display_order: i,
+          });
+        }
+      }
+
+      toast.success("Podopieczny został zaktualizowany!");
+      setEditDialogOpen(false);
+      setEditingAnimal(null);
+      form.reset();
+      setImagePreview(null);
+      setImageFile(null);
+      setGalleryFiles([]);
+      setGalleryPreviews([]);
+      setUploading(false);
+      fetchAnimals(organizationId);
+    } catch (error: any) {
+      toast.error("Błąd podczas aktualizacji: " + error.message);
+      setUploading(false);
+    }
   };
 
   if (!user || profile?.role !== "ORG") {
@@ -424,7 +550,7 @@ export default function OrgAnimals() {
           <CardHeader>
             <CardTitle>Lista podopiecznych</CardTitle>
             <CardDescription>
-              Kliknij ikonę koszyka, aby zarządzać listą potrzeb zwierzęcia
+              Zarządzaj swoimi podopiecznymi - edytuj dane, zmieniaj zdjęcia lub usuń zwierzę
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -455,14 +581,32 @@ export default function OrgAnimals() {
                     <TableCell>{animal.breed || "-"}</TableCell>
                     <TableCell>{animal.age || "-"}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
-                        onClick={() => handleWishlistClick(animal)}
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
+                          onClick={() => handleWishlistClick(animal)}
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-full hover:bg-accent/10 hover:text-accent transition-colors"
+                          onClick={() => handleEditClick(animal)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          onClick={() => handleDeleteClick(animal)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -471,6 +615,187 @@ export default function OrgAnimals() {
           </CardContent>
         </Card>
 
+        {/* Edit Animal Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="rounded-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edytuj podopiecznego</DialogTitle>
+              <DialogDescription>
+                Zaktualizuj informacje o zwierzęciu
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-4">
+                {/* Main Image Upload */}
+                <div className="space-y-2">
+                  <FormLabel>Zdjęcie główne</FormLabel>
+                  <div className="flex flex-col items-center gap-4">
+                    {imagePreview && (
+                      <Avatar className="h-32 w-32">
+                        <AvatarImage src={imagePreview} alt="Podgląd" />
+                        <AvatarFallback>Zdjęcie</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div className="flex items-center gap-2 w-full">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="max-w-xs"
+                      />
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gallery Images Upload */}
+                <div className="space-y-2">
+                  <FormLabel>Dodaj więcej zdjęć do galerii (max 6)</FormLabel>
+                  <div className="flex flex-col gap-4">
+                    {galleryPreviews.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {galleryPreviews.map((preview, idx) => (
+                          <Avatar key={idx} className="h-20 w-20">
+                            <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
+                            <AvatarFallback>{idx + 1}</AvatarFallback>
+                          </Avatar>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 w-full">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleGalleryChange}
+                        className="max-w-xs"
+                      />
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Imię</FormLabel>
+                      <FormControl>
+                        <Input placeholder="np. Burek" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="species"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gatunek</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Wybierz gatunek" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Pies">Pies</SelectItem>
+                          <SelectItem value="Kot">Kot</SelectItem>
+                          <SelectItem value="Inne">Inne</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="breed"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Rasa (opcjonalnie)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="np. Owczarek niemiecki" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Wiek (lata)</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="0" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Płeć</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Samiec/Samica" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Opis</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Opisz podopiecznego..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button 
+                  type="submit" 
+                  disabled={uploading}
+                  className="w-full rounded-2xl"
+                >
+                  {uploading ? "Aktualizowanie..." : "Zapisz zmiany"}
+                </Button>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent className="rounded-3xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Czy na pewno chcesz usunąć?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Ta akcja jest nieodwracalna. Podopieczny <strong>{animalToDelete?.name}</strong> zostanie trwale usunięty z bazy danych wraz z jego listą potrzeb.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-2xl">Anuluj</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteConfirm}
+                className="rounded-2xl bg-destructive hover:bg-destructive/90"
+              >
+                Usuń
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Wishlist Dialog */}
         <Dialog open={wishlistDialogOpen} onOpenChange={setWishlistDialogOpen}>
           <DialogContent className="max-w-4xl rounded-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
