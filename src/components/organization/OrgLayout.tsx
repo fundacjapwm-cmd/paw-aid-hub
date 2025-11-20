@@ -1,7 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, PawPrint, ClipboardList, Settings, LogOut } from "lucide-react";
+import { Home, PawPrint, ClipboardList, Settings, LogOut, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -80,6 +81,26 @@ function OrgSidebarContent() {
 
 export default function OrgLayout({ children, organizationName }: OrgLayoutProps) {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const [orgSlug, setOrgSlug] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrgSlug = async () => {
+      if (!user?.id) return;
+      
+      const { data } = await supabase
+        .from("organization_users")
+        .select("organizations(slug)")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      
+      if (data?.organizations) {
+        setOrgSlug((data.organizations as any).slug);
+      }
+    };
+    
+    fetchOrgSlug();
+  }, [user]);
 
   if (isMobile) {
     return (
@@ -126,6 +147,14 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
               <h1 className="text-2xl font-bold text-foreground">
                 {organizationName || "Panel Organizacji"}
               </h1>
+              {orgSlug && (
+                <Link to={`/organizacje/${orgSlug}`} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" className="rounded-2xl gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    Podgląd profilu publicznego
+                  </Button>
+                </Link>
+              )}
             </div>
           </header>
           <div className="p-6">{children}</div>

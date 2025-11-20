@@ -45,9 +45,13 @@ export default function OrganizationPublicProfile() {
         .select("*")
         .eq("slug", slug)
         .eq("active", true)
-        .single();
+        .maybeSingle();
 
       if (orgError) throw orgError;
+      if (!org) {
+        setLoading(false);
+        return;
+      }
 
       setOrganization(org);
 
