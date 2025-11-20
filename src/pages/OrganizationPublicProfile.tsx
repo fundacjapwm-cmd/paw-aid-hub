@@ -28,6 +28,7 @@ export default function OrganizationPublicProfile() {
   const { slug } = useParams<{ slug: string }>();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [animals, setAnimals] = useState<any[]>([]);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,6 +75,17 @@ export default function OrganizationPublicProfile() {
       if (animalsError) throw animalsError;
 
       setAnimals(animalsData || []);
+
+      // Fetch organization's gallery images
+      const { data: imagesData, error: imagesError } = await supabase
+        .from("organization_images")
+        .select("*")
+        .eq("organization_id", org.id)
+        .order("display_order", { ascending: true });
+
+      if (imagesError) throw imagesError;
+
+      setGalleryImages(imagesData || []);
     } catch (error) {
       console.error("Error fetching organization:", error);
     } finally {
@@ -157,6 +169,30 @@ export default function OrganizationPublicProfile() {
           </div>
         </div>
       </div>
+
+      {/* Gallery Section */}
+      {galleryImages.length > 0 && (
+        <div className="container mx-auto px-4 py-12">
+          <Card className="rounded-3xl shadow-card">
+            <CardHeader>
+              <CardTitle className="text-2xl">Galeria</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {galleryImages.map((image) => (
+                  <div key={image.id} className="aspect-square overflow-hidden rounded-xl border border-border shadow-soft hover:scale-105 transition-transform">
+                    <img
+                      src={image.image_url}
+                      alt="Zdjęcie organizacji"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Animals Section */}
       <div className="container mx-auto px-4 py-12">

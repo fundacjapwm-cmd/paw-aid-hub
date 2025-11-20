@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import OrgLayout from "@/components/organization/OrgLayout";
 import OrgProfileForm from "@/components/organization/OrgProfileForm";
+import OrgImageGallery from "@/components/organization/OrgImageGallery";
 
 export default function OrgProfile() {
   const { user, profile } = useAuth();
@@ -55,7 +56,10 @@ export default function OrgProfile() {
         </div>
 
         {organizationId && (
-          <OrgProfileForm organizationId={organizationId} isOwner={isOwner} />
+          <>
+            <OrgProfileForm organizationId={organizationId} isOwner={isOwner} />
+            <OrgImageGallery organizationId={organizationId} isOwner={isOwner} />
+          </>
         )}
       </div>
     </OrgLayout>

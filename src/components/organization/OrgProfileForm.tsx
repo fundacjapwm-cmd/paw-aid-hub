@@ -79,10 +79,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       .eq("id", organizationId)
       .single();
 
-    console.log('Fetched organization data:', data);
-
     if (error) {
-      console.error('Fetch error:', error);
       toast({
         title: "Błąd",
         description: "Nie udało się pobrać danych organizacji",
@@ -92,14 +89,6 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
     }
 
     if (data) {
-      console.log('Resetting form with:', {
-        name: data.name,
-        nip: data.nip,
-        regon: data.regon,
-        postal_code: data.postal_code,
-        bank_account_number: data.bank_account_number,
-      });
-
       form.reset({
         name: data.name,
         nip: data.nip || "",
@@ -233,8 +222,6 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
   const onSubmit = async (data: OrganizationFormData) => {
     setIsLoading(true);
 
-    console.log('Submitting organization data:', data);
-
     const { data: updateData, error } = await supabase
       .from("organizations")
       .update({
@@ -255,10 +242,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       .select()
       .single();
 
-    console.log('Update response:', updateData, error);
-
     if (error) {
-      console.error('Update error:', error);
       toast({
         title: "Błąd",
         description: "Nie udało się zapisać zmian",
