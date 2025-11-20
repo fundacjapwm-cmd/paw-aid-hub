@@ -407,10 +407,9 @@ export default function AdminPanel() {
   };
 
   const deleteOrganization = async (id: string) => {
-    const { error } = await supabase
-      .from('organizations')
-      .delete()
-      .eq('id', id);
+    const { data, error } = await supabase.functions.invoke('delete-organization', {
+      body: { organizationId: id }
+    });
 
     if (error) {
       toast({

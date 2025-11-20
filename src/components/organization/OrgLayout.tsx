@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { Home, PawPrint, Building2, ClipboardList, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -53,10 +53,10 @@ function OrgSidebarContent() {
                   isActive={isActive(item.url)}
                   className={isActive(item.url) ? "bg-primary/10 text-primary font-medium" : ""}
                 >
-                  <a href={item.url} className="flex items-center gap-3 px-3 py-2.5">
+                  <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
                     <item.icon className="h-5 w-5" />
                     {open && <span>{item.title}</span>}
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

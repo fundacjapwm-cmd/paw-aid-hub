@@ -139,24 +139,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send invitation email with recovery link
     const emailResponse = await resend.emails.send({
-      from: "Pączki w Maśle <noreply@lovable.app>",
+      from: "Pączki w Maśle <onboarding@resend.dev>",
       to: [email],
       subject: `Zaproszenie do organizacji ${organizationName}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #E9A52E;">Witaj w organizacji ${organizationName}!</h2>
-          <p>Zostałeś dodany jako administrator organizacji w systemie "Pączki w Maśle".</p>
-          <p>Kliknij poniższy przycisk, aby aktywować konto i ustawić hasło:</p>
-          <p style="margin: 30px 0;">
-            <a href="${linkData.properties.action_link}" 
-               style="background-color: #E9A52E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 12px; display: inline-block;">
-              Aktywuj konto i ustaw hasło
-            </a>
-          </p>
-          <p style="color: #666; font-size: 14px;">
-            Link jest ważny przez 24 godziny. Jeśli nie spodziewałeś się tego zaproszenia, możesz zignorować tę wiadomość.
-          </p>
-        </div>
+        <h1>Zaproszenie do Pączki w Maśle 🍩</h1>
+        <p>Zostałeś zaproszony do zarządzania organizacją: <strong>${organizationName}</strong>.</p>
+        <p>Kliknij poniższy przycisk, aby ustawić hasło i aktywować konto:</p>
+        <a href="${linkData.properties.action_link}" style="background:#E9A52E; color:white; padding:12px 24px; text-decoration:none; border-radius:8px; display:inline-block;">
+          Aktywuj konto i ustaw hasło
+        </a>
+        <p style="margin-top:20px; color:#666; font-size:14px;">
+          Link jest ważny przez 24 godziny.
+        </p>
       `,
     });
 
