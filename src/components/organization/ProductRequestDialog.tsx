@@ -56,13 +56,16 @@ export default function ProductRequestDialog({
   const onSubmit = async (data: ProductRequestFormData) => {
     setIsSubmitting(true);
 
-    // Check if product_requests table exists, if not we'll need to create it
-    const { error } = await supabase.from("product_requests").insert({
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from("product_requests" as any).insert({
       product_name: data.product_name,
       producer_name: data.producer_name || null,
       product_link: data.product_link || null,
       notes: data.notes || null,
       status: "pending",
+      user_id: user.id,
     });
 
     setIsSubmitting(false);

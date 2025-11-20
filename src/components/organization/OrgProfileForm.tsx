@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,11 +80,14 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       form.reset({
         name: data.name,
         nip: data.nip || "",
+        regon: (data as any).regon || "",
         contact_email: data.contact_email,
         contact_phone: data.contact_phone || "",
         address: data.address || "",
+        postal_code: (data as any).postal_code || "",
         city: data.city || "",
         province: data.province || "",
+        bank_account_number: (data as any).bank_account_number || "",
         website: data.website || "",
         description: data.description || "",
       });
@@ -91,7 +95,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       setLogoUrl(data.logo_url);
 
       // Check if onboarding is needed
-      const incomplete = !data.nip || !data.city || !data.bank_account_number;
+      const incomplete = !data.nip || !data.city || !(data as any).bank_account_number;
       setNeedsOnboarding(incomplete);
     }
   };
@@ -163,7 +167,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
         province: data.province || null,
         website: data.website || null,
         description: data.description || null,
-      })
+      } as any)
       .eq("id", organizationId);
 
     setIsLoading(false);
