@@ -165,7 +165,7 @@ export default function OrgAnimals() {
     return null;
   }
 
-  const isProfileComplete = organization?.nip && organization?.city && organization?.bank_account_number;
+  const isProfileComplete = organization?.nip && organization?.city;
 
   return (
     <OrgLayout organizationName={organizationName}>
@@ -175,7 +175,7 @@ export default function OrgAnimals() {
           <Alert variant="destructive" className="rounded-2xl">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Uzupełnij NIP, Miasto i Konto Bankowe w zakładce Ustawienia, aby móc dodawać zwierzęta.
+              Uzupełnij NIP i Miasto w zakładce Ustawienia, aby móc dodawać zwierzęta.
             </AlertDescription>
           </Alert>
         )}
