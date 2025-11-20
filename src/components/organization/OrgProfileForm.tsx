@@ -21,7 +21,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { validateNIP } from "@/lib/validations/nip";
 
-const regonRegex = /^\d{9}$|^\d{14}$/;
 const postalCodeRegex = /^\d{2}-\d{3}$/;
 
 const organizationSchema = z.object({
@@ -32,10 +31,6 @@ const organizationSchema = z.object({
     .refine((val) => validateNIP(val), {
       message: "Nieprawidłowy numer NIP (błędna suma kontrolna)",
     }),
-  regon: z.string()
-    .regex(regonRegex, "REGON musi zawierać 9 lub 14 cyfr")
-    .optional()
-    .or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
   postal_code: z.string()
     .regex(postalCodeRegex, "Kod pocztowy musi być w formacie XX-XXX (np. 00-000)")
@@ -43,7 +38,6 @@ const organizationSchema = z.object({
     .or(z.literal("")),
   city: z.string().min(1, "Miasto jest wymagane"),
   province: z.string().optional().or(z.literal("")),
-  bank_account_number: z.string().optional().or(z.literal("")),
   contact_email: z.string().min(1, "Email kontaktowy jest wymagany").email("Nieprawidłowy adres email"),
   contact_phone: z.string().optional().or(z.literal("")),
   website: z.string().url("Nieprawidłowy adres strony (musi zaczynać się od http:// lub https://)").optional().or(z.literal("")),
@@ -92,14 +86,12 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       form.reset({
         name: data.name,
         nip: data.nip || "",
-        regon: data.regon || "",
         contact_email: data.contact_email,
         contact_phone: data.contact_phone || "",
         address: data.address || "",
         postal_code: data.postal_code || "",
         city: data.city || "",
         province: data.province || "",
-        bank_account_number: data.bank_account_number || "",
         website: data.website || "",
         description: data.description || "",
       });
@@ -138,7 +130,6 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
         
         // Update form with fetched data
         if (krsData.name) form.setValue("name", krsData.name);
-        if (krsData.regon) form.setValue("regon", krsData.regon);
         if (krsData.address) form.setValue("address", krsData.address);
         if (krsData.city) form.setValue("city", krsData.city);
         if (krsData.postal_code) form.setValue("postal_code", krsData.postal_code);
@@ -227,14 +218,12 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       .update({
         name: data.name,
         nip: data.nip || null,
-        regon: data.regon || null,
         contact_email: data.contact_email,
         contact_phone: data.contact_phone || null,
         address: data.address || null,
         city: data.city || null,
         postal_code: data.postal_code || null,
         province: data.province || null,
-        bank_account_number: data.bank_account_number || null,
         website: data.website || null,
         description: data.description || null,
       })
@@ -327,7 +316,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="nip"
@@ -336,20 +325,6 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                       <FormLabel>NIP *</FormLabel>
                       <FormControl>
                         <Input placeholder="0000000000" {...field} disabled={!isOwner} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="regon"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>REGON</FormLabel>
-                      <FormControl>
-                        <Input placeholder="000000000" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -427,20 +402,6 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                   )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="bank_account_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Numer konta bankowego</FormLabel>
-                    <FormControl>
-                      <Input placeholder="00 0000 0000 0000 0000 0000 0000" {...field} disabled={!isOwner} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
