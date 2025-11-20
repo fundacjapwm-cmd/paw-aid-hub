@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "@/components/AnimalCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Heart, Phone, Mail, Users } from "lucide-react";
 
 interface Organization {
   id: string;
@@ -120,49 +120,107 @@ export default function OrganizationPublicProfile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
-      {/* Hero Section */}
-      <div className="bg-background border-b border-border shadow-soft">
-        <div className="container mx-auto px-4 py-12">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <Avatar className="h-32 w-32 border-4 border-primary/20 shadow-bubbly">
-              <AvatarImage src={organization.logo_url || ''} alt={organization.name} />
-              <AvatarFallback className="text-3xl font-bold">
-                {organization.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+      {/* Hero Section with Background Image */}
+      <div className="relative">
+        {/* Background Image Container */}
+        <div 
+          className="relative h-[400px] bg-gradient-to-br from-primary via-primary/90 to-primary/80 overflow-hidden"
+          style={{
+            backgroundImage: organization.logo_url 
+              ? `linear-gradient(to bottom right, rgba(239, 126, 50, 0.85), rgba(239, 126, 50, 0.95)), url(${organization.logo_url})`
+              : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          {/* Name and Location Overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+            <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
+              {organization.name}
+            </h1>
+            {(organization.city || organization.province) && (
+              <div className="flex items-center gap-2 text-white/90 text-lg drop-shadow">
+                <MapPin className="h-5 w-5" />
+                <span>
+                  {organization.city}
+                  {organization.province && `, ${organization.province}`}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
 
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-4xl font-bold mb-2">{organization.name}</h1>
+        {/* Info Cards Container - Positioned to overlap the hero */}
+        <div className="container mx-auto px-4 -mt-20 relative z-10">
+          <div className="max-w-2xl mx-auto">
+            {organization.description && (
+              <Card className="rounded-2xl shadow-card mb-4 bg-background/95 backdrop-blur">
+                <CardContent className="p-6">
+                  <p className="text-center text-muted-foreground">{organization.description}</p>
+                </CardContent>
+              </Card>
+            )}
 
-              {(organization.city || organization.province || organization.address) && (
-                <div className="flex items-center gap-2 text-muted-foreground mb-4 justify-center md:justify-start">
-                  <MapPin className="h-4 w-4" />
-                  <span>
-                    {organization.address && `${organization.address}, `}
-                    {organization.postal_code && `${organization.postal_code} `}
-                    {organization.city}
-                    {organization.province && `, ${organization.province}`}
-                  </span>
-                </div>
-              )}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {/* Animals Count Card */}
+              <Card className="rounded-2xl shadow-card">
+                <CardContent className="p-6 text-center">
+                  <Heart className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <div className="text-3xl font-bold text-foreground mb-1">{animals.length}</div>
+                  <div className="text-sm text-muted-foreground">podopiecznych</div>
+                </CardContent>
+              </Card>
 
-              {organization.description && (
-                <p className="text-lg text-muted-foreground max-w-2xl">
-                  {organization.description}
-                </p>
-              )}
-
-              {organization.website && (
-                <a
-                  href={organization.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-4 text-primary hover:underline"
-                >
-                  Odwiedź naszą stronę →
-                </a>
-              )}
+              {/* Active Organization Card */}
+              <Card className="rounded-2xl shadow-card">
+                <CardContent className="p-6 text-center">
+                  <Users className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <div className="text-lg font-bold text-foreground mb-1">Aktywna</div>
+                  <div className="text-sm text-muted-foreground">organizacja</div>
+                  {(organization.address || organization.city) && (
+                    <div className="text-xs text-muted-foreground mt-2">
+                      {organization.address && <div>{organization.address}</div>}
+                      {organization.postal_code && organization.city && (
+                        <div>{organization.postal_code} {organization.city}</div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
+
+            {/* Contact Info */}
+            <Card className="rounded-2xl shadow-card mb-4">
+              <CardContent className="p-6 space-y-3">
+                {organization.contact_phone && (
+                  <div className="flex items-center gap-3 text-sm">
+                    <Phone className="h-4 w-4 text-primary" />
+                    <a href={`tel:${organization.contact_phone}`} className="text-foreground hover:text-primary">
+                      {organization.contact_phone}
+                    </a>
+                  </div>
+                )}
+                {organization.contact_email && (
+                  <div className="flex items-center gap-3 text-sm">
+                    <Mail className="h-4 w-4 text-primary" />
+                    <a href={`mailto:${organization.contact_email}`} className="text-foreground hover:text-primary">
+                      {organization.contact_email}
+                    </a>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* CTA Button */}
+            <Button 
+              asChild
+              className="w-full rounded-2xl h-12 text-base font-semibold shadow-soft"
+            >
+              <Link to={`/organizacje/${organization.slug}`}>
+                Zobacz profil organizacji
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
