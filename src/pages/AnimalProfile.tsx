@@ -103,8 +103,8 @@ const AnimalProfile = () => {
               {/* Main Card with Name, Image, Details and Gallery */}
               <Card className="p-8 rounded-3xl">
                 <div className="flex flex-col md:flex-row gap-6 items-start">
-                  <div className="flex-shrink-0 space-y-4">
-                    <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly">
+                  <div className="flex-shrink-0">
+                    <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly mb-3">
                       <img 
                         src={animal.image || '/placeholder.svg'} 
                         alt={animal.name}
@@ -112,11 +112,11 @@ const AnimalProfile = () => {
                       />
                     </div>
                     
-                    {/* Gallery thumbnails */}
+                    {/* Gallery thumbnails - small under profile photo */}
                     {animal.gallery && animal.gallery.length > 0 && (
-                      <div className="grid grid-cols-3 gap-2">
-                        {animal.gallery.map((img: any) => (
-                          <div key={img.id} className="aspect-square rounded-xl overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
+                      <div className="grid grid-cols-4 gap-1.5 w-64">
+                        {animal.gallery.slice(0, 4).map((img: any) => (
+                          <div key={img.id} className="aspect-square rounded-lg overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
                             <img 
                               src={img.image_url} 
                               alt={`${animal.name} gallery`}
