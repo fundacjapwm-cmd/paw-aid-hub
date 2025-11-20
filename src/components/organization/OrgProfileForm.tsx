@@ -222,14 +222,17 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
       .update({
         name: data.name,
         nip: data.nip || null,
+        regon: data.regon || null,
         contact_email: data.contact_email,
         contact_phone: data.contact_phone || null,
         address: data.address || null,
         city: data.city || null,
+        postal_code: data.postal_code || null,
         province: data.province || null,
+        bank_account_number: data.bank_account_number || null,
         website: data.website || null,
         description: data.description || null,
-      } as any)
+      })
       .eq("id", organizationId);
 
     setIsLoading(false);

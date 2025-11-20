@@ -2,55 +2,85 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Heart, MapPin, Users, ShoppingBag, Phone, Mail, Filter, Search, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { Heart, MapPin, Users, Phone, Mail, Filter, Search, X } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const organizationData = [
-  {
-    id: 1,
-    name: "Nazwa organizacji testowej",
-    description: "Słup słup krótki opis",
-    location: "Warszawa",
-    phone: "123-456-789",
-    email: "kontakt@org1.pl",
-    animalsCount: 24,
-    image: "🍩", // Donut icon matching reference
-    totalWishlistValue: "12,450 zł",
-    urgentNeeds: ["Karma sucha", "Legowiska", "Zabawki"],
-    backgroundColor: "bg-gradient-to-br from-pink-400 to-pink-600"
-  },
-  {
-    id: 2,
-    name: "Stowarzyszenie",
-    description: "Stowarzyszenie Futrzany Los z sercem opiekuje się schroniskiem w Żywcu, dając bezdomnym zwierzakom drugą szansę i nadzieję na nowy dom.",
-    location: "Żywiec", 
-    phone: "987-654-321",
-    email: "kontakt@futrzanylos.pl",
-    animalsCount: 18,
-    image: "🐾", // Paw icon
-    totalWishlistValue: "8,320 zł",
-    urgentNeeds: ["Karma mokra", "Koce", "Leki"],
-    backgroundColor: "bg-gradient-to-br from-gray-700 to-gray-900"
-  }
-];
+interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  city?: string;
+  province?: string;
+  contact_phone?: string;
+  contact_email: string;
+  logo_url?: string;
+  animalsCount?: number;
+}
 
 const Organizacje = () => {
+  const navigate = useNavigate();
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [orgType, setOrgType] = useState("wszystkie");
   const [province, setProvince] = useState("wszystkie");
   const [city, setCity] = useState("");
 
+  useEffect(() => {
+    fetchOrganizations();
+  }, []);
+
+  const fetchOrganizations = async () => {
+    try {
+      const { data: orgsData, error } = await supabase
+        .from("organizations")
+        .select("*")
+        .eq("active", true);
+
+      if (error) throw error;
+
+      // Count animals for each organization
+      const orgsWithCounts = await Promise.all(
+        (orgsData || []).map(async (org) => {
+          const { count } = await supabase
+            .from("animals")
+            .select("*", { count: "exact", head: true })
+            .eq("organization_id", org.id)
+            .eq("active", true);
+
+          return {
+            ...org,
+            animalsCount: count || 0,
+          };
+        })
+      );
+
+      setOrganizations(orgsWithCounts);
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredOrganizations = useMemo(() => {
-    return organizationData.filter((org) => {
+    return organizations.filter((org) => {
       const matchesSearch = org.name.toLowerCase().includes(search.toLowerCase()) ||
-                           org.description.toLowerCase().includes(search.toLowerCase());
+                           (org.description || "").toLowerCase().includes(search.toLowerCase());
+      
+      const matchesProvince = province === "wszystkie" || org.province === province;
       
       const matchesCity = city === "" || 
-                         org.location.toLowerCase().includes(city.toLowerCase());
+                         (org.city || "").toLowerCase().includes(city.toLowerCase());
       
-      return matchesSearch && matchesCity;
+      return matchesSearch && matchesProvince && matchesCity;
     });
-  }, [search, city]);
+  }, [organizations, search, province, city]);
 
   const handleClearFilters = () => {
     setSearch("");
@@ -60,6 +90,7 @@ const Organizacje = () => {
   };
 
   const hasActiveFilters = search !== "" || orgType !== "wszystkie" || province !== "wszystkie" || city !== "";
+  
   return (
     <div className="min-h-screen bg-background">
       <main>
@@ -103,66 +134,47 @@ const Organizacje = () => {
                 {/* Search */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Szukaj..." 
-                    className="pl-10 rounded-2xl border-2 text-sm"
+                  <Input
+                    placeholder="Szukaj organizacji..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 rounded-2xl border-border/50 focus:border-primary"
                   />
                 </div>
 
-                {/* Organization Type Filter */}
+                {/* Organization Type */}
                 <Select value={orgType} onValueChange={setOrgType}>
-                  <SelectTrigger className="rounded-2xl border-2 text-sm">
-                    <SelectValue placeholder="Rodzaj" />
+                  <SelectTrigger className="rounded-2xl border-border/50">
+                    <SelectValue placeholder="Typ organizacji" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
-                    <SelectItem value="wszystkie">Wszystkie</SelectItem>
-                    <SelectItem value="schronisko">Schronisko</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="wszystkie">Wszystkie typy</SelectItem>
                     <SelectItem value="fundacja">Fundacja</SelectItem>
                     <SelectItem value="stowarzyszenie">Stowarzyszenie</SelectItem>
+                    <SelectItem value="schronisko">Schronisko</SelectItem>
                   </SelectContent>
                 </Select>
 
-                {/* Province Filter */}
+                {/* Province */}
                 <Select value={province} onValueChange={setProvince}>
-                  <SelectTrigger className="rounded-2xl border-2 text-sm">
+                  <SelectTrigger className="rounded-2xl border-border/50">
                     <SelectValue placeholder="Województwo" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
-                    <SelectItem value="wszystkie">Wszystkie</SelectItem>
-                    <SelectItem value="mazowieckie">Mazowieckie</SelectItem>
-                    <SelectItem value="slaskie">Śląskie</SelectItem>
-                    <SelectItem value="malopolskie">Małopolskie</SelectItem>
-                    <SelectItem value="wielkopolskie">Wielkopolskie</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="wszystkie">Wszystkie województwa</SelectItem>
+                    <SelectItem value="Mazowieckie">Mazowieckie</SelectItem>
+                    <SelectItem value="Śląskie">Śląskie</SelectItem>
+                    <SelectItem value="Małopolskie">Małopolskie</SelectItem>
                   </SelectContent>
                 </Select>
 
-                {/* City Filter */}
-                <div>
-                  <Input 
-                    placeholder="Miejscowość..." 
-                    className="rounded-2xl border-2 text-sm"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Quick Filters */}
-              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/50">
-                <p className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Szybkie filtry:</p>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
-                    Najwięcej zwierząt
-                  </Button>
-                  <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
-                    Pilne potrzeby
-                  </Button>
-                  <Button variant="outline" size="sm" className="rounded-full text-xs sm:text-sm">
-                    W mojej okolicy
-                  </Button>
-                </div>
+                {/* City */}
+                <Input
+                  placeholder="Miasto..."
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="rounded-2xl border-border/50 focus:border-primary"
+                />
               </div>
             </div>
           </div>
@@ -171,7 +183,20 @@ const Organizacje = () => {
         {/* Organizations List */}
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-7xl">
-            {filteredOrganizations.length === 0 ? (
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <Card key={i} className="rounded-3xl overflow-hidden">
+                    <Skeleton className="h-48 w-full" />
+                    <div className="p-6 space-y-4">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredOrganizations.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-lg text-muted-foreground">
                   Nie znaleziono organizacji spełniających wybrane kryteria.
@@ -184,194 +209,94 @@ const Organizacje = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {filteredOrganizations.map((org) => (
-                <Card 
-                  key={org.id}
-                  className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer"
-                >
-                  {/* Header with Icon */}
-                  <div className={`${org.backgroundColor} p-8 relative overflow-hidden`}>
-                    <div className="absolute top-2 right-2 w-4 h-4 bg-white/20 rounded-full animate-bounce-gentle"></div>
-                    <div className="absolute bottom-4 left-4 w-3 h-3 bg-white/15 rounded-full animate-float delay-300"></div>
-                    
-                    <div className="text-center">
-                      <div className="text-6xl mb-4">{org.image}</div>
-                      <h3 className="text-2xl font-bold text-white mb-2">{org.name}</h3>
-                      <div className="flex items-center justify-center space-x-2 text-white/90">
-                        <MapPin className="h-4 w-4" />
-                        <span className="font-medium">{org.location}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6 space-y-4">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {org.description}
-                    </p>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-muted/30 rounded-2xl p-4 text-center">
-                        <div className="flex items-center justify-center mb-2">
-                          <Heart className="h-5 w-5 text-primary fill-current" />
+                    <Card 
+                      key={org.id}
+                      onClick={() => navigate(`/organizacje/${org.slug}`)}
+                      className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer"
+                    >
+                      {/* Header with Logo */}
+                      <div className="bg-gradient-to-br from-primary/80 to-primary p-8 relative overflow-hidden">
+                        <div className="absolute top-2 right-2 w-4 h-4 bg-white/20 rounded-full animate-bounce-gentle"></div>
+                        <div className="absolute bottom-4 left-4 w-3 h-3 bg-white/15 rounded-full animate-float delay-300"></div>
+                        
+                        <div className="flex flex-col items-center text-center">
+                          <Avatar className="h-24 w-24 mb-4 border-4 border-white/30">
+                            <AvatarImage src={org.logo_url || ''} alt={org.name} />
+                            <AvatarFallback className="text-3xl font-bold bg-white/20 text-white">
+                              {org.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <h3 className="text-2xl font-bold text-white mb-2">{org.name}</h3>
+                          {(org.city || org.province) && (
+                            <div className="flex items-center justify-center space-x-2 text-white/90">
+                              <MapPin className="h-4 w-4" />
+                              <span className="font-medium">
+                                {org.city}{org.province && `, ${org.province}`}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                        <p className="text-lg font-bold text-foreground">{org.animalsCount}</p>
-                        <p className="text-xs text-muted-foreground">podopiecznych</p>
                       </div>
-                      <div className="bg-muted/30 rounded-2xl p-4 text-center">
-                        <div className="flex items-center justify-center mb-2">
-                          <ShoppingBag className="h-5 w-5 text-secondary" />
+
+                      {/* Content */}
+                      <div className="p-6 space-y-4">
+                        {org.description && (
+                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                            {org.description}
+                          </p>
+                        )}
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-muted/30 rounded-2xl p-4 text-center">
+                            <div className="flex items-center justify-center mb-2">
+                              <Heart className="h-5 w-5 text-primary fill-current" />
+                            </div>
+                            <p className="text-lg font-bold text-foreground">{org.animalsCount || 0}</p>
+                            <p className="text-xs text-muted-foreground">podopiecznych</p>
+                          </div>
+                          <div className="bg-muted/30 rounded-2xl p-4 text-center">
+                            <div className="flex items-center justify-center mb-2">
+                              <Users className="h-5 w-5 text-secondary" />
+                            </div>
+                            <p className="text-lg font-bold text-foreground">Aktywna</p>
+                            <p className="text-xs text-muted-foreground">organizacja</p>
+                          </div>
                         </div>
-                        <p className="text-lg font-bold text-foreground">{org.totalWishlistValue}</p>
-                        <p className="text-xs text-muted-foreground">lista życzeń</p>
-                      </div>
-                    </div>
 
-                    {/* Contact Info */}
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center space-x-2 text-muted-foreground">
-                        <Phone className="h-4 w-4" />
-                        <span>{org.phone}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-muted-foreground">
-                        <Mail className="h-4 w-4" />
-                        <span>{org.email}</span>
-                      </div>
-                    </div>
+                        {/* Contact Info */}
+                        <div className="space-y-2 pt-4 border-t border-border/50">
+                          {org.contact_phone && (
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <Phone className="h-4 w-4 mr-2" />
+                              {org.contact_phone}
+                            </div>
+                          )}
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Mail className="h-4 w-4 mr-2" />
+                            {org.contact_email}
+                          </div>
+                        </div>
 
-                    {/* Urgent Needs */}
-                    <div>
-                      <p className="text-sm font-semibold text-foreground mb-2">Pilnie potrzebne:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {org.urgentNeeds.map((need, index) => (
-                          <span 
-                            key={index}
-                            className="bg-accent-light text-accent text-xs px-3 py-1.5 rounded-full font-semibold"
-                          >
-                            {need}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="pt-4 border-t border-border/30">
-                      <div className="flex space-x-3">
+                        {/* CTA */}
                         <Button 
-                          variant="default" 
-                          size="sm" 
-                          className="flex-1 rounded-xl font-bold"
+                          className="w-full rounded-2xl bg-primary hover:bg-primary/90"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/organizacje/${org.slug}`);
+                          }}
                         >
-                          Zobacz zwierzęta
-                        </Button>
-                        <Button 
-                          variant="success" 
-                          size="sm" 
-                          className="flex-1 rounded-xl font-bold"
-                        >
-                          Wspieraj organizację
+                          Zobacz profil organizacji
                         </Button>
                       </div>
-                    </div>
-                  </div>
-                </Card>
-                ))}
-                </div>
-
-                {/* Load More */}
-                <div className="text-center mt-12">
-                  <Button variant="hero" size="lg">
-                    Pokaż więcej organizacji
-                    <Users className="h-5 w-5" />
-                  </Button>
+                    </Card>
+                  ))}
                 </div>
               </>
             )}
           </div>
         </section>
-
-        {/* Stats Section */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Nasze partnerstwa
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Współpracujemy z najlepszymi organizacjami w całej Polsce
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center max-w-4xl mx-auto">
-              <div className="space-y-2">
-                <div className="bg-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <Heart className="h-8 w-8 text-white fill-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">89</p>
-                <p className="text-sm text-muted-foreground">Organizacji partnerskich</p>
-              </div>
-              <div className="space-y-2">
-                <div className="bg-secondary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <Users className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">234</p>
-                <p className="text-sm text-muted-foreground">Wolontariuszy</p>
-              </div>
-              <div className="space-y-2">
-                <div className="bg-accent rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <MapPin className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">16</p>
-                <p className="text-sm text-muted-foreground">Województw</p>
-              </div>
-              <div className="space-y-2">
-                <div className="bg-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                  <ShoppingBag className="h-8 w-8 text-white" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">1,247</p>
-                <p className="text-sm text-muted-foreground">Wspartych zwierząt</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Call to Action */}
-        <section className="py-20 bg-hero">
-          <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6">
-                Zostań partnerem! 🤝
-              </h2>
-              <p className="text-xl text-white/95 mb-8">
-                Jesteś organizacją pomagającą zwierzętom? Dołącz do nas i pozwól wspierać Twoich podopiecznych!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="light" size="hero">
-                  Aplikuj jako organizacja
-                  <Heart className="h-6 w-6 fill-current" />
-                </Button>
-                <Button variant="outline" size="hero" className="border-white text-white hover:bg-white hover:text-primary">
-                  Dowiedz się więcej
-                  <Users className="h-6 w-6" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-foreground/5 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Heart className="h-6 w-6 text-primary fill-current" />
-            <span className="text-lg font-bold text-primary">Pączki w Maśle</span>
-          </div>
-          <p className="text-muted-foreground">
-            &copy; 2024 Fundacja Pączki w Maśle. Wszystkie prawa zastrzeżone.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 };
