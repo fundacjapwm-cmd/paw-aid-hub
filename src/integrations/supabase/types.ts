@@ -267,6 +267,7 @@ export type Database = {
         Row: {
           active: boolean | null
           address: string | null
+          bank_account_number: string | null
           city: string | null
           contact_email: string
           contact_phone: string | null
@@ -276,7 +277,9 @@ export type Database = {
           logo_url: string | null
           name: string
           nip: string | null
+          postal_code: string | null
           province: string | null
+          regon: string | null
           slug: string
           updated_at: string | null
           website: string | null
@@ -284,6 +287,7 @@ export type Database = {
         Insert: {
           active?: boolean | null
           address?: string | null
+          bank_account_number?: string | null
           city?: string | null
           contact_email: string
           contact_phone?: string | null
@@ -293,7 +297,9 @@ export type Database = {
           logo_url?: string | null
           name: string
           nip?: string | null
+          postal_code?: string | null
           province?: string | null
+          regon?: string | null
           slug: string
           updated_at?: string | null
           website?: string | null
@@ -301,6 +307,7 @@ export type Database = {
         Update: {
           active?: boolean | null
           address?: string | null
+          bank_account_number?: string | null
           city?: string | null
           contact_email?: string
           contact_phone?: string | null
@@ -310,7 +317,9 @@ export type Database = {
           logo_url?: string | null
           name?: string
           nip?: string | null
+          postal_code?: string | null
           province?: string | null
+          regon?: string | null
           slug?: string
           updated_at?: string | null
           website?: string | null
@@ -411,6 +420,53 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      product_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          organization_id: string | null
+          producer_name: string | null
+          product_link: string | null
+          product_name: string
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string | null
+          producer_name?: string | null
+          product_link?: string | null
+          product_name: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string | null
+          producer_name?: string | null
+          product_link?: string | null
+          product_name?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
