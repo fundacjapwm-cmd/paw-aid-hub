@@ -295,25 +295,6 @@ export default function OrganizationPublicProfile() {
           </div>
         )}
       </div>
-
-      {/* Contact CTA Section */}
-      <div className="container mx-auto px-4 pb-12">
-        <Card className="rounded-3xl shadow-card bg-gradient-to-br from-primary/10 to-primary/5">
-          <CardContent className="p-8 text-center">
-            <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-foreground mb-2">Chcesz pomóc?</h3>
-            <p className="text-muted-foreground mb-6">
-              Skontaktuj się z nami, aby adoptować jednego z naszych podopiecznych lub wesprzeć naszą działalność.
-            </p>
-            <a
-              href={`mailto:${organization.contact_email}`}
-              className="inline-block px-8 py-3 bg-primary text-primary-foreground rounded-2xl hover:scale-105 transition-transform shadow-soft font-semibold"
-            >
-              Skontaktuj się z nami
-            </a>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
