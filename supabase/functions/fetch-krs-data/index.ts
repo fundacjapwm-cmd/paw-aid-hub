@@ -15,6 +15,30 @@ interface KRSData {
   province?: string;
 }
 
+function validateNIP(nip: string): boolean {
+  const cleanNip = nip.replace(/[\s-]/g, '');
+  
+  if (!/^\d{10}$/.test(cleanNip)) {
+    return false;
+  }
+
+  const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+  let sum = 0;
+  
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(cleanNip[i]) * weights[i];
+  }
+  
+  const checksum = sum % 11;
+  
+  if (checksum === 10) {
+    return false;
+  }
+  
+  const controlDigit = parseInt(cleanNip[9]);
+  return checksum === controlDigit;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -26,6 +50,14 @@ Deno.serve(async (req) => {
     if (!nip || !/^\d{10}$/.test(nip)) {
       return new Response(
         JSON.stringify({ error: "Nieprawidłowy format NIP (wymagane 10 cyfr)" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate NIP checksum
+    if (!validateNIP(nip)) {
+      return new Response(
+        JSON.stringify({ error: "Nieprawidłowa suma kontrolna NIP" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

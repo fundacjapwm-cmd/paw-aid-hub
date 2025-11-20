@@ -19,14 +19,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { validateNIP } from "@/lib/validations/nip";
 
-const nipRegex = /^\d{10}$/;
 const regonRegex = /^\d{9}$|^\d{14}$/;
 const postalCodeRegex = /^\d{2}-\d{3}$/;
 
 const organizationSchema = z.object({
   name: z.string().min(3, "Nazwa musi mieć minimum 3 znaki"),
-  nip: z.string().regex(nipRegex, "NIP musi zawierać 10 cyfr").optional().or(z.literal("")),
+  nip: z.string()
+    .regex(/^\d{10}$/, "NIP musi zawierać 10 cyfr")
+    .refine((val) => !val || validateNIP(val), {
+      message: "Nieprawidłowa suma kontrolna NIP",
+    })
+    .optional()
+    .or(z.literal("")),
   regon: z.string().regex(regonRegex, "REGON musi zawierać 9 lub 14 cyfr").optional().or(z.literal("")),
   address: z.string().optional(),
   postal_code: z.string().regex(postalCodeRegex, "Kod pocztowy w formacie XX-XXX").optional().or(z.literal("")),
