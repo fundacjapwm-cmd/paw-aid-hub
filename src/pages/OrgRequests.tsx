@@ -78,6 +78,10 @@ export default function OrgRequests() {
     );
   };
 
+  if (!user || profile?.role !== "ORG") {
+    return null;
+  }
+
   return (
     <OrgLayout organizationName={organizationName}>
       <div className="space-y-6">
