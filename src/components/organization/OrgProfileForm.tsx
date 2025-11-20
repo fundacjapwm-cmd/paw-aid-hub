@@ -25,24 +25,29 @@ const regonRegex = /^\d{9}$|^\d{14}$/;
 const postalCodeRegex = /^\d{2}-\d{3}$/;
 
 const organizationSchema = z.object({
-  name: z.string().min(3, "Nazwa musi mieć minimum 3 znaki"),
+  name: z.string().min(3, "Nazwa organizacji musi mieć minimum 3 znaki"),
   nip: z.string()
-    .regex(/^\d{10}$/, "NIP musi zawierać 10 cyfr")
-    .refine((val) => !val || validateNIP(val), {
-      message: "Nieprawidłowa suma kontrolna NIP",
-    })
+    .min(1, "NIP jest wymagany")
+    .regex(/^\d{10}$/, "NIP musi zawierać dokładnie 10 cyfr")
+    .refine((val) => validateNIP(val), {
+      message: "Nieprawidłowy numer NIP (błędna suma kontrolna)",
+    }),
+  regon: z.string()
+    .regex(regonRegex, "REGON musi zawierać 9 lub 14 cyfr")
     .optional()
     .or(z.literal("")),
-  regon: z.string().regex(regonRegex, "REGON musi zawierać 9 lub 14 cyfr").optional().or(z.literal("")),
-  address: z.string().optional(),
-  postal_code: z.string().regex(postalCodeRegex, "Kod pocztowy w formacie XX-XXX").optional().or(z.literal("")),
-  city: z.string().min(2, "Nazwa miasta").optional().or(z.literal("")),
-  province: z.string().optional(),
-  bank_account_number: z.string().optional(),
-  contact_email: z.string().email("Nieprawidłowy email"),
-  contact_phone: z.string().optional(),
-  website: z.string().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  description: z.string().max(1000, "Opis nie może przekraczać 1000 znaków").optional(),
+  address: z.string().optional().or(z.literal("")),
+  postal_code: z.string()
+    .regex(postalCodeRegex, "Kod pocztowy musi być w formacie XX-XXX (np. 00-000)")
+    .optional()
+    .or(z.literal("")),
+  city: z.string().min(1, "Miasto jest wymagane"),
+  province: z.string().optional().or(z.literal("")),
+  bank_account_number: z.string().optional().or(z.literal("")),
+  contact_email: z.string().min(1, "Email kontaktowy jest wymagany").email("Nieprawidłowy adres email"),
+  contact_phone: z.string().optional().or(z.literal("")),
+  website: z.string().url("Nieprawidłowy adres strony (musi zaczynać się od http:// lub https://)").optional().or(z.literal("")),
+  description: z.string().max(1000, "Opis nie może przekraczać 1000 znaków").optional().or(z.literal("")),
 });
 
 type OrganizationFormData = z.infer<typeof organizationSchema>;
@@ -112,8 +117,8 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
 
       setLogoUrl(data.logo_url);
 
-      // Check if onboarding is needed
-      const incomplete = !data.nip || !data.city || !data.bank_account_number;
+      // Check if onboarding is needed (only NIP and city are required)
+      const incomplete = !data.nip || !data.city;
       setNeedsOnboarding(incomplete);
     }
   };
@@ -280,7 +285,8 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
           <AlertCircle className="h-4 w-4 text-primary" />
           <AlertDescription className="text-foreground">
             <strong>Uzupełnij dane organizacji</strong>, aby móc dodawać zbiórki i zwierzęta.
-            Wymagane pola: NIP, Miasto, Numer konta bankowego.
+            <br />
+            Wymagane pola: <strong>NIP</strong> i <strong>Miasto</strong>.
           </AlertDescription>
         </Alert>
       )}
@@ -345,7 +351,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>NIP *</FormLabel>
                       <FormControl>
-                        <Input placeholder="0000000000" {...field} />
+                        <Input placeholder="0000000000" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -359,7 +365,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>REGON</FormLabel>
                       <FormControl>
-                        <Input placeholder="000000000" {...field} />
+                        <Input placeholder="000000000" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -387,7 +393,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                   <FormItem>
                     <FormLabel>Ulica i numer</FormLabel>
                     <FormControl>
-                      <Input placeholder="ul. Przykładowa 123" {...field} />
+                      <Input placeholder="ul. Przykładowa 123" {...field} disabled={!isOwner} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -402,7 +408,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>Kod pocztowy</FormLabel>
                       <FormControl>
-                        <Input placeholder="00-000" {...field} />
+                        <Input placeholder="00-000" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -416,7 +422,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>Miasto *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Warszawa" {...field} />
+                        <Input placeholder="Warszawa" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -430,7 +436,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>Województwo</FormLabel>
                       <FormControl>
-                        <Input placeholder="Mazowieckie" {...field} />
+                        <Input placeholder="Mazowieckie" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -443,9 +449,9 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                 name="bank_account_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Numer konta bankowego *</FormLabel>
+                    <FormLabel>Numer konta bankowego</FormLabel>
                     <FormControl>
-                      <Input placeholder="00 0000 0000 0000 0000 0000 0000" {...field} />
+                      <Input placeholder="00 0000 0000 0000 0000 0000 0000" {...field} disabled={!isOwner} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -460,7 +466,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>Email kontaktowy *</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} />
+                        <Input type="email" placeholder="kontakt@organizacja.pl" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -474,7 +480,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                     <FormItem>
                       <FormLabel>Telefon kontaktowy</FormLabel>
                       <FormControl>
-                        <Input placeholder="+48 123 456 789" {...field} />
+                        <Input placeholder="+48 123 456 789" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -489,7 +495,7 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                   <FormItem>
                     <FormLabel>Strona WWW</FormLabel>
                     <FormControl>
-                      <Input type="url" placeholder="https://example.com" {...field} />
+                      <Input type="url" placeholder="https://example.com" {...field} disabled={!isOwner} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -503,16 +509,21 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                   <FormItem>
                     <FormLabel>Opis organizacji</FormLabel>
                     <FormControl>
-                      <Textarea rows={5} placeholder="Opowiedz o swojej organizacji..." {...field} />
+                      <Textarea rows={5} placeholder="Opowiedz o swojej organizacji..." {...field} disabled={!isOwner} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" disabled={isLoading} className="w-full rounded-2xl" size="lg">
+              <Button type="submit" disabled={isLoading || !isOwner} className="w-full rounded-2xl" size="lg">
                 {isLoading ? "Zapisywanie..." : "Zapisz zmiany"}
               </Button>
+              {!isOwner && (
+                <p className="text-sm text-muted-foreground text-center mt-2">
+                  Tylko właściciel organizacji może edytować te dane
+                </p>
+              )}
             </form>
           </Form>
         </CardContent>
