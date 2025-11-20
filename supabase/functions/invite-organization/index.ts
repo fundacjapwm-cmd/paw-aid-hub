@@ -44,23 +44,54 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate temporary password
     const temporaryPassword = generateTemporaryPassword();
 
-    // Create user with temporary password
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password: temporaryPassword,
-      email_confirm: true,
-      user_metadata: {
-        organization_id: organizationId,
-        organization_name: organizationName
+    // Check if user already exists
+    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const existingUser = existingUsers?.users.find(u => u.email === email);
+
+    let userId: string;
+
+    if (existingUser) {
+      console.log("User already exists, updating password:", existingUser.id);
+      
+      // Update existing user's password and metadata
+      const { data: updateData, error: updateError } = await supabase.auth.admin.updateUserById(
+        existingUser.id,
+        {
+          password: temporaryPassword,
+          user_metadata: {
+            organization_id: organizationId,
+            organization_name: organizationName
+          }
+        }
+      );
+
+      if (updateError) {
+        console.error("Error updating user:", updateError);
+        throw updateError;
       }
-    });
 
-    if (authError) {
-      console.error("Error creating user:", authError);
-      throw authError;
+      userId = existingUser.id;
+      console.log("User updated successfully:", userId);
+    } else {
+      // Create new user with temporary password
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email,
+        password: temporaryPassword,
+        email_confirm: true,
+        user_metadata: {
+          organization_id: organizationId,
+          organization_name: organizationName
+        }
+      });
+
+      if (authError) {
+        console.error("Error creating user:", authError);
+        throw authError;
+      }
+
+      userId = authData.user.id;
+      console.log("User created successfully:", userId);
     }
-
-    console.log("User created successfully:", authData.user.id);
 
     // Update profile (created automatically by trigger) with organization details
     const { error: profileError } = await supabase
@@ -70,25 +101,37 @@ const handler = async (req: Request): Promise<Response> => {
         must_change_password: true,
         display_name: organizationName
       })
-      .eq('id', authData.user.id);
+      .eq('id', userId);
 
     if (profileError) {
       console.error("Error updating profile:", profileError);
       throw profileError;
     }
 
-    // Create organization_users record
-    const { error: orgUserError } = await supabase
+    // Check if organization_users record already exists
+    const { data: existingOrgUser } = await supabase
       .from('organization_users')
-      .insert({
-        user_id: authData.user.id,
-        organization_id: organizationId,
-        is_owner: true
-      });
+      .select('*')
+      .eq('user_id', userId)
+      .eq('organization_id', organizationId)
+      .single();
 
-    if (orgUserError) {
-      console.error("Error creating organization_users record:", orgUserError);
-      throw orgUserError;
+    if (!existingOrgUser) {
+      // Create organization_users record only if it doesn't exist
+      const { error: orgUserError } = await supabase
+        .from('organization_users')
+        .insert({
+          user_id: userId,
+          organization_id: organizationId,
+          is_owner: true
+        });
+
+      if (orgUserError) {
+        console.error("Error creating organization_users record:", orgUserError);
+        throw orgUserError;
+      }
+    } else {
+      console.log("Organization user record already exists");
     }
 
     // Send email with credentials
