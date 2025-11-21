@@ -186,6 +186,7 @@ function AdminSidebarContent() {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const isMobile = useIsMobile();
   const location = useLocation();
+  const { signOut } = useAuth();
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -200,6 +201,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (path === "/admin/logistyka/archiwum") return "Archiwum Logistyki";
     return "Panel Administratora";
   };
+
+  const isActive = (path: string) => location.pathname === path;
 
   if (isMobile) {
     return (
@@ -218,17 +221,99 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
-                <SidebarProvider>
-                  <Sidebar className="w-full border-none">
-                    <div className="p-4 border-b border-border flex items-center gap-2">
-                      <Logo className="h-8 w-auto" />
-                      <h2 className="text-lg font-semibold text-primary">
-                        Panel Admina
-                      </h2>
-                    </div>
-                    <AdminSidebarContent />
-                  </Sidebar>
-                </SidebarProvider>
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b border-border flex items-center gap-2">
+                    <Logo className="h-8 w-auto" />
+                    <h2 className="text-lg font-semibold text-primary">
+                      Panel Admina
+                    </h2>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto p-4">
+                    {menuStructure.map((section, idx) => {
+                      if ('url' in section && !('items' in section)) {
+                        return (
+                          <Link
+                            key={idx}
+                            to={section.url}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                              isActive(section.url)
+                                ? 'bg-primary/10 text-primary font-medium'
+                                : 'text-foreground hover:bg-muted'
+                            }`}
+                          >
+                            <section.icon className="h-5 w-5" />
+                            <span>{section.title}</span>
+                          </Link>
+                        );
+                      }
+
+                      if ('label' in section) {
+                        return (
+                          <div key={idx} className="mt-6 first:mt-0">
+                            <p className="text-xs uppercase text-muted-foreground font-semibold mb-2 px-3">
+                              {section.label}
+                            </p>
+                            {section.items.map((item) => (
+                              <Link
+                                key={item.url}
+                                to={item.url}
+                                className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                                  isActive(item.url)
+                                    ? 'bg-primary/10 text-primary font-medium'
+                                    : 'text-foreground hover:bg-muted'
+                                }`}
+                              >
+                                <item.icon className="h-5 w-5" />
+                                <span>{item.title}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        );
+                      }
+
+                      if ('items' in section && 'icon' in section) {
+                        const isGroupActive = section.items.some(item => isActive(item.url));
+                        return (
+                          <div key={idx} className="mt-4 first:mt-0">
+                            <div className="flex items-center gap-3 px-3 py-2 text-foreground font-medium">
+                              <section.icon className="h-5 w-5" />
+                              <span>{section.title}</span>
+                            </div>
+                            <div className="ml-6">
+                              {section.items.map((subItem) => (
+                                <Link
+                                  key={subItem.url}
+                                  to={subItem.url}
+                                  className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                                    isActive(subItem.url)
+                                      ? 'bg-primary/10 text-primary font-medium'
+                                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                  }`}
+                                >
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })}
+                  </div>
+
+                  <div className="mt-auto p-4 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={signOut}
+                    >
+                      <LogOut className="h-5 w-5" />
+                      <span>Wyloguj</span>
+                    </Button>
+                  </div>
+                </div>
               </SheetContent>
             </Sheet>
             <h1 className="font-semibold text-lg text-foreground">{getPageTitle()}</h1>
