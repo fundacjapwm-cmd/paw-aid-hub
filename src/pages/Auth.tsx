@@ -63,18 +63,38 @@ export default function Auth() {
   useEffect(() => {
     const checkUserAndRedirect = async () => {
       if (user && !loading && !showResetForm) {
-        // Check if user must change password
-        const { data: profile } = await supabase
+        // Pobierz profil, aby sprawdzić rolę i wymuszenie zmiany hasła
+        const { data: profileData } = await supabase
           .from('profiles')
-          .select('must_change_password')
+          .select('must_change_password, role')
           .eq('id', user.id)
           .single();
         
-        if (profile?.must_change_password) {
+        // 1. Priorytet: Wymuszona zmiana hasła
+        if (profileData?.must_change_password) {
           navigate('/set-password');
-        } else {
-          const redirect = searchParams.get('redirect') || '/';
-          navigate(redirect);
+          return;
+        }
+
+        // 2. Sprawdź czy jest parametr ?redirect (np. z koszyka)
+        const redirectParam = searchParams.get('redirect');
+        if (redirectParam) {
+          navigate(redirectParam);
+          return;
+        }
+
+        // 3. Inteligentne przekierowanie na podstawie roli
+        switch (profileData?.role) {
+          case 'ADMIN':
+            navigate('/admin');
+            break;
+          case 'ORG':
+            navigate('/organizacja');
+            break;
+          default:
+            // Dla roli USER (Darczyńca)
+            navigate('/profil');
+            break;
         }
       }
     };
