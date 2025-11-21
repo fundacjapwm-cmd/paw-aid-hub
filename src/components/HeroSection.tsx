@@ -12,11 +12,6 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Text Content */}
           <div className="text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start space-x-2 mb-4 sm:mb-6">
-              <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-white fill-white animate-pulse" />
-              <span className="text-white/90 text-sm sm:text-base font-medium">Fundacja</span>
-            </div>
-            
             <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
               Odmień życie<br />
               <span className="text-white/90">bezdomniaczka</span><br />
