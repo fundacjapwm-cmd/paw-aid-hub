@@ -392,11 +392,11 @@ export default function OrgAnimals() {
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start font-sans">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 {/* KOLUMNA LEWA: Formularz w Karcie */}
-                <Card className="rounded-3xl shadow-card p-6 bg-white order-2 md:order-1">
+                <Card className="p-6 rounded-3xl shadow-card bg-white order-2 lg:order-1">
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       {/* Gallery Images Upload */}
                       <div className="space-y-2">
                         <FormLabel>Galeria zdjęć (max 6)</FormLabel>
@@ -514,6 +514,20 @@ export default function OrgAnimals() {
                           </FormItem>
                         )}
                       />
+                      
+                      {/* Upload Input wewnątrz formularza */}
+                      <div className="space-y-2">
+                        <FormLabel>Zdjęcie główne</FormLabel>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                          />
+                          <Upload className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        </div>
+                      </div>
+                      
                       <Button 
                         type="submit" 
                         disabled={uploading}
@@ -525,9 +539,9 @@ export default function OrgAnimals() {
                   </Form>
                 </Card>
 
-                {/* KOLUMNA PRAWA: Podgląd Zdjęcia (Poza kartą) */}
-                <div className="hidden md:block order-1 md:order-2 md:sticky md:top-8 h-full max-h-[700px]">
-                  <div className="relative w-full h-full min-h-[500px] rounded-3xl overflow-hidden shadow-bubbly border-4 border-white bg-muted/30 flex flex-col items-center justify-center">
+                {/* KOLUMNA PRAWA: Podgląd Zdjęcia - POZA KARTĄ */}
+                <div className="hidden lg:block order-1 lg:order-2 lg:sticky lg:top-8 h-[calc(100vh-100px)] max-h-[800px]">
+                  <div className="w-full h-full rounded-3xl overflow-hidden shadow-bubbly border-4 border-white bg-muted/20 relative">
                     {imagePreview ? (
                       <img 
                         src={imagePreview} 
@@ -535,27 +549,11 @@ export default function OrgAnimals() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="text-center p-6 text-muted-foreground">
-                        <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                        <p className="mb-4">Brak zdjęcia głównego</p>
+                      <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-6 text-center">
+                        <ImageIcon className="w-20 h-20 mb-4 opacity-20" />
+                        <p>Tutaj pojawi się zdjęcie zwierzaka</p>
                       </div>
                     )}
-                    
-                    {/* Upload Button */}
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
-                        <FormLabel className="text-sm font-semibold mb-2 block">Zdjęcie główne</FormLabel>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="text-sm"
-                          />
-                          <Upload className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -642,11 +640,11 @@ export default function OrgAnimals() {
               </DialogDescription>
             </DialogHeader>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start font-sans">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               {/* KOLUMNA LEWA: Formularz w Karcie */}
-              <Card className="rounded-3xl shadow-card p-6 bg-white order-2 md:order-1">
+              <Card className="p-6 rounded-3xl shadow-card bg-white order-2 lg:order-1">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-4">
+                  <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-6">
                     {/* Gallery Images Upload */}
                     <div className="space-y-2">
                       <FormLabel>Dodaj więcej zdjęć do galerii (max 6)</FormLabel>
@@ -761,6 +759,20 @@ export default function OrgAnimals() {
                         </FormItem>
                       )}
                     />
+                    
+                    {/* Upload Input wewnątrz formularza */}
+                    <div className="space-y-2">
+                      <FormLabel>Zdjęcie główne</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                        <Upload className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      </div>
+                    </div>
+                    
                     <Button 
                       type="submit" 
                       disabled={uploading}
@@ -772,9 +784,9 @@ export default function OrgAnimals() {
                 </Form>
               </Card>
 
-              {/* KOLUMNA PRAWA: Podgląd Zdjęcia (Poza kartą) */}
-              <div className="hidden md:block order-1 md:order-2 md:sticky md:top-8 h-full max-h-[700px]">
-                <div className="relative w-full h-full min-h-[500px] rounded-3xl overflow-hidden shadow-bubbly border-4 border-white bg-muted/30 flex flex-col items-center justify-center">
+              {/* KOLUMNA PRAWA: Podgląd Zdjęcia - POZA KARTĄ */}
+              <div className="hidden lg:block order-1 lg:order-2 lg:sticky lg:top-8 h-[calc(100vh-100px)] max-h-[800px]">
+                <div className="w-full h-full rounded-3xl overflow-hidden shadow-bubbly border-4 border-white bg-muted/20 relative">
                   {imagePreview ? (
                     <img 
                       src={imagePreview} 
@@ -782,27 +794,11 @@ export default function OrgAnimals() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="text-center p-6 text-muted-foreground">
-                      <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p className="mb-4">Brak zdjęcia głównego</p>
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-6 text-center">
+                      <ImageIcon className="w-20 h-20 mb-4 opacity-20" />
+                      <p>Tutaj pojawi się zdjęcie zwierzaka</p>
                     </div>
                   )}
-                  
-                  {/* Upload Button */}
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
-                      <FormLabel className="text-sm font-semibold mb-2 block">Zdjęcie główne</FormLabel>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="text-sm"
-                        />
-                        <Upload className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
