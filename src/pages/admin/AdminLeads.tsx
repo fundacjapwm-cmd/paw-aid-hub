@@ -72,10 +72,13 @@ const AdminLeads = () => {
 
       if (inviteError) throw new Error(`Błąd wysyłania zaproszenia: ${inviteError.message}`);
 
-      // Step 3: Update Lead Status
+      // Step 3: Update Lead Status with timestamp
       const { error: updateError } = await supabase
         .from("organization_leads")
-        .update({ status: 'approved' })
+        .update({ 
+          status: 'approved',
+          processed_at: new Date().toISOString()
+        })
         .eq("id", lead.id);
 
       if (updateError) throw new Error(`Błąd aktualizacji zgłoszenia: ${updateError.message}`);
@@ -105,7 +108,10 @@ const AdminLeads = () => {
       setProcessingId(leadId);
       const { error } = await supabase
         .from("organization_leads")
-        .update({ status: 'rejected' })
+        .update({ 
+          status: 'rejected',
+          processed_at: new Date().toISOString()
+        })
         .eq("id", leadId);
 
       if (error) throw error;

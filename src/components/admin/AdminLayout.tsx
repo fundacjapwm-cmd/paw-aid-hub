@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail, Inbox } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
@@ -33,7 +33,14 @@ interface AdminLayoutProps {
 
 const menuStructure = [
   { title: "Pulpit", url: "/admin", icon: LayoutDashboard },
-  { title: "Nowe Zgłoszenia", url: "/admin/zgloszenia", icon: Inbox, showBadge: true },
+  {
+    title: "Zgłoszenia",
+    icon: Mail,
+    items: [
+      { title: "Nowe Zgłoszenia", url: "/admin/zgloszenia", showBadge: true },
+      { title: "Archiwum Zgłoszeń", url: "/admin/zgloszenia/archiwum" },
+    ]
+  },
   {
     label: "Baza Danych",
     items: [
@@ -101,14 +108,6 @@ function AdminSidebarContent() {
                           <Link to={section.url} className="flex items-center gap-3">
                             <section.icon className="h-5 w-5" />
                             {open && <span>{section.title}</span>}
-                            {section.showBadge && newLeadsCount && newLeadsCount > 0 && (
-                              <Badge 
-                                variant="destructive" 
-                                className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
-                              >
-                                {newLeadsCount}
-                              </Badge>
-                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -146,7 +145,7 @@ function AdminSidebarContent() {
               );
             }
 
-            // Collapsible group (like "Logistyka")
+            // Collapsible group (like "Logistyka" or "Zgłoszenia")
             if ('items' in section && 'icon' in section) {
               return (
                 <SidebarGroup key={idx}>
@@ -174,8 +173,16 @@ function AdminSidebarContent() {
                                     asChild
                                     isActive={isActive(subItem.url)}
                                   >
-                                    <Link to={subItem.url}>
+                                    <Link to={subItem.url} className="flex items-center gap-2">
                                       {subItem.title}
+                                      {subItem.showBadge && newLeadsCount && newLeadsCount > 0 && (
+                                        <Badge 
+                                          variant="destructive" 
+                                          className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
+                                        >
+                                          {newLeadsCount}
+                                        </Badge>
+                                      )}
                                     </Link>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
@@ -232,6 +239,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const path = location.pathname;
     if (path === "/admin") return "Pulpit";
     if (path === "/admin/zgloszenia") return "Nowe Zgłoszenia";
+    if (path === "/admin/zgloszenia/archiwum") return "Archiwum Zgłoszeń";
     if (path === "/admin/organizacje") return "Organizacje";
     if (path === "/admin/producenci") return "Producenci i Produkty";
     if (path === "/admin/uzytkownicy") return "Użytkownicy";
@@ -285,14 +293,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           >
                             <section.icon className="h-5 w-5" />
                             <span>{section.title}</span>
-                            {section.showBadge && newLeadsCount && newLeadsCount > 0 && (
-                              <Badge 
-                                variant="destructive" 
-                                className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
-                              >
-                                {newLeadsCount}
-                              </Badge>
-                            )}
                           </Link>
                         );
                       }
@@ -341,6 +341,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                   }`}
                                 >
                                   <span>{subItem.title}</span>
+                                  {subItem.showBadge && newLeadsCount && newLeadsCount > 0 && (
+                                    <Badge 
+                                      variant="destructive" 
+                                      className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
+                                    >
+                                      {newLeadsCount}
+                                    </Badge>
+                                  )}
                                 </Link>
                               ))}
                             </div>
