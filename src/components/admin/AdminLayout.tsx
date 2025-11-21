@@ -28,6 +28,7 @@ interface AdminLayoutProps {
     { title: "Organizacje", url: "/admin/organizacje", icon: Building2 },
     { title: "Producenci i Produkty", url: "/admin/producenci", icon: Factory },
     { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
+    { title: "Statystyki Organizacji", url: "/admin/statystyki-organizacji", icon: TrendingUp },
     { title: "Wyniki Finansowe", url: "/admin/finanse", icon: TrendingUp },
     { title: "Logi Systemowe", url: "/admin/logi", icon: Activity },
   ];
