@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import contactDog from "@/assets/contact-dog.png";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +23,8 @@ const contactSchema = z.object({
     .trim()
     .min(1, "Wiadomość jest wymagana")
     .max(2000, "Wiadomość jest za długa"),
+  acceptsPrivacyPolicy: z.boolean()
+    .refine(val => val === true, "Musisz zaakceptować politykę prywatności"),
 });
 
 type ContactFormData = z.infer<typeof contactSchema>;
@@ -33,10 +36,11 @@ const Kontakt = () => {
     name: "",
     email: "",
     message: "",
+    acceptsPrivacyPolicy: false,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
 
-  const handleChange = (field: keyof ContactFormData, value: string) => {
+  const handleChange = (field: keyof ContactFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     if (errors[field]) {
@@ -85,6 +89,7 @@ const Kontakt = () => {
         name: "",
         email: "",
         message: "",
+        acceptsPrivacyPolicy: false,
       });
       setErrors({});
     } catch (error: any) {
@@ -178,11 +183,44 @@ const Kontakt = () => {
                       )}
                     </div>
 
+                    <div className="flex items-start space-x-3">
+                      <Checkbox 
+                        id="privacy"
+                        checked={formData.acceptsPrivacyPolicy}
+                        onCheckedChange={(checked) => 
+                          handleChange("acceptsPrivacyPolicy", checked === true)
+                        }
+                        disabled={isSubmitting}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <Label 
+                          htmlFor="privacy" 
+                          className="text-sm font-normal cursor-pointer leading-relaxed"
+                        >
+                          Akceptuję{" "}
+                          <a 
+                            href="/polityka-prywatnosci" 
+                            target="_blank"
+                            className="text-primary hover:underline font-medium"
+                          >
+                            politykę prywatności
+                          </a>{" "}
+                          i wyrażam zgodę na przetwarzanie moich danych osobowych*
+                        </Label>
+                        {errors.acceptsPrivacyPolicy && (
+                          <p className="text-sm text-destructive mt-1">
+                            {errors.acceptsPrivacyPolicy}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
                     <Button 
                       type="submit" 
                       className="w-full rounded-xl font-bold" 
                       size="lg"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !formData.acceptsPrivacyPolicy}
                     >
                       <Send className="h-5 w-5 mr-2" />
                       {isSubmitting ? "Wysyłanie..." : "Wyślij"}
