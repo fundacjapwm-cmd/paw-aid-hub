@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { AlertCircle, Upload, Download, CheckCircle2, XCircle } from "lucide-react";
+import ImageCropDialog from "./ImageCropDialog";
 import {
   Form,
   FormControl,
@@ -61,6 +62,8 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
     isValid: boolean | null;
     message: string;
   }>({ isValid: null, message: "" });
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
 
   const form = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
@@ -210,19 +213,41 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Błąd",
+        description: "Wybierz plik graficzny (JPG, PNG, itp.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Read file and open crop dialog
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageToCrop(reader.result as string);
+      setCropDialogOpen(true);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    e.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedImage: Blob) => {
     setUploadingLogo(true);
 
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${organizationId}-${Date.now()}.${fileExt}`;
+    const fileName = `${organizationId}-${Date.now()}.jpg`;
     const filePath = `logos/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("product-images")
-      .upload(filePath, file);
+      .upload(filePath, croppedImage);
 
     if (uploadError) {
       toast({
@@ -323,19 +348,23 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
         <CardContent>
           <div className="mb-6">
             <Label>Logo organizacji</Label>
-            <div className="flex items-center gap-4 mt-2">
+            <div className="flex items-center gap-6 mt-2">
               {logoUrl && (
-                <img
-                  src={logoUrl}
-                  alt="Logo"
-                  className="w-24 h-24 object-cover rounded-xl border border-border"
-                />
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-3xl border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10">
+                    <img
+                      src={logoUrl}
+                      alt="Logo"
+                      className="w-full h-full object-contain p-2 bg-white"
+                    />
+                  </div>
+                </div>
               )}
-              <div>
+              <div className="flex flex-col gap-2">
                 <Input
                   type="file"
                   accept="image/*"
-                  onChange={handleLogoUpload}
+                  onChange={handleLogoSelect}
                   disabled={uploadingLogo || !isOwner}
                   className="hidden"
                   id="logo-upload"
@@ -344,13 +373,30 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
                   variant="outline"
                   onClick={() => document.getElementById("logo-upload")?.click()}
                   disabled={uploadingLogo || !isOwner}
+                  className="gap-2"
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {uploadingLogo ? "Przesyłanie..." : "Zmień logo"}
+                  <Upload className="h-4 w-4" />
+                  {uploadingLogo ? "Przesyłanie..." : logoUrl ? "Zmień logo" : "Dodaj logo"}
                 </Button>
+                <p className="text-xs text-muted-foreground max-w-xs">
+                  Logo będzie wyświetlane jako okrąg. Wybierz plik, a następnie przytnij go i dopasuj.
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Crop Dialog */}
+          {imageToCrop && (
+            <ImageCropDialog
+              open={cropDialogOpen}
+              onClose={() => {
+                setCropDialogOpen(false);
+                setImageToCrop(null);
+              }}
+              imageSrc={imageToCrop}
+              onCropComplete={handleCropComplete}
+            />
+          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
