@@ -23,12 +23,8 @@ const ONas = () => {
         {/* Foundation Logo Section */}
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4 text-center">
-            <div className="bg-white rounded-3xl p-12 shadow-card max-w-2xl mx-auto">
-              <div className="flex items-center justify-center mb-8">
-                <Logo className="h-16 w-auto" />
-              </div>
-              <h2 className="text-3xl font-bold text-primary mb-4">PĄCZKI W MAŚLE</h2>
-              <p className="text-lg font-semibold text-accent">FUNDACJA</p>
+            <div className="bg-white rounded-3xl p-12 shadow-card max-w-2xl mx-auto flex items-center justify-center">
+              <Logo className="h-40 w-auto" />
             </div>
           </div>
         </section>
