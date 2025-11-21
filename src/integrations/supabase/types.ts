@@ -308,6 +308,7 @@ export type Database = {
           nip: string
           organization_name: string
           phone: string
+          processed_at: string | null
           status: string | null
         }
         Insert: {
@@ -319,6 +320,7 @@ export type Database = {
           nip: string
           organization_name: string
           phone: string
+          processed_at?: string | null
           status?: string | null
         }
         Update: {
@@ -330,6 +332,7 @@ export type Database = {
           nip?: string
           organization_name?: string
           phone?: string
+          processed_at?: string | null
           status?: string | null
         }
         Relationships: []
