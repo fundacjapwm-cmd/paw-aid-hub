@@ -62,16 +62,14 @@ const Zwierzeta = () => {
     <div className="min-h-screen bg-background">
       <main>
         {/* Header Section */}
-        <section className="py-8 px-4">
-          <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Nasi podopieczni
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
-              </p>
-            </div>
+        <section className="py-12 md:py-20 bg-background">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+              Nasi podopieczni
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+              Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
+            </p>
           </div>
         </section>
 
