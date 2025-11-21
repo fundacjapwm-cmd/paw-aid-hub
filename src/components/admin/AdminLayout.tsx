@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
@@ -30,6 +30,7 @@ interface AdminLayoutProps {
     { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
     { title: "Statystyki Organizacji", url: "/admin/statystyki-organizacji", icon: TrendingUp },
     { title: "Wyniki Finansowe", url: "/admin/finanse", icon: TrendingUp },
+    { title: "Logistyka", url: "/admin/logistyka", icon: Truck },
     { title: "Logi Systemowe", url: "/admin/logi", icon: Activity },
   ];
 
