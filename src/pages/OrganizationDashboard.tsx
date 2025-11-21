@@ -531,7 +531,7 @@ export default function OrganizationDashboard() {
             <CardHeader>
               <CardTitle>Dodaj nowe zwierzę</CardTitle>
               <CardDescription>
-                Dodaj zwierzę do adopcji
+                Dodaj nowego podopiecznego wymagającego wsparcia
               </CardDescription>
             </CardHeader>
             <CardContent>
