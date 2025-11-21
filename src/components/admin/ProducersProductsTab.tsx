@@ -800,6 +800,7 @@ export default function ProducersProductsTab({
                   productCount={productCount}
                   onClick={() => setSelectedProducerId(producer.id)}
                   onUpdate={onUpdateProducer}
+                  onDelete={onDeleteProducer}
                 />
               );
             })}
@@ -815,12 +816,14 @@ function ProducerCard({
   producer, 
   productCount, 
   onClick,
-  onUpdate
+  onUpdate,
+  onDelete
 }: { 
   producer: Producer; 
   productCount: number; 
   onClick: () => void;
   onUpdate: (data: any) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editData, setEditData] = useState<Producer>(producer);
@@ -907,18 +910,31 @@ function ProducerCard({
           </div>
         )}
         
-        {/* Edit button */}
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsEditOpen(true);
-          }}
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
+        {/* Action buttons */}
+        <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditOpen(true);
+            }}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm(`Czy na pewno chcesz usunąć producenta "${producer.name}"? Ta operacja jest nieodwracalna.`)) {
+                onDelete(producer.id);
+              }
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
 
         <div onClick={onClick}>
           <CardHeader>
