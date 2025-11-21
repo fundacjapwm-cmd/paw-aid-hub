@@ -1,4 +1,4 @@
-import { Heart, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import Footer from "@/components/Footer";
 
 const contactSchema = z.object({
   name: z.string()
@@ -253,18 +254,7 @@ const Kontakt = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-foreground/5 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Heart className="h-6 w-6 text-primary fill-current" />
-            <span className="text-lg font-bold text-primary">Pączki w Maśle</span>
-          </div>
-          <p className="text-muted-foreground">
-            &copy; 2024 Fundacja Pączki w Maśle. Wszystkie prawa zastrzeżone.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
