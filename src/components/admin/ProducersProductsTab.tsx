@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { producerSchema } from '@/lib/validations/producer';
+import { z } from 'zod';
 
 interface Producer {
   id: string;
@@ -79,7 +81,7 @@ export default function ProducersProductsTab({
   const [producerImages, setProducerImages] = useState<ProducerImage[]>([]);
 
   const [newProducer, setNewProducer] = useState({
-    name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: ''
+    name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: '', active: true
   });
 
   const [newProduct, setNewProduct] = useState({
@@ -116,8 +118,18 @@ export default function ProducersProductsTab({
   };
 
   const handleCreateProducer = async () => {
-    await onCreateProducer(newProducer);
-    setNewProducer({ name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: '' });
+    // Validate using zod schema
+    try {
+      producerSchema.parse(newProducer);
+      await onCreateProducer(newProducer);
+      setNewProducer({ name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: '', active: true });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error('Błąd podczas dodawania producenta');
+      }
+    }
   };
 
   const handleLogoUpload = async (file: File): Promise<string | null> => {
@@ -416,11 +428,133 @@ export default function ProducersProductsTab({
               <Plus className="h-5 w-5" />
               Dodaj producenta
             </CardTitle>
+            <CardDescription>Uzupełnij dane nowego producenta</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Input value={newProducer.name} onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })} placeholder="Nazwa producenta" />
-            <Button onClick={handleCreateProducer} className="w-full">
-              Dodaj producenta
+            {/* Logo Upload */}
+            <div className="space-y-2">
+              <Label>Logo firmy</Label>
+              <div className="flex items-center gap-4">
+                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-24 w-24 flex items-center justify-center hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = await handleLogoUpload(file);
+                        if (url) setNewProducer({ ...newProducer, logo_url: url });
+                      }
+                    }}
+                    disabled={uploadingImage}
+                  />
+                  {newProducer.logo_url ? (
+                    <img src={newProducer.logo_url} alt="Logo preview" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <div className="text-center pointer-events-none">
+                      <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                {newProducer.logo_url && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setNewProducer({ ...newProducer, logo_url: '' })}
+                  >
+                    Usuń logo
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Nazwa producenta */}
+            <div className="space-y-2">
+              <Label htmlFor="producer-name">Nazwa producenta *</Label>
+              <Input 
+                id="producer-name"
+                value={newProducer.name} 
+                onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })} 
+                placeholder="np. Brit Care, Royal Canin" 
+              />
+            </div>
+
+            {/* NIP */}
+            <div className="space-y-2">
+              <Label htmlFor="producer-nip">NIP</Label>
+              <Input 
+                id="producer-nip"
+                value={newProducer.nip} 
+                onChange={(e) => setNewProducer({ ...newProducer, nip: e.target.value })} 
+                placeholder="10 cyfr"
+                maxLength={10}
+              />
+            </div>
+
+            {/* Email i Telefon */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="producer-email">Email kontaktowy</Label>
+                <Input 
+                  id="producer-email"
+                  type="email"
+                  value={newProducer.contact_email} 
+                  onChange={(e) => setNewProducer({ ...newProducer, contact_email: e.target.value })} 
+                  placeholder="kontakt@firma.pl" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="producer-phone">Telefon kontaktowy</Label>
+                <Input 
+                  id="producer-phone"
+                  type="tel"
+                  value={newProducer.contact_phone} 
+                  onChange={(e) => setNewProducer({ ...newProducer, contact_phone: e.target.value })} 
+                  placeholder="+48 123 456 789" 
+                />
+              </div>
+            </div>
+
+            {/* Opis */}
+            <div className="space-y-2">
+              <Label htmlFor="producer-description">Opis</Label>
+              <Textarea 
+                id="producer-description"
+                value={newProducer.description} 
+                onChange={(e) => setNewProducer({ ...newProducer, description: e.target.value })} 
+                placeholder="Krótki opis producenta..."
+                rows={3}
+              />
+            </div>
+
+            {/* Notatka wewnętrzna */}
+            <div className="space-y-2">
+              <Label htmlFor="producer-notes">Notatka wewnętrzna</Label>
+              <Textarea 
+                id="producer-notes"
+                value={newProducer.notes} 
+                onChange={(e) => setNewProducer({ ...newProducer, notes: e.target.value })} 
+                placeholder="Notatki dla administratorów..."
+                rows={2}
+              />
+            </div>
+
+            {/* Aktywny */}
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="space-y-0.5">
+                <Label htmlFor="producer-active" className="cursor-pointer">Producent aktywny</Label>
+                <p className="text-sm text-muted-foreground">Widoczny dla organizacji</p>
+              </div>
+              <Switch 
+                id="producer-active"
+                checked={newProducer.active} 
+                onCheckedChange={(checked) => setNewProducer({ ...newProducer, active: checked })}
+              />
+            </div>
+
+            <Button onClick={handleCreateProducer} className="w-full" disabled={uploadingImage}>
+              {uploadingImage ? 'Przesyłanie...' : 'Dodaj producenta'}
             </Button>
           </CardContent>
         </Card>

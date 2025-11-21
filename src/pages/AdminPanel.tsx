@@ -146,7 +146,11 @@ export default function AdminPanel() {
     name: '',
     contact_email: '',
     contact_phone: '',
-    description: ''
+    description: '',
+    logo_url: '',
+    nip: '',
+    notes: '',
+    active: true
   });
 
   const [newProduct, setNewProduct] = useState({
@@ -611,7 +615,11 @@ export default function AdminPanel() {
         name: newProducer.name,
         contact_email: newProducer.contact_email || null,
         contact_phone: newProducer.contact_phone || null,
-        description: newProducer.description || null
+        description: newProducer.description || null,
+        logo_url: newProducer.logo_url || null,
+        nip: newProducer.nip || null,
+        notes: newProducer.notes || null,
+        active: newProducer.active ?? true
       });
 
     if (error) {
@@ -629,7 +637,11 @@ export default function AdminPanel() {
         name: '',
         contact_email: '',
         contact_phone: '',
-        description: ''
+        description: '',
+        logo_url: '',
+        nip: '',
+        notes: '',
+        active: true
       });
       fetchProducers();
     }
