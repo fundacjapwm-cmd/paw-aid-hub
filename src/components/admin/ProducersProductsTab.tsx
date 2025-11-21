@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { producerSchema } from '@/lib/validations/producer';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
+import ProductEditDialog from './ProductEditDialog';
 
 interface Producer {
   id: string;
@@ -40,6 +41,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  purchase_price?: number;
   unit: string;
   producer_id: string;
   category_id: string;
@@ -90,7 +92,7 @@ export default function ProducersProductsTab({
   });
 
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: ''
+    name: '', price: '', purchase_price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: ''
   });
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
@@ -171,8 +173,12 @@ export default function ProducersProductsTab({
       toast.error('Zdjęcie produktu jest wymagane');
       return;
     }
-    await onCreateProduct({ ...newProduct, producer_id: selectedProducerId });
-    setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
+    await onCreateProduct({ 
+      ...newProduct, 
+      producer_id: selectedProducerId,
+      purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined
+    });
+    setNewProduct({ name: '', price: '', purchase_price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
   };
 
   // Fetch producer images when a producer is selected
@@ -356,7 +362,7 @@ export default function ProducersProductsTab({
                 </div>
               </div>
 
-              {/* Nazwa i Cena obok zdjęcia */}
+              {/* Nazwa i Ceny obok zdjęcia */}
               <div className="flex-1 space-y-2">
                 <div>
                   <Label>Nazwa produktu *</Label>
@@ -367,17 +373,35 @@ export default function ProducersProductsTab({
                     className="mt-1"
                   />
                 </div>
-                <div>
-                  <Label>Cena *</Label>
-                  <Input 
-                    type="number" 
-                    step="0.01" 
-                    value={newProduct.price} 
-                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
-                    placeholder="0.00"
-                    className="mt-1"
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label>Cena zakupu</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      value={newProduct.purchase_price} 
+                      onChange={(e) => setNewProduct({ ...newProduct, purchase_price: e.target.value })} 
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Cena sprzedaży *</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      value={newProduct.price} 
+                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
+                {newProduct.purchase_price && newProduct.price && parseFloat(newProduct.price) > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    Marża: {(((parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)) / parseFloat(newProduct.price)) * 100).toFixed(1)}%
+                  </div>
+                )}
               </div>
             </div>
 
@@ -450,9 +474,19 @@ export default function ProducersProductsTab({
                         <Image className="h-6 w-6 text-muted-foreground" />
                       </div>
                     )}
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-semibold">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground">{product.price} zł / {product.unit}</p>
+                      <div className="flex gap-4 text-sm text-muted-foreground">
+                        <span>Sprzedaż: {product.price} zł / {product.unit}</span>
+                        {product.purchase_price && (
+                          <>
+                            <span>Zakup: {product.purchase_price} zł</span>
+                            <span className="text-primary font-medium">
+                              Marża: {(((product.price - product.purchase_price) / product.price) * 100).toFixed(1)}%
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -464,6 +498,13 @@ export default function ProducersProductsTab({
             </div>
           </CardContent>
         </Card>
+
+        <ProductEditDialog
+          product={editingProduct}
+          productCategories={productCategories}
+          onClose={() => setEditingProduct(null)}
+          onUpdate={onUpdateProduct}
+        />
     </div>
   );
 }
@@ -698,7 +739,7 @@ export default function ProducersProductsTab({
                 </div>
               </div>
 
-              {/* Nazwa i Cena obok zdjęcia */}
+              {/* Nazwa i Ceny obok zdjęcia */}
               <div className="flex-1 space-y-2">
                 <div>
                   <Label>Nazwa produktu *</Label>
@@ -709,17 +750,35 @@ export default function ProducersProductsTab({
                     className="mt-1"
                   />
                 </div>
-                <div>
-                  <Label>Cena *</Label>
-                  <Input 
-                    type="number" 
-                    step="0.01" 
-                    value={newProduct.price} 
-                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
-                    placeholder="0.00"
-                    className="mt-1"
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label>Cena zakupu</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      value={newProduct.purchase_price} 
+                      onChange={(e) => setNewProduct({ ...newProduct, purchase_price: e.target.value })} 
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Cena sprzedaży *</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      value={newProduct.price} 
+                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
+                {newProduct.purchase_price && newProduct.price && parseFloat(newProduct.price) > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    Marża: {(((parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)) / parseFloat(newProduct.price)) * 100).toFixed(1)}%
+                  </div>
+                )}
               </div>
             </div>
 
@@ -796,9 +855,10 @@ export default function ProducersProductsTab({
                 }
                 await onCreateProduct({ 
                   ...newProduct, 
-                  producer_id: newProduct.producer_id 
+                  producer_id: newProduct.producer_id,
+                  purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined
                 });
-                setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
+                setNewProduct({ name: '', price: '', purchase_price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
               }} 
               className="w-full"
               disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price || !newProduct.image_url || uploadingImage}

@@ -543,6 +543,7 @@ export type Database = {
           name: string
           price: number
           producer_id: string | null
+          purchase_price: number | null
           unit: string | null
           updated_at: string | null
           weight_volume: string | null
@@ -557,6 +558,7 @@ export type Database = {
           name: string
           price: number
           producer_id?: string | null
+          purchase_price?: number | null
           unit?: string | null
           updated_at?: string | null
           weight_volume?: string | null
@@ -571,6 +573,7 @@ export type Database = {
           name?: string
           price?: number
           producer_id?: string | null
+          purchase_price?: number | null
           unit?: string | null
           updated_at?: string | null
           weight_volume?: string | null

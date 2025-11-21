@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
@@ -23,13 +23,14 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
-const menuItems = [
-  { title: "Pulpit", url: "/admin", icon: LayoutDashboard },
-  { title: "Organizacje", url: "/admin/organizacje", icon: Building2 },
-  { title: "Producenci i Produkty", url: "/admin/producenci", icon: Factory },
-  { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
-  { title: "Logi Systemowe", url: "/admin/logi", icon: Activity },
-];
+  const menuItems = [
+    { title: "Pulpit", url: "/admin", icon: LayoutDashboard },
+    { title: "Organizacje", url: "/admin/organizacje", icon: Building2 },
+    { title: "Producenci i Produkty", url: "/admin/producenci", icon: Factory },
+    { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
+    { title: "Wyniki Finansowe", url: "/admin/finanse", icon: TrendingUp },
+    { title: "Logi Systemowe", url: "/admin/logi", icon: Activity },
+  ];
 
 function AdminSidebarContent() {
   const location = useLocation();
