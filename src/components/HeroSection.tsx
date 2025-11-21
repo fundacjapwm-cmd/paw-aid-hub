@@ -29,19 +29,19 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              {/* Przycisk 1: Główna akcja */}
+              {/* Przycisk główny: Gradient złoty → pomarańczowy */}
               <Button 
                 size="lg"
-                className="bg-primary text-white hover:bg-primary/90 shadow-bubbly hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold"
+                className="bg-gradient-to-r from-primary via-primary to-accent text-white hover:shadow-[0_0_30px_rgba(233,165,46,0.4)] shadow-bubbly hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold hover:scale-105"
                 onClick={() => navigate('/zwierzeta')}
               >
                 Wybierz zwierzaka
               </Button>
               
-              {/* Przycisk 2: Edukacja (Biały "lukier" dla kontrastu) */}
+              {/* Przycisk wtórny: Zielony (secondary) dla kontrastu */}
               <Button 
                 size="lg"
-                className="bg-white text-primary hover:bg-white/90 shadow-bubbly hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold"
+                className="bg-secondary text-secondary-foreground hover:bg-secondary/90 hover:shadow-[0_0_30px_rgba(159,185,115,0.3)] shadow-card hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold hover:scale-105"
                 onClick={() => navigate('/jak-to-dziala')}
               >
                 Jak to działa?
