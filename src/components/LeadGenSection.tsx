@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,7 +25,11 @@ const leadFormSchema = z.object({
     .email("Nieprawidłowy format email")
     .max(255, "Email nie może przekraczać 255 znaków"),
   phone: z.string()
-    .regex(/^(\+48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}$/, "Nieprawidłowy format numeru telefonu")
+    .regex(/^(\+48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}$/, "Nieprawidłowy format numeru telefonu"),
+  acceptedTerms: z.boolean().refine(val => val === true, {
+    message: "Musisz zaakceptować regulamin, aby wysłać zgłoszenie."
+  }),
+  marketingConsent: z.boolean().optional()
 });
 
 type LeadFormData = z.infer<typeof leadFormSchema>;
@@ -37,10 +42,19 @@ const LeadGenSection = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    watch,
+    setValue
   } = useForm<LeadFormData>({
-    resolver: zodResolver(leadFormSchema)
+    resolver: zodResolver(leadFormSchema),
+    defaultValues: {
+      acceptedTerms: false,
+      marketingConsent: false
+    }
   });
+
+  const acceptedTerms = watch("acceptedTerms");
+  const marketingConsent = watch("marketingConsent");
 
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
@@ -134,6 +148,43 @@ const LeadGenSection = () => {
               {errors.phone && (
                 <p className="text-sm text-destructive">{errors.phone.message}</p>
               )}
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="acceptedTerms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setValue("acceptedTerms", checked as boolean)}
+                  className="mt-1"
+                />
+                <div className="space-y-1 leading-none">
+                  <Label 
+                    htmlFor="acceptedTerms"
+                    className="text-sm text-muted-foreground font-normal cursor-pointer"
+                  >
+                    Akceptuję <a href="#" className="italic underline hover:text-foreground">Regulamin</a> i <a href="#" className="italic underline hover:text-foreground">Politykę Prywatności</a> serwisu Pączki w Maśle.
+                  </Label>
+                  {errors.acceptedTerms && (
+                    <p className="text-sm text-destructive">{errors.acceptedTerms.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="marketingConsent"
+                  checked={marketingConsent}
+                  onCheckedChange={(checked) => setValue("marketingConsent", checked as boolean)}
+                  className="mt-1"
+                />
+                <Label 
+                  htmlFor="marketingConsent"
+                  className="text-sm text-muted-foreground font-normal cursor-pointer"
+                >
+                  Chcę otrzymywać informacje o nowościach i akcjach promocyjnych.
+                </Label>
+              </div>
             </div>
 
             <Button 

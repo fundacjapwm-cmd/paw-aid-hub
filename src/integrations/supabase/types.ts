@@ -298,6 +298,39 @@ export type Database = {
           },
         ]
       }
+      organization_leads: {
+        Row: {
+          accepted_terms: boolean
+          created_at: string | null
+          email: string
+          id: string
+          marketing_consent: boolean
+          nip: string
+          organization_name: string
+          phone: string
+        }
+        Insert: {
+          accepted_terms?: boolean
+          created_at?: string | null
+          email: string
+          id?: string
+          marketing_consent?: boolean
+          nip: string
+          organization_name: string
+          phone: string
+        }
+        Update: {
+          accepted_terms?: boolean
+          created_at?: string | null
+          email?: string
+          id?: string
+          marketing_consent?: boolean
+          nip?: string
+          organization_name?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       organization_users: {
         Row: {
           created_at: string | null
