@@ -1,4 +1,5 @@
 import { Heart, Facebook, Instagram } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const Footer = () => {
   return (
@@ -7,13 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Logo and Description */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-1">
-                <Heart className="h-8 w-8 text-primary fill-current" />
-                <Heart className="h-6 w-6 text-accent fill-current -ml-2" />
-              </div>
-              <span className="text-xl font-bold text-primary">Pączki w Maśle</span>
-            </div>
+            <Logo className="h-12 w-auto" />
             <p className="text-sm text-muted-foreground">
               Pomagamy bezdomnym zwierzętom znaleźć dom i otrzymać niezbędne wsparcie.
             </p>
