@@ -97,16 +97,14 @@ const Organizacje = () => {
     <div className="min-h-screen bg-background">
       <main>
         {/* Header Section */}
-        <section className="py-8 px-4">
-          <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Nasi partnerzy
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Poznaj organizacje, które codziennie pomagają zwierzętom w potrzebie. Wspieraj ich działania!
-              </p>
-            </div>
+        <section className="py-12 md:py-20 bg-background">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+              Nasi partnerzy
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+              Poznaj organizacje, które codziennie pomagają zwierzętom w potrzebie. Wspieraj ich działania!
+            </p>
           </div>
         </section>
 
