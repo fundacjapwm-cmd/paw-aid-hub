@@ -1,7 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,6 +18,8 @@ interface LeadEmailRequest {
   nip: string;
   email: string;
   phone: string;
+  acceptedTerms: boolean;
+  marketingConsent?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -22,9 +29,26 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { organizationName, nip, email, phone }: LeadEmailRequest = await req.json();
+    const { organizationName, nip, email, phone, acceptedTerms, marketingConsent }: LeadEmailRequest = await req.json();
 
     console.log("Processing lead email for:", organizationName);
+
+    // Save to database
+    const { error: dbError } = await supabase
+      .from("organization_leads")
+      .insert([{
+        organization_name: organizationName,
+        nip,
+        email,
+        phone,
+        accepted_terms: acceptedTerms,
+        marketing_consent: marketingConsent || false
+      }]);
+
+    if (dbError) {
+      console.error("Database error:", dbError);
+      throw dbError;
+    }
 
     // Send email to foundation
     const emailResponse = await resend.emails.send({
@@ -37,6 +61,8 @@ const handler = async (req: Request): Promise<Response> => {
         <p><strong>NIP:</strong> ${nip}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Telefon:</strong> ${phone}</p>
+        <p><strong>Akceptacja regulaminu:</strong> ${acceptedTerms ? 'Tak' : 'Nie'}</p>
+        <p><strong>Zgoda marketingowa:</strong> ${marketingConsent ? 'Tak' : 'Nie'}</p>
       `,
     });
 
