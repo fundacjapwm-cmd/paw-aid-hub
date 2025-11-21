@@ -190,6 +190,9 @@ export default function AdminProducers() {
         contact_email: editingProducer.contact_email,
         contact_phone: editingProducer.contact_phone,
         description: editingProducer.description,
+        logo_url: editingProducer.logo_url,
+        nip: editingProducer.nip,
+        notes: editingProducer.notes,
         active: editingProducer.active
       })
       .eq('id', editingProducer.id);
