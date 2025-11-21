@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail, Package } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
@@ -41,6 +41,7 @@ const menuStructure = [
       { title: "Archiwum Zgłoszeń", url: "/admin/zgloszenia/archiwum" },
     ]
   },
+  { title: "Zgłoszenia Produktów", url: "/admin/zgloszenia-produktow", icon: Package },
   {
     label: "Baza Danych",
     items: [
@@ -240,6 +241,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (path === "/admin") return "Pulpit";
     if (path === "/admin/zgloszenia") return "Nowe Zgłoszenia";
     if (path === "/admin/zgloszenia/archiwum") return "Archiwum Zgłoszeń";
+    if (path === "/admin/zgloszenia-produktow") return "Zgłoszenia Produktów";
     if (path === "/admin/organizacje") return "Organizacje";
     if (path === "/admin/producenci") return "Producenci i Produkty";
     if (path === "/admin/uzytkownicy") return "Użytkownicy";

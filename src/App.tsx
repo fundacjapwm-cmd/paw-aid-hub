@@ -28,6 +28,7 @@ import AdminLogistics from "./pages/admin/AdminLogistics";
 import AdminLogisticsArchive from "./pages/admin/AdminLogisticsArchive";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminLeadsArchive from "./pages/admin/AdminLeadsArchive";
+import AdminProductRequests from "./pages/admin/AdminProductRequests";
 import OrgDashboard from "./pages/OrgDashboard";
 import OrgAnimals from "./pages/OrgAnimals";
 import OrgProfile from "./pages/OrgProfile";
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="organizacje" element={<AdminOrganizations />} />
               <Route path="zgloszenia" element={<AdminLeads />} />
               <Route path="zgloszenia/archiwum" element={<AdminLeadsArchive />} />
+              <Route path="zgloszenia-produktow" element={<AdminProductRequests />} />
               <Route path="producenci" element={<AdminProducers />} />
               <Route path="uzytkownicy" element={<AdminUsers />} />
               <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
