@@ -1,12 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-// No longer needed - using recovery link instead
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -120,48 +116,25 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Organization user record already exists");
     }
 
-    // Generate recovery link (magic link for setting password)
-    const origin = req.headers.get("origin") || "https://your-app.lovable.app";
-    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-      type: 'recovery',
-      email: email,
-      options: {
-        redirectTo: `${origin}/set-password`
-      }
+    // Trigger password reset email via Supabase
+    const origin = req.headers.get("origin") || "https://paczkiwmasle.lovable.app";
+    console.log("Sending password reset email to:", email);
+    
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${origin}/set-password`,
     });
 
-    if (linkError) {
-      console.error("Error generating recovery link:", linkError);
-      throw linkError;
+    if (resetError) {
+      console.error("Error sending password reset:", resetError);
+      throw resetError;
     }
 
-    console.log("Sending invitation email to:", email);
-
-    // Send invitation email with recovery link
-    const emailResponse = await resend.emails.send({
-      from: "Pączki w Maśle <onboarding@resend.dev>",
-      to: [email],
-      subject: `Zaproszenie do organizacji ${organizationName}`,
-      html: `
-        <h1>Zaproszenie do Pączki w Maśle 🍩</h1>
-        <p>Zostałeś zaproszony do zarządzania organizacją: <strong>${organizationName}</strong>.</p>
-        <p>Kliknij poniższy przycisk, aby ustawić hasło i aktywować konto:</p>
-        <a href="${linkData.properties.action_link}" style="background:#E9A52E; color:white; padding:12px 24px; text-decoration:none; border-radius:8px; display:inline-block;">
-          Aktywuj konto i ustaw hasło
-        </a>
-        <p style="margin-top:20px; color:#666; font-size:14px;">
-          Link jest ważny przez 24 godziny.
-        </p>
-      `,
-    });
-
-    console.log("Invitation email sent successfully:", emailResponse);
+    console.log("Password reset email sent successfully via Supabase");
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Zaproszenie zostało wysłane",
-        userId: userId
+        message: "Konto utworzone. Wysłano e-mail z linkiem do ustawienia hasła."
       }),
       {
         status: 200,
