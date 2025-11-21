@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X, Check, ChevronsUpDown } from 'lucide-react';
+import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X, Check, ChevronsUpDown, EyeOff, Mail, Phone, Building2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { producerSchema } from '@/lib/validations/producer';
@@ -206,6 +206,72 @@ export default function ProducersProductsTab({
           <ArrowLeft className="h-4 w-4 mr-2" />
           Powrót do listy producentów
         </Button>
+
+        {/* Producer Hero Section */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex gap-6">
+              {/* Logo */}
+              {producer?.logo_url ? (
+                <div className="flex-shrink-0">
+                  <img 
+                    src={producer.logo_url} 
+                    alt={`${producer.name} logo`}
+                    className="h-24 w-24 object-contain border rounded-lg p-2"
+                  />
+                </div>
+              ) : (
+                <div className="flex-shrink-0 h-24 w-24 bg-muted rounded-lg flex items-center justify-center">
+                  <Building2 className="h-10 w-10 text-muted-foreground" />
+                </div>
+              )}
+              
+              {/* Producer Info */}
+              <div className="flex-1 space-y-3">
+                <div>
+                  <h2 className="text-2xl font-bold">{producer?.name}</h2>
+                  {producer?.nip && (
+                    <p className="text-sm text-muted-foreground">NIP: {producer.nip}</p>
+                  )}
+                </div>
+                
+                {/* Contact Info */}
+                <div className="grid md:grid-cols-2 gap-3">
+                  {producer?.contact_email && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span>{producer.contact_email}</span>
+                    </div>
+                  )}
+                  {producer?.contact_phone && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{producer.contact_phone}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description */}
+                {producer?.description && (
+                  <p className="text-sm text-muted-foreground">{producer.description}</p>
+                )}
+
+                {/* Internal Notes */}
+                {producer?.notes && (
+                  <div className="bg-muted/50 rounded-lg p-3 border border-dashed">
+                    <div className="flex items-start gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Notatki wewnętrzne</p>
+                        <p className="text-sm">{producer.notes}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -904,16 +970,20 @@ function ProducerCard({
       <Card 
         className="cursor-pointer hover:border-primary transition-colors overflow-hidden relative group" 
       >
-        {/* Logo overlay */}
-        {producer.logo_url && (
-          <div className="absolute top-2 left-2 z-10 bg-white rounded-lg p-2 shadow-sm">
+        {/* Logo or Hidden indicator */}
+        <div className="absolute top-2 left-2 z-10 bg-background rounded-lg p-2 shadow-sm border">
+          {!producer.active ? (
+            <EyeOff className="h-6 w-6 text-muted-foreground" />
+          ) : producer.logo_url ? (
             <img 
               src={producer.logo_url} 
               alt={`${producer.name} logo`}
-              className="h-8 w-8 object-contain"
+              className="h-6 w-6 object-contain"
             />
-          </div>
-        )}
+          ) : (
+            <Building2 className="h-6 w-6 text-muted-foreground" />
+          )}
+        </div>
         
         {/* Action buttons */}
         <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
