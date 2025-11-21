@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Plus, Pencil, ShoppingCart, AlertCircle, Upload, Trash2 } from "lucide-react";
+import { Plus, Pencil, ShoppingCart, AlertCircle, Upload, Trash2, ImageIcon } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const animalSchema = z.object({
@@ -384,164 +384,181 @@ export default function OrgAnimals() {
                 Dodaj podopiecznego
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-3xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="rounded-3xl max-w-7xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Dodaj nowego podopiecznego</DialogTitle>
                 <DialogDescription>
                   Uzupełnij informacje o zwierzęciu
                 </DialogDescription>
               </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  {/* Main Image Upload */}
-                  <div className="space-y-2">
-                    <FormLabel>Zdjęcie główne</FormLabel>
-                    <div className="flex flex-col items-center gap-4">
-                      {imagePreview && (
-                        <Avatar className="h-32 w-32">
-                          <AvatarImage src={imagePreview} alt="Podgląd" />
-                          <AvatarFallback>Zdjęcie</AvatarFallback>
-                        </Avatar>
-                      )}
-                      <div className="flex items-center gap-2 w-full">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="max-w-xs"
-                        />
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Gallery Images Upload */}
-                  <div className="space-y-2">
-                    <FormLabel>Galeria zdjęć (max 6)</FormLabel>
-                    <div className="flex flex-col gap-4">
-                      {galleryPreviews.length > 0 && (
-                        <div className="grid grid-cols-3 gap-2">
-                          {galleryPreviews.map((preview, idx) => (
-                            <Avatar key={idx} className="h-20 w-20">
-                              <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
-                              <AvatarFallback>{idx + 1}</AvatarFallback>
-                            </Avatar>
-                          ))}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start font-sans">
+                {/* KOLUMNA LEWA: Formularz w Karcie */}
+                <Card className="rounded-3xl shadow-card p-6 bg-white order-2 md:order-1">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                      {/* Gallery Images Upload */}
+                      <div className="space-y-2">
+                        <FormLabel>Galeria zdjęć (max 6)</FormLabel>
+                        <div className="flex flex-col gap-4">
+                          {galleryPreviews.length > 0 && (
+                            <div className="grid grid-cols-3 gap-2">
+                              {galleryPreviews.map((preview, idx) => (
+                                <Avatar key={idx} className="h-20 w-20">
+                                  <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
+                                  <AvatarFallback>{idx + 1}</AvatarFallback>
+                                </Avatar>
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 w-full">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={handleGalleryChange}
+                              className="max-w-xs"
+                            />
+                            <Upload className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Wybierz do 6 zdjęć dla galerii
+                          </p>
                         </div>
-                      )}
-                      <div className="flex items-center gap-2 w-full">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleGalleryChange}
-                          className="max-w-xs"
-                        />
-                        <Upload className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Wybierz do 6 zdjęć dla galerii
-                      </p>
+
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Imię</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Burek" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="species"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gatunek</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Wybierz gatunek" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Pies">Pies</SelectItem>
+                                <SelectItem value="Kot">Kot</SelectItem>
+                                <SelectItem value="Inne">Inne</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="breed"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Rasa (opcjonalnie)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Owczarek niemiecki" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="age"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Wiek (lata)</FormLabel>
+                            <FormControl>
+                              <Input type="number" placeholder="0" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Płeć</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Samiec/Samica" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Opis</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Opisz podopiecznego..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button 
+                        type="submit" 
+                        disabled={uploading}
+                        className="w-full rounded-2xl"
+                      >
+                        {uploading ? "Przesyłanie..." : "Dodaj"}
+                      </Button>
+                    </form>
+                  </Form>
+                </Card>
+
+                {/* KOLUMNA PRAWA: Podgląd Zdjęcia (Poza kartą) */}
+                <div className="hidden md:block order-1 md:order-2 md:sticky md:top-8 h-full max-h-[700px]">
+                  <div className="relative w-full h-full min-h-[500px] rounded-3xl overflow-hidden shadow-bubbly border-4 border-white bg-muted/30 flex flex-col items-center justify-center">
+                    {imagePreview ? (
+                      <img 
+                        src={imagePreview} 
+                        alt="Podgląd" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-6 text-muted-foreground">
+                        <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p className="mb-4">Brak zdjęcia głównego</p>
+                      </div>
+                    )}
+                    
+                    {/* Upload Button */}
+                    <div className="absolute bottom-6 left-6 right-6">
+                      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+                        <FormLabel className="text-sm font-semibold mb-2 block">Zdjęcie główne</FormLabel>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="text-sm"
+                          />
+                          <Upload className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  {/* ... keep existing code (all form fields) */}
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Imię</FormLabel>
-                        <FormControl>
-                          <Input placeholder="np. Burek" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="species"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Gatunek</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Wybierz gatunek" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Pies">Pies</SelectItem>
-                            <SelectItem value="Kot">Kot</SelectItem>
-                            <SelectItem value="Inne">Inne</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="breed"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Rasa (opcjonalnie)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="np. Owczarek niemiecki" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="age"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Wiek (lata)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="0" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Płeć</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Samiec/Samica" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Opis</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Opisz podopiecznego..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button 
-                    type="submit" 
-                    disabled={uploading}
-                    className="w-full rounded-2xl"
-                  >
-                    {uploading ? "Przesyłanie..." : "Dodaj"}
-                  </Button>
-                </form>
-              </Form>
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
@@ -617,160 +634,178 @@ export default function OrgAnimals() {
 
         {/* Edit Animal Dialog */}
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="rounded-3xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="rounded-3xl max-w-7xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edytuj podopiecznego</DialogTitle>
               <DialogDescription>
                 Zaktualizuj informacje o zwierzęciu
               </DialogDescription>
             </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-4">
-                {/* Main Image Upload */}
-                <div className="space-y-2">
-                  <FormLabel>Zdjęcie główne</FormLabel>
-                  <div className="flex flex-col items-center gap-4">
-                    {imagePreview && (
-                      <Avatar className="h-32 w-32">
-                        <AvatarImage src={imagePreview} alt="Podgląd" />
-                        <AvatarFallback>Zdjęcie</AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div className="flex items-center gap-2 w-full">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="max-w-xs"
-                      />
-                      <Upload className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Gallery Images Upload */}
-                <div className="space-y-2">
-                  <FormLabel>Dodaj więcej zdjęć do galerii (max 6)</FormLabel>
-                  <div className="flex flex-col gap-4">
-                    {galleryPreviews.length > 0 && (
-                      <div className="grid grid-cols-3 gap-2">
-                        {galleryPreviews.map((preview, idx) => (
-                          <Avatar key={idx} className="h-20 w-20">
-                            <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
-                            <AvatarFallback>{idx + 1}</AvatarFallback>
-                          </Avatar>
-                        ))}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start font-sans">
+              {/* KOLUMNA LEWA: Formularz w Karcie */}
+              <Card className="rounded-3xl shadow-card p-6 bg-white order-2 md:order-1">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-4">
+                    {/* Gallery Images Upload */}
+                    <div className="space-y-2">
+                      <FormLabel>Dodaj więcej zdjęć do galerii (max 6)</FormLabel>
+                      <div className="flex flex-col gap-4">
+                        {galleryPreviews.length > 0 && (
+                          <div className="grid grid-cols-3 gap-2">
+                            {galleryPreviews.map((preview, idx) => (
+                              <Avatar key={idx} className="h-20 w-20">
+                                <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
+                                <AvatarFallback>{idx + 1}</AvatarFallback>
+                              </Avatar>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 w-full">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleGalleryChange}
+                            className="max-w-xs"
+                          />
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                        </div>
                       </div>
-                    )}
-                    <div className="flex items-center gap-2 w-full">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleGalleryChange}
-                        className="max-w-xs"
-                      />
-                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Imię</FormLabel>
+                          <FormControl>
+                            <Input placeholder="np. Burek" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="species"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Gatunek</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Wybierz gatunek" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Pies">Pies</SelectItem>
+                              <SelectItem value="Kot">Kot</SelectItem>
+                              <SelectItem value="Inne">Inne</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="breed"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Rasa (opcjonalnie)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="np. Owczarek niemiecki" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="age"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Wiek (lata)</FormLabel>
+                          <FormControl>
+                            <Input type="number" placeholder="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Płeć</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Samiec/Samica" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Opis</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Opisz podopiecznego..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button 
+                      type="submit" 
+                      disabled={uploading}
+                      className="w-full rounded-2xl"
+                    >
+                      {uploading ? "Aktualizowanie..." : "Zapisz zmiany"}
+                    </Button>
+                  </form>
+                </Form>
+              </Card>
+
+              {/* KOLUMNA PRAWA: Podgląd Zdjęcia (Poza kartą) */}
+              <div className="hidden md:block order-1 md:order-2 md:sticky md:top-8 h-full max-h-[700px]">
+                <div className="relative w-full h-full min-h-[500px] rounded-3xl overflow-hidden shadow-bubbly border-4 border-white bg-muted/30 flex flex-col items-center justify-center">
+                  {imagePreview ? (
+                    <img 
+                      src={imagePreview} 
+                      alt="Podgląd" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center p-6 text-muted-foreground">
+                      <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <p className="mb-4">Brak zdjęcia głównego</p>
+                    </div>
+                  )}
+                  
+                  {/* Upload Button */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+                      <FormLabel className="text-sm font-semibold mb-2 block">Zdjęcie główne</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="text-sm"
+                        />
+                        <Upload className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Imię</FormLabel>
-                      <FormControl>
-                        <Input placeholder="np. Burek" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="species"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Gatunek</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Wybierz gatunek" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Pies">Pies</SelectItem>
-                          <SelectItem value="Kot">Kot</SelectItem>
-                          <SelectItem value="Inne">Inne</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="breed"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rasa (opcjonalnie)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="np. Owczarek niemiecki" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="age"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Wiek (lata)</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Płeć</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Samiec/Samica" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Opis</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Opisz podopiecznego..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button 
-                  type="submit" 
-                  disabled={uploading}
-                  className="w-full rounded-2xl"
-                >
-                  {uploading ? "Aktualizowanie..." : "Zapisz zmiany"}
-                </Button>
-              </form>
-            </Form>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
 
