@@ -80,6 +80,7 @@ export default function ProducersProductsTab({
   const [producerSearchOpen, setProducerSearchOpen] = useState(false);
   const [producerSearchValue, setProducerSearchValue] = useState('');
   const [productSearchQuery, setProductSearchQuery] = useState('');
+  const [producerListSearchQuery, setProducerListSearchQuery] = useState('');
 
   // Clear product search when producer changes
   useEffect(() => {
@@ -857,25 +858,73 @@ export default function ProducersProductsTab({
 
       <Card>
         <CardHeader>
-          <CardTitle>Producenci ({producers.length})</CardTitle>
-          <CardDescription>Kliknij na producenta, aby zobaczyć i zarządzać jego produktami</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            {producers.map((producer) => {
-              const productCount = products.filter(p => p.producer_id === producer.id).length;
-              return (
-                <ProducerCard 
-                  key={producer.id}
-                  producer={producer}
-                  productCount={productCount}
-                  onClick={() => setSelectedProducerId(producer.id)}
-                  onUpdate={onUpdateProducer}
-                  onDelete={onDeleteProducer}
-                />
-              );
-            })}
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Producenci ({producers.length})</CardTitle>
+              <CardDescription>Kliknij na producenta, aby zobaczyć i zarządzać jego produktami</CardDescription>
+            </div>
           </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Input
+              placeholder="Szukaj producenta po nazwie..."
+              value={producerListSearchQuery}
+              onChange={(e) => setProducerListSearchQuery(e.target.value)}
+              className="w-full"
+            />
+            {producerListSearchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                onClick={() => setProducerListSearchQuery('')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+
+          {/* Filtered count */}
+          {producerListSearchQuery && (
+            <p className="text-sm text-muted-foreground">
+              Znaleziono: {producers.filter(p => 
+                p.name.toLowerCase().includes(producerListSearchQuery.toLowerCase())
+              ).length}
+            </p>
+          )}
+
+          {/* Producer Grid */}
+          <div className="grid gap-4 md:grid-cols-3">
+            {producers
+              .filter(p => 
+                producerListSearchQuery === '' || 
+                p.name.toLowerCase().includes(producerListSearchQuery.toLowerCase())
+              )
+              .map((producer) => {
+                const productCount = products.filter(p => p.producer_id === producer.id).length;
+                return (
+                  <ProducerCard 
+                    key={producer.id}
+                    producer={producer}
+                    productCount={productCount}
+                    onClick={() => setSelectedProducerId(producer.id)}
+                    onUpdate={onUpdateProducer}
+                    onDelete={onDeleteProducer}
+                  />
+                );
+              })}
+          </div>
+
+          {/* No results message */}
+          {producerListSearchQuery && producers.filter(p => 
+            p.name.toLowerCase().includes(producerListSearchQuery.toLowerCase())
+          ).length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              Nie znaleziono producentów
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
