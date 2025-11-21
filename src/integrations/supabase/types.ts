@@ -182,6 +182,7 @@ export type Database = {
         Row: {
           animal_id: string | null
           created_at: string | null
+          fulfillment_status: string | null
           id: string
           order_id: string | null
           product_id: string | null
@@ -191,6 +192,7 @@ export type Database = {
         Insert: {
           animal_id?: string | null
           created_at?: string | null
+          fulfillment_status?: string | null
           id?: string
           order_id?: string | null
           product_id?: string | null
@@ -200,6 +202,7 @@ export type Database = {
         Update: {
           animal_id?: string | null
           created_at?: string | null
+          fulfillment_status?: string | null
           id?: string
           order_id?: string | null
           product_id?: string | null

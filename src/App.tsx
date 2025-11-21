@@ -24,6 +24,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminFinances from "./pages/admin/AdminFinances";
 import AdminOrganizationStats from "./pages/admin/AdminOrganizationStats";
+import AdminLogistics from "./pages/admin/AdminLogistics";
 import OrgDashboard from "./pages/OrgDashboard";
 import OrgAnimals from "./pages/OrgAnimals";
 import OrgProfile from "./pages/OrgProfile";
@@ -65,6 +66,7 @@ const App = () => (
             <Route path="/admin/uzytkownicy" element={<AdminLayout><AdminUsers /></AdminLayout>} />
             <Route path="/admin/statystyki-organizacji" element={<AdminLayout><AdminOrganizationStats /></AdminLayout>} />
             <Route path="/admin/finanse" element={<AdminLayout><AdminFinances /></AdminLayout>} />
+            <Route path="/admin/logistyka" element={<AdminLayout><AdminLogistics /></AdminLayout>} />
             <Route path="/admin/logi" element={<AdminLayout><AdminLogs /></AdminLayout>} />
             
             {/* Organization Routes */}
