@@ -59,21 +59,32 @@ const LeadGenSection = () => {
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke('send-lead-email', {
-        body: data
-      });
+      // Bezpośredni zapis do bazy (bez Edge Function)
+      const { error } = await supabase
+        .from('organization_leads')
+        .insert([
+          {
+            organization_name: data.organizationName,
+            nip: data.nip,
+            email: data.email,
+            phone: data.phone,
+            accepted_terms: data.acceptedTerms,
+            marketing_consent: data.marketingConsent || false
+          }
+        ]);
 
       if (error) throw error;
 
       toast({
-        title: "Zgłoszenie wysłane!",
-        description: "Skontaktujemy się z Tobą wkrótce.",
+        title: "Zgłoszenie przyjęte! 🎉",
+        description: "Dziękujemy! Skontaktujemy się z Tobą wkrótce.",
       });
+      
       reset();
     } catch (error) {
-      console.error('Error sending lead:', error);
+      console.error('Error saving lead:', error);
       toast({
-        title: "Błąd",
+        title: "Wystąpił błąd",
         description: "Nie udało się wysłać zgłoszenia. Spróbuj ponownie.",
         variant: "destructive"
       });
