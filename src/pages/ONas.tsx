@@ -143,9 +143,8 @@ const ONas = () => {
       {/* Footer */}
       <footer className="bg-foreground/5 py-8">
         <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Heart className="h-6 w-6 text-primary fill-current" />
-            <span className="text-lg font-bold text-primary">Pączki w Maśle</span>
+          <div className="flex items-center justify-center mb-4">
+            <Logo className="h-10 w-auto" />
           </div>
           <p className="text-muted-foreground">
             &copy; 2024 Fundacja Pączki w Maśle. Wszystkie prawa zastrzeżone.

@@ -25,9 +25,8 @@ const Navigation = () => {
           </div>
 
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <Logo className="h-8 w-auto sm:h-10" />
-            <span className="text-lg sm:text-xl font-bold text-primary">Pączki w Maśle</span>
+          <div className="flex items-center">
+            <Logo className="h-10 w-auto sm:h-12 md:h-14" />
           </div>
 
           {/* Navigation Menu */}
