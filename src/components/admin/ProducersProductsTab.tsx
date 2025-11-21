@@ -79,6 +79,12 @@ export default function ProducersProductsTab({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [producerSearchOpen, setProducerSearchOpen] = useState(false);
   const [producerSearchValue, setProducerSearchValue] = useState('');
+  const [productSearchQuery, setProductSearchQuery] = useState('');
+
+  // Clear product search when producer changes
+  useEffect(() => {
+    setProductSearchQuery('');
+  }, [selectedProducerId]);
 
   const [newProducer, setNewProducer] = useState({
     name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: '', active: true
@@ -178,11 +184,23 @@ export default function ProducersProductsTab({
     const producer = producers.find(p => p.id === selectedProducerId);
     const producerProducts = products.filter(p => p.producer_id === selectedProducerId);
 
+    // Filter products based on search query (minimum 3 characters)
+    const filteredProducts = productSearchQuery.length >= 3
+      ? producerProducts.filter(p => 
+          p.name.toLowerCase().includes(productSearchQuery.toLowerCase())
+        )
+      : producerProducts;
+
+    const handleBackToProducers = () => {
+      setSelectedProducerId(null);
+      setProductSearchQuery('');
+    };
+
     return (
       <div className="space-y-6">
         <Button 
           variant="outline" 
-          onClick={() => setSelectedProducerId(null)}
+          onClick={handleBackToProducers}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -320,11 +338,47 @@ export default function ProducersProductsTab({
 
         <Card>
           <CardHeader>
-            <CardTitle>Produkty ({producerProducts.length})</CardTitle>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Produkty ({producerProducts.length})</CardTitle>
+                {productSearchQuery.length >= 3 && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Znaleziono: {filteredProducts.length}
+                  </p>
+                )}
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {producerProducts.map((product) => (
+          <CardContent className="space-y-4">
+            <div className="relative">
+              <Input
+                placeholder="Szukaj produktu (min. 3 znaki)..."
+                value={productSearchQuery}
+                onChange={(e) => setProductSearchQuery(e.target.value)}
+                className="w-full"
+              />
+              {productSearchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                  onClick={() => setProductSearchQuery('')}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {productSearchQuery.length >= 3 
+                  ? 'Nie znaleziono produktów' 
+                  : 'Brak produktów'
+                }
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredProducts.map((product) => (
                 <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-4">
                     {product.image_url ? (
@@ -354,8 +408,9 @@ export default function ProducersProductsTab({
                     <Button size="sm" variant="destructive" onClick={() => onDeleteProduct(product.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
