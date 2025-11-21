@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Logo and Description */}
           <div className="space-y-4">
-            <Logo className="h-12 w-auto" />
+            <Logo className="h-14 w-auto md:h-16" />
             <p className="text-sm text-muted-foreground">
               Pomagamy bezdomnym zwierzętom znaleźć dom i otrzymać niezbędne wsparcie.
             </p>
