@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil } from "lucide-react";
+import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard } from "lucide-react";
 import { useNavigate as useRouterNavigate } from "react-router-dom";
 
 export default function OrgDashboard() {
@@ -112,37 +112,142 @@ export default function OrgDashboard() {
       <div className="space-y-8">
         {/* Organization Header */}
         <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-8 border border-border/50">
-          <div className="flex items-start gap-6">
-            <Avatar className="h-24 w-24 border-4 border-white shadow-card">
-              <AvatarImage src={organization?.logo_url || ''} alt={organization?.name} />
-              <AvatarFallback className="text-2xl">
-                {organization?.name?.charAt(0) || 'O'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground mb-2">{organization?.name || "Twoja Organizacja"}</h1>
-                  {organization?.city && (
-                    <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                      <MapPin className="h-4 w-4" />
-                      <span>{organization.city}</span>
-                    </div>
-                  )}
-                  {organization?.description && (
-                    <p className="text-muted-foreground line-clamp-2">{organization.description}</p>
-                  )}
+          <div className="flex flex-col gap-6">
+            {/* Top Section - Logo, Name, Edit Button */}
+            <div className="flex items-start gap-6">
+              <Avatar className="h-24 w-24 border-4 border-white shadow-card flex-shrink-0">
+                <AvatarImage src={organization?.logo_url || ''} alt={organization?.name} />
+                <AvatarFallback className="text-2xl">
+                  {organization?.name?.charAt(0) || 'O'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-3xl font-bold text-foreground mb-2">{organization?.name || "Twoja Organizacja"}</h1>
+                    {organization?.description && (
+                      <p className="text-muted-foreground line-clamp-2">{organization.description}</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditDialogOpen(true)}
+                    className="gap-2 rounded-2xl flex-shrink-0"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Edytuj
+                  </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditDialogOpen(true)}
-                  className="gap-2 rounded-2xl"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Edytuj
-                </Button>
               </div>
+            </div>
+
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Address */}
+              {(organization?.address || organization?.city || organization?.postal_code) && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Adres</div>
+                    <div className="text-sm text-muted-foreground space-y-0.5">
+                      {organization?.address && <div>{organization.address}</div>}
+                      {(organization?.postal_code || organization?.city) && (
+                        <div>
+                          {organization?.postal_code && `${organization.postal_code} `}
+                          {organization?.city}
+                        </div>
+                      )}
+                      {organization?.province && <div>{organization.province}</div>}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Email */}
+              {organization?.contact_email && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Mail className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Email</div>
+                    <a 
+                      href={`mailto:${organization.contact_email}`}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors break-all"
+                    >
+                      {organization.contact_email}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Phone */}
+              {organization?.contact_phone && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Phone className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Telefon</div>
+                    <a 
+                      href={`tel:${organization.contact_phone}`}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {organization.contact_phone}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Website */}
+              {organization?.website && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Globe className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Strona WWW</div>
+                    <a 
+                      href={organization.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors break-all"
+                    >
+                      {organization.website}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* NIP */}
+              {organization?.nip && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Hash className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">NIP</div>
+                    <div className="text-sm text-muted-foreground">{organization.nip}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* REGON */}
+              {organization?.regon && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Building2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">REGON</div>
+                    <div className="text-sm text-muted-foreground">{organization.regon}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bank Account */}
+              {organization?.bank_account_number && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <CreditCard className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Konto bankowe</div>
+                    <div className="text-sm text-muted-foreground font-mono break-all">
+                      {organization.bank_account_number}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
