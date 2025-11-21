@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Users, ShoppingBag, Sparkles } from "lucide-react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { useState } from "react";
+import { Logo } from "@/components/Logo";
 
 const Index = () => {
   const { animals, loading, error } = useAnimalsWithWishlists();
@@ -144,10 +145,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <Heart className="h-6 w-6 text-primary fill-current" />
-                <span className="text-lg font-bold text-primary">Pączki w Maśle</span>
-              </div>
+              <Logo className="h-10 w-auto mb-4" />
               <p className="text-muted-foreground max-w-md">
                 Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów. 
                 Każdy zakup to realna pomoc.
