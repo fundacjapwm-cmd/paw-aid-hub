@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Heart, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroCat1 from "@/assets/hero-cat1.png";
 import heroCatDog from "@/assets/hero-catdog.png";
 import heroDog1 from "@/assets/hero-dog1.png";
 import heroDog2 from "@/assets/hero-dog2.png";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="relative bg-hero py-12 sm:py-16 md:py-20 px-4 overflow-hidden">
       <div className="container mx-auto max-w-6xl relative z-10">
@@ -25,13 +28,24 @@ const HeroSection = () => {
               Każdy zakup to realna pomoc dla naszych czworonożnych przyjaciół.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button variant="light" size="hero" className="w-full sm:w-auto hover:scale-105 transition-transform">
-                Zwierzaki
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              {/* Przycisk 1: Główna akcja */}
+              <Button 
+                size="lg"
+                className="bg-primary text-white hover:bg-primary/90 shadow-bubbly hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold"
+                onClick={() => navigate('/zwierzeta')}
+              >
+                Wybierz zwierzaka
               </Button>
-              <Button variant="outline" size="hero" className="border-white text-foreground bg-white/90 w-full sm:w-auto hover:scale-105 transition-transform">
+              
+              {/* Przycisk 2: Edukacja (Biały "lukier" dla kontrastu) */}
+              <Button 
+                size="lg"
+                className="bg-white text-primary hover:bg-white/90 shadow-bubbly hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold"
+                onClick={() => navigate('/jak-to-dziala')}
+              >
                 Jak to działa?
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </div>
