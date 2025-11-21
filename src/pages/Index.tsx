@@ -145,7 +145,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <Logo className="h-10 w-auto mb-4" />
+              <Logo className="h-14 w-auto md:h-16 mb-4" />
               <p className="text-muted-foreground max-w-md">
                 Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów. 
                 Każdy zakup to realna pomoc.
