@@ -328,12 +328,13 @@ export default function ProducersProductsTab({
             <CardTitle>Produkty - {producer?.name}</CardTitle>
             <CardDescription>Dodaj nowy produkt dla tego producenta</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Zdjęcie produktu */}
-            <div className="space-y-2">
-              <Label>Zdjęcie produktu *</Label>
-              <div className="flex items-center gap-4">
-                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-24 w-24 flex items-center justify-center hover:border-primary/50 transition-colors">
+          <CardContent className="space-y-3">
+            {/* Zdjęcie, nazwa i cena w jednym rzędzie */}
+            <div className="flex gap-3">
+              {/* Zdjęcie produktu */}
+              <div className="flex-shrink-0">
+                <Label>Zdjęcie *</Label>
+                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors mt-1">
                   <input
                     type="file"
                     accept="image/*"
@@ -350,51 +351,42 @@ export default function ProducersProductsTab({
                   {newProduct.image_url ? (
                     <img src={newProduct.image_url} alt="Preview" className="w-full h-full object-cover rounded-lg" />
                   ) : (
-                    <div className="text-center pointer-events-none">
-                      <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
-                    </div>
+                    <Upload className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
-                {newProduct.image_url && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setNewProduct({ ...newProduct, image_url: '' })}
-                  >
-                    Usuń zdjęcie
-                  </Button>
-                )}
+              </div>
+
+              {/* Nazwa i Cena obok zdjęcia */}
+              <div className="flex-1 space-y-2">
+                <div>
+                  <Label>Nazwa produktu *</Label>
+                  <Input 
+                    value={newProduct.name} 
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
+                    placeholder="np. Karma dla psa"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Cena *</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Nazwa i Cena */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nazwa produktu *</Label>
-                <Input 
-                  value={newProduct.name} 
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
-                  placeholder="np. Karma dla psa"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Cena *</Label>
-                <Input 
-                  type="number" 
-                  step="0.01" 
-                  value={newProduct.price} 
-                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-
-            {/* Jednostka, Kategoria, Waga/Objętość */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
+            {/* Jednostka, Kategoria, Waga w jednej linii */}
+            <div className="grid grid-cols-3 gap-2">
+              <div>
                 <Label>Jednostka</Label>
                 <Select value={newProduct.unit} onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="szt">Sztuka</SelectItem>
                     <SelectItem value="kg">Kilogram</SelectItem>
@@ -402,10 +394,10 @@ export default function ProducersProductsTab({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div>
                 <Label>Kategoria</Label>
                 <Select value={newProduct.category_id} onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}>
-                  <SelectTrigger><SelectValue placeholder="Wybierz" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Wybierz" /></SelectTrigger>
                   <SelectContent>
                     {productCategories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
@@ -413,28 +405,30 @@ export default function ProducersProductsTab({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div>
                 <Label>Waga/Objętość</Label>
                 <Input 
                   value={newProduct.weight_volume} 
                   onChange={(e) => setNewProduct({ ...newProduct, weight_volume: e.target.value })} 
-                  placeholder="np. 2kg, 500ml"
+                  placeholder="2kg, 500ml"
+                  className="mt-1"
                 />
               </div>
             </div>
 
             {/* Opis */}
-            <div className="space-y-2">
+            <div>
               <Label>Opis produktu</Label>
               <Textarea 
                 value={newProduct.description} 
                 onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} 
                 placeholder="Szczegółowy opis produktu..."
-                rows={3}
+                rows={2}
+                className="mt-1"
               />
             </div>
 
-            <Button onClick={handleCreateProduct} disabled={uploadingImage}>
+            <Button onClick={handleCreateProduct} disabled={uploadingImage} className="w-full">
               {uploadingImage ? 'Przesyłanie...' : 'Dodaj produkt'}
             </Button>
           </CardContent>
@@ -485,12 +479,13 @@ export default function ProducersProductsTab({
             </CardTitle>
             <CardDescription>Uzupełnij dane nowego producenta</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Logo Upload */}
-            <div className="space-y-2">
-              <Label>Logo firmy</Label>
-              <div className="flex items-center gap-4">
-                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-24 w-24 flex items-center justify-center hover:border-primary/50 transition-colors">
+          <CardContent className="space-y-3">
+            {/* Logo i podstawowe dane w jednym rzędzie */}
+            <div className="flex gap-4">
+              {/* Logo Upload */}
+              <div className="space-y-2 flex-shrink-0">
+                <Label>Logo</Label>
+                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors">
                   <input
                     type="file"
                     accept="image/*"
@@ -507,105 +502,99 @@ export default function ProducersProductsTab({
                   {newProducer.logo_url ? (
                     <img src={newProducer.logo_url} alt="Logo preview" className="w-full h-full object-cover rounded-lg" />
                   ) : (
-                    <div className="text-center pointer-events-none">
-                      <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
-                    </div>
+                    <Upload className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
-                {newProducer.logo_url && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setNewProducer({ ...newProducer, logo_url: '' })}
-                  >
-                    Usuń logo
-                  </Button>
-                )}
+              </div>
+
+              {/* Nazwa i NIP obok logo */}
+              <div className="flex-1 space-y-2">
+                <div>
+                  <Label htmlFor="producer-name">Nazwa producenta *</Label>
+                  <Input 
+                    id="producer-name"
+                    value={newProducer.name} 
+                    onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })} 
+                    placeholder="np. Brit Care, Royal Canin"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="producer-nip">NIP</Label>
+                  <Input 
+                    id="producer-nip"
+                    value={newProducer.nip} 
+                    onChange={(e) => setNewProducer({ ...newProducer, nip: e.target.value })} 
+                    placeholder="10 cyfr"
+                    maxLength={10}
+                    className="mt-1"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Nazwa producenta */}
-            <div className="space-y-2">
-              <Label htmlFor="producer-name">Nazwa producenta *</Label>
-              <Input 
-                id="producer-name"
-                value={newProducer.name} 
-                onChange={(e) => setNewProducer({ ...newProducer, name: e.target.value })} 
-                placeholder="np. Brit Care, Royal Canin" 
-              />
-            </div>
-
-            {/* NIP */}
-            <div className="space-y-2">
-              <Label htmlFor="producer-nip">NIP</Label>
-              <Input 
-                id="producer-nip"
-                value={newProducer.nip} 
-                onChange={(e) => setNewProducer({ ...newProducer, nip: e.target.value })} 
-                placeholder="10 cyfr"
-                maxLength={10}
-              />
-            </div>
-
-            {/* Email i Telefon */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+            {/* Email i Telefon w jednej linii */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
                 <Label htmlFor="producer-email">Email kontaktowy</Label>
                 <Input 
                   id="producer-email"
                   type="email"
                   value={newProducer.contact_email} 
                   onChange={(e) => setNewProducer({ ...newProducer, contact_email: e.target.value })} 
-                  placeholder="kontakt@firma.pl" 
+                  placeholder="kontakt@firma.pl"
+                  className="mt-1"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="producer-phone">Telefon kontaktowy</Label>
+              <div>
+                <Label htmlFor="producer-phone">Telefon</Label>
                 <Input 
                   id="producer-phone"
                   type="tel"
                   value={newProducer.contact_phone} 
                   onChange={(e) => setNewProducer({ ...newProducer, contact_phone: e.target.value })} 
-                  placeholder="+48 123 456 789" 
+                  placeholder="+48 123 456 789"
+                  className="mt-1"
                 />
               </div>
             </div>
 
-            {/* Opis */}
-            <div className="space-y-2">
-              <Label htmlFor="producer-description">Opis</Label>
-              <Textarea 
-                id="producer-description"
-                value={newProducer.description} 
-                onChange={(e) => setNewProducer({ ...newProducer, description: e.target.value })} 
-                placeholder="Krótki opis producenta..."
-                rows={3}
-              />
-            </div>
-
-            {/* Notatka wewnętrzna */}
-            <div className="space-y-2">
-              <Label htmlFor="producer-notes">Notatka wewnętrzna</Label>
-              <Textarea 
-                id="producer-notes"
-                value={newProducer.notes} 
-                onChange={(e) => setNewProducer({ ...newProducer, notes: e.target.value })} 
-                placeholder="Notatki dla administratorów..."
-                rows={2}
-              />
-            </div>
-
-            {/* Aktywny */}
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="space-y-0.5">
-                <Label htmlFor="producer-active" className="cursor-pointer">Producent aktywny</Label>
-                <p className="text-sm text-muted-foreground">Widoczny dla organizacji</p>
+            {/* Opis i notatka w jednej linii */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="producer-description">Opis</Label>
+                <Textarea 
+                  id="producer-description"
+                  value={newProducer.description} 
+                  onChange={(e) => setNewProducer({ ...newProducer, description: e.target.value })} 
+                  placeholder="Krótki opis producenta..."
+                  rows={2}
+                  className="mt-1"
+                />
               </div>
+              <div>
+                <Label htmlFor="producer-notes">Notatka wewnętrzna</Label>
+                <Textarea 
+                  id="producer-notes"
+                  value={newProducer.notes} 
+                  onChange={(e) => setNewProducer({ ...newProducer, notes: e.target.value })} 
+                  placeholder="Notatki dla administratorów..."
+                  rows={2}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            {/* Aktywny - kompaktowo */}
+            <div className="flex items-center gap-2 py-2">
               <Switch 
                 id="producer-active"
                 checked={newProducer.active} 
                 onCheckedChange={(checked) => setNewProducer({ ...newProducer, active: checked })}
               />
+              <Label htmlFor="producer-active" className="cursor-pointer text-sm">
+                Producent aktywny (widoczny dla organizacji)
+              </Label>
             </div>
 
             <Button onClick={handleCreateProducer} className="w-full" disabled={uploadingImage}>
@@ -622,9 +611,9 @@ export default function ProducersProductsTab({
             </CardTitle>
             <CardDescription>Dodaj produkt przypisując go do producenta</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* Producer Search Combobox */}
-            <div className="space-y-2">
+            <div>
               <Label>Producent *</Label>
               <Popover open={producerSearchOpen} onOpenChange={setProducerSearchOpen}>
                 <PopoverTrigger asChild>
@@ -632,7 +621,7 @@ export default function ProducersProductsTab({
                     variant="outline"
                     role="combobox"
                     aria-expanded={producerSearchOpen}
-                    className="w-full justify-between"
+                    className="w-full justify-between mt-1"
                   >
                     {newProduct.producer_id
                       ? producers.find((p) => p.id === newProduct.producer_id)?.name
@@ -682,11 +671,12 @@ export default function ProducersProductsTab({
               </Popover>
             </div>
 
-            {/* Zdjęcie produktu */}
-            <div className="space-y-2">
-              <Label>Zdjęcie produktu *</Label>
-              <div className="flex items-center gap-4">
-                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-24 w-24 flex items-center justify-center hover:border-primary/50 transition-colors">
+            {/* Zdjęcie, nazwa i cena w jednym rzędzie */}
+            <div className="flex gap-3">
+              {/* Zdjęcie produktu */}
+              <div className="flex-shrink-0">
+                <Label>Zdjęcie *</Label>
+                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors mt-1">
                   <input
                     type="file"
                     accept="image/*"
@@ -703,54 +693,45 @@ export default function ProducersProductsTab({
                   {newProduct.image_url ? (
                     <img src={newProduct.image_url} alt="Preview" className="w-full h-full object-cover rounded-lg" />
                   ) : (
-                    <div className="text-center pointer-events-none">
-                      <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
-                    </div>
+                    <Upload className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
-                {newProduct.image_url && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setNewProduct({ ...newProduct, image_url: '' })}
-                  >
-                    Usuń zdjęcie
-                  </Button>
-                )}
+              </div>
+
+              {/* Nazwa i Cena obok zdjęcia */}
+              <div className="flex-1 space-y-2">
+                <div>
+                  <Label>Nazwa produktu *</Label>
+                  <Input 
+                    value={newProduct.name} 
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
+                    placeholder="np. Karma dla psa"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Cena *</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Nazwa produktu i Cena */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nazwa produktu *</Label>
-                <Input 
-                  value={newProduct.name} 
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
-                  placeholder="np. Karma dla psa"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Cena *</Label>
-                <Input 
-                  type="number" 
-                  step="0.01" 
-                  value={newProduct.price} 
-                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-
-            {/* Jednostka, Kategoria, Waga/Objętość */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
+            {/* Jednostka, Kategoria, Waga w jednej linii */}
+            <div className="grid grid-cols-3 gap-2">
+              <div>
                 <Label>Jednostka</Label>
                 <Select 
                   value={newProduct.unit} 
                   onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -760,13 +741,13 @@ export default function ProducersProductsTab({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div>
                 <Label>Kategoria</Label>
                 <Select 
                   value={newProduct.category_id} 
                   onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Wybierz" />
                   </SelectTrigger>
                   <SelectContent>
@@ -776,24 +757,26 @@ export default function ProducersProductsTab({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div>
                 <Label>Waga/Objętość</Label>
                 <Input 
                   value={newProduct.weight_volume} 
                   onChange={(e) => setNewProduct({ ...newProduct, weight_volume: e.target.value })} 
-                  placeholder="np. 2kg, 500ml"
+                  placeholder="2kg, 500ml"
+                  className="mt-1"
                 />
               </div>
             </div>
 
             {/* Opis */}
-            <div className="space-y-2">
+            <div>
               <Label>Opis produktu</Label>
               <Textarea 
                 value={newProduct.description} 
                 onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} 
                 placeholder="Szczegółowy opis produktu..."
-                rows={3}
+                rows={2}
+                className="mt-1"
               />
             </div>
 
