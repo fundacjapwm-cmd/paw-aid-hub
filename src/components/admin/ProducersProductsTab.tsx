@@ -8,11 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X } from 'lucide-react';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X, Check, ChevronsUpDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { producerSchema } from '@/lib/validations/producer';
 import { z } from 'zod';
+import { cn } from '@/lib/utils';
 
 interface Producer {
   id: string;
@@ -79,6 +82,8 @@ export default function ProducersProductsTab({
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [producerImages, setProducerImages] = useState<ProducerImage[]>([]);
+  const [producerSearchOpen, setProducerSearchOpen] = useState(false);
+  const [producerSearchValue, setProducerSearchValue] = useState('');
 
   const [newProducer, setNewProducer] = useState({
     name: '', contact_email: '', contact_phone: '', description: '', logo_url: '', nip: '', notes: '', active: true
@@ -321,40 +326,72 @@ export default function ProducersProductsTab({
         <Card>
           <CardHeader>
             <CardTitle>Produkty - {producer?.name}</CardTitle>
+            <CardDescription>Dodaj nowy produkt dla tego producenta</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
+            {/* Zdjęcie produktu */}
+            <div className="space-y-2">
               <Label>Zdjęcie produktu *</Label>
               <div className="flex items-center gap-4">
-                <Input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = await handleImageUpload(file);
-                      if (url) setNewProduct({ ...newProduct, image_url: url });
-                    }
-                  }}
-                  disabled={uploadingImage}
-                />
+                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-24 w-24 flex items-center justify-center hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = await handleImageUpload(file);
+                        if (url) setNewProduct({ ...newProduct, image_url: url });
+                      }
+                    }}
+                    disabled={uploadingImage}
+                  />
+                  {newProduct.image_url ? (
+                    <img src={newProduct.image_url} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <div className="text-center pointer-events-none">
+                      <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
                 {newProduct.image_url && (
-                  <img src={newProduct.image_url} alt="Preview" className="h-16 w-16 object-cover rounded" />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setNewProduct({ ...newProduct, image_url: '' })}
+                  >
+                    Usuń zdjęcie
+                  </Button>
                 )}
               </div>
             </div>
+
+            {/* Nazwa i Cena */}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Nazwa produktu</Label>
-                <Input value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+              <div className="space-y-2">
+                <Label>Nazwa produktu *</Label>
+                <Input 
+                  value={newProduct.name} 
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
+                  placeholder="np. Karma dla psa"
+                />
               </div>
-              <div>
-                <Label>Cena</Label>
-                <Input type="number" step="0.01" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
+              <div className="space-y-2">
+                <Label>Cena *</Label>
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  value={newProduct.price} 
+                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                  placeholder="0.00"
+                />
               </div>
             </div>
+
+            {/* Jednostka, Kategoria, Waga/Objętość */}
             <div className="grid grid-cols-3 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label>Jednostka</Label>
                 <Select value={newProduct.unit} onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -365,7 +402,7 @@ export default function ProducersProductsTab({
                   </SelectContent>
                 </Select>
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label>Kategoria</Label>
                 <Select value={newProduct.category_id} onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}>
                   <SelectTrigger><SelectValue placeholder="Wybierz" /></SelectTrigger>
@@ -376,12 +413,30 @@ export default function ProducersProductsTab({
                   </SelectContent>
                 </Select>
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label>Waga/Objętość</Label>
-                <Input value={newProduct.weight_volume} onChange={(e) => setNewProduct({ ...newProduct, weight_volume: e.target.value })} />
+                <Input 
+                  value={newProduct.weight_volume} 
+                  onChange={(e) => setNewProduct({ ...newProduct, weight_volume: e.target.value })} 
+                  placeholder="np. 2kg, 500ml"
+                />
               </div>
             </div>
-            <Button onClick={handleCreateProduct}>Dodaj produkt</Button>
+
+            {/* Opis */}
+            <div className="space-y-2">
+              <Label>Opis produktu</Label>
+              <Textarea 
+                value={newProduct.description} 
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} 
+                placeholder="Szczegółowy opis produktu..."
+                rows={3}
+              />
+            </div>
+
+            <Button onClick={handleCreateProduct} disabled={uploadingImage}>
+              {uploadingImage ? 'Przesyłanie...' : 'Dodaj produkt'}
+            </Button>
           </CardContent>
         </Card>
 
@@ -565,56 +620,118 @@ export default function ProducersProductsTab({
               <Plus className="h-5 w-5" />
               Szybkie dodawanie produktu
             </CardTitle>
+            <CardDescription>Dodaj produkt przypisując go do producenta</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label>Producent</Label>
-              <Select 
-                value={newProduct.producer_id || ''} 
-                onValueChange={(value) => setNewProduct({ ...newProduct, producer_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Wybierz producenta" />
-                </SelectTrigger>
-                <SelectContent>
-                  {producers.filter(p => p.active).map((producer) => (
-                    <SelectItem key={producer.id} value={producer.id}>{producer.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Producer Search Combobox */}
+            <div className="space-y-2">
+              <Label>Producent *</Label>
+              <Popover open={producerSearchOpen} onOpenChange={setProducerSearchOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={producerSearchOpen}
+                    className="w-full justify-between"
+                  >
+                    {newProduct.producer_id
+                      ? producers.find((p) => p.id === newProduct.producer_id)?.name
+                      : "Wpisz minimum 3 litery..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Szukaj producenta..." 
+                      value={producerSearchValue}
+                      onValueChange={setProducerSearchValue}
+                    />
+                    <CommandList>
+                      <CommandEmpty>Nie znaleziono producenta.</CommandEmpty>
+                      <CommandGroup>
+                        {producers
+                          .filter(p => 
+                            p.active && 
+                            (producerSearchValue.length < 3 || 
+                             p.name.toLowerCase().includes(producerSearchValue.toLowerCase()))
+                          )
+                          .map((producer) => (
+                            <CommandItem
+                              key={producer.id}
+                              value={producer.name}
+                              onSelect={() => {
+                                setNewProduct({ ...newProduct, producer_id: producer.id });
+                                setProducerSearchOpen(false);
+                                setProducerSearchValue('');
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  newProduct.producer_id === producer.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {producer.name}
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
-            <div>
-              <Label>Zdjęcie *</Label>
-              <div className="flex items-center gap-2">
-                <Input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = await handleImageUpload(file);
-                      if (url) setNewProduct({ ...newProduct, image_url: url });
-                    }
-                  }}
-                  disabled={uploadingImage}
-                  className="flex-1"
-                />
+
+            {/* Zdjęcie produktu */}
+            <div className="space-y-2">
+              <Label>Zdjęcie produktu *</Label>
+              <div className="flex items-center gap-4">
+                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-24 w-24 flex items-center justify-center hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = await handleImageUpload(file);
+                        if (url) setNewProduct({ ...newProduct, image_url: url });
+                      }
+                    }}
+                    disabled={uploadingImage}
+                  />
+                  {newProduct.image_url ? (
+                    <img src={newProduct.image_url} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <div className="text-center pointer-events-none">
+                      <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
                 {newProduct.image_url && (
-                  <img src={newProduct.image_url} alt="Preview" className="h-12 w-12 object-cover rounded" />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setNewProduct({ ...newProduct, image_url: '' })}
+                  >
+                    Usuń zdjęcie
+                  </Button>
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label>Nazwa</Label>
+
+            {/* Nazwa produktu i Cena */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nazwa produktu *</Label>
                 <Input 
                   value={newProduct.name} 
                   onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
-                  placeholder="Produkt"
+                  placeholder="np. Karma dla psa"
                 />
               </div>
-              <div>
-                <Label>Cena</Label>
+              <div className="space-y-2">
+                <Label>Cena *</Label>
                 <Input 
                   type="number" 
                   step="0.01" 
@@ -624,13 +741,74 @@ export default function ProducersProductsTab({
                 />
               </div>
             </div>
+
+            {/* Jednostka, Kategoria, Waga/Objętość */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Jednostka</Label>
+                <Select 
+                  value={newProduct.unit} 
+                  onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="szt">Sztuka</SelectItem>
+                    <SelectItem value="kg">Kilogram</SelectItem>
+                    <SelectItem value="l">Litr</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Kategoria</Label>
+                <Select 
+                  value={newProduct.category_id} 
+                  onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Wybierz" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {productCategories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Waga/Objętość</Label>
+                <Input 
+                  value={newProduct.weight_volume} 
+                  onChange={(e) => setNewProduct({ ...newProduct, weight_volume: e.target.value })} 
+                  placeholder="np. 2kg, 500ml"
+                />
+              </div>
+            </div>
+
+            {/* Opis */}
+            <div className="space-y-2">
+              <Label>Opis produktu</Label>
+              <Textarea 
+                value={newProduct.description} 
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} 
+                placeholder="Szczegółowy opis produktu..."
+                rows={3}
+              />
+            </div>
+
             <Button 
               onClick={async () => {
                 if (!newProduct.producer_id) {
+                  toast.error('Wybierz producenta');
                   return;
                 }
                 if (!newProduct.image_url) {
                   toast.error('Zdjęcie produktu jest wymagane');
+                  return;
+                }
+                if (!newProduct.name || !newProduct.price) {
+                  toast.error('Wypełnij wszystkie wymagane pola');
                   return;
                 }
                 await onCreateProduct({ 
@@ -642,7 +820,7 @@ export default function ProducersProductsTab({
               className="w-full"
               disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price || !newProduct.image_url || uploadingImage}
             >
-              Dodaj produkt
+              {uploadingImage ? 'Przesyłanie...' : 'Dodaj produkt'}
             </Button>
           </CardContent>
         </Card>
