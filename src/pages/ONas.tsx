@@ -1,5 +1,6 @@
 import { Heart, Users, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
 
 const ONas = () => {
   return (
@@ -23,13 +24,8 @@ const ONas = () => {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4 text-center">
             <div className="bg-white rounded-3xl p-12 shadow-card max-w-2xl mx-auto">
-              <div className="flex items-center justify-center space-x-4 mb-8">
-                <div className="bg-primary rounded-full p-4">
-                  <Heart className="h-12 w-12 text-white fill-white" />
-                </div>
-                <div className="bg-accent rounded-full p-4">
-                  <Heart className="h-10 w-10 text-white fill-white" />
-                </div>
+              <div className="flex items-center justify-center mb-8">
+                <Logo className="h-16 w-auto" />
               </div>
               <h2 className="text-3xl font-bold text-primary mb-4">PĄCZKI W MAŚLE</h2>
               <p className="text-lg font-semibold text-accent">FUNDACJA</p>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Heart } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Logo } from '@/components/Logo';
 
 const MobileMenu = () => {
   const [open, setOpen] = useState(false);
@@ -34,10 +35,7 @@ const MobileMenu = () => {
       </SheetTrigger>
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
         <div className="flex items-center space-x-2 mb-8">
-          <div className="flex items-center space-x-1">
-            <Heart className="h-8 w-8 text-primary fill-current" />
-            <Heart className="h-6 w-6 text-accent fill-current -ml-2" />
-          </div>
+          <Logo className="h-8 w-auto" />
           <span className="text-xl font-bold text-primary">Pączki w Maśle</span>
         </div>
         
