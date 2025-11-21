@@ -18,9 +18,6 @@ const contactSchema = z.object({
     .trim()
     .email("Nieprawidłowy adres email")
     .max(255, "Email jest za długi"),
-  phone: z.string()
-    .trim()
-    .optional(),
   message: z.string()
     .trim()
     .min(1, "Wiadomość jest wymagana")
@@ -35,7 +32,6 @@ const Kontakt = () => {
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
-    phone: "",
     message: "",
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
@@ -88,7 +84,6 @@ const Kontakt = () => {
       setFormData({
         name: "",
         email: "",
-        phone: "",
         message: "",
       });
       setErrors({});
@@ -136,49 +131,35 @@ const Kontakt = () => {
                   </p>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Imię*</Label>
-                        <Input 
-                          id="name"
-                          value={formData.name}
-                          onChange={(e) => handleChange("name", e.target.value)}
-                          placeholder="Twoje imię" 
-                          className="rounded-xl border-2 focus:border-primary"
-                          disabled={isSubmitting}
-                        />
-                        {errors.name && (
-                          <p className="text-sm text-destructive">{errors.name}</p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">E-mail*</Label>
-                        <Input 
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => handleChange("email", e.target.value)}
-                          placeholder="twoj@email.pl" 
-                          className="rounded-xl border-2 focus:border-primary"
-                          disabled={isSubmitting}
-                        />
-                        {errors.email && (
-                          <p className="text-sm text-destructive">{errors.email}</p>
-                        )}
-                      </div>
-                    </div>
-
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Podaj swój numer telefonu</Label>
+                      <Label htmlFor="name">Imię*</Label>
                       <Input 
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => handleChange("phone", e.target.value)}
-                        placeholder="+48 123 456 789" 
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => handleChange("name", e.target.value)}
+                        placeholder="Twoje imię" 
                         className="rounded-xl border-2 focus:border-primary"
                         disabled={isSubmitting}
                       />
+                      {errors.name && (
+                        <p className="text-sm text-destructive">{errors.name}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">E-mail*</Label>
+                      <Input 
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleChange("email", e.target.value)}
+                        placeholder="twoj@email.pl" 
+                        className="rounded-xl border-2 focus:border-primary"
+                        disabled={isSubmitting}
+                      />
+                      {errors.email && (
+                        <p className="text-sm text-destructive">{errors.email}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
