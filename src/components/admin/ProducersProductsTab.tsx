@@ -968,60 +968,61 @@ function ProducerCard({
   return (
     <>
       <Card 
-        className="cursor-pointer hover:border-primary transition-colors overflow-hidden relative group" 
+        className="cursor-pointer hover:border-primary transition-colors overflow-hidden" 
       >
-        {/* Logo or Hidden indicator */}
-        <div className="absolute top-2 left-2 z-10 bg-background rounded-lg p-2 shadow-sm border">
-          {!producer.active ? (
-            <EyeOff className="h-6 w-6 text-muted-foreground" />
-          ) : producer.logo_url ? (
-            <img 
-              src={producer.logo_url} 
-              alt={`${producer.name} logo`}
-              className="h-6 w-6 object-contain"
-            />
-          ) : (
-            <Building2 className="h-6 w-6 text-muted-foreground" />
-          )}
-        </div>
-        
-        {/* Action buttons */}
-        <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsEditOpen(true);
-            }}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (window.confirm(`Czy na pewno chcesz usunąć producenta "${producer.name}"? Ta operacja jest nieodwracalna.`)) {
-                onDelete(producer.id);
-              }
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-
         <div onClick={onClick}>
           <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-lg">{producer.name}</CardTitle>
+            <div className="flex items-start gap-4">
+              {/* Logo */}
+              <div className="flex-shrink-0 h-12 w-12 bg-background rounded-lg flex items-center justify-center border shadow-sm">
+                {!producer.active ? (
+                  <EyeOff className="h-6 w-6 text-muted-foreground" />
+                ) : producer.logo_url ? (
+                  <img 
+                    src={producer.logo_url} 
+                    alt={`${producer.name} logo`}
+                    className="h-10 w-10 object-contain p-1"
+                  />
+                ) : (
+                  <Building2 className="h-6 w-6 text-muted-foreground" />
+                )}
+              </div>
+              
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-lg truncate">{producer.name}</CardTitle>
                 {producer.nip && (
                   <p className="text-xs text-muted-foreground">NIP: {producer.nip}</p>
                 )}
                 <p className="text-sm text-muted-foreground mt-1">
                   {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
                 </p>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex gap-2 flex-shrink-0">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditOpen(true);
+                  }}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm(`Czy na pewno chcesz usunąć producenta "${producer.name}"? Ta operacja jest nieodwracalna.`)) {
+                      onDelete(producer.id);
+                    }
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </CardHeader>
