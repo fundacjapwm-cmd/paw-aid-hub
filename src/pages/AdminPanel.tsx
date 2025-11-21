@@ -1094,7 +1094,7 @@ export default function AdminPanel() {
                                   />
                                 </div>
                                 <div>
-                                  <Label>Status adopcji</Label>
+                                  <Label>Status</Label>
                                   <Select 
                                     value={editingAnimal.adoption_status} 
                                     onValueChange={(value) => setEditingAnimal({...editingAnimal, adoption_status: value})}
