@@ -1,11 +1,109 @@
-import { Heart, Mail, Phone, MapPin, Send } from "lucide-react";
+import { Heart, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import contactDog from "@/assets/contact-dog.png";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const contactSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(1, "Imię jest wymagane")
+    .max(100, "Imię jest za długie"),
+  email: z.string()
+    .trim()
+    .email("Nieprawidłowy adres email")
+    .max(255, "Email jest za długi"),
+  phone: z.string()
+    .trim()
+    .optional(),
+  message: z.string()
+    .trim()
+    .min(1, "Wiadomość jest wymagana")
+    .max(2000, "Wiadomość jest za długa"),
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
 
 const Kontakt = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<ContactFormData>({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
+
+  const handleChange = (field: keyof ContactFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form
+    const result = contactSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof ContactFormData, string>> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as keyof ContactFormData] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast({
+        title: "Błąd walidacji",
+        description: "Sprawdź poprawność wprowadzonych danych",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.functions.invoke("send-contact-form", {
+        body: result.data,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Wiadomość wysłana!",
+        description: "Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.",
+      });
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+      setErrors({});
+    } catch (error: any) {
+      console.error("Error sending contact form:", error);
+      toast({
+        title: "Błąd wysyłania",
+        description: error.message || "Nie udało się wysłać wiadomości. Spróbuj ponownie później.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <main>
@@ -37,54 +135,76 @@ const Kontakt = () => {
                     Jesteśmy tu aby odpowiedzieć na wszystkie Twoje pytania i pomysły.
                   </p>
 
-                  <form className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Imię*</Label>
                         <Input 
-                          id="name" 
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => handleChange("name", e.target.value)}
                           placeholder="Twoje imię" 
                           className="rounded-xl border-2 focus:border-primary"
+                          disabled={isSubmitting}
                         />
+                        {errors.name && (
+                          <p className="text-sm text-destructive">{errors.name}</p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">E-mail*</Label>
                         <Input 
-                          id="email" 
-                          type="email" 
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => handleChange("email", e.target.value)}
                           placeholder="twoj@email.pl" 
                           className="rounded-xl border-2 focus:border-primary"
+                          disabled={isSubmitting}
                         />
+                        {errors.email && (
+                          <p className="text-sm text-destructive">{errors.email}</p>
+                        )}
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="phone">Podaj swój numer telefonu</Label>
                       <Input 
-                        id="phone" 
-                        type="tel" 
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleChange("phone", e.target.value)}
                         placeholder="+48 123 456 789" 
                         className="rounded-xl border-2 focus:border-primary"
+                        disabled={isSubmitting}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message">Zacznij pisać wiadomość...</Label>
+                      <Label htmlFor="message">Zacznij pisać wiadomość...*</Label>
                       <Textarea 
-                        id="message" 
+                        id="message"
+                        value={formData.message}
+                        onChange={(e) => handleChange("message", e.target.value)}
                         placeholder="Opisz swoją sprawę, pytanie lub pomysł..."
                         rows={6}
                         className="rounded-xl border-2 focus:border-primary resize-none"
+                        disabled={isSubmitting}
                       />
+                      {errors.message && (
+                        <p className="text-sm text-destructive">{errors.message}</p>
+                      )}
                     </div>
 
                     <Button 
                       type="submit" 
                       className="w-full rounded-xl font-bold" 
                       size="lg"
+                      disabled={isSubmitting}
                     >
                       <Send className="h-5 w-5 mr-2" />
-                      Wyślij
+                      {isSubmitting ? "Wysyłanie..." : "Wyślij"}
                     </Button>
                   </form>
                 </div>
