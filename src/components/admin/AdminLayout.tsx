@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail, Inbox } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
@@ -30,11 +33,11 @@ interface AdminLayoutProps {
 
 const menuStructure = [
   { title: "Pulpit", url: "/admin", icon: LayoutDashboard },
+  { title: "Nowe Zgłoszenia", url: "/admin/zgloszenia", icon: Inbox, showBadge: true },
   {
     label: "Baza Danych",
     items: [
       { title: "Organizacje", url: "/admin/organizacje", icon: Building2 },
-      { title: "Zgłoszenia", url: "/admin/zgloszenia", icon: Mail },
       { title: "Producenci i Produkty", url: "/admin/producenci", icon: Factory },
       { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
     ]
@@ -62,6 +65,20 @@ function AdminSidebarContent() {
   const { signOut } = useAuth();
   const { open } = useSidebar();
 
+  const { data: newLeadsCount } = useQuery({
+    queryKey: ["new-leads-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("organization_leads")
+        .select("*", { count: 'exact', head: true })
+        .eq("status", "new");
+
+      if (error) throw error;
+      return count || 0;
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   const isActive = (path: string) => location.pathname === path;
   const isGroupActive = (items: any[]) => items.some(item => isActive(item.url));
 
@@ -84,6 +101,14 @@ function AdminSidebarContent() {
                           <Link to={section.url} className="flex items-center gap-3">
                             <section.icon className="h-5 w-5" />
                             {open && <span>{section.title}</span>}
+                            {section.showBadge && newLeadsCount && newLeadsCount > 0 && (
+                              <Badge 
+                                variant="destructive" 
+                                className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
+                              >
+                                {newLeadsCount}
+                              </Badge>
+                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -189,9 +214,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const { signOut } = useAuth();
 
+  const { data: newLeadsCount } = useQuery({
+    queryKey: ["new-leads-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("organization_leads")
+        .select("*", { count: 'exact', head: true })
+        .eq("status", "new");
+
+      if (error) throw error;
+      return count || 0;
+    },
+    refetchInterval: 30000,
+  });
+
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === "/admin") return "Pulpit";
+    if (path === "/admin/zgloszenia") return "Nowe Zgłoszenia";
     if (path === "/admin/organizacje") return "Organizacje";
     if (path === "/admin/producenci") return "Producenci i Produkty";
     if (path === "/admin/uzytkownicy") return "Użytkownicy";
@@ -245,6 +285,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           >
                             <section.icon className="h-5 w-5" />
                             <span>{section.title}</span>
+                            {section.showBadge && newLeadsCount && newLeadsCount > 0 && (
+                              <Badge 
+                                variant="destructive" 
+                                className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
+                              >
+                                {newLeadsCount}
+                              </Badge>
+                            )}
                           </Link>
                         );
                       }

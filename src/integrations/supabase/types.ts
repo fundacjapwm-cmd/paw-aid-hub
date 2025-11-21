@@ -308,6 +308,7 @@ export type Database = {
           nip: string
           organization_name: string
           phone: string
+          status: string | null
         }
         Insert: {
           accepted_terms?: boolean
@@ -318,6 +319,7 @@ export type Database = {
           nip: string
           organization_name: string
           phone: string
+          status?: string | null
         }
         Update: {
           accepted_terms?: boolean
@@ -328,6 +330,7 @@ export type Database = {
           nip?: string
           organization_name?: string
           phone?: string
+          status?: string | null
         }
         Relationships: []
       }
