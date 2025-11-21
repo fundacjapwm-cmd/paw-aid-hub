@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import {
@@ -34,6 +34,7 @@ const menuStructure = [
     label: "Baza Danych",
     items: [
       { title: "Organizacje", url: "/admin/organizacje", icon: Building2 },
+      { title: "Zgłoszenia", url: "/admin/zgloszenia", icon: Mail },
       { title: "Producenci i Produkty", url: "/admin/producenci", icon: Factory },
       { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
     ]
