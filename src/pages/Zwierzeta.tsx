@@ -1,9 +1,10 @@
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, ShoppingBag, Sparkles, Footprints } from "lucide-react";
+import { Heart, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
+import Footer from "@/components/Footer";
 
 const Zwierzeta = () => {
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
@@ -193,18 +194,7 @@ const Zwierzeta = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-foreground/5 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Heart className="h-6 w-6 text-primary fill-current" />
-            <span className="text-lg font-bold text-primary">Pączki w Maśle</span>
-          </div>
-          <p className="text-muted-foreground">
-            &copy; 2024 Fundacja Pączki w Maśle. Wszystkie prawa zastrzeżone.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

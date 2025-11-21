@@ -1,6 +1,7 @@
 import { Heart, Users, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import Footer from "@/components/Footer";
 
 const ONas = () => {
   return (
@@ -136,17 +137,7 @@ const ONas = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-foreground/5 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Logo className="h-12 w-auto md:h-14" />
-          </div>
-          <p className="text-muted-foreground">
-            &copy; 2024 Fundacja Pączki w Maśle. Wszystkie prawa zastrzeżone.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

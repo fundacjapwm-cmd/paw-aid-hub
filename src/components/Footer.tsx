@@ -1,67 +1,37 @@
-import { Heart, Facebook, Instagram } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 const Footer = () => {
   return (
-    <footer className="bg-muted/50 py-12 border-t border-border">
+    <footer className="bg-foreground/5 py-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {/* Logo and Description */}
-          <div className="space-y-4">
-            <Logo className="h-14 w-auto md:h-16" />
-            <p className="text-sm text-muted-foreground">
-              Pomagamy bezdomnym zwierzętom znaleźć dom i otrzymać niezbędne wsparcie.
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="col-span-1 md:col-span-2">
+            <Logo className="h-14 w-auto md:h-16 mb-4" />
+            <p className="text-muted-foreground max-w-md">
+              Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów. 
+              Każdy zakup to realna pomoc.
             </p>
           </div>
-
-          {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-foreground mb-4">Szybkie linki</h3>
-            <nav className="space-y-2">
-              <a href="/o-nas" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                O nas
-              </a>
-              <a href="/jak-to-dziala" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Jak to działa?
-              </a>
-              <a href="/organizacje" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Organizacje
-              </a>
-              <a href="/zwierzeta" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Zwierzęta
-              </a>
-              <a href="/kontakt" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Kontakt
-              </a>
-            </nav>
+            <h4 className="font-semibold text-foreground mb-4">Nawigacja</h4>
+            <ul className="space-y-2 text-muted-foreground">
+              <li><a href="/o-nas" className="hover:text-primary transition-colors">O nas</a></li>
+              <li><a href="/jak-to-dziala" className="hover:text-primary transition-colors">Jak to działa?</a></li>
+              <li><a href="/organizacje" className="hover:text-primary transition-colors">Organizacje</a></li>
+              <li><a href="/kontakt" className="hover:text-primary transition-colors">Kontakt</a></li>
+            </ul>
           </div>
-
-          {/* Social Media */}
           <div>
-            <h3 className="font-bold text-foreground mb-4">Śledź nas</h3>
-            <div className="flex space-x-4">
-              <a
-                href="#"
-                className="bg-primary/10 p-3 rounded-full hover:bg-primary hover:text-white transition-all"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a
-                href="#"
-                className="bg-primary/10 p-3 rounded-full hover:bg-primary hover:text-white transition-all"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-5 w-5" />
-              </a>
-            </div>
+            <h4 className="font-semibold text-foreground mb-4">Pomoc</h4>
+            <ul className="space-y-2 text-muted-foreground">
+              <li><a href="/faq" className="hover:text-primary transition-colors">FAQ</a></li>
+              <li><a href="/regulamin" className="hover:text-primary transition-colors">Regulamin</a></li>
+              <li><a href="/prywatnosc" className="hover:text-primary transition-colors">Prywatność</a></li>
+            </ul>
           </div>
         </div>
-
-        <div className="pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">
-            Prawa autorskie © 2025 Fundacja Pączki w maśle. Wszelkie prawa zastrzeżone.
-          </p>
+        <div className="border-t border-border/50 mt-8 pt-8 text-center text-muted-foreground">
+          <p>&copy; 2024 Pączki w Maśle. Wszystkie prawa zastrzeżone.</p>
         </div>
       </div>
     </footer>
