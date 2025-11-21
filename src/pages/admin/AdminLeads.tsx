@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2, XCircle, Mail, Phone, FileText, Inbox, Check, X, Calendar } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Mail, Phone, FileText, Inbox, Check, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -160,135 +160,97 @@ const AdminLeads = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="flex flex-col space-y-4">
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className={`bg-white rounded-3xl p-6 shadow-card hover:shadow-bubbly transition-all duration-300 border border-border/50 animate-fade-in ${
-                processingId === lead.id ? "opacity-60 pointer-events-none scale-95" : ""
+              className={`group p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 rounded-3xl shadow-card hover:shadow-bubbly transition-all border border-border/50 bg-white ${
+                processingId === lead.id ? "opacity-60 pointer-events-none" : ""
               }`}
             >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-6">
-                <h3 className="text-xl font-bold text-foreground pr-2 leading-tight">
-                  {lead.organization_name}
-                </h3>
-                <Badge variant="outline" className="shrink-0 rounded-full text-xs">
-                  {formatDistanceToNow(new Date(lead.created_at), { 
-                    addSuffix: true, 
-                    locale: pl 
-                  })}
-                </Badge>
-              </div>
-
-              {/* Data Section */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl">
-                  <FileText className="h-5 w-5 text-primary/60 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground font-medium mb-0.5">NIP</p>
-                    <p className="font-semibold text-foreground truncate">{lead.nip}</p>
-                  </div>
+              {/* 1. SEKCJA: DANE ORGANIZACJI */}
+              <div className="flex-1 min-w-[200px]">
+                <div className="flex items-center gap-3 mb-1 flex-wrap">
+                  <h3 className="text-lg font-bold text-foreground">
+                    {lead.organization_name}
+                  </h3>
+                  <Badge variant="outline" className="text-xs font-normal rounded-full">
+                    {formatDistanceToNow(new Date(lead.created_at), { 
+                      addSuffix: true, 
+                      locale: pl 
+                    })}
+                  </Badge>
                 </div>
-
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl">
-                  <Mail className="h-5 w-5 text-primary/60 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground font-medium mb-0.5">Email</p>
-                    <a 
-                      href={`mailto:${lead.email}`}
-                      className="font-semibold text-primary hover:underline truncate block"
-                    >
-                      {lead.email}
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl">
-                  <Phone className="h-5 w-5 text-primary/60 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground font-medium mb-0.5">Telefon</p>
-                    <a 
-                      href={`tel:${lead.phone}`}
-                      className="font-semibold text-primary hover:underline"
-                    >
-                      {lead.phone}
-                    </a>
-                  </div>
+                
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <FileText className="h-3.5 w-3.5 text-primary" />
+                    {lead.nip}
+                  </span>
+                  <a 
+                    href={`mailto:${lead.email}`} 
+                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                  >
+                    <Mail className="h-3.5 w-3.5 text-primary" />
+                    {lead.email}
+                  </a>
+                  <span className="flex items-center gap-1">
+                    <Phone className="h-3.5 w-3.5 text-primary" />
+                    {lead.phone}
+                  </span>
                 </div>
               </div>
 
-              {/* Legal Status Section */}
-              <div className="mb-6 p-4 bg-muted/20 rounded-2xl">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                  Status Prawny
-                </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    {lead.accepted_terms ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-700">
-                          Regulamin zaakceptowany
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="h-4 w-4 text-red-600" />
-                        <span className="text-sm font-medium text-red-700">
-                          Brak akceptacji regulaminu
-                        </span>
-                      </>
-                    )}
+              {/* 2. SEKCJA: STATUS PRAWNY */}
+              <div className="flex flex-row md:flex-col gap-2 shrink-0">
+                {lead.accepted_terms && (
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Regulamin
                   </div>
-                  <div className="flex items-center gap-2">
-                    {lead.marketing_consent ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-700">
-                          Zgoda marketingowa
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Brak zgody marketingowej
-                        </span>
-                      </>
-                    )}
+                )}
+                {lead.marketing_consent && (
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Marketing
                   </div>
-                </div>
+                )}
+                {!lead.accepted_terms && (
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200">
+                    <XCircle className="h-3.5 w-3.5" />
+                    Brak regulaminu
+                  </div>
+                )}
               </div>
 
-              {/* Actions Footer */}
-              <div className="grid grid-cols-2 gap-3">
-                <Button
+              {/* 3. SEKCJA: AKCJE */}
+              <div className="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 justify-end">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
                   onClick={() => rejectMutation.mutate(lead.id)}
                   disabled={processingId === lead.id}
-                  variant="ghost"
-                  className="rounded-2xl font-bold text-destructive hover:text-destructive hover:bg-destructive/10 border border-destructive/20"
-                  size="lg"
                 >
-                  <X className="h-5 w-5 mr-2" />
+                  <X className="h-4 w-4 mr-1" />
                   Odrzuć
                 </Button>
-
-                <Button
+                
+                <Button 
+                  size="default" 
+                  className="shadow-md hover:shadow-lg rounded-xl px-6"
                   onClick={() => approveMutation.mutate(lead)}
                   disabled={processingId === lead.id}
-                  className="rounded-2xl font-bold shadow-md hover:shadow-lg transition-shadow"
-                  size="lg"
                 >
                   {processingId === lead.id ? (
                     <>
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Trwa...
                     </>
                   ) : (
                     <>
-                      <Check className="h-5 w-5 mr-2" />
-                      Akceptuj
+                      <Check className="h-4 w-4 mr-2" />
+                      Zatwierdź
                     </>
                   )}
                 </Button>
