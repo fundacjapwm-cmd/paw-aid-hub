@@ -16,7 +16,12 @@ import Zwierzeta from "./pages/Zwierzeta";
 import Kontakt from "./pages/Kontakt";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
-import AdminPanel from "./pages/AdminPanel";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminStats from "./pages/admin/AdminStats";
+import AdminOrganizations from "./pages/admin/AdminOrganizations";
+import AdminProducers from "./pages/admin/AdminProducers";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminLogs from "./pages/admin/AdminLogs";
 import OrgDashboard from "./pages/OrgDashboard";
 import OrgAnimals from "./pages/OrgAnimals";
 import OrgProfile from "./pages/OrgProfile";
@@ -50,7 +55,15 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/set-password" element={<SetPassword />} />
             <Route path="/profil" element={<Profile />} />
-            <Route path="/admin" element={<AdminPanel />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLayout><AdminStats /></AdminLayout>} />
+            <Route path="/admin/organizacje" element={<AdminLayout><AdminOrganizations /></AdminLayout>} />
+            <Route path="/admin/producenci" element={<AdminLayout><AdminProducers /></AdminLayout>} />
+            <Route path="/admin/uzytkownicy" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+            <Route path="/admin/logi" element={<AdminLayout><AdminLogs /></AdminLayout>} />
+            
+            {/* Organization Routes */}
             <Route path="/organizacja" element={<OrgDashboard />} />
             <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
             <Route path="/organizacja/profil" element={<OrgProfile />} />
