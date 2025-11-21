@@ -2,10 +2,12 @@ import HeroSection from "@/components/HeroSection";
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, ShoppingBag, Sparkles } from "lucide-react";
+import { Users, ShoppingBag, Sparkles } from "lucide-react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import LeadGenSection from "@/components/LeadGenSection";
+import { Heart } from "lucide-react";
 
 const Index = () => {
   const { animals, loading, error } = useAnimalsWithWishlists();
@@ -108,36 +110,13 @@ const Index = () => {
             <div className="text-center mt-12">
               <Button variant="hero" size="lg">
                 Zobacz wszystkie zwierzęta
-                <Heart className="h-5 w-5 fill-current" />
               </Button>
             </div>
           </div>
         </section>
 
-        {/* Call to Action Section */}
-        <section className="py-20 bg-hero">
-          <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6">
-                Zacznij pomagać już dziś!
-              </h2>
-              <p className="text-xl text-white/90 mb-8">
-                Każdy gest ma znaczenie. Wybierz zwierzaka lub organizację i kup produkty z ich listy życzeń. 
-                To proste, szybkie i przynosi prawdziwą radość!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="light" size="hero">
-                  Przeglądaj zwierzęta
-                  <Heart className="h-6 w-6 fill-current" />
-                </Button>
-                <Button variant="outline" size="hero" className="border-white text-white hover:bg-white hover:text-primary">
-                  Zobacz organizacje
-                  <Users className="h-6 w-6" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Lead Generation Section */}
+        <LeadGenSection />
       </main>
 
       {/* Footer */}

@@ -204,6 +204,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
           {(() => {
             const availableItems = wishlistItems.filter(item => !item.bought);
             const allBought = availableItems.length === 0;
+            const totalPrice = availableItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
             return (
               <Button 
@@ -214,7 +215,12 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 disabled={allBought || fullyAdded}
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                {allBought ? 'Wszystko kupione!' : fullyAdded ? 'Już dodano do koszyka!' : 'Dodaj wszystko do koszyka!'}
+                {allBought 
+                  ? 'Wszystko kupione!' 
+                  : fullyAdded 
+                  ? 'Już dodano do koszyka!' 
+                  : `Dodaj wszystko do koszyka (${totalPrice.toFixed(2)} zł)`
+                }
               </Button>
             );
           })()}
