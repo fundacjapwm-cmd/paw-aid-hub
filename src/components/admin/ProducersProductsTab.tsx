@@ -423,7 +423,7 @@ export default function ProducersProductsTab({
                 value={newProduct.description} 
                 onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} 
                 placeholder="Szczegółowy opis produktu..."
-                rows={2}
+                rows={3}
                 className="mt-1"
               />
             </div>
@@ -775,7 +775,7 @@ export default function ProducersProductsTab({
                 value={newProduct.description} 
                 onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} 
                 placeholder="Szczegółowy opis produktu..."
-                rows={2}
+                rows={3}
                 className="mt-1"
               />
             </div>
