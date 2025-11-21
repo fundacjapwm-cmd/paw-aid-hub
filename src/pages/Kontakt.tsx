@@ -90,50 +90,8 @@ const Kontakt = () => {
                 </div>
               </div>
 
-              {/* Contact Info & Animal Image */}
+              {/* Animal Image */}
               <div className="space-y-8">
-                {/* Contact Details */}
-                <div className="bg-white rounded-3xl p-8 shadow-card">
-                  <h3 className="text-xl font-bold text-foreground mb-6">
-                    Skontaktuj się z nami
-                  </h3>
-                  
-                  <div className="space-y-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="bg-primary-light rounded-full p-3 flex-shrink-0">
-                        <Mail className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-foreground">E-mail</h4>
-                        <p className="text-muted-foreground">kontakt@paczkiwmasle.pl</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-4">
-                      <div className="bg-secondary-light rounded-full p-3 flex-shrink-0">
-                        <Phone className="h-5 w-5 text-secondary" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-foreground">Telefon</h4>
-                        <p className="text-muted-foreground">+48 123 456 789</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-4">
-                      <div className="bg-accent-light rounded-full p-3 flex-shrink-0">
-                        <MapPin className="h-5 w-5 text-accent" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-foreground">Adres</h4>
-                        <p className="text-muted-foreground">
-                          ul. Serdeczna 12<br />
-                          00-001 Warszawa
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Happy Dog Image */}
                 <div className="bg-white rounded-3xl p-8 shadow-card text-center">
                   <div className="mb-6 relative overflow-hidden rounded-3xl">
