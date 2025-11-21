@@ -1,17 +1,10 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2, XCircle, Mail, Phone, Building2, Hash, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { Loader2, CheckCircle2, XCircle, Mail, Phone, FileText, Inbox, Check, X, Calendar } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { slugify } from "@/lib/utils/slugify";
@@ -145,141 +138,162 @@ const AdminLeads = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          Nowe Zgłoszenia Organizacji
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold text-foreground mb-3">
+          Oczekujące Zgłoszenia
         </h1>
-        <p className="text-muted-foreground">
-          {leads?.length || 0} zgłoszeń oczekuje na zatwierdzenie
+        <p className="text-lg text-muted-foreground">
+          {leads?.length || 0} {leads?.length === 1 ? 'zgłoszenie czeka' : 'zgłoszeń czeka'} na Twoją decyzję
         </p>
       </div>
 
       {!leads || leads.length === 0 ? (
-        <Card className="rounded-3xl shadow-card border-0">
-          <CardContent className="py-12">
-            <div className="text-center text-muted-foreground">
-              <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg">Brak nowych zgłoszeń</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
+          <div className="bg-white rounded-3xl p-12 shadow-card text-center max-w-md">
+            <Inbox className="h-24 w-24 mx-auto mb-6 text-muted-foreground/40" />
+            <h2 className="text-2xl font-bold text-foreground mb-3">
+              Wszystko na bieżąco!
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Brak nowych zgłoszeń 🍩
+            </p>
+          </div>
+        </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {leads.map((lead) => (
-            <Card
+            <div
               key={lead.id}
-              className={`rounded-3xl shadow-card border-0 transition-all duration-500 ${
-                processingId === lead.id ? "opacity-50 scale-95" : "opacity-100 scale-100"
+              className={`bg-white rounded-3xl p-6 shadow-card hover:shadow-bubbly transition-all duration-300 border border-border/50 animate-fade-in ${
+                processingId === lead.id ? "opacity-60 pointer-events-none scale-95" : ""
               }`}
             >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-2xl mb-2">
-                      {lead.organization_name}
-                    </CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      {format(new Date(lead.created_at), "dd MMMM yyyy, HH:mm", { locale: pl })}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
+              {/* Header */}
+              <div className="flex items-start justify-between mb-6">
+                <h3 className="text-xl font-bold text-foreground pr-2 leading-tight">
+                  {lead.organization_name}
+                </h3>
+                <Badge variant="outline" className="shrink-0 rounded-full text-xs">
+                  {formatDistanceToNow(new Date(lead.created_at), { 
+                    addSuffix: true, 
+                    locale: pl 
+                  })}
+                </Badge>
+              </div>
 
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                    <Hash className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">NIP</p>
-                      <p className="font-semibold">{lead.nip}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                    <Mail className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Email</p>
-                      <a 
-                        href={`mailto:${lead.email}`}
-                        className="font-semibold text-primary hover:underline"
-                      >
-                        {lead.email}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                    <Phone className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Telefon</p>
-                      <a 
-                        href={`tel:${lead.phone}`}
-                        className="font-semibold text-primary hover:underline"
-                      >
-                        {lead.phone}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                    <div className="flex-1">
-                      <p className="text-xs text-muted-foreground mb-2">Zgody</p>
-                      <div className="flex gap-2">
-                        <Badge variant={lead.accepted_terms ? "default" : "destructive"} className="gap-1">
-                          {lead.accepted_terms ? (
-                            <CheckCircle2 className="h-3 w-3" />
-                          ) : (
-                            <XCircle className="h-3 w-3" />
-                          )}
-                          Regulamin
-                        </Badge>
-                        <Badge variant={lead.marketing_consent ? "default" : "secondary"} className="gap-1">
-                          {lead.marketing_consent ? (
-                            <CheckCircle2 className="h-3 w-3" />
-                          ) : (
-                            <XCircle className="h-3 w-3" />
-                          )}
-                          Marketing
-                        </Badge>
-                      </div>
-                    </div>
+              {/* Data Section */}
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl">
+                  <FileText className="h-5 w-5 text-primary/60 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground font-medium mb-0.5">NIP</p>
+                    <p className="font-semibold text-foreground truncate">{lead.nip}</p>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => approveMutation.mutate(lead)}
-                    disabled={processingId === lead.id}
-                    className="flex-1 rounded-xl font-bold bg-green-600 hover:bg-green-700 text-white"
-                    size="lg"
-                  >
-                    {processingId === lead.id ? (
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl">
+                  <Mail className="h-5 w-5 text-primary/60 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground font-medium mb-0.5">Email</p>
+                    <a 
+                      href={`mailto:${lead.email}`}
+                      className="font-semibold text-primary hover:underline truncate block"
+                    >
+                      {lead.email}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl">
+                  <Phone className="h-5 w-5 text-primary/60 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground font-medium mb-0.5">Telefon</p>
+                    <a 
+                      href={`tel:${lead.phone}`}
+                      className="font-semibold text-primary hover:underline"
+                    >
+                      {lead.phone}
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal Status Section */}
+              <div className="mb-6 p-4 bg-muted/20 rounded-2xl">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                  Status Prawny
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    {lead.accepted_terms ? (
                       <>
-                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        Przetwarzanie...
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-700">
+                          Regulamin zaakceptowany
+                        </span>
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="h-5 w-5 mr-2" />
-                        Utwórz Konto i Zaproś
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-sm font-medium text-red-700">
+                          Brak akceptacji regulaminu
+                        </span>
                       </>
                     )}
-                  </Button>
-
-                  <Button
-                    onClick={() => rejectMutation.mutate(lead.id)}
-                    disabled={processingId === lead.id}
-                    variant="destructive"
-                    className="rounded-xl font-bold"
-                    size="lg"
-                  >
-                    <XCircle className="h-5 w-5 mr-2" />
-                    Odrzuć
-                  </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {lead.marketing_consent ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-700">
+                          Zgoda marketingowa
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-muted-foreground">
+                          Brak zgody marketingowej
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* Actions Footer */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={() => rejectMutation.mutate(lead.id)}
+                  disabled={processingId === lead.id}
+                  variant="ghost"
+                  className="rounded-2xl font-bold text-destructive hover:text-destructive hover:bg-destructive/10 border border-destructive/20"
+                  size="lg"
+                >
+                  <X className="h-5 w-5 mr-2" />
+                  Odrzuć
+                </Button>
+
+                <Button
+                  onClick={() => approveMutation.mutate(lead)}
+                  disabled={processingId === lead.id}
+                  className="rounded-2xl font-bold shadow-md hover:shadow-lg transition-shadow"
+                  size="lg"
+                >
+                  {processingId === lead.id ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Trwa...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-5 w-5 mr-2" />
+                      Akceptuj
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}
