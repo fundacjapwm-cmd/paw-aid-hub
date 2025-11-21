@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import contactDog from "@/assets/contact-dog.png";
 
 const Kontakt = () => {
   return (
@@ -133,14 +134,14 @@ const Kontakt = () => {
                   </div>
                 </div>
 
-                {/* Happy Animal */}
+                {/* Happy Dog Image */}
                 <div className="bg-white rounded-3xl p-8 shadow-card text-center">
-                  <div className="bg-primary-light rounded-3xl p-8 mb-6 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 w-6 h-6 bg-primary/20 rounded-full animate-bounce-gentle"></div>
-                    <div className="absolute bottom-4 left-4 w-4 h-4 bg-accent/30 rounded-full animate-float delay-500"></div>
-                    <div className="w-32 h-32 bg-white rounded-full mx-auto flex items-center justify-center shadow-soft">
-                      <Heart className="h-16 w-16 text-primary fill-current animate-pulse" />
-                    </div>
+                  <div className="mb-6 relative overflow-hidden rounded-3xl">
+                    <img 
+                      src={contactDog} 
+                      alt="Szczęśliwy pies"
+                      className="w-full h-auto object-cover"
+                    />
                   </div>
                   <h3 className="text-lg font-bold text-foreground mb-2">
                     Czekamy na Twój kontakt! 🐾
