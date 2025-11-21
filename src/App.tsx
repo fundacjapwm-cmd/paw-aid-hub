@@ -25,6 +25,7 @@ import AdminLogs from "./pages/admin/AdminLogs";
 import AdminFinances from "./pages/admin/AdminFinances";
 import AdminOrganizationStats from "./pages/admin/AdminOrganizationStats";
 import AdminLogistics from "./pages/admin/AdminLogistics";
+import AdminLogisticsArchive from "./pages/admin/AdminLogisticsArchive";
 import OrgDashboard from "./pages/OrgDashboard";
 import OrgAnimals from "./pages/OrgAnimals";
 import OrgProfile from "./pages/OrgProfile";
@@ -60,14 +61,17 @@ const App = () => (
             <Route path="/profil" element={<Profile />} />
             
             {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout><AdminStats /></AdminLayout>} />
-            <Route path="/admin/organizacje" element={<AdminLayout><AdminOrganizations /></AdminLayout>} />
-            <Route path="/admin/producenci" element={<AdminLayout><AdminProducers /></AdminLayout>} />
-            <Route path="/admin/uzytkownicy" element={<AdminLayout><AdminUsers /></AdminLayout>} />
-            <Route path="/admin/statystyki-organizacji" element={<AdminLayout><AdminOrganizationStats /></AdminLayout>} />
-            <Route path="/admin/finanse" element={<AdminLayout><AdminFinances /></AdminLayout>} />
-            <Route path="/admin/logistyka" element={<AdminLayout><AdminLogistics /></AdminLayout>} />
-            <Route path="/admin/logi" element={<AdminLayout><AdminLogs /></AdminLayout>} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminStats />} />
+              <Route path="organizacje" element={<AdminOrganizations />} />
+              <Route path="producenci" element={<AdminProducers />} />
+              <Route path="uzytkownicy" element={<AdminUsers />} />
+              <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
+              <Route path="finanse" element={<AdminFinances />} />
+              <Route path="logistyka/oczekujace" element={<AdminLogistics />} />
+              <Route path="logistyka/archiwum" element={<AdminLogisticsArchive />} />
+              <Route path="logi" element={<AdminLogs />} />
+            </Route>
             
             {/* Organization Routes */}
             <Route path="/organizacja" element={<OrgDashboard />} />
