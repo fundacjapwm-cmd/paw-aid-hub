@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X, Check, ChevronsUpDown, EyeOff, Mail, Phone, Building2, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X, Check, ChevronsUpDown, EyeOff, Mail, Phone, Building2, FileText, Factory, Package, Pencil } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { producerSchema } from '@/lib/validations/producer';
@@ -967,65 +967,71 @@ function ProducerCard({
 
   return (
     <>
-      <Card 
-        className="cursor-pointer hover:border-primary transition-colors overflow-hidden" 
-      >
-        <div onClick={onClick}>
-          <CardHeader>
-            <div className="flex items-start gap-4">
-              {/* Logo */}
-              <div className="flex-shrink-0 h-12 w-12 bg-background rounded-lg flex items-center justify-center border shadow-sm">
-                {!producer.active ? (
-                  <EyeOff className="h-6 w-6 text-muted-foreground" />
-                ) : producer.logo_url ? (
-                  <img 
-                    src={producer.logo_url} 
-                    alt={`${producer.name} logo`}
-                    className="h-10 w-10 object-contain p-1"
-                  />
-                ) : (
-                  <Building2 className="h-6 w-6 text-muted-foreground" />
-                )}
-              </div>
-              
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg truncate">{producer.name}</CardTitle>
-                {producer.nip && (
-                  <p className="text-xs text-muted-foreground">NIP: {producer.nip}</p>
-                )}
-                <p className="text-sm text-muted-foreground mt-1">
-                  {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
-                </p>
-              </div>
+      <Card className="flex flex-col h-full rounded-3xl shadow-card hover:shadow-bubbly transition-all duration-300 bg-background group">
+        {/* Info Section */}
+        <div className="p-5 flex gap-4 items-start flex-1 cursor-pointer" onClick={onClick}>
+          {/* Logo Container */}
+          <div className="h-16 w-16 rounded-2xl bg-muted/30 flex items-center justify-center flex-shrink-0 border-2 border-transparent group-hover:border-primary/20 transition-colors">
+            {!producer.active ? (
+              <EyeOff className="h-8 w-8 text-muted-foreground" />
+            ) : producer.logo_url ? (
+              <img 
+                src={producer.logo_url} 
+                alt={`${producer.name} logo`}
+                className="h-12 w-12 object-contain"
+              />
+            ) : (
+              <Factory className="h-8 w-8 text-primary/50" />
+            )}
+          </div>
 
-              {/* Action buttons */}
-              <div className="flex gap-2 flex-shrink-0">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditOpen(true);
-                  }}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (window.confirm(`Czy na pewno chcesz usunąć producenta "${producer.name}"? Ta operacja jest nieodwracalna.`)) {
-                      onDelete(producer.id);
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+          {/* Data */}
+          <div className="flex-1 min-w-0 space-y-1">
+            <h3 className="font-bold text-lg leading-tight text-foreground truncate">
+              {producer.name}
+            </h3>
+            
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <FileText className="h-3 w-3" />
+              <span>NIP: {producer.nip || 'Brak'}</span>
             </div>
-          </CardHeader>
+
+            <Badge 
+              variant="secondary" 
+              className="mt-2 rounded-lg bg-accent/10 text-accent-foreground hover:bg-accent/20"
+            >
+              <Package className="h-3 w-3 mr-1" />
+              {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Actions Footer */}
+        <div className="grid grid-cols-2 border-t border-border/40">
+          <Button 
+            variant="ghost" 
+            className="h-12 rounded-none rounded-bl-3xl hover:bg-primary/5 hover:text-primary gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditOpen(true);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+            Edytuj
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="h-12 rounded-none rounded-br-3xl hover:bg-destructive/5 hover:text-destructive border-l border-border/40 gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm(`Czy na pewno chcesz usunąć producenta "${producer.name}"? Ta operacja jest nieodwracalna.`)) {
+                onDelete(producer.id);
+              }
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+            Usuń
+          </Button>
         </div>
       </Card>
 
