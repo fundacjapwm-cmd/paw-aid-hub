@@ -27,7 +27,6 @@ export default function OrganizationPublicProfile() {
   const { slug } = useParams<{ slug: string }>();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [animals, setAnimals] = useState<any[]>([]);
-  const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -78,17 +77,6 @@ export default function OrganizationPublicProfile() {
       if (animalsError) throw animalsError;
 
       setAnimals(animalsData || []);
-
-      // Fetch organization's gallery images
-      const { data: imagesData, error: imagesError } = await supabase
-        .from("organization_images")
-        .select("*")
-        .eq("organization_id", org.id)
-        .order("display_order", { ascending: true });
-
-      if (imagesError) throw imagesError;
-
-      setGalleryImages(imagesData || []);
     } catch (error) {
       console.error("Error fetching organization:", error);
     } finally {
@@ -139,7 +127,7 @@ export default function OrganizationPublicProfile() {
             <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 relative z-10">
               {/* Logo - Large and Prominent */}
               <div className="shrink-0">
-                <div className="rounded-full border-4 border-white shadow-lg overflow-hidden h-32 w-32 sm:h-40 sm:w-40 bg-gradient-to-br from-primary/10 to-accent/10">
+                <div className="rounded-3xl border-4 border-white shadow-lg overflow-hidden h-32 w-32 sm:h-40 sm:w-40 bg-gradient-to-br from-primary/10 to-accent/10">
                   {organization.logo_url ? (
                     <img 
                       src={organization.logo_url} 
@@ -215,24 +203,6 @@ export default function OrganizationPublicProfile() {
               </div>
             </div>
           </div>
-
-          {/* Galeria miniatur */}
-          {galleryImages.length > 0 && (
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-12">
-              {galleryImages.slice(0, 6).map((image) => (
-                <div 
-                  key={image.id}
-                  className="aspect-square overflow-hidden rounded-2xl shadow-card hover:shadow-bubbly hover:scale-105 transition-all duration-300 cursor-pointer"
-                >
-                  <img
-                    src={image.image_url}
-                    alt="Galeria organizacji"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
