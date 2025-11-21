@@ -541,16 +541,21 @@ export default function ProducersProductsTab({
               />
             </div>
 
-            {/* Aktywny - kompaktowo */}
-            <div className="flex items-center gap-2">
+            {/* Widoczność - kompaktowo */}
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
               <Switch 
-                id="producer-active"
-                checked={newProducer.active} 
-                onCheckedChange={(checked) => setNewProducer({ ...newProducer, active: checked })}
+                id="producer-hidden"
+                checked={!newProducer.active} 
+                onCheckedChange={(checked) => setNewProducer({ ...newProducer, active: !checked })}
               />
-              <Label htmlFor="producer-active" className="cursor-pointer text-sm">
-                Producent aktywny (widoczny dla organizacji)
-              </Label>
+              <div className="flex-1">
+                <Label htmlFor="producer-hidden" className="cursor-pointer text-sm font-medium">
+                  Ukryj dla organizacji
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Gdy zaznaczone, producent nie będzie widoczny dla organizacji
+                </p>
+              </div>
             </div>
 
             <Button onClick={handleCreateProducer} className="w-full" disabled={uploadingImage}>
@@ -948,9 +953,6 @@ function ProducerCard({
                   {productCount} {productCount === 1 ? 'produkt' : productCount < 5 ? 'produkty' : 'produktów'}
                 </p>
               </div>
-              <Badge variant={producer.active ? 'default' : 'secondary'}>
-                {producer.active ? 'Aktywny' : 'Nieaktywny'}
-              </Badge>
             </div>
           </CardHeader>
         </div>
@@ -1119,16 +1121,23 @@ function ProducerCard({
               </p>
             </div>
 
-            {/* Active Status */}
-            <div className="flex items-center gap-2">
+            {/* Visibility Status */}
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
               <input
                 type="checkbox"
-                id="active"
-                checked={editData.active}
-                onChange={(e) => setEditData({ ...editData, active: e.target.checked })}
+                id="hidden"
+                checked={!editData.active}
+                onChange={(e) => setEditData({ ...editData, active: !e.target.checked })}
                 className="h-4 w-4"
               />
-              <Label htmlFor="active">Producent aktywny</Label>
+              <div className="flex-1">
+                <Label htmlFor="hidden" className="cursor-pointer font-medium">
+                  Ukryj producenta dla organizacji
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Gdy zaznaczone, producent nie będzie widoczny dla organizacji podczas wyboru produktów
+                </p>
+              </div>
             </div>
 
             {/* Actions */}
