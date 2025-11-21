@@ -1,20 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
+import OrgProfileForm from "@/components/organization/OrgProfileForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { PawPrint, Package, AlertCircle, Plus, MapPin, Heart } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil } from "lucide-react";
 import { useNavigate as useRouterNavigate } from "react-router-dom";
 
 export default function OrgDashboard() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const routerNavigate = useRouterNavigate();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -28,7 +31,7 @@ export default function OrgDashboard() {
     }
   }, [user, profile, navigate]);
 
-  const { data: dashboardData } = useQuery({
+  const { data: dashboardData, refetch } = useQuery({
     queryKey: ["organization-dashboard", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -97,6 +100,8 @@ export default function OrgDashboard() {
   const organization = dashboardData?.organization;
   const animals = dashboardData?.animals || [];
   const stats = dashboardData?.stats || { animals: 0, wishlistItems: 0, requests: 0 };
+  const orgId = dashboardData?.organization?.id;
+  const isOwner = true; // User in dashboard is always owner or has access
 
   if (!user || profile?.role !== "ORG") {
     return null;
@@ -115,16 +120,29 @@ export default function OrgDashboard() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-foreground mb-2">{organization?.name || "Twoja Organizacja"}</h1>
-              {organization?.city && (
-                <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                  <MapPin className="h-4 w-4" />
-                  <span>{organization.city}</span>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground mb-2">{organization?.name || "Twoja Organizacja"}</h1>
+                  {organization?.city && (
+                    <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                      <MapPin className="h-4 w-4" />
+                      <span>{organization.city}</span>
+                    </div>
+                  )}
+                  {organization?.description && (
+                    <p className="text-muted-foreground line-clamp-2">{organization.description}</p>
+                  )}
                 </div>
-              )}
-              {organization?.description && (
-                <p className="text-muted-foreground line-clamp-2">{organization.description}</p>
-              )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditDialogOpen(true)}
+                  className="gap-2 rounded-2xl"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edytuj
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -274,6 +292,25 @@ export default function OrgDashboard() {
             </div>
           )}
         </div>
+
+        {/* Edit Organization Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edytuj dane organizacji</DialogTitle>
+            </DialogHeader>
+            {orgId && (
+              <OrgProfileForm 
+                organizationId={orgId} 
+                isOwner={isOwner}
+                onSuccess={() => {
+                  setEditDialogOpen(false);
+                  refetch();
+                }}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </OrgLayout>
   );

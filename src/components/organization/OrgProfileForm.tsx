@@ -50,9 +50,10 @@ type OrganizationFormData = z.infer<typeof organizationSchema>;
 interface OrgProfileFormProps {
   organizationId: string;
   isOwner: boolean;
+  onSuccess?: () => void;
 }
 
-export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFormProps) {
+export default function OrgProfileForm({ organizationId, isOwner, onSuccess }: OrgProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -326,6 +327,11 @@ export default function OrgProfileForm({ organizationId, isOwner }: OrgProfileFo
     // Odśwież dane
     await fetchOrganization();
     setIsLoading(false);
+    
+    // Wywołaj callback jeśli istnieje (zamknięcie dialogu)
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   return (
