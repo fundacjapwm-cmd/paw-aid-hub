@@ -29,10 +29,9 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              {/* Przycisk główny: Gradient złoty → pomarańczowy */}
               <Button 
                 size="lg"
-                className="bg-gradient-to-r from-primary via-primary to-accent text-white hover:shadow-[0_0_30px_rgba(233,165,46,0.4)] shadow-bubbly hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold hover:scale-105"
+                className="bg-accent text-white hover:bg-accent/90 hover:shadow-[0_0_30px_rgba(233,165,46,0.4)] shadow-bubbly hover:-translate-y-1 transition-all duration-300 rounded-full px-8 h-14 text-lg font-bold hover:scale-105"
                 onClick={() => navigate('/zwierzeta')}
               >
                 Wybierz zwierzaka
