@@ -127,15 +127,15 @@ export default function OrganizationPublicProfile() {
             <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 relative z-10">
               {/* Logo - Large and Prominent */}
               <div className="shrink-0">
-                <div className="rounded-3xl border-4 border-white shadow-lg overflow-hidden h-32 w-32 sm:h-40 sm:w-40 bg-gradient-to-br from-primary/10 to-accent/10">
+                <div className="h-32 w-32 sm:h-40 sm:w-40 rounded-3xl border-4 border-white shadow-lg overflow-hidden bg-white">
                   {organization.logo_url ? (
                     <img 
                       src={organization.logo_url} 
                       alt={organization.name}
-                      className="w-full h-full object-contain p-2 bg-white"
+                      className="w-full h-full object-cover object-center"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-white">
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
                       <Heart className="h-16 w-16 sm:h-20 sm:w-20 text-primary" />
                     </div>
                   )}
