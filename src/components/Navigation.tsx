@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Heart, User, LogOut, Settings, Shield, Building2 } from "lucide-react";
+import { User, LogOut, Settings, Shield, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import CartDrawer from "@/components/CartDrawer";
 import MobileMenu from "@/components/MobileMenu";
+import { Logo } from "@/components/Logo";
 
 const Navigation = () => {
   const { user, profile, signOut, loading } = useAuth();
@@ -25,10 +26,7 @@ const Navigation = () => {
 
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-primary fill-current" />
-              <Heart className="h-4 w-4 sm:h-6 sm:w-6 text-accent fill-current -ml-2" />
-            </div>
+            <Logo className="h-8 w-auto sm:h-10" />
             <span className="text-lg sm:text-xl font-bold text-primary">Pączki w Maśle</span>
           </div>
 

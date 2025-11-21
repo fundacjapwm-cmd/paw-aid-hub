@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
 import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Logo } from "@/components/Logo";
 import {
   Sidebar,
   SidebarContent,
@@ -215,7 +216,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <SheetContent side="left" className="w-72 p-0">
                   <SidebarProvider>
                     <Sidebar className="w-full border-none">
-                      <div className="p-4 border-b border-border">
+                      <div className="p-4 border-b border-border flex items-center gap-2">
+                        <Logo className="h-8 w-auto" />
                         <h2 className="text-lg font-semibold text-primary">
                           Panel Admina
                         </h2>
@@ -240,7 +242,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-muted/30">
         <Sidebar collapsible="icon" className="border-r border-border">
-          <div className="p-4 border-b border-border">
+          <div className="p-4 border-b border-border flex items-center gap-2">
+            <Logo className="h-8 w-auto" />
             <SidebarTrigger className="ml-auto" />
           </div>
           <AdminSidebarContent />
