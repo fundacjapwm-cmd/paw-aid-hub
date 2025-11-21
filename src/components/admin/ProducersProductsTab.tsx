@@ -559,34 +559,34 @@ export default function ProducersProductsTab({
               </div>
             </div>
 
-            {/* Opis i notatka w jednej linii */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="producer-description">Opis</Label>
-                <Textarea 
-                  id="producer-description"
-                  value={newProducer.description} 
-                  onChange={(e) => setNewProducer({ ...newProducer, description: e.target.value })} 
-                  placeholder="Krótki opis producenta..."
-                  rows={2}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="producer-notes">Notatka wewnętrzna</Label>
-                <Textarea 
-                  id="producer-notes"
-                  value={newProducer.notes} 
-                  onChange={(e) => setNewProducer({ ...newProducer, notes: e.target.value })} 
-                  placeholder="Notatki dla administratorów..."
-                  rows={2}
-                  className="mt-1"
-                />
-              </div>
+            {/* Opis - jedno pod drugim */}
+            <div>
+              <Label htmlFor="producer-description">Opis</Label>
+              <Textarea 
+                id="producer-description"
+                value={newProducer.description} 
+                onChange={(e) => setNewProducer({ ...newProducer, description: e.target.value })} 
+                placeholder="Krótki opis producenta..."
+                rows={1}
+                className="mt-1 resize-none"
+              />
+            </div>
+
+            {/* Notatka wewnętrzna */}
+            <div>
+              <Label htmlFor="producer-notes">Notatka wewnętrzna</Label>
+              <Textarea 
+                id="producer-notes"
+                value={newProducer.notes} 
+                onChange={(e) => setNewProducer({ ...newProducer, notes: e.target.value })} 
+                placeholder="Notatki dla administratorów..."
+                rows={1}
+                className="mt-1 resize-none"
+              />
             </div>
 
             {/* Aktywny - kompaktowo */}
-            <div className="flex items-center gap-2 py-2">
+            <div className="flex items-center gap-2">
               <Switch 
                 id="producer-active"
                 checked={newProducer.active} 
