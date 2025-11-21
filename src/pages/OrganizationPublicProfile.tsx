@@ -126,51 +126,55 @@ export default function OrganizationPublicProfile() {
       <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-secondary/10 rounded-full blur-3xl" />
 
       {/* Hero Section - Centralna Karta */}
-      <div className="container mx-auto px-4 py-12 relative z-10">
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto">
           {/* Hero Card */}
-          <div className="relative bg-white/60 backdrop-blur-md border border-white/50 shadow-bubbly rounded-[3rem] p-8 md:p-12 text-center overflow-hidden mb-12">
+          <div className="relative bg-white/60 backdrop-blur-md border border-white/50 shadow-bubbly rounded-[3rem] p-6 md:p-8 overflow-hidden mb-8">
             {/* Dekoracyjne ikony w tle */}
             <Heart className="absolute top-8 left-8 h-24 w-24 text-primary/5 -rotate-12" />
             <Bone className="absolute bottom-8 right-8 h-32 w-32 text-accent/5 rotate-12" />
             <PawPrint className="absolute top-1/2 right-12 h-16 w-16 text-secondary/5 -rotate-6" />
 
-            {/* Logo */}
-            <div className="relative z-10 mb-6">
-              <div className="inline-block rounded-full border-4 border-white shadow-lg overflow-hidden w-32 h-32 mx-auto bg-gradient-to-br from-primary/10 to-accent/10">
-                {organization.logo_url ? (
-                  <img 
-                    src={organization.logo_url} 
-                    alt={organization.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Heart className="h-16 w-16 text-primary" />
-                  </div>
-                )}
+            {/* Flex Container - Horizontal on Desktop */}
+            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 relative z-10">
+              {/* Logo - Large and Prominent */}
+              <div className="shrink-0">
+                <div className="rounded-full border-4 border-white shadow-lg overflow-hidden h-32 w-32 sm:h-40 sm:w-40 bg-gradient-to-br from-primary/10 to-accent/10">
+                  {organization.logo_url ? (
+                    <img 
+                      src={organization.logo_url} 
+                      alt={organization.name}
+                      className="w-full h-full object-contain p-2 bg-white"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-white">
+                      <Heart className="h-16 w-16 sm:h-20 sm:w-20 text-primary" />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Tytuł z weryfikacją */}
-            <div className="relative z-10 mb-4">
-              <h1 className="text-4xl font-bold text-foreground tracking-tight inline-flex items-center gap-3 flex-wrap justify-center">
-                {organization.name}
-                <span title="Zweryfikowana Organizacja">
-                  <ShieldCheck className="h-8 w-8 text-primary" />
-                </span>
-              </h1>
-            </div>
+              {/* Content - Aligned left on desktop */}
+              <div className="flex-1 text-center md:text-left space-y-3">
+                {/* Tytuł z weryfikacją */}
+                <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
+                  <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                    {organization.name}
+                  </h1>
+                  <span title="Zweryfikowana Organizacja">
+                    <ShieldCheck className="h-7 w-7 md:h-8 md:w-8 text-primary" />
+                  </span>
+                </div>
 
-            {/* Opis */}
-            {organization.description && (
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8 relative z-10 leading-relaxed">
-                {organization.description}
-              </p>
-            )}
+                {/* Opis - Clamped to save space */}
+                {organization.description && (
+                  <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto md:mx-0 leading-relaxed line-clamp-2 md:line-clamp-none">
+                    {organization.description}
+                  </p>
+                )}
 
-            {/* Statystyki - Kolorowe Badge'y */}
-            <div className="flex justify-center gap-4 flex-wrap mb-8 relative z-10">
+                {/* Statystyki - Kolorowe Badge'y */}
+                <div className="flex justify-center md:justify-start gap-3 flex-wrap pt-1">
               {organization.city && (
                 <div className="bg-blue-50 text-blue-600 rounded-full px-4 py-2 font-semibold shadow-sm flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
@@ -190,7 +194,7 @@ export default function OrganizationPublicProfile() {
             </div>
 
             {/* Kontakt w Hero */}
-            <div className="flex flex-wrap justify-center gap-4 text-sm relative z-10">
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm pt-2">
               {organization.contact_phone && (
                 <a 
                   href={`tel:${organization.contact_phone}`}
@@ -207,6 +211,8 @@ export default function OrganizationPublicProfile() {
                 <Mail className="h-4 w-4" />
                 {organization.contact_email}
               </a>
+            </div>
+              </div>
             </div>
           </div>
 
