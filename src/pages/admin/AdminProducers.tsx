@@ -245,8 +245,11 @@ export default function AdminProducers() {
       .insert({
         name: newProduct.name,
         price: parseFloat(newProduct.price),
+        purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : null,
         unit: newProduct.unit,
         description: newProduct.description || null,
+        weight_volume: newProduct.weight_volume || null,
+        image_url: newProduct.image_url || null,
         category_id: newProduct.category_id,
         producer_id: newProduct.producer_id
       });
@@ -273,9 +276,14 @@ export default function AdminProducers() {
       .from('products')
       .update({
         name: editingProduct.name,
-        price: editingProduct.price,
+        price: parseFloat(editingProduct.price),
+        purchase_price: editingProduct.purchase_price ? parseFloat(editingProduct.purchase_price) : null,
         unit: editingProduct.unit,
-        description: editingProduct.description,
+        description: editingProduct.description || null,
+        weight_volume: editingProduct.weight_volume || null,
+        image_url: editingProduct.image_url || null,
+        category_id: editingProduct.category_id,
+        producer_id: editingProduct.producer_id,
         active: editingProduct.active
       })
       .eq('id', editingProduct.id);
