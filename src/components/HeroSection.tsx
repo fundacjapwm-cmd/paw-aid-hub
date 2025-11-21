@@ -31,10 +31,10 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button variant="light" size="hero" className="w-full sm:w-auto">
+              <Button variant="light" size="hero" className="w-full sm:w-auto hover:scale-105 transition-transform">
                 Zwierzaki
               </Button>
-              <Button variant="outline" size="hero" className="border-white text-foreground bg-white/90 hover:bg-white hover:text-primary w-full sm:w-auto">
+              <Button variant="outline" size="hero" className="border-white text-foreground bg-white/90 w-full sm:w-auto hover:scale-105 transition-transform">
                 Jak to działa?
                 <ArrowRight className="h-5 w-5" />
               </Button>
