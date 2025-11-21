@@ -328,13 +328,13 @@ export default function ProducersProductsTab({
             <CardTitle>Produkty - {producer?.name}</CardTitle>
             <CardDescription>Dodaj nowy produkt dla tego producenta</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3 h-full">
             {/* Zdjęcie, nazwa i cena w jednym rzędzie */}
             <div className="flex gap-3">
               {/* Zdjęcie produktu */}
               <div className="flex-shrink-0">
-                <Label>Zdjęcie *</Label>
-                <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors mt-1">
+                <Label>Zdjęcie produktu *</Label>
+                <div className="relative w-24 h-24 border-2 border-dashed border-muted-foreground/25 rounded-lg mt-1 hover:border-primary/50 transition-colors cursor-pointer flex items-center justify-center overflow-hidden">
                   <input
                     type="file"
                     accept="image/*"
@@ -343,13 +343,15 @@ export default function ProducersProductsTab({
                       const file = e.target.files?.[0];
                       if (file) {
                         const url = await handleImageUpload(file);
-                        if (url) setNewProduct({ ...newProduct, image_url: url });
+                        if (url) {
+                          setNewProduct({ ...newProduct, image_url: url });
+                        }
                       }
                     }}
                     disabled={uploadingImage}
                   />
                   {newProduct.image_url ? (
-                    <img src={newProduct.image_url} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                    <img src={newProduct.image_url} alt="Podgląd" className="w-full h-full object-cover rounded-lg" />
                   ) : (
                     <Upload className="h-5 w-5 text-muted-foreground" />
                   )}
@@ -363,15 +365,15 @@ export default function ProducersProductsTab({
                   <Input 
                     value={newProduct.name} 
                     onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
-                    placeholder="np. Karma dla psa"
+                    placeholder="np. Karma sucha dla psów"
                     className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label>Cena *</Label>
+                  <Label>Cena (PLN) *</Label>
                   <Input 
                     type="number" 
-                    step="0.01" 
+                    step="0.01"
                     value={newProduct.price} 
                     onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
                     placeholder="0.00"
@@ -382,7 +384,7 @@ export default function ProducersProductsTab({
             </div>
 
             {/* Jednostka, Kategoria, Waga w jednej linii */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label>Jednostka</Label>
                 <Select value={newProduct.unit} onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}>
@@ -417,7 +419,7 @@ export default function ProducersProductsTab({
             </div>
 
             {/* Opis */}
-            <div>
+            <div className="flex-1">
               <Label>Opis produktu</Label>
               <Textarea 
                 value={newProduct.description} 
@@ -428,7 +430,7 @@ export default function ProducersProductsTab({
               />
             </div>
 
-            <Button onClick={handleCreateProduct} disabled={uploadingImage} className="w-full">
+            <Button onClick={handleCreateProduct} disabled={uploadingImage} className="w-full mt-auto">
               {uploadingImage ? 'Przesyłanie...' : 'Dodaj produkt'}
             </Button>
           </CardContent>
@@ -611,7 +613,7 @@ export default function ProducersProductsTab({
             </CardTitle>
             <CardDescription>Dodaj produkt przypisując go do producenta</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3 h-full">
             {/* Producer Search Combobox */}
             <div>
               <Label>Producent *</Label>
@@ -769,7 +771,7 @@ export default function ProducersProductsTab({
             </div>
 
             {/* Opis */}
-            <div>
+            <div className="flex-1">
               <Label>Opis produktu</Label>
               <Textarea 
                 value={newProduct.description} 
@@ -800,7 +802,7 @@ export default function ProducersProductsTab({
                 });
                 setNewProduct({ name: '', price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
               }} 
-              className="w-full"
+              className="w-full mt-auto"
               disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price || !newProduct.image_url || uploadingImage}
             >
               {uploadingImage ? 'Przesyłanie...' : 'Dodaj produkt'}
