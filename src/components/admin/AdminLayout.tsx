@@ -204,31 +204,34 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-muted/30">
-        <header className="sticky top-0 z-50 bg-white border-b border-border shadow-soft">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-2">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <LayoutDashboard className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-72 p-0">
-                  <SidebarProvider>
-                    <Sidebar className="w-full border-none">
-                      <div className="p-4 border-b border-border flex items-center gap-2">
-                        <Logo className="h-8 w-auto" />
-                        <h2 className="text-lg font-semibold text-primary">
-                          Panel Admina
-                        </h2>
-                      </div>
-                      <AdminSidebarContent />
-                    </Sidebar>
-                  </SidebarProvider>
-                </SheetContent>
-              </Sheet>
-              <h1 className="font-semibold text-lg">{getPageTitle()}</h1>
-            </div>
+        <header className="sticky top-0 z-50 bg-background border-b border-border shadow-md">
+          <div className="flex items-center gap-3 p-4">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 border-primary"
+                >
+                  <LayoutDashboard className="h-5 w-5" />
+                  <span className="sr-only">Otwórz menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-0">
+                <SidebarProvider>
+                  <Sidebar className="w-full border-none">
+                    <div className="p-4 border-b border-border flex items-center gap-2">
+                      <Logo className="h-8 w-auto" />
+                      <h2 className="text-lg font-semibold text-primary">
+                        Panel Admina
+                      </h2>
+                    </div>
+                    <AdminSidebarContent />
+                  </Sidebar>
+                </SidebarProvider>
+              </SheetContent>
+            </Sheet>
+            <h1 className="font-semibold text-lg text-foreground">{getPageTitle()}</h1>
           </div>
         </header>
         <main className="p-4">
