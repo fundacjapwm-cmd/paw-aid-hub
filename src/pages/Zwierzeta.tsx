@@ -164,15 +164,16 @@ const Zwierzeta = () => {
                 </div>
                 
                 <div className="text-center">
-                  <a href="/#dolacz">
-                    <Button 
-                      variant="light" 
-                      size="hero" 
-                      className="w-full md:w-auto"
-                    >
-                      Zgłoś swoją organizację
-                    </Button>
-                  </a>
+                  <Button 
+                    variant="light" 
+                    size="hero" 
+                    className="w-full md:w-auto"
+                    onClick={() => {
+                      window.location.href = '/#dolacz';
+                    }}
+                  >
+                    Zgłoś swoją organizację
+                  </Button>
                 </div>
               </div>
             </div>
