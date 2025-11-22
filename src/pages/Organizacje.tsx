@@ -34,6 +34,7 @@ const Organizacje = () => {
   const [orgType, setOrgType] = useState("wszystkie");
   const [city, setCity] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCityOpen, setIsCityOpen] = useState(false);
 
   useEffect(() => {
     fetchOrganizations();
@@ -90,6 +91,18 @@ const Organizacje = () => {
       org.name.toLowerCase().includes(search.toLowerCase())
     ).slice(0, 5);
   }, [organizations, search]);
+
+  const citySuggestions = useMemo(() => {
+    if (city.length < 3) return [];
+    const uniqueCities = Array.from(
+      new Set(
+        organizations
+          .filter((org) => org.city && org.city.toLowerCase().includes(city.toLowerCase()))
+          .map((org) => org.city!)
+      )
+    );
+    return uniqueCities.slice(0, 5);
+  }, [organizations, city]);
 
   const handleClearFilters = () => {
     setSearch("");
@@ -212,13 +225,54 @@ const Organizacje = () => {
                   </SelectContent>
                 </Select>
 
-                {/* City */}
-                <Input
-                  placeholder="Miasto..."
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="rounded-2xl border-border/50 focus:border-primary"
-                />
+                {/* City with Autocomplete */}
+                <Popover open={isCityOpen && city.length >= 3 && citySuggestions.length > 0} onOpenChange={setIsCityOpen}>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                      <Input
+                        placeholder="Miasto..."
+                        value={city}
+                        onChange={(e) => {
+                          setCity(e.target.value);
+                          if (e.target.value.length >= 3) {
+                            setIsCityOpen(true);
+                          }
+                        }}
+                        onFocus={() => {
+                          if (city.length >= 3 && citySuggestions.length > 0) {
+                            setIsCityOpen(true);
+                          }
+                        }}
+                        className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
+                      />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[280px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
+                    <Command className="bg-popover">
+                      <CommandList className="max-h-[250px]">
+                        <CommandGroup heading="Miasta" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
+                          {citySuggestions.map((cityName) => (
+                            <CommandItem
+                              key={cityName}
+                              value={cityName}
+                              onSelect={() => {
+                                setCity(cityName);
+                                setIsCityOpen(false);
+                              }}
+                              className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
+                            >
+                              <div className="flex items-center gap-2 w-full">
+                                <MapPin className="h-4 w-4 text-primary" />
+                                <span className="font-medium text-foreground">{cityName}</span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
