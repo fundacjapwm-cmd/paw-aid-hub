@@ -100,7 +100,7 @@ const HowItWorksSection = () => {
                   className="w-full h-full object-cover"
                 />
                 {/* Ciemny overlay dla czytelności */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/95" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/95" />
               </div>
 
               {/* Treść */}
