@@ -63,7 +63,11 @@ const HowItWorksSection = () => {
                 return (
                   <div 
                     key={index}
-                    className="relative h-[450px] rounded-[4rem] overflow-hidden shadow-bubbly group"
+                    className="relative min-h-[70vh] overflow-hidden group"
+                    style={{
+                      borderRadius: '200px 200px 200px 200px',
+                      boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.5)'
+                    }}
                   >
                     {/* Background Image */}
                     <img 
@@ -73,10 +77,10 @@ const HowItWorksSection = () => {
                     />
                     
                     {/* Dark Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+                    <div className="absolute inset-0 bg-black/90" />
                     
                     {/* Content */}
-                    <div className="relative h-full flex flex-col justify-end p-8 text-white">
+                    <div className="relative h-full flex flex-col justify-end px-8 py-16 text-white">
                       {/* Icon */}
                       <div className={`w-12 h-12 ${step.iconBg} rounded-2xl flex items-center justify-center mb-4`}>
                         <StepIcon className="w-6 h-6 text-white" />
@@ -98,7 +102,7 @@ const HowItWorksSection = () => {
             </div>
 
             {/* Desktop: Overlapping horizontal layout */}
-            <div className="hidden md:flex md:justify-center md:items-center md:min-h-[500px] md:relative">
+            <div className="hidden md:flex md:justify-center md:items-center md:min-h-[70vh] md:relative">
               {steps.map((step, index) => {
                 const StepIcon = step.icon;
                 const offsetX = index * 220; // Horizontal spacing
@@ -116,7 +120,14 @@ const HowItWorksSection = () => {
                     }}
                   >
                     {/* Pill-shaped Card */}
-                    <div className="w-[320px] h-[520px] rounded-[5rem] overflow-hidden shadow-2xl">
+                    <div 
+                      className="w-[320px] overflow-hidden"
+                      style={{
+                        minHeight: '70vh',
+                        borderRadius: '200px 200px 200px 200px',
+                        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.5)'
+                      }}
+                    >
                       {/* Background Image */}
                       <img 
                         src={step.image} 
@@ -125,10 +136,10 @@ const HowItWorksSection = () => {
                       />
                       
                       {/* Dark Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+                      <div className="absolute inset-0 bg-black/90" />
                       
                       {/* Content */}
-                      <div className="relative h-full flex flex-col justify-end p-8 text-white">
+                      <div className="relative h-full flex flex-col justify-end px-8 py-16 text-white">
                         {/* Icon */}
                         <div className={`w-14 h-14 ${step.iconBg} rounded-2xl flex items-center justify-center mb-4`}>
                           <StepIcon className="w-7 h-7 text-white" />
