@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, X, Building2 } from "lucide-react";
+import { Filter, X, Building2, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface FiltersProps {
   onFilterChange?: (filters: {
@@ -22,13 +20,10 @@ interface Organization {
 }
 
 const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
-  const [organization, setOrganization] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
   const [species, setSpecies] = useState("wszystkie");
   const [city, setCity] = useState("");
   const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [orgSearch, setOrgSearch] = useState("");
-  const [open, setOpen] = useState(false);
-  const [selectedOrgName, setSelectedOrgName] = useState("");
 
   useEffect(() => {
     fetchOrganizations();
@@ -46,14 +41,19 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
     }
   };
 
-  const filteredOrganizations = organizations.filter(org =>
-    org.name.toLowerCase().includes(orgSearch.toLowerCase())
-  );
+  // Debounced search for organization
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const matchingOrg = organizations.find(org => 
+        org.name.toLowerCase() === organizationName.toLowerCase()
+      );
+      handleFilterChange('organization', matchingOrg?.id || "");
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [organizationName, organizations]);
 
   const handleFilterChange = (key: string, value: string) => {
-    if (key === 'organization') {
-      setOrganization(value);
-    }
     if (key === 'species') {
       setSpecies(value);
     }
@@ -62,7 +62,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
     }
     
     const newFilters = {
-      organization: key === 'organization' ? value : organization,
+      organization: key === 'organization' ? value : "",
       species: key === 'species' ? value : species,
       city: key === 'city' ? value : city,
     };
@@ -71,11 +71,9 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
   };
 
   const handleClearFilters = () => {
-    setOrganization("");
+    setOrganizationName("");
     setSpecies("wszystkie");
     setCity("");
-    setSelectedOrgName("");
-    setOrgSearch("");
     onFilterChange?.({
       organization: "",
       species: "wszystkie",
@@ -83,7 +81,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
     });
   };
 
-  const hasActiveFilters = organization !== "" || species !== "wszystkie" || city !== "";
+  const hasActiveFilters = organizationName !== "" || species !== "wszystkie" || city !== "";
   return (
     <div className="bg-card rounded-3xl p-4 sm:p-6 shadow-card border border-border/50">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -105,70 +103,27 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {/* Organization Filter with Autocomplete */}
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full justify-between rounded-2xl border-2 text-sm font-normal h-10"
-            >
-              <div className="flex items-center gap-2 overflow-hidden">
-                <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="truncate">
-                  {selectedOrgName || "Wybierz organizację..."}
-                </span>
-              </div>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[300px] p-0 bg-popover border-2 border-border rounded-2xl z-50">
-            <Command>
-              <CommandInput 
-                placeholder="Szukaj organizacji..." 
-                value={orgSearch}
-                onValueChange={setOrgSearch}
-                className="h-9"
-              />
-              <CommandList>
-                <CommandEmpty>Nie znaleziono organizacji.</CommandEmpty>
-                <CommandGroup>
-                  <CommandItem
-                    value=""
-                    onSelect={() => {
-                      setOrganization("");
-                      setSelectedOrgName("");
-                      setOrgSearch("");
-                      setOpen(false);
-                      handleFilterChange('organization', "");
-                    }}
-                  >
-                    Wszystkie organizacje
-                  </CommandItem>
-                  {filteredOrganizations.map((org) => (
-                    <CommandItem
-                      key={org.id}
-                      value={org.name}
-                      onSelect={() => {
-                        setOrganization(org.id);
-                        setSelectedOrgName(org.name);
-                        setOpen(false);
-                        handleFilterChange('organization', org.id);
-                      }}
-                    >
-                      {org.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        {/* Organization Filter */}
+        <div className="relative">
+          <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Organizacja..." 
+            className="pl-10 rounded-2xl border-2 text-sm"
+            value={organizationName}
+            onChange={(e) => setOrganizationName(e.target.value)}
+            list="organizations"
+          />
+          <datalist id="organizations">
+            {organizations.map((org) => (
+              <option key={org.id} value={org.name} />
+            ))}
+          </datalist>
+        </div>
 
         {/* Species Filter */}
         <Select value={species} onValueChange={(value) => handleFilterChange('species', value)}>
           <SelectTrigger className="rounded-2xl border-2 text-sm">
-            <SelectValue placeholder="Typ zwierzęcia" />
+            <SelectValue placeholder="Wybierz typ" />
           </SelectTrigger>
           <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
             <SelectItem value="wszystkie">Wszystkie</SelectItem>
@@ -179,10 +134,11 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
         </Select>
 
         {/* City Filter */}
-        <div>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Miejscowość..." 
-            className="rounded-2xl border-2 text-sm"
+            className="pl-10 rounded-2xl border-2 text-sm"
             value={city}
             onChange={(e) => handleFilterChange('city', e.target.value)}
           />
