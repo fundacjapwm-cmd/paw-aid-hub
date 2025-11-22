@@ -1,4 +1,4 @@
-import { MousePointerClick, ShoppingBag, ShieldCheck, Gift, Heart, Building2 } from "lucide-react";
+import { MousePointerClick, ShoppingBag, CreditCard, Truck, Heart, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -6,23 +6,27 @@ const HowItWorksSection = () => {
   const steps = [
     {
       icon: MousePointerClick,
-      title: "Wybierz Sercem",
-      description: "Przejrzyj profile naszych podopiecznych. Poznaj ich historie i wybierz tego, który skradnie Twoje serce.",
+      number: "01",
+      title: "Wybierz",
+      description: "Przejrzyj profile naszych podopiecznych i wybierz tego, który skradnie Twoje serce.",
     },
     {
       icon: ShoppingBag,
-      title: "Napełnij Brzuszek",
-      description: "Wybierz produkty z listy życzeń. Nie musisz kupować wszystkiego - każda puszka karmy to realna pomoc.",
+      number: "02",
+      title: "Dodaj",
+      description: "Wybierz produkty z listy życzeń. Każda puszka karmy to realna pomoc.",
     },
     {
-      icon: ShieldCheck,
-      title: "Bezpieczna Płatność",
-      description: "Zapłać szybko i bezpiecznie przez PayU/BLIK. My zajmiemy się resztą logistyki.",
+      icon: CreditCard,
+      number: "03",
+      title: "Zapłać",
+      description: "Szybka i bezpieczna płatność przez PayU/BLIK. My zajmiemy się resztą.",
     },
     {
-      icon: Gift,
-      title: "Radość i Transparentność",
-      description: "Dostarczamy dary prosto do schroniska. Dostaniesz powiadomienie i zobaczysz, jak pasek postępu rośnie!",
+      icon: Truck,
+      number: "04",
+      title: "Dostawa",
+      description: "Dostarczamy dary do schroniska. Zobaczysz postęp na żywo!",
     },
   ];
 
@@ -30,53 +34,61 @@ const HowItWorksSection = () => {
     <>
       {/* Hero Header */}
       <section id="jak-to-dziala" className="py-16 md:py-20 bg-gradient-to-b from-white via-orange-50/30 to-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
-            Jak to działa?
-          </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
-            Pomoc zwierzętom nigdy nie była prostsza. Poznaj <span className="text-primary font-semibold">4 proste kroki</span> do czynienia dobra.
-          </p>
+        <div className="container mx-auto px-4">
+          {/* Title */}
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
+              Jak to działa?
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+              Pomoc zwierzętom nigdy nie była prostsza. Poznaj <span className="text-primary font-semibold">4 proste kroki</span> do czynienia dobra.
+            </p>
+          </div>
 
-          {/* Horizontal Timeline - Kompaktowy */}
-          <div className="relative max-w-6xl mx-auto">
-            {/* Connecting Line - Desktop Only */}
-            <div className="hidden md:block absolute top-12 left-0 right-0 border-t-2 border-dashed border-primary/30 -z-10 mx-12" />
-
-            {/* Steps Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
-              {steps.map((step, index) => {
-                const StepIcon = step.icon;
-                
-                return (
-                  <div 
-                    key={index}
-                    className="flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300"
-                  >
-                    {/* Icon Circle with Badge */}
-                    <div className="relative mb-6 z-10">
-                      <div className="w-24 h-24 bg-white rounded-full shadow-bubbly flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
-                        <StepIcon className="h-10 w-10 text-primary" />
+          {/* The Pill Container */}
+          <div className="relative z-10 max-w-6xl mx-auto">
+            <div className="bg-white rounded-[3rem] shadow-bubbly border border-primary/10 overflow-hidden">
+              {/* Steps Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-primary/10">
+                {steps.map((step, index) => {
+                  const StepIcon = step.icon;
+                  const isFirst = index === 0;
+                  const isLast = index === steps.length - 1;
+                  
+                  return (
+                    <div 
+                      key={index}
+                      className={`
+                        group p-6 md:p-8 
+                        hover:bg-primary/5 transition-all duration-300
+                        ${isFirst ? 'rounded-t-[3rem] md:rounded-t-none md:rounded-l-[3rem]' : ''}
+                        ${isLast ? 'rounded-b-[3rem] md:rounded-b-none md:rounded-r-[3rem]' : ''}
+                        flex flex-col items-center text-center relative
+                      `}
+                    >
+                      {/* Background Number */}
+                      <div className="absolute top-4 right-4 text-6xl font-black text-primary/5 select-none">
+                        {step.number}
                       </div>
-                      
-                      {/* Number Badge */}
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-accent text-white rounded-full flex items-center justify-center text-sm font-bold shadow-soft z-20">
-                        {index + 1}
+
+                      {/* Icon */}
+                      <div className="relative z-10 w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                        <StepIcon className="h-7 w-7" />
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-foreground">
+                          {step.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {step.description}
+                        </p>
                       </div>
                     </div>
-
-                    {/* Content */}
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-foreground">
-                        {step.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
