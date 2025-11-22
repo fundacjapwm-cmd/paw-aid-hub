@@ -3,13 +3,13 @@ import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import LeadGenSection from "@/components/LeadGenSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Carousel,
   CarouselContent,
@@ -19,12 +19,25 @@ import {
 } from "@/components/ui/carousel";
 
 const Index = () => {
+  const location = useLocation();
   const { animals, loading, error } = useAnimalsWithWishlists();
   const [filters, setFilters] = useState({
     organization: "",
     species: "wszystkie",
     city: ""
   });
+
+  // Handle scrolling to anchor after navigation
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    }
+  }, [location]);
 
   const filteredAnimals = useMemo(() => {
     return animals.filter((animal) => {
