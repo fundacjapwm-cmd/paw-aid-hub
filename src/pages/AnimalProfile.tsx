@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Plus, Minus } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Plus, Minus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
@@ -16,7 +16,7 @@ const AnimalProfile = () => {
   const navigate = useNavigate();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationShown, setCelebrationShown] = useState(false);
-  const { addToCart, addAllForAnimal, cart: globalCart } = useCart();
+  const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart } = useCart();
   const { animals, loading } = useAnimalsWithWishlists();
 
   const animal = animals.find(a => a.id === id);
@@ -113,6 +113,16 @@ const AnimalProfile = () => {
     const cartItem = globalCart.find(item => item.productId === productId);
     return cartItem?.quantity || 0;
   };
+
+  // Oblicz łącznie za produkty w koszyku dla tego zwierzęcia
+  const cartTotalForAnimal = globalCart
+    .filter(item => item.animalId === id)
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  // Oblicz kwotę wszystkich brakujących produktów
+  const totalMissingCost = animal?.wishlist
+    .filter((item: any) => !item.bought)
+    .reduce((sum: number, item: any) => sum + Number(item.price), 0) || 0;
 
   // Calculate age display
   const ageInfo = animal?.birth_date ? calculateAnimalAge(animal.birth_date) : null;
@@ -295,7 +305,7 @@ const AnimalProfile = () => {
                                       <TooltipTrigger asChild>
                                         <button
                                           onClick={() => setQuantities(prev => ({ ...prev, [item.product_id]: neededQuantity }))}
-                                          className="text-xs text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors"
+                                          className="text-xs text-primary underline hover:text-primary/80 cursor-pointer transition-colors font-medium"
                                         >
                                           potrzebne: {neededQuantity} szt
                                         </button>
@@ -337,6 +347,18 @@ const AnimalProfile = () => {
                                       <Plus className="h-3 w-3" />
                                     </Button>
                                   </div>
+
+                                  {/* Remove from cart if already added */}
+                                  {itemInCart && (
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-6 w-6 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                      onClick={() => removeFromCart(item.product_id)}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  )}
 
                                   {/* Add Button with badge */}
                                   <Tooltip>
@@ -388,25 +410,28 @@ const AnimalProfile = () => {
 
                 {/* Footer - Sticky Summary */}
                 {animal.wishlist.some((item: any) => !item.bought) && (
-                  <div className="bg-gradient-to-t from-primary/5 to-background p-5 border-t shadow-lg">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm text-muted-foreground font-medium">
-                        Łącznie:
-                      </span>
-                      <span className="text-2xl font-bold text-primary">
-                        {animal.wishlist
-                          .filter((item: any) => !item.bought)
-                          .reduce((sum: number, item: any) => sum + Number(item.price), 0)
-                          .toFixed(2)} zł
-                      </span>
-                    </div>
+                  <div className="bg-gradient-to-t from-primary/5 to-background p-5 border-t shadow-lg space-y-3">
+                    {/* Łącznie w koszyku */}
+                    {cartTotalForAnimal > 0 && (
+                      <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">
+                          Łącznie w koszyku:
+                        </span>
+                        <span className="text-lg font-bold text-foreground">
+                          {cartTotalForAnimal.toFixed(2)} zł
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Kup wszystkie produkty */}
                     <Button 
                       size="default"
                       onClick={handleAddAllToCart}
+                      disabled={totalMissingCost === 0}
                       className="w-full rounded-xl font-semibold text-sm h-11 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      Kup wszystkie produkty
+                      Kup wszystkie produkty {totalMissingCost > 0 && `(${totalMissingCost.toFixed(2)} zł)`}
                     </Button>
                   </div>
                 )}
