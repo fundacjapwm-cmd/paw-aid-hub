@@ -1,4 +1,8 @@
 import { MousePointerClick, ShoppingBag, CreditCard, Truck } from "lucide-react";
+import catDog from "@/assets/how-it-works/cat-dog.png";
+import kittensBasket from "@/assets/how-it-works/kittens-basket.jpg";
+import creditCard from "@/assets/how-it-works/credit-card.png";
+import dogPaw from "@/assets/how-it-works/dog-paw.png";
 
 const HowItWorks = () => {
   const steps = [
@@ -6,21 +10,25 @@ const HowItWorks = () => {
       icon: MousePointerClick,
       title: "Wybierz",
       description: "Znajdź swojego ulubieńca spośród zwierzaków czekających na pomoc. Każdy ma swoją historię i listę życzeń.",
+      image: catDog,
     },
     {
       icon: ShoppingBag,
       title: "Dodaj",
       description: "Skompletuj paczkę z potrzebnymi produktami. Możesz wybrać konkretne rzeczy lub całą listę jednym kliknięciem.",
+      image: kittensBasket,
     },
     {
       icon: CreditCard,
       title: "Zapłać",
       description: "Szybki i bezpieczny przelew przez Przelewy24. BLIK, karta, przelew - wybierz co wolisz.",
+      image: creditCard,
     },
     {
       icon: Truck,
       title: "Dostawa",
       description: "My zawozimy! Zajmiemy się wszystkim, aby Twoja paczka dotarła bezpośrednio do podopiecznego.",
+      image: dogPaw,
     },
   ];
 
@@ -67,13 +75,13 @@ const HowItWorks = () => {
                   <div className="flex-1 w-full">
                     <div 
                       className={`
-                        bg-card p-8 md:p-10 rounded-[2.5rem] 
+                        bg-card rounded-[2.5rem] 
                         shadow-card hover:shadow-bubbly 
                         transition-all duration-500 
                         border border-border/50
                         relative group
                         hover:-translate-y-2
-                        ${isEven ? 'md:text-right' : 'md:text-left'}
+                        overflow-hidden
                       `}
                     >
                       {/* Floating Step Number Badge */}
@@ -89,19 +97,40 @@ const HowItWorks = () => {
                           shadow-lg 
                           transform group-hover:-translate-y-2 
                           transition-transform duration-300
+                          z-10
                         `}
                       >
                         {index + 1}
                       </div>
 
-                      {/* Content */}
-                      <div className="space-y-3">
-                        <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                          {step.title}
-                        </h3>
-                        <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                          {step.description}
-                        </p>
+                      {/* Card Content with Image */}
+                      <div className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} gap-6`}>
+                        
+                        {/* Image Section */}
+                        <div className="md:w-2/5 relative overflow-hidden">
+                          <div className="aspect-square md:aspect-auto md:h-full relative">
+                            <img 
+                              src={step.image} 
+                              alt={step.title}
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            />
+                            {/* Image Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-card/20 to-transparent md:hidden" />
+                          </div>
+                        </div>
+
+                        {/* Text Section */}
+                        <div className={`md:w-3/5 p-6 md:p-8 flex flex-col justify-center ${isEven ? 'md:text-right' : 'md:text-left'}`}>
+                          <div className="space-y-3">
+                            <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                              {step.title}
+                            </h3>
+                            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                              {step.description}
+                            </p>
+                          </div>
+                        </div>
+
                       </div>
 
                       {/* Subtle Gradient Overlay */}
