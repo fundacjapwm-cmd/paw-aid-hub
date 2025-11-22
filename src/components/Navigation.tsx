@@ -54,12 +54,6 @@ const Navigation = () => {
               )}
             </a>
             <a 
-              href="/#jak-to-dziala" 
-              className="relative text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Jak to działa?
-            </a>
-            <a 
               href="/organizacje" 
               className={`relative text-foreground hover:text-primary transition-colors font-medium ${
                 isActive('/organizacje') ? 'text-primary' : ''
