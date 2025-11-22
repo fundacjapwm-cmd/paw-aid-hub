@@ -48,7 +48,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .eq('id', session.user.id)
               .single();
             
-            setProfile(profileData);
+            // Fetch role from secure user_roles table
+            const { data: roleData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', session.user.id)
+              .single();
+            
+            if (profileData) {
+              setProfile({
+                ...profileData,
+                role: roleData?.role || 'USER'
+              });
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -64,15 +76,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profileData }) => {
-            setProfile(profileData);
-            setLoading(false);
-          });
+        Promise.all([
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single(),
+          supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .single()
+        ]).then(([{ data: profileData }, { data: roleData }]) => {
+          if (profileData) {
+            setProfile({
+              ...profileData,
+              role: roleData?.role || 'USER'
+            });
+          }
+          setLoading(false);
+        });
       } else {
         setLoading(false);
       }
@@ -104,13 +127,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Fetch profile to check must_change_password
     if (data.user) {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
+      const [profileResult, roleResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single(),
+        supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id)
+          .single()
+      ]);
       
-      setProfile(profileData);
+      if (profileResult.data) {
+        setProfile({
+          ...profileResult.data,
+          role: roleResult.data?.role || 'USER'
+        });
+      }
     }
     
     return { error };

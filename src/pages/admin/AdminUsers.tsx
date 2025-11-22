@@ -70,18 +70,38 @@ export default function AdminUsers() {
   };
 
   const updateUserRole = async (userId: string, newRole: 'USER' | 'ORG' | 'ADMIN') => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role: newRole })
-      .eq('id', userId);
+    // Update role in the secure user_roles table
+    const { error: deleteError } = await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId);
 
-    if (error) {
+    if (deleteError) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć starej roli",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error: insertError } = await supabase
+      .from('user_roles')
+      .insert({ user_id: userId, role: newRole });
+
+    if (insertError) {
       toast({
         title: "Błąd",
         description: "Nie udało się zmienić roli",
         variant: "destructive"
       });
     } else {
+      // Also update profiles.role for backwards compatibility
+      await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId);
+        
       toast({
         title: "Sukces",
         description: "Rola została zmieniona"
