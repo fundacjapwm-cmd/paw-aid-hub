@@ -5,6 +5,7 @@ import { Heart, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 
 const Zwierzeta = () => {
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
@@ -163,7 +164,7 @@ const Zwierzeta = () => {
                 </div>
                 
                 <div className="text-center">
-                  <a href="/#dolacz">
+                  <Link to="/#dolacz">
                     <Button 
                       variant="light" 
                       size="hero" 
@@ -171,7 +172,7 @@ const Zwierzeta = () => {
                     >
                       Zgłoś swoją organizację
                     </Button>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
