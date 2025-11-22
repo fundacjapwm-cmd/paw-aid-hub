@@ -25,6 +25,8 @@ export interface Animal {
   location: string;
   organization: string;
   organizationSlug: string;
+  organization_id: string;
+  city: string;
   description: string;
   image: string;
   wishlist: WishlistItem[];
@@ -55,7 +57,7 @@ export const useAnimalsWithWishlists = () => {
       if (orgIds.length > 0) {
         const { data, error: orgsError } = await supabase
           .from('organizations')
-          .select('id, name, slug')
+          .select('id, name, slug, city')
           .in('id', orgIds);
 
         if (orgsError) throw orgsError;
@@ -131,9 +133,11 @@ export const useAnimalsWithWishlists = () => {
           name: animal.name,
           age: animal.age ? `${animal.age} lat` : 'nieznany',
           species: animal.species,
-          location: 'Polska', // Default since we don't have city in animals table
+          location: org?.city || 'Polska',
           organization: org?.name || 'Nieznana organizacja',
           organizationSlug: org?.slug || '',
+          organization_id: animal.organization_id || '',
+          city: org?.city || '',
           description: animal.description || '',
           image: animal.image_url || '/placeholder.svg',
           wishlist: animalWishlists.map(w => ({

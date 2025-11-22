@@ -9,25 +9,23 @@ import Footer from "@/components/Footer";
 const Zwierzeta = () => {
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
   const [filters, setFilters] = useState({
-    search: "",
+    organization: "",
     species: "wszystkie",
-    province: "wszystkie",
     city: ""
   });
 
   const filteredAnimals = useMemo(() => {
     return allAnimals.filter((animal) => {
-      const matchesSearch = animal.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-                           animal.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-                           animal.organization.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesOrganization = filters.organization === "" || 
+                                  animal.organization_id === filters.organization;
       
       const matchesSpecies = filters.species === "wszystkie" || 
-                            animal.species.toLowerCase() === filters.species.toLowerCase();
+                            animal.species === filters.species;
       
       const matchesCity = filters.city === "" || 
-                         animal.location.toLowerCase().includes(filters.city.toLowerCase());
+                         (animal.city && animal.city.toLowerCase().includes(filters.city.toLowerCase()));
       
-      return matchesSearch && matchesSpecies && matchesCity;
+      return matchesOrganization && matchesSpecies && matchesCity;
     });
   }, [allAnimals, filters]);
 
