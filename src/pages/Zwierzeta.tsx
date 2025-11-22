@@ -115,7 +115,6 @@ const Zwierzeta = () => {
             <div className="max-w-3xl mx-auto">
               <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/20">
                 <div className="text-center mb-6">
-                  <div className="text-6xl mb-6">🏠</div>
                   <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6">
                     Jesteś fundacją?
                   </h2>
@@ -164,18 +163,15 @@ const Zwierzeta = () => {
                 </div>
                 
                 <div className="text-center">
-                  <Button 
-                    variant="light" 
-                    size="hero" 
-                    className="w-full md:w-auto"
-                    onClick={() => {
-                      const element = document.getElementById('dolacz');
-                      element?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                  >
-                    Zgłoś swoją organizację
-                    <Heart className="h-6 w-6 fill-current" />
-                  </Button>
+                  <a href="/#dolacz">
+                    <Button 
+                      variant="light" 
+                      size="hero" 
+                      className="w-full md:w-auto"
+                    >
+                      Zgłoś swoją organizację
+                    </Button>
+                  </a>
                 </div>
               </div>
             </div>
