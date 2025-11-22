@@ -75,7 +75,7 @@ const HowItWorksSection = () => {
         </div>
 
         {/* Grid z 4 kartami */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto items-center">
           {steps.map((step, index) => (
             <div
               key={index}
