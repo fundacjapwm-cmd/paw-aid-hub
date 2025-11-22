@@ -73,7 +73,7 @@ const StatItem = ({ value, label, icon, suffix = "" }: StatItemProps) => {
 
 const StatsSection = () => {
   return (
-    <section className="py-8 px-4 relative z-20 -mt-8">
+    <section className="py-8 px-4 relative z-20 -mt-[72px]">
       <div className="container mx-auto">
         <div className="bg-white/80 backdrop-blur-md rounded-[3rem] shadow-xl p-8 md:p-10 border border-primary/10 max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:flex md:justify-around md:items-center gap-8 md:gap-0 md:divide-x md:divide-primary/10">
