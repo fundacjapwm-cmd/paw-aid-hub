@@ -29,6 +29,7 @@ export interface Animal {
   city: string;
   description: string;
   image: string;
+  created_at: string;
   wishlist: WishlistItem[];
   gallery: GalleryImage[];
 }
@@ -45,7 +46,7 @@ export const useAnimalsWithWishlists = () => {
       // Fetch animals with organizations - simplified to avoid RLS recursion
       const { data: animalsData, error: animalsError } = await supabase
         .from('animals')
-        .select('id, name, species, age, breed, description, image_url, organization_id')
+        .select('id, name, species, age, breed, description, image_url, organization_id, created_at')
         .eq('active', true);
 
       if (animalsError) throw animalsError;
@@ -140,6 +141,7 @@ export const useAnimalsWithWishlists = () => {
           city: org?.city || '',
           description: animal.description || '',
           image: animal.image_url || '/placeholder.svg',
+          created_at: animal.created_at || '',
           wishlist: animalWishlists.map(w => ({
             id: w.id,
             name: w.products?.name || '',

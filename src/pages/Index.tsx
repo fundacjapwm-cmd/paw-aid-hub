@@ -10,6 +10,13 @@ import StatsSection from "@/components/StatsSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Index = () => {
   const { animals, loading, error } = useAnimalsWithWishlists();
@@ -33,6 +40,12 @@ const Index = () => {
       return matchesOrganization && matchesSpecies && matchesCity;
     });
   }, [animals, filters]);
+
+  const newestAnimals = useMemo(() => {
+    return [...animals]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 10);
+  }, [animals]);
 
   if (loading) {
     return (
@@ -85,16 +98,24 @@ const Index = () => {
               <AnimalFilters onFilterChange={setFilters} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredAnimals.length > 0 ? (
-                filteredAnimals.map((animal) => (
-                  <AnimalCard key={animal.id} animal={animal} />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-lg text-muted-foreground">Brak zwierząt do wyświetlenia</p>
-                </div>
-              )}
+            <div className="px-12">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: false,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-4">
+                  {newestAnimals.map((animal) => (
+                    <CarouselItem key={animal.id} className="pl-4 md:basis-1/2">
+                      <AnimalCard animal={animal} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
             </div>
 
             <div className="text-center mt-12">
