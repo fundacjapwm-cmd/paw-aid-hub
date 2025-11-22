@@ -3,7 +3,7 @@ import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import LeadGenSection from "@/components/LeadGenSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
@@ -12,11 +12,26 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   const { animals, loading, error } = useAnimalsWithWishlists();
-  const [selectedSpecies, setSelectedSpecies] = useState<string>('all');
+  const [filters, setFilters] = useState({
+    organization: "",
+    species: "wszystkie",
+    city: ""
+  });
 
-  const filteredAnimals = selectedSpecies === 'all' 
-    ? animals 
-    : animals.filter(animal => animal.species.toLowerCase() === selectedSpecies.toLowerCase());
+  const filteredAnimals = useMemo(() => {
+    return animals.filter((animal) => {
+      const matchesOrganization = filters.organization === "" || 
+                                  animal.organization_id === filters.organization;
+      
+      const matchesSpecies = filters.species === "wszystkie" || 
+                            animal.species === filters.species;
+      
+      const matchesCity = filters.city === "" || 
+                         (animal.city && animal.city.toLowerCase().includes(filters.city.toLowerCase()));
+      
+      return matchesOrganization && matchesSpecies && matchesCity;
+    });
+  }, [animals, filters]);
 
   if (loading) {
     return (
@@ -66,7 +81,7 @@ const Index = () => {
             </div>
 
             <div className="mb-8">
-              <AnimalFilters />
+              <AnimalFilters onFilterChange={setFilters} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
