@@ -291,9 +291,19 @@ const AnimalProfile = () => {
                                     {Number(item.price).toFixed(2)} zł
                                   </span>
                                   {!item.bought && neededQuantity > 1 && (
-                                    <span className="text-xs text-muted-foreground">
-                                      potrzebne: {neededQuantity} szt
-                                    </span>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() => setQuantities(prev => ({ ...prev, [item.product_id]: neededQuantity }))}
+                                          className="text-xs text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors"
+                                        >
+                                          potrzebne: {neededQuantity} szt
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="text-xs">Kliknij, aby ustawić {neededQuantity} szt</p>
+                                      </TooltipContent>
+                                    </Tooltip>
                                   )}
                                 </div>
                               </div>
