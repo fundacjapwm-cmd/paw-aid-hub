@@ -142,97 +142,106 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                     return (
                       <div
                         key={product.id}
-                        className="flex items-center gap-3 bg-background rounded-xl p-3 shadow-sm hover:shadow-md transition-shadow"
+                        className="bg-background rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
                       >
-                        {/* Product Image */}
-                        <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          {product.image ? (
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <ShoppingCart className="h-6 w-6 text-muted-foreground" />
-                          )}
-                        </div>
-
-                        {/* Product Info */}
-                        <div className="flex-1 min-w-0 space-y-1">
-                          <p className="font-bold text-foreground text-sm leading-tight">
-                            {product.name}
-                          </p>
-                          <p className="text-primary font-bold text-base">
-                            {product.price.toFixed(2)} zł
-                          </p>
-                          {/* Mini Progress Bar */}
-                          <div className="space-y-0.5">
-                            <Progress value={progress} className="h-1.5" />
-                            <p className="text-xs text-muted-foreground">
-                              {bought} / {needed} szt
-                            </p>
+                        <div className="flex gap-3">
+                          {/* Product Image */}
+                          <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {product.image ? (
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <ShoppingCart className="h-6 w-6 text-muted-foreground" />
+                            )}
                           </div>
-                        </div>
 
-                        {/* Actions */}
-                        {isFullyBought ? (
-                          <div className="flex items-center gap-2 text-green-600 font-medium text-sm flex-shrink-0">
-                            <Check className="h-5 w-5" />
-                            <span>Zrealizowane</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {/* Smart Badge */}
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Badge
-                                  variant="secondary"
-                                  className="cursor-pointer hover:bg-primary/10 text-xs font-medium px-2 py-1 transition-colors"
-                                  onClick={() => handleSmartFill(product.id, missing)}
-                                >
-                                  Brakuje: {missing}
-                                </Badge>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">Kliknij, aby dodać wszystkie potrzebne</p>
-                              </TooltipContent>
-                            </Tooltip>
-
-                            {/* Counter */}
-                            <div className="flex items-center gap-1">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-7 w-7 rounded-lg hover:bg-muted"
-                                onClick={() => handleQuantityChange(product.id, -1, missing)}
-                                disabled={quantity <= 1}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-8 text-center font-semibold text-sm text-foreground">
-                                {quantity}
-                              </span>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-7 w-7 rounded-lg hover:bg-muted"
-                                onClick={() => handleQuantityChange(product.id, 1, missing)}
-                                disabled={quantity >= missing}
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
+                          {/* Product Info & Actions - Vertical Stack */}
+                          <div className="flex-1 min-w-0 space-y-2">
+                            {/* Top Row: Name & Price */}
+                            <div>
+                              <p className="font-bold text-foreground text-sm leading-tight line-clamp-2">
+                                {product.name}
+                              </p>
+                              <p className="text-primary font-bold text-base mt-1">
+                                {product.price.toFixed(2)} zł
+                              </p>
                             </div>
 
-                            {/* Add to Cart Icon Button */}
-                            <Button
-                              size="icon"
-                              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 shadow-sm hover:scale-105 transition-transform"
-                              onClick={() => handleAddProduct(product)}
-                            >
-                              <ShoppingCart className="h-4 w-4" />
-                            </Button>
+                            {/* Progress Bar */}
+                            <div className="space-y-1">
+                              <Progress value={progress} className="h-1.5" />
+                              <p className="text-xs text-muted-foreground">
+                                {bought} / {needed} szt
+                              </p>
+                            </div>
+
+                            {/* Actions Row */}
+                            {isFullyBought ? (
+                              <div className="flex items-center gap-2 text-green-600 font-medium text-sm pt-1">
+                                <Check className="h-4 w-4" />
+                                <span>Zrealizowane</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 pt-1 flex-wrap">
+                                {/* Smart Badge */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge
+                                      variant="secondary"
+                                      className="cursor-pointer hover:bg-primary/10 text-xs font-medium px-2.5 py-1 transition-colors"
+                                      onClick={() => handleSmartFill(product.id, missing)}
+                                    >
+                                      Brakuje: {missing}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">Kliknij, aby dodać wszystkie</p>
+                                  </TooltipContent>
+                                </Tooltip>
+
+                                {/* Counter & Add Button */}
+                                <div className="flex items-center gap-2 ml-auto">
+                                  <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-1">
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-7 w-7 hover:bg-background"
+                                      onClick={() => handleQuantityChange(product.id, -1, missing)}
+                                      disabled={quantity <= 1}
+                                    >
+                                      <Minus className="h-3 w-3" />
+                                    </Button>
+                                    <span className="w-7 text-center font-semibold text-sm text-foreground">
+                                      {quantity}
+                                    </span>
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-7 w-7 hover:bg-background"
+                                      onClick={() => handleQuantityChange(product.id, 1, missing)}
+                                      disabled={quantity >= missing}
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+
+                                  {/* Add to Cart Button */}
+                                  <Button
+                                    size="sm"
+                                    className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 hover:scale-105 transition-transform text-xs font-medium"
+                                    onClick={() => handleAddProduct(product)}
+                                  >
+                                    <ShoppingCart className="h-3 w-3 mr-1" />
+                                    Dodaj
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
                     );
                   })}

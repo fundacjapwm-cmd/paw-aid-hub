@@ -263,13 +263,13 @@ const AnimalProfile = () => {
                       return (
                         <div 
                           key={item.id}
-                          className={`p-3 rounded-xl border transition-all duration-200 ${
+                          className={`rounded-xl border transition-all duration-200 ${
                             item.bought 
-                              ? 'bg-muted/30 border-muted' 
-                              : 'bg-card border-border hover:border-primary/30 hover:shadow-md'
+                              ? 'bg-muted/30 border-muted p-3' 
+                              : 'bg-card border-border hover:border-primary/30 hover:shadow-md p-4'
                           }`}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex gap-3">
                             {/* Product Image */}
                             <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border">
                               <img 
@@ -279,94 +279,96 @@ const AnimalProfile = () => {
                               />
                             </div>
                             
-                            {/* Product Info */}
-                            <div className="flex-1 min-w-0">
-                              <h4 className={`font-medium text-sm leading-tight mb-1 ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                                {item.name}
-                              </h4>
-                              <div className="flex items-baseline gap-2">
-                                <span className={`font-bold text-base ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
-                                  {Number(item.price).toFixed(2)} zł
-                                </span>
-                                {!item.bought && neededQuantity > 1 && (
-                                  <span className="text-xs text-muted-foreground">
-                                    potrzebne: {neededQuantity} szt
+                            {/* Product Info & Actions - Vertical Stack */}
+                            <div className="flex-1 min-w-0 space-y-2">
+                              {/* Top: Name & Price */}
+                              <div>
+                                <h4 className={`font-medium text-sm leading-tight line-clamp-2 ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                                  {item.name}
+                                </h4>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                  <span className={`font-bold text-base ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
+                                    {Number(item.price).toFixed(2)} zł
                                   </span>
-                                )}
+                                  {!item.bought && neededQuantity > 1 && (
+                                    <span className="text-xs text-muted-foreground">
+                                      potrzebne: {neededQuantity} szt
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              {item.bought && (
-                                <Badge variant="secondary" className="mt-1 text-xs">✓ Kupione</Badge>
+
+                              {item.bought ? (
+                                <Badge variant="secondary" className="text-xs w-fit">✓ Kupione</Badge>
+                              ) : (
+                                /* Actions Row */
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {/* Counter - minimalist */}
+                                  <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-1">
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-6 w-6 hover:bg-background transition-all"
+                                      onClick={() => handleQuantityChange(item.product_id, -1)}
+                                      disabled={quantity <= 1}
+                                    >
+                                      <Minus className="h-3 w-3" />
+                                    </Button>
+                                    <span className="w-6 text-center text-sm font-semibold text-foreground">
+                                      {quantity}
+                                    </span>
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-6 w-6 hover:bg-background transition-all"
+                                      onClick={() => handleQuantityChange(item.product_id, 1)}
+                                      disabled={quantity >= neededQuantity}
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+
+                                  {/* Add Button with badge */}
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="relative ml-auto">
+                                        <Button
+                                          size="sm"
+                                          disabled={itemInCart}
+                                          className={`h-8 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                            itemInCart 
+                                              ? 'bg-green-500 hover:bg-green-600' 
+                                              : 'bg-primary hover:bg-primary/90 hover:scale-105'
+                                          }`}
+                                          onClick={() => handleAddToCart(item)}
+                                        >
+                                          {itemInCart ? (
+                                            <span className="text-xs">✓ Dodano</span>
+                                          ) : (
+                                            <span className="flex items-center gap-1">
+                                              <ShoppingCart className="h-3 w-3" />
+                                              Dodaj {quantity > 1 ? `${quantity} szt` : ''}
+                                            </span>
+                                          )}
+                                        </Button>
+                                        {cartQuantity > 0 && (
+                                          <Badge 
+                                            className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
+                                          >
+                                            {cartQuantity}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </TooltipTrigger>
+                                    {cartQuantity > 0 && (
+                                      <TooltipContent>
+                                        <p className="text-xs">W koszyku: {cartQuantity} szt.</p>
+                                      </TooltipContent>
+                                    )}
+                                  </Tooltip>
+                                </div>
                               )}
                             </div>
-
-                            {/* Actions */}
-                            {!item.bought && (
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                {/* Counter - minimalist */}
-                                <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-2 py-1">
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-6 w-6 hover:bg-background transition-all"
-                                    onClick={() => handleQuantityChange(item.product_id, -1)}
-                                    disabled={quantity <= 1}
-                                  >
-                                    <Minus className="h-3 w-3" />
-                                  </Button>
-                                  <span className="w-6 text-center text-sm font-semibold text-foreground">
-                                    {quantity}
-                                  </span>
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-6 w-6 hover:bg-background transition-all"
-                                    onClick={() => handleQuantityChange(item.product_id, 1)}
-                                    disabled={quantity >= neededQuantity}
-                                  >
-                                    <Plus className="h-3 w-3" />
-                                  </Button>
-                                </div>
-
-                                {/* Add Button with badge */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="relative">
-                                      <Button
-                                        size="sm"
-                                        disabled={itemInCart}
-                                        className={`h-8 rounded-lg text-xs font-medium transition-all duration-200 ${
-                                          itemInCart 
-                                            ? 'bg-green-500 hover:bg-green-600' 
-                                            : 'bg-primary hover:bg-primary/90 hover:scale-105'
-                                        }`}
-                                        onClick={() => handleAddToCart(item)}
-                                      >
-                                        {itemInCart ? (
-                                          <span className="text-xs">✓ Dodano</span>
-                                        ) : (
-                                          <span className="flex items-center gap-1">
-                                            <ShoppingCart className="h-3 w-3" />
-                                            Dodaj {quantity > 1 ? `${quantity} szt` : ''}
-                                          </span>
-                                        )}
-                                      </Button>
-                                      {cartQuantity > 0 && (
-                                        <Badge 
-                                          className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
-                                        >
-                                          {cartQuantity}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </TooltipTrigger>
-                                  {cartQuantity > 0 && (
-                                    <TooltipContent>
-                                      <p className="text-xs">W koszyku: {cartQuantity} szt.</p>
-                                    </TooltipContent>
-                                  )}
-                                </Tooltip>
-                              </div>
-                            )}
                           </div>
                         </div>
                       );
