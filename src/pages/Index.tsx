@@ -2,12 +2,11 @@ import HeroSection from "@/components/HeroSection";
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
-import { Users, ShoppingBag, Sparkles } from "lucide-react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { useState } from "react";
 import LeadGenSection from "@/components/LeadGenSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
-import { Heart } from "lucide-react";
+import StatsSection from "@/components/StatsSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -44,40 +43,7 @@ const Index = () => {
         <HeroSection />
         
         {/* Stats Section */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="bg-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                <Heart className="h-8 w-8 text-white fill-white" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">1,247</p>
-              <p className="text-sm text-muted-foreground">Wspartych zwierząt</p>
-            </div>
-            <div className="space-y-2">
-              <div className="bg-secondary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">89</p>
-              <p className="text-sm text-muted-foreground">Organizacji</p>
-            </div>
-            <div className="space-y-2">
-              <div className="bg-accent rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                <ShoppingBag className="h-8 w-8 text-white" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">15,623</p>
-              <p className="text-sm text-muted-foreground">Zakupionych produktów</p>
-            </div>
-            <div className="space-y-2">
-              <div className="bg-primary rounded-3xl p-4 w-16 h-16 mx-auto flex items-center justify-center">
-                <Sparkles className="h-8 w-8 text-white" />
-              </div>
-              <p className="text-2xl font-bold text-foreground ">328,445 zł</p>
-              <p className="text-sm text-muted-foreground">Zebranych środków</p>
-            </div>
-            </div>
-          </div>
-        </section>
+        <StatsSection />
 
         {/* How It Works Section */}
         <HowItWorksSection />
