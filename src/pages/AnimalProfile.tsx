@@ -83,9 +83,7 @@ const AnimalProfile = () => {
   const ageInfo = animal?.birth_date ? calculateAnimalAge(animal.birth_date) : null;
   const ageDisplay = animal?.birth_date 
     ? formatDetailedAge(animal.birth_date)
-    : animal?.age 
-    ? `${animal.age} lat` 
-    : 'Wiek nieznany';
+    : animal?.age || 'Wiek nieznany';
 
   return (
     <>
