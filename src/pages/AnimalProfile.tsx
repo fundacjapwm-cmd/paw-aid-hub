@@ -243,115 +243,136 @@ const AnimalProfile = () => {
               <WishlistProgressBar wishlist={animal.wishlist} />
 
               {/* Modernized Wishlist Card with Sticky Footer */}
-              <Card className="p-0 flex flex-col h-[600px] rounded-3xl overflow-hidden">
+              <Card className="p-0 flex flex-col h-[600px] rounded-3xl overflow-hidden shadow-lg">
                 {/* Header */}
-                <div className="p-6 pb-4 border-b">
-                  <h2 className="text-xl font-bold text-foreground">
+                <div className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
+                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <Heart className="h-5 w-5 text-primary fill-primary" />
                     Potrzeby {animal.name}
                   </h2>
                 </div>
 
                 {/* Body - Scrollable List */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-3">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
                   <TooltipProvider>
                     {animal.wishlist.map((item: any) => {
                       const itemInCart = isInCart(item.product_id);
                       const cartQuantity = getCartQuantity(item.product_id);
                       const quantity = quantities[item.product_id] || 1;
-                    
-                    return (
-                      <div 
-                        key={item.id}
-                        className={`p-4 rounded-xl border-2 transition-all ${
-                          item.bought 
-                            ? 'bg-muted/50 border-muted' 
-                            : 'bg-card border-border hover:border-primary/20'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          {/* Product Info */}
-                          <div className="flex-1">
-                            <h4 className={`font-medium mb-1 ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                              {item.name}
-                            </h4>
-                            <span className={`font-bold text-lg ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
-                              {Number(item.price).toFixed(2)} zł
-                            </span>
-                            {item.bought && (
-                              <Badge variant="secondary" className="mt-2 block w-fit">✓ Kupione</Badge>
-                            )}
-                          </div>
-
-                          {/* Actions: Counter + Cart Button */}
-                          {!item.bought && (
-                            <div className="flex items-center gap-3 flex-shrink-0">
-                              {/* Counter with animation */}
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 hover:scale-110 transition-all"
-                                  onClick={() => handleQuantityChange(item.product_id, -1)}
-                                  disabled={quantity <= 1}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <span className="w-8 text-center bg-transparent font-bold text-foreground text-lg animate-scale-in">
-                                  {quantity}
-                                </span>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 hover:scale-110 transition-all"
-                                  onClick={() => handleQuantityChange(item.product_id, 1)}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
+                      
+                      return (
+                        <div 
+                          key={item.id}
+                          className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
+                            item.bought 
+                              ? 'bg-muted/50 border-muted' 
+                              : 'bg-card border-border hover:border-primary/30 hover:shadow-lg hover:scale-[1.02]'
+                          }`}
+                        >
+                          <div className="flex items-start gap-4">
+                            {/* Product Image */}
+                            {!item.bought && (
+                              <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted flex-shrink-0 border-2 border-border">
+                                <img 
+                                  src={item.image_url || '/placeholder.svg'} 
+                                  alt={item.name}
+                                  className="w-full h-full object-cover"
+                                />
                               </div>
+                            )}
+                            
+                            {/* Product Info */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className={`font-semibold mb-2 text-base ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                                {item.name}
+                              </h4>
+                              <span className={`font-bold text-2xl ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
+                                {Number(item.price).toFixed(2)} zł
+                              </span>
+                              {item.bought && (
+                                <Badge variant="secondary" className="mt-2 block w-fit">✓ Kupione</Badge>
+                              )}
+                            </div>
 
-                              {/* Add to Cart Icon Button with tooltip */}
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+                            {/* Actions: Counter + Cart Button */}
+                            {!item.bought && (
+                              <div className="flex items-center gap-3 flex-shrink-0">
+                                {/* Counter with animation */}
+                                <div className="flex items-center gap-2 bg-muted/30 rounded-full p-1">
                                   <Button
                                     size="icon"
-                                    disabled={itemInCart}
-                                    className={`h-12 w-12 rounded-full shadow-md transition-all ${
-                                      itemInCart 
-                                        ? 'bg-green-500 hover:bg-green-600' 
-                                        : 'bg-primary hover:bg-primary/90 hover:scale-110'
-                                    }`}
-                                    onClick={() => handleAddToCart(item)}
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-full bg-background hover:bg-primary/10 hover:scale-110 transition-all"
+                                    onClick={() => handleQuantityChange(item.product_id, -1)}
+                                    disabled={quantity <= 1}
                                   >
-                                    {itemInCart ? (
-                                      <span className="text-lg">✓</span>
-                                    ) : (
-                                      <ShoppingCart className="h-5 w-5" />
-                                    )}
+                                    <Minus className="h-4 w-4" />
                                   </Button>
-                                </TooltipTrigger>
-                                {cartQuantity > 0 && (
-                                  <TooltipContent>
-                                    <p>W koszyku: {cartQuantity} szt.</p>
-                                  </TooltipContent>
-                                )}
-                              </Tooltip>
-                            </div>
-                          )}
+                                  <span className="w-8 text-center bg-transparent font-bold text-foreground text-lg">
+                                    {quantity}
+                                  </span>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-full bg-background hover:bg-primary/10 hover:scale-110 transition-all"
+                                    onClick={() => handleQuantityChange(item.product_id, 1)}
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </Button>
+                                </div>
+
+                                {/* Add to Cart Icon Button with badge */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="relative">
+                                      <Button
+                                        size="icon"
+                                        disabled={itemInCart}
+                                        className={`h-14 w-14 rounded-full shadow-lg transition-all duration-300 ${
+                                          itemInCart 
+                                            ? 'bg-green-500 hover:bg-green-600 scale-105' 
+                                            : 'bg-primary hover:bg-primary/90 hover:scale-110 hover:shadow-xl'
+                                        }`}
+                                        onClick={() => handleAddToCart(item)}
+                                      >
+                                        {itemInCart ? (
+                                          <span className="text-xl">✓</span>
+                                        ) : (
+                                          <ShoppingCart className="h-6 w-6" />
+                                        )}
+                                      </Button>
+                                      {cartQuantity > 0 && (
+                                        <Badge 
+                                          className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 bg-red-500 text-white border-2 border-background animate-scale-in"
+                                        >
+                                          {cartQuantity}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </TooltipTrigger>
+                                  {cartQuantity > 0 && (
+                                    <TooltipContent>
+                                      <p>W koszyku: {cartQuantity} szt.</p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                   </TooltipProvider>
                 </div>
 
-                {/* Footer - Sticky Summary */}
+                {/* Footer - Sticky Summary with enhanced design */}
                 {animal.wishlist.some((item: any) => !item.bought) && (
-                  <div className="bg-gradient-to-t from-gray-50 to-white p-6 border-t shadow-lg">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm text-muted-foreground font-medium">
+                  <div className="bg-gradient-to-t from-primary/5 via-background to-transparent p-8 border-t-2 shadow-2xl">
+                    <div className="flex items-center justify-between mb-6">
+                      <span className="text-base text-muted-foreground font-semibold">
                         Łącznie:
                       </span>
-                      <span className="text-3xl font-bold text-foreground">
+                      <span className="text-4xl font-bold text-primary animate-fade-in">
                         {animal.wishlist
                           .filter((item: any) => !item.bought)
                           .reduce((sum: number, item: any) => sum + Number(item.price), 0)
@@ -361,9 +382,9 @@ const AnimalProfile = () => {
                     <Button 
                       size="lg"
                       onClick={handleAddAllToCart}
-                      className="w-full rounded-2xl font-bold shadow-md hover:scale-105 transition-transform"
+                      className="w-full rounded-2xl font-bold text-lg h-14 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
                     >
-                      <ShoppingCart className="h-5 w-5 mr-2" />
+                      <ShoppingCart className="h-6 w-6 mr-3" />
                       Kup wszystkie produkty
                     </Button>
                   </div>
