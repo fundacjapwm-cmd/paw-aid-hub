@@ -2,6 +2,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Plus, Minus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
@@ -106,6 +107,11 @@ const AnimalProfile = () => {
 
   const isInCart = (itemId: string) => {
     return globalCart.some(cartItem => cartItem.productId === itemId);
+  };
+
+  const getCartQuantity = (productId: string) => {
+    const cartItem = globalCart.find(item => item.productId === productId);
+    return cartItem?.quantity || 0;
   };
 
   // Calculate age display
@@ -247,9 +253,11 @@ const AnimalProfile = () => {
 
                 {/* Body - Scrollable List */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                  {animal.wishlist.map((item: any) => {
-                    const itemInCart = isInCart(item.product_id);
-                    const quantity = quantities[item.product_id] || 1;
+                  <TooltipProvider>
+                    {animal.wishlist.map((item: any) => {
+                      const itemInCart = isInCart(item.product_id);
+                      const cartQuantity = getCartQuantity(item.product_id);
+                      const quantity = quantities[item.product_id] || 1;
                     
                     return (
                       <div 
@@ -301,29 +309,39 @@ const AnimalProfile = () => {
                                 </Button>
                               </div>
 
-                              {/* Add to Cart Icon Button with pulse animation */}
-                              <Button
-                                size="icon"
-                                disabled={itemInCart}
-                                className={`h-12 w-12 rounded-full shadow-md transition-all ${
-                                  itemInCart 
-                                    ? 'bg-green-500 hover:bg-green-600' 
-                                    : 'bg-primary hover:bg-primary/90 hover:scale-110'
-                                }`}
-                                onClick={() => handleAddToCart(item)}
-                              >
-                                {itemInCart ? (
-                                  <span className="text-lg">✓</span>
-                                ) : (
-                                  <ShoppingCart className="h-5 w-5" />
+                              {/* Add to Cart Icon Button with tooltip */}
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    disabled={itemInCart}
+                                    className={`h-12 w-12 rounded-full shadow-md transition-all ${
+                                      itemInCart 
+                                        ? 'bg-green-500 hover:bg-green-600' 
+                                        : 'bg-primary hover:bg-primary/90 hover:scale-110'
+                                    }`}
+                                    onClick={() => handleAddToCart(item)}
+                                  >
+                                    {itemInCart ? (
+                                      <span className="text-lg">✓</span>
+                                    ) : (
+                                      <ShoppingCart className="h-5 w-5" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                {cartQuantity > 0 && (
+                                  <TooltipContent>
+                                    <p>W koszyku: {cartQuantity} szt.</p>
+                                  </TooltipContent>
                                 )}
-                              </Button>
+                              </Tooltip>
                             </div>
                           )}
                         </div>
                       </div>
                     );
                   })}
+                  </TooltipProvider>
                 </div>
 
                 {/* Footer - Sticky Summary */}
