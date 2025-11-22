@@ -100,7 +100,13 @@ const HowItWorksSection = () => {
               </div>
 
               {/* Treść */}
-              <div className="relative z-10 flex flex-col items-center text-center px-8 py-16 min-h-[400px] justify-end">
+              <div className={`
+                relative z-10 flex flex-col items-center text-center px-8 py-16 justify-end
+                ${index === 0 ? 'min-h-[400px]' : ''}
+                ${index === 1 ? 'min-h-[600px]' : ''}
+                ${index === 2 ? 'min-h-[520px]' : ''}
+                ${index === 3 ? 'min-h-[400px]' : ''}
+              `}>
                 {/* Ikona w kółku */}
                 <div className="mb-6 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
                   <step.icon className="w-10 h-10 text-primary" strokeWidth={2} />
