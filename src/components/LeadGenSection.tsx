@@ -17,15 +17,18 @@ const leadFormSchema = z.object({
     .min(1, "Nazwa organizacji jest wymagana")
     .max(200, "Nazwa organizacji nie może przekraczać 200 znaków"),
   nip: z.string()
-    .regex(/^\d{10}$/, "NIP musi zawierać dokładnie 10 cyfr")
-    .refine((val) => validateNIP(val), {
-      message: "Nieprawidłowy NIP (błąd sumy kontrolnej)"
+    .trim()
+    .optional()
+    .refine((val) => {
+      if (!val || val === '') return true; // Puste pole jest OK
+      if (!/^\d{10}$/.test(val)) return false; // Jeśli wypełnione, musi mieć 10 cyfr
+      return validateNIP(val); // Walidacja sumy kontrolnej
+    }, {
+      message: "NIP musi zawierać dokładnie 10 cyfr i być poprawny"
     }),
   email: z.string()
     .email("Nieprawidłowy format email")
     .max(255, "Email nie może przekraczać 255 znaków"),
-  phone: z.string()
-    .regex(/^(\+48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}$/, "Nieprawidłowy format numeru telefonu"),
   acceptedTerms: z.boolean().refine(val => val === true, {
     message: "Musisz zaakceptować regulamin, aby wysłać zgłoszenie."
   }),
@@ -65,9 +68,9 @@ const LeadGenSection = () => {
         .insert([
           {
             organization_name: data.organizationName,
-            nip: data.nip,
+            nip: data.nip || '',
             email: data.email,
-            phone: data.phone,
+            phone: '', // Pole telefon już nie jest zbierane
             accepted_terms: data.acceptedTerms,
             marketing_consent: data.marketingConsent || false
           }
@@ -107,21 +110,37 @@ const LeadGenSection = () => {
 
         <Card className="max-w-2xl mx-auto p-8 rounded-3xl shadow-card border-0">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="organizationName">Nazwa organizacji</Label>
-              <Input
-                id="organizationName"
-                {...register("organizationName")}
-                placeholder="Fundacja Opieki nad Zwierzętami"
-                className="rounded-xl"
-              />
-              {errors.organizationName && (
-                <p className="text-sm text-destructive">{errors.organizationName.message}</p>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="organizationName">Nazwa organizacji</Label>
+                <Input
+                  id="organizationName"
+                  {...register("organizationName")}
+                  placeholder="Fundacja Opieki nad Zwierzętami"
+                  className="rounded-xl"
+                />
+                {errors.organizationName && (
+                  <p className="text-sm text-destructive">{errors.organizationName.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  {...register("email")}
+                  placeholder="kontakt@organizacja.pl"
+                  className="rounded-xl"
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nip">NIP</Label>
+              <Label htmlFor="nip">NIP (opcjonalnie)</Label>
               <Input
                 id="nip"
                 {...register("nip")}
@@ -131,33 +150,6 @@ const LeadGenSection = () => {
               />
               {errors.nip && (
                 <p className="text-sm text-destructive">{errors.nip.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register("email")}
-                placeholder="kontakt@organizacja.pl"
-                className="rounded-xl"
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefon</Label>
-              <Input
-                id="phone"
-                {...register("phone")}
-                placeholder="+48 123 456 789"
-                className="rounded-xl"
-              />
-              {errors.phone && (
-                <p className="text-sm text-destructive">{errors.phone.message}</p>
               )}
             </div>
 
