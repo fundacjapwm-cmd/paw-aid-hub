@@ -59,11 +59,11 @@ const CTASection = () => {
                 Dołącz do nas i pomóż swoim podopiecznym znaleźć wsparcie.
               </p>
               
-              <Link to="/organizacje">
+              <a href="#dolacz">
                 <Button variant="hero" size="lg" className="w-full sm:w-auto">
                   Zgłoś organizację
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>

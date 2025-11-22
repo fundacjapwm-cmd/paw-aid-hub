@@ -9,6 +9,7 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const { animals, loading, error } = useAnimalsWithWishlists();
@@ -97,9 +98,11 @@ const Index = () => {
             </div>
 
             <div className="text-center mt-12">
-              <Button variant="hero" size="lg">
-                Zobacz wszystkie zwierzęta
-              </Button>
+              <Link to="/zwierzeta">
+                <Button variant="hero" size="lg">
+                  Zobacz wszystkie zwierzęta
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
