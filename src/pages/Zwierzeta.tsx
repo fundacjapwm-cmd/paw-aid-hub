@@ -1,7 +1,7 @@
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
-import { Heart, Users } from "lucide-react";
+import { Heart, Users, Building2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
@@ -110,23 +110,78 @@ const Zwierzeta = () => {
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 bg-hero">
-          <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6">
-                Każda pomoc się liczy! 💝
-              </h2>
-              <p className="text-xl text-white/95 mb-8">
-                Nie musisz kupować całej listy - każdy pojedynczy produkt to ogromna radość dla zwierzaka!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="light" size="hero">
-                  Rozpocznij pomaganie
-                  <Heart className="h-6 w-6 fill-current" />
-                </Button>
-                <Button variant="outline" size="hero" className="border-white text-white hover:bg-white hover:text-primary">
-                  Zobacz organizacje
-                  <Users className="h-6 w-6" />
+        <section className="py-20 bg-gradient-to-br from-primary via-primary-glow to-primary">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              {/* Left Column - Help Animals */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                <div className="text-center mb-6">
+                  <div className="text-5xl mb-4">💝</div>
+                  <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                    Każda pomoc się liczy!
+                  </h2>
+                  <p className="text-lg text-white/95 mb-6">
+                    Nie musisz kupować całej listy - każdy pojedynczy produkt to ogromna radość dla zwierzaka!
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Button variant="light" size="lg" className="w-full">
+                    Rozpocznij pomaganie
+                    <Heart className="h-5 w-5 fill-current" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="w-full border-2 border-white text-white hover:bg-white hover:text-primary"
+                  >
+                    Zobacz wszystkie zwierzęta
+                    <Users className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Right Column - Join as Organization */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                <div className="text-center mb-6">
+                  <div className="text-5xl mb-4">🏠</div>
+                  <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                    Jesteś fundacją?
+                  </h2>
+                  <p className="text-lg text-white/95 mb-6">
+                    Dołącz do naszej platformy i pozwól darczyńcom pomagać Twoim podopiecznym! To całkowicie bezpłatne.
+                  </p>
+                </div>
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-start gap-3 text-white/90">
+                    <div className="bg-white/20 rounded-full p-2 mt-1">
+                      <Heart className="h-4 w-4" />
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-semibold mb-1">Bezpośrednie dostawy</div>
+                      <div className="text-white/80">Produkty trafiają prosto do Ciebie</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 text-white/90">
+                    <div className="bg-white/20 rounded-full p-2 mt-1">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-semibold mb-1">Większy zasięg</div>
+                      <div className="text-white/80">Dotrzesz do tysięcy darczyńców</div>
+                    </div>
+                  </div>
+                </div>
+                <Button 
+                  variant="light" 
+                  size="lg" 
+                  className="w-full"
+                  onClick={() => {
+                    const element = document.getElementById('dolacz');
+                    element?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  Zgłoś swoją organizację
+                  <Building2 className="h-5 w-5" />
                 </Button>
               </div>
             </div>
