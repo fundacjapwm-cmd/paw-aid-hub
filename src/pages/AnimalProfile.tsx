@@ -8,6 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
+import { calculateAnimalAge, formatDetailedAge } from "@/lib/utils/ageCalculator";
 
 const AnimalProfile = () => {
   const { id } = useParams();
@@ -77,6 +78,14 @@ const AnimalProfile = () => {
   const isInCart = (itemId: string) => {
     return globalCart.some(cartItem => cartItem.productId === itemId);
   };
+
+  // Calculate age display
+  const ageInfo = animal?.birth_date ? calculateAnimalAge(animal.birth_date) : null;
+  const ageDisplay = animal?.birth_date 
+    ? formatDetailedAge(animal.birth_date)
+    : animal?.age 
+    ? `${animal.age} lat` 
+    : 'Wiek nieznany';
 
   return (
     <>
@@ -158,7 +167,14 @@ const AnimalProfile = () => {
                             <Cake className="h-4 w-4 text-primary" />
                             <span className="text-sm text-muted-foreground">Wiek</span>
                           </div>
-                          <span className="text-sm font-semibold text-foreground">{animal.age}</span>
+                          <div className="text-right">
+                            <span className="text-sm font-semibold text-foreground block">{ageDisplay}</span>
+                            {ageInfo && (
+                              <span className="text-xs text-muted-foreground">
+                                {ageInfo.days} dni / {ageInfo.weeks} tyg. / {ageInfo.months} mies.
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
