@@ -240,110 +240,119 @@ const AnimalProfile = () => {
             </div>
 
             <div className="space-y-6">
-              <WishlistProgressBar wishlist={animal.wishlist} />
-
               {/* Modernized Wishlist Card with Sticky Footer */}
               <Card className="p-0 flex flex-col h-[600px] rounded-3xl overflow-hidden shadow-lg">
-                {/* Header */}
-                <div className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
-                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                {/* Header with Progress */}
+                <div className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-transparent space-y-4">
+                  <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <Heart className="h-5 w-5 text-primary fill-primary" />
                     Potrzeby {animal.name}
                   </h2>
+                  <WishlistProgressBar wishlist={animal.wishlist} />
                 </div>
 
                 {/* Body - Scrollable List */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
                   <TooltipProvider>
                     {animal.wishlist.map((item: any) => {
                       const itemInCart = isInCart(item.product_id);
                       const cartQuantity = getCartQuantity(item.product_id);
                       const quantity = quantities[item.product_id] || 1;
+                      const neededQuantity = item.quantity || 1;
                       
                       return (
                         <div 
                           key={item.id}
-                          className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
+                          className={`p-3 rounded-xl border transition-all duration-200 ${
                             item.bought 
-                              ? 'bg-muted/50 border-muted' 
-                              : 'bg-card border-border hover:border-primary/30 hover:shadow-lg hover:scale-[1.02]'
+                              ? 'bg-muted/30 border-muted' 
+                              : 'bg-card border-border hover:border-primary/30 hover:shadow-md'
                           }`}
                         >
-                          <div className="flex items-start gap-4">
+                          <div className="flex items-center gap-3">
                             {/* Product Image */}
-                            {!item.bought && (
-                              <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted flex-shrink-0 border-2 border-border">
-                                <img 
-                                  src={item.image_url || '/placeholder.svg'} 
-                                  alt={item.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            )}
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border">
+                              <img 
+                                src={item.image_url || '/placeholder.svg'} 
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
                             
                             {/* Product Info */}
                             <div className="flex-1 min-w-0">
-                              <h4 className={`font-semibold mb-2 text-base ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                              <h4 className={`font-medium text-sm leading-tight mb-1 ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                                 {item.name}
                               </h4>
-                              <span className={`font-bold text-2xl ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
-                                {Number(item.price).toFixed(2)} zł
-                              </span>
+                              <div className="flex items-baseline gap-2">
+                                <span className={`font-bold text-base ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
+                                  {Number(item.price).toFixed(2)} zł
+                                </span>
+                                {!item.bought && neededQuantity > 1 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    potrzebne: {neededQuantity} szt
+                                  </span>
+                                )}
+                              </div>
                               {item.bought && (
-                                <Badge variant="secondary" className="mt-2 block w-fit">✓ Kupione</Badge>
+                                <Badge variant="secondary" className="mt-1 text-xs">✓ Kupione</Badge>
                               )}
                             </div>
 
-                            {/* Actions: Counter + Cart Button */}
+                            {/* Actions */}
                             {!item.bought && (
-                              <div className="flex items-center gap-3 flex-shrink-0">
-                                {/* Counter with animation */}
-                                <div className="flex items-center gap-2 bg-muted/30 rounded-full p-1">
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {/* Counter - minimalist */}
+                                <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-2 py-1">
                                   <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="h-8 w-8 rounded-full bg-background hover:bg-primary/10 hover:scale-110 transition-all"
+                                    className="h-6 w-6 hover:bg-background transition-all"
                                     onClick={() => handleQuantityChange(item.product_id, -1)}
                                     disabled={quantity <= 1}
                                   >
-                                    <Minus className="h-4 w-4" />
+                                    <Minus className="h-3 w-3" />
                                   </Button>
-                                  <span className="w-8 text-center bg-transparent font-bold text-foreground text-lg">
+                                  <span className="w-6 text-center text-sm font-semibold text-foreground">
                                     {quantity}
                                   </span>
                                   <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="h-8 w-8 rounded-full bg-background hover:bg-primary/10 hover:scale-110 transition-all"
+                                    className="h-6 w-6 hover:bg-background transition-all"
                                     onClick={() => handleQuantityChange(item.product_id, 1)}
+                                    disabled={quantity >= neededQuantity}
                                   >
-                                    <Plus className="h-4 w-4" />
+                                    <Plus className="h-3 w-3" />
                                   </Button>
                                 </div>
 
-                                {/* Add to Cart Icon Button with badge */}
+                                {/* Add Button with badge */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <div className="relative">
                                       <Button
-                                        size="icon"
+                                        size="sm"
                                         disabled={itemInCart}
-                                        className={`h-14 w-14 rounded-full shadow-lg transition-all duration-300 ${
+                                        className={`h-8 rounded-lg text-xs font-medium transition-all duration-200 ${
                                           itemInCart 
-                                            ? 'bg-green-500 hover:bg-green-600 scale-105' 
-                                            : 'bg-primary hover:bg-primary/90 hover:scale-110 hover:shadow-xl'
+                                            ? 'bg-green-500 hover:bg-green-600' 
+                                            : 'bg-primary hover:bg-primary/90 hover:scale-105'
                                         }`}
                                         onClick={() => handleAddToCart(item)}
                                       >
                                         {itemInCart ? (
-                                          <span className="text-xl">✓</span>
+                                          <span className="text-xs">✓ Dodano</span>
                                         ) : (
-                                          <ShoppingCart className="h-6 w-6" />
+                                          <span className="flex items-center gap-1">
+                                            <ShoppingCart className="h-3 w-3" />
+                                            Dodaj {quantity > 1 ? `${quantity} szt` : ''}
+                                          </span>
                                         )}
                                       </Button>
                                       {cartQuantity > 0 && (
                                         <Badge 
-                                          className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 bg-red-500 text-white border-2 border-background animate-scale-in"
+                                          className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
                                         >
                                           {cartQuantity}
                                         </Badge>
@@ -352,7 +361,7 @@ const AnimalProfile = () => {
                                   </TooltipTrigger>
                                   {cartQuantity > 0 && (
                                     <TooltipContent>
-                                      <p>W koszyku: {cartQuantity} szt.</p>
+                                      <p className="text-xs">W koszyku: {cartQuantity} szt.</p>
                                     </TooltipContent>
                                   )}
                                 </Tooltip>
@@ -365,14 +374,14 @@ const AnimalProfile = () => {
                   </TooltipProvider>
                 </div>
 
-                {/* Footer - Sticky Summary with enhanced design */}
+                {/* Footer - Sticky Summary */}
                 {animal.wishlist.some((item: any) => !item.bought) && (
-                  <div className="bg-gradient-to-t from-primary/5 via-background to-transparent p-8 border-t-2 shadow-2xl">
-                    <div className="flex items-center justify-between mb-6">
-                      <span className="text-base text-muted-foreground font-semibold">
+                  <div className="bg-gradient-to-t from-primary/5 to-background p-5 border-t shadow-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm text-muted-foreground font-medium">
                         Łącznie:
                       </span>
-                      <span className="text-4xl font-bold text-primary animate-fade-in">
+                      <span className="text-2xl font-bold text-primary">
                         {animal.wishlist
                           .filter((item: any) => !item.bought)
                           .reduce((sum: number, item: any) => sum + Number(item.price), 0)
@@ -380,11 +389,11 @@ const AnimalProfile = () => {
                       </span>
                     </div>
                     <Button 
-                      size="lg"
+                      size="default"
                       onClick={handleAddAllToCart}
-                      className="w-full rounded-2xl font-bold text-lg h-14 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                      className="w-full rounded-xl font-semibold text-sm h-11 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
                     >
-                      <ShoppingCart className="h-6 w-6 mr-3" />
+                      <ShoppingCart className="h-4 w-4 mr-2" />
                       Kup wszystkie produkty
                     </Button>
                   </div>
