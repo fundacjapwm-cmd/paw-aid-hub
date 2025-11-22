@@ -109,62 +109,6 @@ const Zwierzeta = () => {
           </div>
         </section>
 
-        {/* Categories Section */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Przeglądaj według kategorii
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Znajdź dokładnie to, czego szukasz
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              <div className="bg-white rounded-3xl p-8 shadow-card text-center transform hover:scale-105 transition-transform duration-300 cursor-pointer">
-                <div className="bg-primary-light rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                  <span className="text-3xl">🐕</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Psy</h3>
-                <p className="text-muted-foreground mb-4">
-                  Wierni kompani szukający kochającego domu
-                </p>
-                <Button variant="outline" size="sm">
-                  Zobacz psy ({allAnimals.filter(a => a.species === 'Pies').length})
-                </Button>
-              </div>
-
-              <div className="bg-white rounded-3xl p-8 shadow-card text-center transform hover:scale-105 transition-transform duration-300 cursor-pointer">
-                <div className="bg-secondary-light rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                  <span className="text-3xl">🐱</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Koty</h3>
-                <p className="text-muted-foreground mb-4">
-                  Niezależne, ale bardzo kochające istoty
-                </p>
-                <Button variant="outline" size="sm">
-                  Zobacz koty ({allAnimals.filter(a => a.species === 'Kot').length})
-                </Button>
-              </div>
-
-              <div className="bg-white rounded-3xl p-8 shadow-card text-center transform hover:scale-105 transition-transform duration-300 cursor-pointer">
-                <div className="bg-accent-light rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                  <span className="text-3xl">🐾</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Wszystkie</h3>
-                <p className="text-muted-foreground mb-4">
-                  Przeglądaj wszystkich naszych podopiecznych
-                </p>
-                <Button variant="success" size="sm">
-                  Zobacz wszystkie ({allAnimals.length})
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
         {/* Call to Action */}
         <section className="py-20 bg-hero">
           <div className="container mx-auto px-4 text-center">
