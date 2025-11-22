@@ -1,42 +1,50 @@
-import { MousePointerClick, ShoppingBag, CreditCard, Truck, Heart, Building2 } from "lucide-react";
+import { Heart, ShoppingBag, CreditCard, Package, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import heroCatDog from "@/assets/hero-catdog.png";
+import heroCat1 from "@/assets/hero-cat1.png";
+import heroDog1 from "@/assets/hero-dog1.png";
+import heroDog2 from "@/assets/hero-dog2.png";
 
 const HowItWorksSection = () => {
   const steps = [
     {
-      icon: MousePointerClick,
-      number: "01",
+      icon: Heart,
+      iconBg: "bg-yellow-400",
       title: "Wybierz",
-      description: "Przejrzyj profile naszych podopiecznych i wybierz tego, który skradnie Twoje serce.",
+      description: "Spośród naszych kochanych czworonogów tego lub tych, których chcesz dziś wesprzeć",
+      image: heroCatDog,
     },
     {
       icon: ShoppingBag,
-      number: "02",
+      iconBg: "bg-blue-400",
       title: "Dodaj",
-      description: "Wybierz produkty z listy życzeń. Każda puszka karmy to realna pomoc.",
+      description: "Dodaj potrzebne im produkty do koszyka. Wielkość i ilość zamówienia zależy tylko od Ciebie, każda pomoc się liczy!",
+      image: heroCat1,
     },
     {
       icon: CreditCard,
-      number: "03",
+      iconBg: "bg-green-600",
       title: "Zapłać",
-      description: "Szybka i bezpieczna płatność przez PayU/BLIK. My zajmiemy się resztą.",
+      description: "Aby proces był jak najłatwiejszy, zdecydowaliśmy się na Przelewy24. Możesz płacić szybko i wygodnie",
+      image: heroDog1,
     },
     {
-      icon: Truck,
-      number: "04",
-      title: "Dostawa",
-      description: "Dostarczamy dary do schroniska. Zobaczysz postęp na żywo!",
+      icon: Package,
+      iconBg: "bg-orange-400",
+      title: "My dostarczamy",
+      description: "Wysyłkę bierzemy na siebie! Dopilnujemy, aby Twoje zamówienie dotarło tam gdzie trzeba",
+      image: heroDog2,
     },
   ];
 
   return (
     <>
       {/* Hero Header */}
-      <section id="jak-to-dziala" className="py-16 md:py-20 bg-gradient-to-b from-white via-orange-50/30 to-white">
+      <section id="jak-to-dziala" className="py-16 md:py-24 bg-gradient-to-b from-background via-orange-50/20 to-background overflow-hidden">
         <div className="container mx-auto px-4">
           {/* Title */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
               Jak to działa?
             </h2>
@@ -45,50 +53,100 @@ const HowItWorksSection = () => {
             </p>
           </div>
 
-          {/* The Pill Container */}
-          <div className="relative z-10 max-w-6xl mx-auto">
-            <div className="bg-white rounded-[3rem] shadow-bubbly border border-primary/10 overflow-hidden">
-              {/* Steps Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-primary/10">
-                {steps.map((step, index) => {
-                  const StepIcon = step.icon;
-                  const isFirst = index === 0;
-                  const isLast = index === steps.length - 1;
-                  
-                  return (
-                    <div 
-                      key={index}
-                      className={`
-                        group p-6 md:p-8 
-                        hover:bg-primary/5 transition-all duration-300
-                        ${isFirst ? 'rounded-t-[3rem] md:rounded-t-none md:rounded-l-[3rem]' : ''}
-                        ${isLast ? 'rounded-b-[3rem] md:rounded-b-none md:rounded-r-[3rem]' : ''}
-                        flex flex-col items-center text-center relative
-                      `}
-                    >
-                      {/* Background Number */}
-                      <div className="absolute top-4 right-4 text-6xl font-black text-primary/5 select-none">
-                        {step.number}
-                      </div>
-
+          {/* Overlapping Cards Container */}
+          <div className="relative max-w-7xl mx-auto">
+            {/* Mobile: Stack vertically */}
+            <div className="flex flex-col gap-6 md:hidden">
+              {steps.map((step, index) => {
+                const StepIcon = step.icon;
+                
+                return (
+                  <div 
+                    key={index}
+                    className="relative h-[450px] rounded-[4rem] overflow-hidden shadow-bubbly group"
+                  >
+                    {/* Background Image */}
+                    <img 
+                      src={step.image} 
+                      alt={step.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    
+                    {/* Dark Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+                    
+                    {/* Content */}
+                    <div className="relative h-full flex flex-col justify-end p-8 text-white">
                       {/* Icon */}
-                      <div className="relative z-10 w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                        <StepIcon className="h-7 w-7" />
+                      <div className={`w-12 h-12 ${step.iconBg} rounded-2xl flex items-center justify-center mb-4`}>
+                        <StepIcon className="w-6 h-6 text-white" />
                       </div>
+                      
+                      {/* Title */}
+                      <h3 className="text-3xl font-bold mb-3">
+                        {step.title}
+                      </h3>
+                      
+                      {/* Description */}
+                      <p className="text-base leading-relaxed opacity-90">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
+            {/* Desktop: Overlapping horizontal layout */}
+            <div className="hidden md:flex md:justify-center md:items-center md:min-h-[500px] md:relative">
+              {steps.map((step, index) => {
+                const StepIcon = step.icon;
+                const offsetX = index * 220; // Horizontal spacing
+                const offsetY = index % 2 === 0 ? 0 : 40; // Alternating vertical offset
+                
+                return (
+                  <div 
+                    key={index}
+                    className="absolute transition-all duration-500 hover:scale-105 hover:z-50 hover:rotate-0"
+                    style={{
+                      left: `${offsetX}px`,
+                      top: `${offsetY}px`,
+                      zIndex: index,
+                      transform: index === 1 ? 'rotate(-2deg)' : index === 2 ? 'rotate(1deg)' : index === 3 ? 'rotate(-1deg)' : 'rotate(0deg)',
+                    }}
+                  >
+                    <div className="w-[320px] h-[520px] rounded-[4rem] overflow-hidden shadow-2xl">
+                      {/* Background Image */}
+                      <img 
+                        src={step.image} 
+                        alt={step.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      
+                      {/* Dark Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+                      
                       {/* Content */}
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-bold text-foreground">
+                      <div className="relative h-full flex flex-col justify-end p-8 text-white">
+                        {/* Icon */}
+                        <div className={`w-14 h-14 ${step.iconBg} rounded-2xl flex items-center justify-center mb-4`}>
+                          <StepIcon className="w-7 h-7 text-white" />
+                        </div>
+                        
+                        {/* Title */}
+                        <h3 className="text-3xl font-bold mb-3">
                           {step.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                        
+                        {/* Description */}
+                        <p className="text-base leading-relaxed opacity-90">
                           {step.description}
                         </p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
