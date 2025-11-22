@@ -164,7 +164,7 @@ const Zwierzeta = () => {
                 </div>
                 
                 <div className="text-center">
-                  <Link to="/#dolacz">
+                  <a href="/#dolacz">
                     <Button 
                       variant="light" 
                       size="hero" 
@@ -172,7 +172,7 @@ const Zwierzeta = () => {
                     >
                       Zgłoś swoją organizację
                     </Button>
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
