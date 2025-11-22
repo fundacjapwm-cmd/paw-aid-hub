@@ -7,6 +7,7 @@ import { useState } from "react";
 import LeadGenSection from "@/components/LeadGenSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
+import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -84,6 +85,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* CTA Section */}
+        <CTASection />
 
         {/* Lead Generation Section */}
         <LeadGenSection />
