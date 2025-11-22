@@ -2,6 +2,10 @@ import { Search, ShoppingCart, CreditCard, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import dogNose from "@/assets/how-it-works/dog-nose.png";
+import cat from "@/assets/how-it-works/cat.jpg";
+import creditCard from "@/assets/how-it-works/credit-card.png";
+import dogBox from "@/assets/how-it-works/dog-box.png";
 
 const steps = [
   {
@@ -9,24 +13,28 @@ const steps = [
     title: "Wybierz",
     description: "Spośród naszych kochanych czworonogów tego lub tych, których chcesz dziś wesprzeć",
     delay: 0,
+    image: dogNose,
   },
   {
     icon: ShoppingCart,
     title: "Dodaj",
     description: "Dodaj potrzebne im produkty do koszyka. Wielkość i ilość zamówienia zależy tylko od Ciebie, każda pomoc się liczy!",
     delay: 400,
+    image: cat,
   },
   {
     icon: CreditCard,
     title: "Zapłać",
     description: "Aby proces był jak najłatwiejszy, zdecydowaliśmy się na Przelewy24. Możesz płacić szybko i wygodnie",
     delay: 400,
+    image: creditCard,
   },
   {
     icon: Package,
     title: "My dostarczamy",
     description: "Wysyłkę bierzemy na siebie! Dopilnujemy, aby Twoje zamówienie dotarło tam gdzie trzeba",
     delay: 800,
+    image: dogBox,
   },
 ];
 
@@ -72,7 +80,7 @@ const HowItWorksSection = () => {
             <div
               key={index}
               className={`
-                flex flex-col items-center text-center
+                relative overflow-hidden rounded-[200px] shadow-2xl
                 transition-all duration-700
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}
               `}
@@ -80,23 +88,34 @@ const HowItWorksSection = () => {
                 transitionDelay: isVisible ? `${step.delay}ms` : '0ms',
               }}
             >
-              {/* Spacer */}
-              <div className="h-8" />
-
-              {/* Ikona w kółku */}
-              <div className="mb-6 w-20 h-20 rounded-full bg-primary flex items-center justify-center shadow-lg">
-                <step.icon className="w-10 h-10 text-white" strokeWidth={2} />
+              {/* Tło ze zdjęciem */}
+              <div className="absolute inset-0">
+                <img 
+                  src={step.image} 
+                  alt={step.title}
+                  className="w-full h-full object-cover"
+                />
+                {/* Ciemny overlay dla czytelności */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/80" />
               </div>
 
-              {/* Tytuł */}
-              <h3 className="text-2xl font-bold text-foreground mb-4">
-                {step.title}
-              </h3>
+              {/* Treść */}
+              <div className="relative z-10 flex flex-col items-center text-center px-8 py-16 min-h-[400px] justify-end">
+                {/* Ikona w kółku */}
+                <div className="mb-6 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
+                  <step.icon className="w-10 h-10 text-primary" strokeWidth={2} />
+                </div>
 
-              {/* Opis */}
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                {step.description}
-              </p>
+                {/* Tytuł */}
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  {step.title}
+                </h3>
+
+                {/* Opis */}
+                <p className="text-sm text-white/90 leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
