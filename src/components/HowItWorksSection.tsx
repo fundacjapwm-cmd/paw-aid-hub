@@ -51,7 +51,7 @@ const HowItWorksSection = () => {
             <div 
               key={step.id}
               className={cn(
-                "relative group rounded-[2.5rem] overflow-hidden shadow-xl cursor-pointer transition-all duration-500 hover:-translate-y-2 border-4 border-white",
+                "relative group rounded-[5rem] overflow-hidden shadow-xl cursor-pointer transition-all duration-500 hover:-translate-y-2 border-4 border-white",
                 // KLUCZOWE: Proporcje smartfona (Wysokie i wąskie)
                 "aspect-[9/16]", 
                 // KLUCZOWE: Przesunięcie co drugiego elementu w dół (Efekt fali)
