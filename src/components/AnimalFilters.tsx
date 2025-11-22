@@ -13,6 +13,7 @@ interface FiltersProps {
     organization: string;
     species: string;
     city: string;
+    sortBy: string;
   }) => void;
 }
 
@@ -28,6 +29,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
   const [organizationName, setOrganizationName] = useState("");
   const [species, setSpecies] = useState("wszystkie");
   const [city, setCity] = useState("");
+  const [sortBy, setSortBy] = useState("najnowsze");
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [isOrgOpen, setIsOrgOpen] = useState(false);
@@ -96,11 +98,15 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
     if (key === 'city') {
       setCity(value);
     }
+    if (key === 'sortBy') {
+      setSortBy(value);
+    }
     
     const newFilters = {
       organization: key === 'organization' ? value : "",
       species: key === 'species' ? value : species,
       city: key === 'city' ? value : city,
+      sortBy: key === 'sortBy' ? value : sortBy,
     };
     
     onFilterChange?.(newFilters);
@@ -110,10 +116,12 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
     setOrganizationName("");
     setSpecies("wszystkie");
     setCity("");
+    setSortBy("najnowsze");
     onFilterChange?.({
       organization: "",
       species: "wszystkie",
-      city: ""
+      city: "",
+      sortBy: "najnowsze"
     });
   };
 
@@ -138,7 +146,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Organization Filter with Autocomplete */}
         <Popover open={isOrgOpen && organizationName.length >= 3 && orgSuggestions.length > 0} onOpenChange={setIsOrgOpen}>
           <PopoverTrigger asChild>
@@ -264,6 +272,18 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
             </Command>
           </PopoverContent>
         </Popover>
+
+        {/* Sort Filter */}
+        <Select value={sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
+          <SelectTrigger className="rounded-2xl border-2 text-sm">
+            <SelectValue placeholder="Sortowanie" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
+            <SelectItem value="najnowsze">Najnowsze</SelectItem>
+            <SelectItem value="najstarsze">Najstarsze</SelectItem>
+            <SelectItem value="alfabetycznie">Alfabetycznie A-Z</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

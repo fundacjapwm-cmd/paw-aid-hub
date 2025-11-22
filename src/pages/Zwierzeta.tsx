@@ -2,7 +2,7 @@ import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import { Button } from "@/components/ui/button";
 import { Heart, Users } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
 import LeadGenSection from "@/components/LeadGenSection";
@@ -12,11 +12,18 @@ const Zwierzeta = () => {
   const [filters, setFilters] = useState({
     organization: "",
     species: "wszystkie",
-    city: ""
+    city: "",
+    sortBy: "najnowsze"
   });
+  const [visibleCount, setVisibleCount] = useState(8);
 
-  const filteredAnimals = useMemo(() => {
-    return allAnimals.filter((animal) => {
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(8);
+  }, [filters]);
+
+  const filteredAndSortedAnimals = useMemo(() => {
+    let filtered = allAnimals.filter((animal) => {
       const matchesOrganization = filters.organization === "" || 
                                   animal.organization_id === filters.organization;
       
@@ -28,14 +35,30 @@ const Zwierzeta = () => {
       
       return matchesOrganization && matchesSpecies && matchesCity;
     });
+
+    // Sort animals
+    if (filters.sortBy === "najnowsze") {
+      filtered = filtered.sort((a, b) => 
+        new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+      );
+    } else if (filters.sortBy === "najstarsze") {
+      filtered = filtered.sort((a, b) => 
+        new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+      );
+    } else if (filters.sortBy === "alfabetycznie") {
+      filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return filtered;
   }, [allAnimals, filters]);
 
-  const totalAnimals = allAnimals.length;
-  const totalCats = allAnimals.filter(a => a.species.toLowerCase() === 'kot').length;
-  const totalDogs = allAnimals.filter(a => a.species.toLowerCase() === 'pies').length;
-  const urgentNeedsCount = allAnimals.filter(a => 
-    a.wishlist?.some(item => item.urgent && !item.bought)
-  ).length;
+  const visibleAnimals = filteredAndSortedAnimals.slice(0, visibleCount);
+
+  const hasMoreAnimals = visibleCount < filteredAndSortedAnimals.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 8);
+  };
 
   if (loading) {
     return (
@@ -81,8 +104,8 @@ const Zwierzeta = () => {
 
         {/* Animals Section */}
         <section className="py-16 px-4">
-          <div className="container mx-auto max-w-7xl">
-            {filteredAnimals.length === 0 ? (
+          <div className="container mx-auto max-w-6xl">
+            {filteredAndSortedAnimals.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-lg text-muted-foreground">
                   Nie znaleziono zwierząt spełniających wybrane kryteria.
@@ -91,20 +114,22 @@ const Zwierzeta = () => {
             ) : (
               <>
                 <div className="text-sm text-muted-foreground mb-4">
-                  Znaleziono {filteredAnimals.length} {filteredAnimals.length === 1 ? 'zwierzę' : 'zwierząt'}
+                  Znaleziono {filteredAndSortedAnimals.length} {filteredAndSortedAnimals.length === 1 ? 'zwierzę' : 'zwierząt'}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredAnimals.map((animal) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {visibleAnimals.map((animal) => (
                     <AnimalCard key={animal.id} animal={animal} />
                   ))}
                 </div>
 
-                <div className="text-center mt-12">
-                  <Button variant="hero" size="lg">
-                    Załaduj więcej zwierząt
-                    <Heart className="h-5 w-5 fill-current" />
-                  </Button>
-                </div>
+                {hasMoreAnimals && (
+                  <div className="text-center mt-12">
+                    <Button variant="hero" size="lg" onClick={handleLoadMore}>
+                      Załaduj więcej zwierząt
+                      <Heart className="h-5 w-5 fill-current" />
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </div>
