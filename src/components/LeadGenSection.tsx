@@ -94,7 +94,7 @@ const LeadGenSection = () => {
   };
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section id="dolacz" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h2 className="text-3xl lg:text-5xl font-bold text-foreground mb-6">

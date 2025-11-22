@@ -1,314 +1,263 @@
+import { MousePointerClick, ShoppingBag, ShieldCheck, Gift, Heart, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
-import HowItWorks from "@/components/HowItWorks";
-import dogNose from "@/assets/how-it-works/dog-nose.png";
-import dogPaw from "@/assets/how-it-works/dog-paw.png";
-import kittensBasket from "@/assets/how-it-works/kittens-basket.jpg";
-import catDog from "@/assets/how-it-works/cat-dog.png";
-import creditCard from "@/assets/how-it-works/credit-card.png";
-import { MousePointerClick, ShoppingBag, CreditCard, Truck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const JakToDziala = () => {
+  const steps = [
+    {
+      icon: MousePointerClick,
+      title: "Wybierz Sercem",
+      description: "Przejrzyj profile naszych podopiecznych. Poznaj ich historie i wybierz tego, który skradnie Twoje serce.",
+    },
+    {
+      icon: ShoppingBag,
+      title: "Napełnij Brzuszek",
+      description: "Wybierz produkty z listy życzeń. Nie musisz kupować wszystkiego - każda puszka karmy to realna pomoc.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Bezpieczna Płatność",
+      description: "Zapłać szybko i bezpiecznie przez PayU/BLIK. My zajmiemy się resztą logistyki.",
+    },
+    {
+      icon: Gift,
+      title: "Radość i Transparentność",
+      description: "Dostarczamy dary prosto do schroniska. Dostaniesz powiadomienie i zobaczysz, jak pasek postępu rośnie!",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-white via-purple-50/30 to-white">
       <main>
-        {/* Hero Section with Asymmetric Layout */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-secondary/10 py-20 md:py-32">
+        {/* Hero Header */}
+        <section className="py-16 md:py-24 bg-background">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+              Jak to działa?
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
+              Pomoc zwierzętom nigdy nie była prostsza. Poznaj <span className="text-primary font-semibold">4 proste kroki</span> do czynienia dobra.
+            </p>
+          </div>
+        </section>
+
+        {/* Zig-Zag Timeline Section */}
+        <section className="py-16 md:py-32 relative overflow-hidden">
+          {/* Decorative Background Blobs */}
+          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
+          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10" />
+
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-8 animate-fade-in">
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
-                  Jak to działa?
-                </h1>
-                <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
-                  Pomoc zwierzętom nigdy nie była prostsza. <br/>
-                  <span className="text-primary font-semibold">4 kroki</span> dzielą Cię od czynienia dobra.
-                </p>
+            {/* Timeline Container */}
+            <div className="relative max-w-6xl mx-auto">
+              {/* Central Dashed Line - Desktop Only */}
+              <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 border-l-2 border-dashed border-primary/30 -translate-x-1/2" />
+
+              {/* Steps */}
+              <div className="space-y-16 md:space-y-24">
+                {steps.map((step, index) => {
+                  const isEven = index % 2 === 0;
+                  const StepIcon = step.icon;
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={`flex flex-col md:flex-row items-center gap-8 ${
+                        isEven ? 'md:flex-row' : 'md:flex-row-reverse'
+                      }`}
+                    >
+                      
+                      {/* Content Card (Left or Right) */}
+                      <div className="flex-1 w-full">
+                        <div 
+                          className={`
+                            bg-white/80 backdrop-blur-sm
+                            p-8 md:p-10 rounded-[2.5rem] 
+                            shadow-card hover:shadow-bubbly 
+                            transition-all duration-500 
+                            border border-white
+                            relative group
+                            hover:-translate-y-2
+                            ${isEven ? 'md:text-right' : 'md:text-left'}
+                          `}
+                        >
+                          {/* Floating Step Number Badge */}
+                          <div 
+                            className={`
+                              absolute -top-4 
+                              ${isEven ? 'md:right-8 right-6' : 'md:left-8 left-6'} 
+                              w-12 h-12 
+                              bg-gradient-to-br from-primary to-primary/80
+                              text-white rounded-2xl 
+                              flex items-center justify-center 
+                              text-xl font-bold 
+                              shadow-lg 
+                              transform group-hover:-translate-y-2 group-hover:scale-110
+                              transition-all duration-300
+                              z-10
+                            `}
+                          >
+                            {index + 1}
+                          </div>
+
+                          {/* Content */}
+                          <div className="space-y-4 pt-4">
+                            <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                              {step.title}
+                            </h3>
+                            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                              {step.description}
+                            </p>
+                          </div>
+
+                          {/* Subtle Gradient Overlay */}
+                          <div 
+                            className={`
+                              absolute inset-0 rounded-[2.5rem] 
+                              bg-gradient-to-br from-primary/5 to-transparent 
+                              opacity-0 group-hover:opacity-100 
+                              transition-opacity duration-500 
+                              pointer-events-none
+                            `}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Timeline Node Icon (Center) - Glassmorphism */}
+                      <div className="relative z-10 shrink-0">
+                        <div 
+                          className="
+                            w-24 h-24 md:w-28 md:h-28
+                            bg-white/80 backdrop-blur-md
+                            rounded-full 
+                            border-4 border-white
+                            flex items-center justify-center 
+                            shadow-bubbly
+                            hover:scale-110 hover:rotate-12
+                            transition-all duration-500
+                            group
+                          "
+                        >
+                          <StepIcon className="w-10 h-10 md:w-12 md:h-12 text-primary group-hover:scale-110 transition-transform" />
+                        </div>
+
+                        {/* Pulse Animation Ring */}
+                        <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping opacity-30" />
+                      </div>
+
+                      {/* Empty Space for Balance (Desktop) */}
+                      <div className="flex-1 w-full hidden md:block" />
+                      
+                    </div>
+                  );
+                })}
               </div>
-              
-              {/* Hero Image Collage */}
-              <div className="relative h-[400px] md:h-[500px] animate-scale-in">
-                <div className="absolute top-0 right-0 w-2/3 h-2/3 rounded-[3rem] overflow-hidden shadow-bubbly border-4 border-white transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <img 
-                    src={catDog} 
-                    alt="Kot i pies razem" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="absolute bottom-0 left-0 w-2/3 h-2/3 rounded-[3rem] overflow-hidden shadow-bubbly border-4 border-white transform -rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <img 
-                    src={kittensBasket} 
-                    alt="Kocięta w koszyku" 
-                    className="w-full h-full object-cover"
-                  />
+
+              {/* End Cap */}
+              <div className="mt-20 md:mt-28 flex justify-center">
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary via-secondary to-accent rounded-3xl flex items-center justify-center shadow-bubbly animate-pulse">
+                    <div className="w-5 h-5 bg-white rounded-full" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Decorative Elements */}
-          <div className="absolute top-10 right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
         </section>
 
-        {/* Bento Grid Steps Section */}
-        <section className="py-20 md:py-32 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              
-              {/* Step 1 - Large Card */}
-              <div className="md:col-span-2 lg:col-span-2 group">
-                <div className="relative h-full bg-gradient-to-br from-primary/20 to-primary/5 rounded-[3rem] p-8 md:p-12 overflow-hidden shadow-card hover:shadow-bubbly transition-all duration-500">
-                  <div className="absolute -right-20 -bottom-20 w-80 h-80 opacity-20">
-                    <img src={dogPaw} alt="" className="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700" />
-                  </div>
-                  
-                  <div className="relative z-10 h-full flex flex-col justify-between">
-                    <div className="flex items-start gap-4 mb-6">
-                      <div className="bg-primary text-white rounded-2xl p-4 shadow-soft">
-                        <MousePointerClick className="h-8 w-8" />
-                      </div>
-                      <div className="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl shadow-soft">
-                        1
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                        Wybierz
-                      </h3>
-                      <p className="text-lg text-muted-foreground leading-relaxed">
-                        Spośród naszych kochanych czworonogów wybierz tego, któremu chcesz pomóc. 
-                        Każdy ma swoją unikalną historię i listę potrzeb.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 2 - Tall Card with Image */}
-              <div className="lg:row-span-2 group">
-                <div className="relative h-full bg-gradient-to-br from-secondary/20 to-secondary/5 rounded-[3rem] overflow-hidden shadow-card hover:shadow-bubbly transition-all duration-500">
-                  <div className="absolute inset-0">
-                    <img src={kittensBasket} alt="" className="w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-500" />
-                  </div>
-                  
-                  <div className="relative z-10 h-full p-8 flex flex-col justify-between">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-secondary text-white rounded-2xl p-4 shadow-soft">
-                        <ShoppingBag className="h-8 w-8" />
-                      </div>
-                      <div className="bg-secondary text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl shadow-soft">
-                        2
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6">
-                      <h3 className="text-3xl font-bold text-foreground mb-3">
-                        Dodaj
-                      </h3>
-                      <p className="text-base text-muted-foreground leading-relaxed">
-                        Dodaj potrzebne produkty do koszyka. Wielkość i ilość zamówienia zależy tylko od Ciebie.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 3 - Medium Card with Credit Card */}
-              <div className="group">
-                <div className="relative h-full min-h-[350px] bg-gradient-to-br from-accent/20 to-accent/5 rounded-[3rem] p-8 overflow-hidden shadow-card hover:shadow-bubbly transition-all duration-500">
-                  <div className="absolute -right-10 bottom-0 w-64 h-64 opacity-40">
-                    <img src={creditCard} alt="" className="w-full h-full object-contain transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700" />
-                  </div>
-                  
-                  <div className="relative z-10 h-full flex flex-col justify-between">
-                    <div className="flex items-start gap-4 mb-6">
-                      <div className="bg-accent text-white rounded-2xl p-4 shadow-soft">
-                        <CreditCard className="h-8 w-8" />
-                      </div>
-                      <div className="bg-accent text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl shadow-soft">
-                        3
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-3xl font-bold text-foreground mb-3">
-                        Zapłać
-                      </h3>
-                      <p className="text-base text-muted-foreground leading-relaxed">
-                        Abyś mógł zdecydować maksymalnie wygodnie, zdecydowaliśmy się na Przelewy24.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 4 - Wide Card */}
-              <div className="md:col-span-2 lg:col-span-2 group">
-                <div className="relative h-full bg-gradient-to-br from-primary/20 to-primary/5 rounded-[3rem] p-8 md:p-12 overflow-hidden shadow-card hover:shadow-bubbly transition-all duration-500">
-                  <div className="absolute -left-20 -top-20 w-80 h-80 opacity-20 transform rotate-12">
-                    <img src={dogNose} alt="" className="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700" />
-                  </div>
-                  
-                  <div className="relative z-10 h-full flex flex-col justify-between">
-                    <div className="flex items-start gap-4 mb-6">
-                      <div className="bg-primary text-white rounded-2xl p-4 shadow-soft">
-                        <Truck className="h-8 w-8" />
-                      </div>
-                      <div className="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl shadow-soft">
-                        4
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                        My dostarczamy
-                      </h3>
-                      <p className="text-lg text-muted-foreground leading-relaxed">
-                        Wysyłkę bierzemy na siebie! Dopilnujemy, aby Twoje zamówienie dotarło tam gdzie trzeba.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* Existing How It Works Component */}
-        <HowItWorks />
-
-        {/* Benefits with Visual Elements */}
-        <section className="py-20 md:py-32 bg-gradient-to-b from-muted/30 to-background">
+        {/* Dual CTA Section - Grand Finale */}
+        <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16 space-y-4">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-                Dlaczego warto?
+                Co chcesz teraz zrobić?
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Proste. Bezpieczne. Skuteczne.
+                Wybierz swoją ścieżkę i rozpocznij pomaganie już dziś
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="bg-card rounded-[2.5rem] p-8 shadow-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-2 border border-border/50">
-                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              
+              {/* Card 1: Donor Path */}
+              <div className="group">
+                <div className="relative bg-primary/5 backdrop-blur-sm rounded-[3rem] p-10 md:p-12 border-2 border-primary/10 hover:border-primary/30 shadow-card hover:shadow-bubbly transition-all duration-500 hover:-translate-y-3 h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="mb-8">
+                    <div className="w-20 h-20 bg-white/80 backdrop-blur-md rounded-3xl flex items-center justify-center shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                      <Heart className="w-10 h-10 text-primary fill-primary/20 group-hover:fill-primary transition-all" />
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 space-y-4 mb-8">
+                    <h3 className="text-3xl md:text-4xl font-bold text-foreground">
+                      Chcę pomóc
+                    </h3>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      Wybierz zwierzaka i spraw mu radość. Każda pomoc się liczy - od jednej puszki karmy po pełną listę życzeń.
+                    </p>
+                  </div>
+
+                  {/* CTA Button */}
+                  <Link to="/zwierzeta">
+                    <Button 
+                      variant="default" 
+                      size="lg"
+                      className="w-full text-lg py-6 rounded-2xl shadow-soft hover:shadow-bubbly transition-all group-hover:scale-105"
+                    >
+                      Przeglądaj Zwierzęta
+                      <Heart className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+
+                  {/* Decorative Gradient */}
+                  <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4">
-                  100% trafia do celu
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Twoja pomoc trafia bezpośrednio do zwierzaka - żadnych pośredników
-                </p>
               </div>
 
-              <div className="bg-card rounded-[2.5rem] p-8 shadow-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-2 border border-border/50">
-                <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mb-6">
-                  <div className="w-3 h-3 bg-secondary rounded-full"></div>
+              {/* Card 2: Organization Path */}
+              <div className="group">
+                <div className="relative bg-blue-50/80 backdrop-blur-sm rounded-[3rem] p-10 md:p-12 border-2 border-blue-100 hover:border-blue-200 shadow-card hover:shadow-bubbly transition-all duration-500 hover:-translate-y-3 h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="mb-8">
+                    <div className="w-20 h-20 bg-white/80 backdrop-blur-md rounded-3xl flex items-center justify-center shadow-soft group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
+                      <Building2 className="w-10 h-10 text-blue-600 group-hover:text-blue-700 transition-colors" />
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 space-y-4 mb-8">
+                    <h3 className="text-3xl md:text-4xl font-bold text-foreground">
+                      Chcę dołączyć
+                    </h3>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      Prowadzisz fundację lub schronisko? Dołącz do nas i zyskaj wsparcie tysięcy darczyńców.
+                    </p>
+                  </div>
+
+                  {/* CTA Button */}
+                  <a href="/#dolacz">
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      className="w-full text-lg py-6 rounded-2xl border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white shadow-soft hover:shadow-bubbly transition-all group-hover:scale-105"
+                    >
+                      Zgłoś Organizację
+                      <Building2 className="ml-2 h-5 w-5" />
+                    </Button>
+                  </a>
+
+                  {/* Decorative Gradient */}
+                  <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-blue-100/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4">
-                  Pełna transparentność
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Widzisz dokładnie na co idą Twoje pieniądze i komu pomagasz
-                </p>
               </div>
 
-              <div className="bg-card rounded-[2.5rem] p-8 shadow-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-2 border border-border/50">
-                <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
-                  <div className="w-3 h-3 bg-accent rounded-full"></div>
-                </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4">
-                  Wygoda i prostota
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Kilka kliknięć i gotowe - my zajmiemy się resztą
-                </p>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="py-20 md:py-32 bg-background">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Często zadawane pytania
-              </h2>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-card rounded-3xl p-8 shadow-card border border-border/50 hover:shadow-bubbly transition-all duration-300">
-                <h3 className="text-xl font-bold text-foreground mb-4">
-                  Czy moja pomoc na pewno dotrze do zwierzaka?
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Tak! Współpracujemy bezpośrednio z organizacjami i schroniskami. Każdy zakup trafia dokładnie tam, gdzie jest potrzebny.
-                </p>
-              </div>
-
-              <div className="bg-card rounded-3xl p-8 shadow-card border border-border/50 hover:shadow-bubbly transition-all duration-300">
-                <h3 className="text-xl font-bold text-foreground mb-4">
-                  Czy mogę wybrać konkretne produkty zamiast całej listy?
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Oczywiście! Możesz wybrać pojedyncze produkty z listy życzeń lub kupić wszystko jednym kliknięciem.
-                </p>
-              </div>
-
-              <div className="bg-card rounded-3xl p-8 shadow-card border border-border/50 hover:shadow-bubbly transition-all duration-300">
-                <h3 className="text-xl font-bold text-foreground mb-4">
-                  Jakie formy płatności są dostępne?
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Akceptujemy wszystkie popularne metody płatności przez Przelewy24 - karty, BLIK, przelewy bankowe.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="relative py-24 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent opacity-90"></div>
-          
-          <div className="relative z-10 container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto space-y-8">
-              <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight">
-                Gotowy żeby pomóc?
-              </h2>
-              <p className="text-xl md:text-2xl text-white/95 leading-relaxed">
-                Teraz gdy wiesz jak to działa, czas na pierwszy zakup!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button 
-                  variant="light" 
-                  size="hero"
-                  className="shadow-bubbly hover:scale-105 transition-transform"
-                  onClick={() => window.location.href = '/zwierzeta'}
-                >
-                  Wybierz zwierzaka
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="hero" 
-                  className="border-2 border-white text-white hover:bg-white hover:text-primary shadow-bubbly hover:scale-105 transition-all"
-                  onClick={() => window.location.href = '/organizacje'}
-                >
-                  Zobacz organizacje
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Decorative blobs */}
-          <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-        </section>
       </main>
 
       <Footer />
