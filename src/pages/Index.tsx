@@ -49,6 +49,9 @@ const Index = () => {
         {/* How It Works Section */}
         <HowItWorksSection />
 
+        {/* CTA Section */}
+        <CTASection />
+
         {/* Animals Section */}
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-7xl">
@@ -85,9 +88,6 @@ const Index = () => {
             </div>
           </div>
         </section>
-
-        {/* CTA Section */}
-        <CTASection />
 
         {/* Lead Generation Section */}
         <LeadGenSection />

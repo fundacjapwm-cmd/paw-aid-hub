@@ -124,29 +124,6 @@ const HowItWorksSection = () => {
           ))}
         </div>
 
-        {/* CTA Buttons */}
-        <div className="mt-20 flex flex-col sm:flex-row justify-center gap-6 items-center">
-          <div className="text-center sm:text-right">
-            <p className="text-sm text-muted-foreground mb-2">Chcesz pomóc?</p>
-            <Link to="/zwierzeta">
-              <Button size="lg" className="rounded-full px-10 h-14 bg-primary hover:bg-primary/90 text-white shadow-lg text-lg w-full sm:w-auto">
-                Wybierz zwierzaka
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="hidden sm:block w-px h-12 bg-border"></div>
-
-          <div className="text-center sm:text-left">
-            <p className="text-sm text-muted-foreground mb-2">Jesteś fundacją?</p>
-            <a href="/#dolacz">
-              <Button variant="outline" size="lg" className="rounded-full px-10 h-14 border-2 w-full sm:w-auto">
-                Zgłoś Organizację
-              </Button>
-            </a>
-          </div>
-        </div>
-
       </div>
     </section>
   );
