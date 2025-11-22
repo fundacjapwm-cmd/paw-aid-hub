@@ -138,57 +138,62 @@ const Organizacje = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {/* Search with Autocomplete */}
-                <Popover open={isSearchOpen && search.length >= 3} onOpenChange={setIsSearchOpen}>
+                <Popover open={isSearchOpen && search.length >= 3 && searchSuggestions.length > 0} onOpenChange={setIsSearchOpen}>
                   <PopoverTrigger asChild>
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
                       <Input
                         placeholder="Szukaj organizacji..."
                         value={search}
                         onChange={(e) => {
                           setSearch(e.target.value);
-                          setIsSearchOpen(true);
+                          if (e.target.value.length >= 3) {
+                            setIsSearchOpen(true);
+                          }
                         }}
-                        onFocus={() => setIsSearchOpen(true)}
-                        className="pl-9 rounded-2xl border-border/50 focus:border-primary"
+                        onFocus={() => {
+                          if (search.length >= 3 && searchSuggestions.length > 0) {
+                            setIsSearchOpen(true);
+                          }
+                        }}
+                        className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
                       />
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0" align="start">
-                    <Command>
-                      <CommandList>
-                        {searchSuggestions.length === 0 ? (
-                          <CommandEmpty>Brak wyników</CommandEmpty>
-                        ) : (
-                          <CommandGroup>
-                            {searchSuggestions.map((org) => (
-                              <CommandItem
-                                key={org.id}
-                                value={org.name}
-                                onSelect={() => {
-                                  navigate(`/organizacje/${org.slug}`);
-                                  setIsSearchOpen(false);
-                                }}
-                                className="cursor-pointer"
-                              >
-                                <div className="flex items-center gap-2">
-                                  {org.logo_url && (
-                                    <Avatar className="h-8 w-8">
-                                      <AvatarImage src={org.logo_url} alt={org.name} />
-                                      <AvatarFallback>{org.name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
+                  <PopoverContent className="w-[320px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
+                    <Command className="bg-popover">
+                      <CommandList className="max-h-[300px]">
+                        <CommandGroup heading="Organizacje" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
+                          {searchSuggestions.map((org) => (
+                            <CommandItem
+                              key={org.id}
+                              value={org.name}
+                              onSelect={() => {
+                                navigate(`/organizacje/${org.slug}`);
+                                setIsSearchOpen(false);
+                              }}
+                              className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
+                            >
+                              <div className="flex items-center gap-3 w-full">
+                                <Avatar className="h-10 w-10 border-2 border-border">
+                                  <AvatarImage src={org.logo_url} alt={org.name} />
+                                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                    {org.name.charAt(0).toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-foreground truncate">{org.name}</div>
+                                  {org.city && (
+                                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                                      <MapPin className="h-3 w-3" />
+                                      <span>{org.city}</span>
+                                    </div>
                                   )}
-                                  <div>
-                                    <div className="font-medium">{org.name}</div>
-                                    {org.city && (
-                                      <div className="text-xs text-muted-foreground">{org.city}</div>
-                                    )}
-                                  </div>
                                 </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
                       </CommandList>
                     </Command>
                   </PopoverContent>
