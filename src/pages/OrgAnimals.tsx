@@ -655,9 +655,7 @@ export default function OrgAnimals() {
                     <TableCell>
                       {animal.birth_date 
                         ? calculateAnimalAge(animal.birth_date)?.displayText 
-                        : animal.age 
-                        ? `${animal.age} lat` 
-                        : "-"}
+                        : animal.age || "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
