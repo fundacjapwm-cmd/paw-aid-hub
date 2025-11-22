@@ -1,94 +1,104 @@
 import { MousePointerClick, ShoppingBag, CreditCard, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const steps = [
   {
-    icon: MousePointerClick,
+    id: 1,
     title: "Wybierz",
-    description: "Znajdź zwierzaka, któremu chcesz pomóc.",
+    description: "Znajdź zwierzaka, który skradnie Twoje serce.",
+    image: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=2069&auto=format&fit=crop", // Pies
   },
   {
-    icon: ShoppingBag,
-    title: "Dodaj",
-    description: "Wybierz produkty z jego listy życzeń.",
+    id: 2,
+    title: "Napełnij",
+    description: "Wybierz produkty, których najbardziej potrzebuje.",
+    image: "https://images.unsplash.com/photo-1585255318859-f5c15f4cffe9?q=80&w=1974&auto=format&fit=crop", // Zakupy/Miska
   },
   {
-    icon: CreditCard,
+    id: 3,
     title: "Zapłać",
-    description: "Bezpieczna płatność online (PayU).",
+    description: "Bezpieczna i szybka płatność online.",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?q=80&w=2070&auto=format&fit=crop", // Płatność
   },
   {
-    icon: Truck,
-    title: "Dostawa",
-    description: "My dostarczamy dary do schroniska.",
+    id: 4,
+    title: "Radość",
+    description: "My dostarczamy dary prosto do schroniska!",
+    image: "https://images.unsplash.com/photo-1586769852044-692d6e3703f0?q=80&w=2070&auto=format&fit=crop", // Paczka/Pies
   },
 ];
 
 const HowItWorksSection = () => {
   return (
-    <section className="relative pb-20 bg-background">
+    <section className="relative py-24 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
         
-        {/* GŁÓWNY KONTENER "KAPSUŁA" */}
-        {/* -mt-16 sprawia, że pasek nachodzi na sekcję powyżej (efekt 3D) */}
-        <div className="relative z-20 -mt-16 md:-mt-24 max-w-6xl mx-auto">
-          
-          {/* To jest ta biała bryła: rounded-[2.5rem] tworzy kształt pigułki */}
-          <div className="bg-white rounded-[2.5rem] shadow-2xl border border-primary/10 overflow-hidden">
-            
-            {/* UKŁAD WEWNĘTRZNY: */}
-            {/* Używamy 'divide-x', aby stworzyć pionowe linie między elementami */}
-            {/* NIE MA TUTAJ 'gap', elementy stykają się krawędziami */}
-            <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-100">
-              
-              {steps.map((step, index) => (
-                <div 
-                  key={index} 
-                  className="flex-1 py-10 px-4 flex flex-col items-center text-center group hover:bg-primary/5 transition-colors duration-300 cursor-default"
-                >
-                  {/* Ikona: Duża, kolorowa, bez tła */}
-                  <div className="mb-4 transform group-hover:scale-110 group-hover:-translate-y-1 transition-transform duration-300">
-                    <step.icon className="w-12 h-12 text-primary" strokeWidth={1.5} />
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-foreground mb-2">
-                    {step.title}
-                  </h3>
-                  
-                  <p className="text-sm text-muted-foreground leading-relaxed max-w-[180px]">
-                    {step.description}
-                  </p>
-                </div>
-              ))}
-
-            </div>
-          </div>
+        {/* Nagłówek */}
+        <div className="text-center mb-16 max-w-2xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-foreground">
+            Jak to działa? 🍩
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            Wystarczą 4 proste kroki, by odmienić czyjś los.
+          </p>
         </div>
 
-        {/* Sekcja CTA (Przyciski pod spodem) */}
-        <div className="mt-16 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto px-4">
-          {/* Karta Darczyńcy */}
-          <div className="bg-primary/5 rounded-3xl p-8 text-center border border-primary/10 hover:shadow-lg transition-all">
-            <h3 className="text-2xl font-bold mb-2 text-foreground">Chcę pomóc 💝</h3>
-            <p className="text-muted-foreground mb-6">Spraw radość zwierzakom już teraz.</p>
-            <Link to="/zwierzeta">
-              <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white shadow-bubbly w-full sm:w-auto">
-                Przeglądaj Zwierzęta
-              </Button>
-            </Link>
-          </div>
+        {/* THE STAGGERED GRID (Stories Layout) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-2">
+          {steps.map((step, index) => (
+            <div 
+              key={step.id}
+              className={cn(
+                "relative group rounded-[2.5rem] overflow-hidden shadow-xl cursor-pointer transition-all duration-500 hover:-translate-y-2 border-4 border-white",
+                // KLUCZOWE: Proporcje smartfona (Wysokie i wąskie)
+                "aspect-[9/16]", 
+                // KLUCZOWE: Przesunięcie co drugiego elementu w dół (Efekt fali)
+                // Na mobile brak przesunięcia, na desktopie (lg) przesunięcie 24 (96px)
+                index % 2 === 1 ? "lg:mt-24" : "lg:mt-0" 
+              )}
+            >
+              {/* Tło Zdjęciowe */}
+              <img 
+                src={step.image} 
+                alt={step.title}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              
+              {/* Ciemny Overlay na dole (dla czytelności tekstu) */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+              
+              {/* Treść na dole */}
+              <div className="absolute bottom-0 left-0 p-8 text-left w-full">
+                {/* Wielki numer w tle */}
+                <span className="text-8xl font-black text-white/10 absolute -top-10 right-4 select-none pointer-events-none">
+                  {step.id}
+                </span>
+                
+                <h3 className="text-3xl font-bold text-white mb-3 relative z-10">
+                  {step.title}
+                </h3>
+                <p className="text-white/90 text-sm font-medium leading-relaxed relative z-10 pr-4">
+                  {step.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
 
-          {/* Karta Organizacji */}
-          <div className="bg-white rounded-3xl p-8 text-center border border-gray-100 shadow-sm hover:shadow-lg transition-all">
-            <h3 className="text-2xl font-bold mb-2 text-foreground">Jestem organizacją 🏠</h3>
-            <p className="text-muted-foreground mb-6">Dołącz do nas i otrzymuj wsparcie.</p>
-            <a href="/#dolacz">
-              <Button variant="outline" size="lg" className="rounded-full px-8 border-primary text-primary hover:bg-primary/5 w-full sm:w-auto">
-                Zgłoś Organizację
-              </Button>
-            </a>
-          </div>
+        {/* CTA Buttons */}
+        <div className="mt-24 flex flex-col sm:flex-row justify-center gap-4">
+          <Link to="/zwierzeta">
+            <Button size="lg" className="rounded-full px-10 h-14 bg-primary hover:bg-primary/90 text-white shadow-bubbly text-lg w-full sm:w-auto">
+              Wybierz zwierzaka
+            </Button>
+          </Link>
+          <a href="/#dolacz">
+            <Button variant="outline" size="lg" className="rounded-full px-10 h-14 border-2 w-full sm:w-auto">
+              Zgłoś Organizację
+            </Button>
+          </a>
         </div>
 
       </div>
