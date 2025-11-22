@@ -5,7 +5,7 @@ import { Heart, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import LeadGenSection from "@/components/LeadGenSection";
 
 const Zwierzeta = () => {
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
@@ -110,74 +110,8 @@ const Zwierzeta = () => {
           </div>
         </section>
 
-        {/* Call to Action - Organization Signup */}
-        <section className="py-20 bg-gradient-to-br from-primary via-primary-glow to-primary">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/20">
-                <div className="text-center mb-6">
-                  <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6">
-                    Jesteś fundacją?
-                  </h2>
-                  <p className="text-xl text-white/95 mb-8">
-                    Dołącz do naszej platformy i pozwól darczyńcom pomagać Twoim podopiecznym! To całkowicie bezpłatne.
-                  </p>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
-                  <div className="flex items-start gap-3 text-white/90">
-                    <div className="bg-white/20 rounded-full p-3 mt-1">
-                      <Heart className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-lg mb-1">Bezpośrednie dostawy</div>
-                      <div className="text-white/80">Produkty trafiają prosto do Ciebie</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 text-white/90">
-                    <div className="bg-white/20 rounded-full p-3 mt-1">
-                      <Users className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-lg mb-1">Większy zasięg</div>
-                      <div className="text-white/80">Dotrzesz do tysięcy darczyńców</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 text-white/90">
-                    <div className="bg-white/20 rounded-full p-3 mt-1">
-                      <Heart className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-lg mb-1">Bezpłatna platforma</div>
-                      <div className="text-white/80">Bez ukrytych kosztów i opłat</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 text-white/90">
-                    <div className="bg-white/20 rounded-full p-3 mt-1">
-                      <Users className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-lg mb-1">Łatwe zarządzanie</div>
-                      <div className="text-white/80">Intuicyjny panel dla organizacji</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="text-center">
-                  <Link to="/#dolacz">
-                    <Button 
-                      variant="light" 
-                      size="hero" 
-                      className="w-full md:w-auto"
-                    >
-                      Zgłoś swoją organizację
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Lead Generation Section */}
+        <LeadGenSection />
       </main>
 
       <Footer />
