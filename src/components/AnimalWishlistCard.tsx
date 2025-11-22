@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { ShoppingCart, Plus, Minus, Check } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Check, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "react-router-dom";
 
@@ -30,7 +30,7 @@ interface AnimalWishlistCardProps {
 }
 
 const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
-  const { addToCart, addAllForAnimal } = useCart();
+  const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart } = useCart();
   
   // State for quantity counters - każdy produkt ma swoją ilość (domyślnie 1)
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>(
@@ -44,6 +44,20 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
     const missing = Math.max(0, needed - bought);
     return sum + (product.price * missing);
   }, 0);
+
+  // Oblicz sumę produktów w koszyku dla tego zwierzęcia
+  const cartTotalForAnimal = globalCart
+    .filter(item => item.animalId === animal.id)
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const isInCart = (productId: string) => {
+    return globalCart.some(item => item.productId === productId);
+  };
+
+  const getCartQuantity = (productId: string) => {
+    const cartItem = globalCart.find(item => item.productId === productId);
+    return cartItem?.quantity || 0;
+  };
 
   const handleQuantityChange = (productId: string, change: number, maxLimit: number) => {
     setSelectedQuantities((prev) => {
@@ -138,6 +152,8 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                     const missing = Math.max(0, needed - bought);
                     const isFullyBought = bought >= needed;
                     const progress = (bought / needed) * 100;
+                    const itemInCart = isInCart(product.id);
+                    const cartQuantity = getCartQuantity(product.id);
 
                     return (
                       <div
@@ -165,9 +181,26 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                               <p className="font-bold text-foreground text-sm leading-tight line-clamp-2">
                                 {product.name}
                               </p>
-                              <p className="text-primary font-bold text-base mt-1">
-                                {product.price.toFixed(2)} zł
-                              </p>
+                              <div className="flex items-baseline gap-2 mt-1">
+                                <p className="text-primary font-bold text-base">
+                                  {product.price.toFixed(2)} zł
+                                </p>
+                                {!isFullyBought && missing > 1 && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={() => handleSmartFill(product.id, missing)}
+                                        className="text-xs text-primary underline hover:text-primary/80 cursor-pointer transition-colors font-medium"
+                                      >
+                                        potrzebne: {missing} szt
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Kliknij, aby ustawić {missing} szt</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                             </div>
 
                             {/* Progress Bar */}
@@ -202,42 +235,64 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                                   </TooltipContent>
                                 </Tooltip>
 
-                                {/* Counter & Add Button */}
-                                <div className="flex items-center gap-2 ml-auto">
-                                  <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-1">
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="h-7 w-7 hover:bg-background"
-                                      onClick={() => handleQuantityChange(product.id, -1, missing)}
-                                      disabled={quantity <= 1}
-                                    >
-                                      <Minus className="h-3 w-3" />
-                                    </Button>
-                                    <span className="w-7 text-center font-semibold text-sm text-foreground">
-                                      {quantity}
-                                    </span>
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="h-7 w-7 hover:bg-background"
-                                      onClick={() => handleQuantityChange(product.id, 1, missing)}
-                                      disabled={quantity >= missing}
-                                    >
-                                      <Plus className="h-3 w-3" />
-                                    </Button>
-                                  </div>
+                                  {/* Counter & Add Button */}
+                                  <div className="flex items-center gap-2 ml-auto">
+                                    <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-1">
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-7 w-7 hover:bg-background"
+                                        onClick={() => handleQuantityChange(product.id, -1, missing)}
+                                        disabled={quantity <= 1}
+                                      >
+                                        <Minus className="h-3 w-3" />
+                                      </Button>
+                                      <span className="w-7 text-center font-semibold text-sm text-foreground">
+                                        {quantity}
+                                      </span>
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-7 w-7 hover:bg-background"
+                                        onClick={() => handleQuantityChange(product.id, 1, missing)}
+                                        disabled={quantity >= missing}
+                                      >
+                                        <Plus className="h-3 w-3" />
+                                      </Button>
+                                    </div>
 
-                                  {/* Add to Cart Button */}
-                                  <Button
-                                    size="sm"
-                                    className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 hover:scale-105 transition-transform text-xs font-medium"
-                                    onClick={() => handleAddProduct(product)}
-                                  >
-                                    <ShoppingCart className="h-3 w-3 mr-1" />
-                                    Dodaj
-                                  </Button>
-                                </div>
+                                    {/* Remove from cart if already added */}
+                                    {itemInCart && (
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-7 w-7 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                        onClick={() => removeFromCart(product.id)}
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    )}
+
+                                    {/* Add to Cart Button */}
+                                    <div className="relative">
+                                      <Button
+                                        size="sm"
+                                        className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 hover:scale-105 transition-transform text-xs font-medium"
+                                        onClick={() => handleAddProduct(product)}
+                                        disabled={itemInCart}
+                                      >
+                                        <ShoppingCart className="h-3 w-3 mr-1" />
+                                        {itemInCart ? 'Dodano' : 'Dodaj'}
+                                      </Button>
+                                      {cartQuantity > 0 && (
+                                        <Badge 
+                                          className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
+                                        >
+                                          {cartQuantity}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
                               </div>
                             )}
                           </div>
@@ -249,15 +304,20 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
               </TooltipProvider>
 
               {/* Footer - Sticky Summary */}
-              <div className="bg-gradient-to-t from-muted/50 to-transparent p-5 border-t">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-muted-foreground font-medium">
-                    Brakująca kwota:
-                  </span>
-                  <span className="text-2xl font-bold text-primary">
-                    {missingTotal.toFixed(2)} zł
-                  </span>
-                </div>
+              <div className="bg-gradient-to-t from-muted/50 to-transparent p-5 border-t space-y-3">
+                {/* Łącznie w koszyku */}
+                {cartTotalForAnimal > 0 && (
+                  <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">
+                      Łącznie w koszyku:
+                    </span>
+                    <span className="text-lg font-bold text-foreground">
+                      {cartTotalForAnimal.toFixed(2)} zł
+                    </span>
+                  </div>
+                )}
+                
+                {/* Kup wszystkie brakujące */}
                 <Button
                   className="w-full rounded-xl font-semibold shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
                   size="lg"
@@ -265,7 +325,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                   disabled={missingTotal === 0}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  Kup wszystko co brakuje
+                  Kup wszystko co brakuje {missingTotal > 0 && `(${missingTotal.toFixed(2)} zł)`}
                 </Button>
               </div>
             </>
