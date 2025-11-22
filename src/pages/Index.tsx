@@ -6,6 +6,7 @@ import { Users, ShoppingBag, Sparkles } from "lucide-react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { useState } from "react";
 import LeadGenSection from "@/components/LeadGenSection";
+import HowItWorksSection from "@/components/HowItWorksSection";
 import { Heart } from "lucide-react";
 import Footer from "@/components/Footer";
 
@@ -77,6 +78,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* How It Works Section */}
+        <HowItWorksSection />
 
         {/* Animals Section */}
         <section className="py-16 px-4">
