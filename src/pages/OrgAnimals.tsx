@@ -18,8 +18,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Plus, Pencil, ShoppingCart, AlertCircle, Upload, Trash2, ImageIcon } from "lucide-react";
+import { Plus, Pencil, ShoppingCart, AlertCircle, Upload, Trash2, ImageIcon, Calendar as CalendarIcon } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 
 const animalSchema = z.object({
   name: z.string().min(2, "Imię musi mieć minimum 2 znaki"),
@@ -28,6 +34,7 @@ const animalSchema = z.object({
   age: z.coerce.number().min(0).optional(),
   gender: z.string().optional(),
   description: z.string().optional(),
+  birth_date: z.date().optional(),
 });
 
 type AnimalFormData = z.infer<typeof animalSchema>;
@@ -61,6 +68,7 @@ export default function OrgAnimals() {
       age: 0,
       gender: "",
       description: "",
+      birth_date: undefined,
     },
   });
 
@@ -134,6 +142,7 @@ export default function OrgAnimals() {
       const { data: newAnimal, error } = await supabase.from("animals")
         .insert({
           ...data,
+          birth_date: data.birth_date ? format(data.birth_date, 'yyyy-MM-dd') : null,
           organization_id: organizationId,
           image_url: imageUrl,
         } as any)
@@ -236,6 +245,7 @@ export default function OrgAnimals() {
       age: animal.age || 0,
       gender: animal.gender || "",
       description: animal.description || "",
+      birth_date: animal.birth_date ? new Date(animal.birth_date) : undefined,
     });
     setImagePreview(animal.image_url);
     setEditDialogOpen(true);
@@ -297,6 +307,7 @@ export default function OrgAnimals() {
       const { error } = await supabase.from("animals")
         .update({
           ...data,
+          birth_date: data.birth_date ? format(data.birth_date, 'yyyy-MM-dd') : null,
           image_url: imageUrl,
         } as any)
         .eq("id", editingAnimal.id);
@@ -477,10 +488,57 @@ export default function OrgAnimals() {
                       />
                       <FormField
                         control={form.control}
+                        name="birth_date"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Data urodzenia</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    className={cn(
+                                      "w-full pl-3 text-left font-normal",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP", { locale: pl })
+                                    ) : (
+                                      <span>Wybierz datę</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  disabled={(date) =>
+                                    date > new Date() || date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                  className={cn("p-3 pointer-events-auto")}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            {field.value && (
+                              <p className="text-xs text-muted-foreground">
+                                Wiek: {calculateAnimalAge(field.value)?.displayText || 'nieznany'}
+                              </p>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
                         name="age"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Wiek (lata)</FormLabel>
+                            <FormLabel>Wiek (lata - opcjonalnie jeśli nie znasz daty)</FormLabel>
                             <FormControl>
                               <Input type="number" placeholder="0" {...field} />
                             </FormControl>
@@ -594,7 +652,13 @@ export default function OrgAnimals() {
                     <TableCell className="font-medium">{animal.name}</TableCell>
                     <TableCell>{animal.species}</TableCell>
                     <TableCell>{animal.breed || "-"}</TableCell>
-                    <TableCell>{animal.age || "-"}</TableCell>
+                    <TableCell>
+                      {animal.birth_date 
+                        ? calculateAnimalAge(animal.birth_date)?.displayText 
+                        : animal.age 
+                        ? `${animal.age} lat` 
+                        : "-"}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
@@ -720,20 +784,67 @@ export default function OrgAnimals() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="age"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Wiek (lata)</FormLabel>
-                          <FormControl>
-                            <Input type="number" placeholder="0" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
+                      <FormField
+                        control={form.control}
+                        name="birth_date"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Data urodzenia</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    className={cn(
+                                      "w-full pl-3 text-left font-normal",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP", { locale: pl })
+                                    ) : (
+                                      <span>Wybierz datę</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  disabled={(date) =>
+                                    date > new Date() || date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                  className={cn("p-3 pointer-events-auto")}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            {field.value && (
+                              <p className="text-xs text-muted-foreground">
+                                Wiek: {calculateAnimalAge(field.value)?.displayText || 'nieznany'}
+                              </p>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="age"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Wiek (lata - opcjonalnie jeśli nie znasz daty)</FormLabel>
+                            <FormControl>
+                              <Input type="number" placeholder="0" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
                       control={form.control}
                       name="gender"
                       render={({ field }) => (

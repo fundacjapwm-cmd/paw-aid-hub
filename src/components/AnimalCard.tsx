@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useState, useEffect } from "react";
+import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 
 interface WishlistItem {
   id: string | number;
@@ -29,6 +30,7 @@ interface Animal {
   description: string;
   image: string;
   wishlist?: WishlistItem[];
+  birth_date?: string | null;
 }
 
 interface AnimalCardProps {
@@ -94,6 +96,11 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
     navigate(`/organizacje/${animal.organizationSlug || animal.organization.toLowerCase().replace(/\s+/g, '-')}`);
   };
 
+  // Calculate age display
+  const ageDisplay = animal.birth_date 
+    ? calculateAnimalAge(animal.birth_date)?.displayText 
+    : animal.age;
+
   return (
     <>
       {showCelebration && (
@@ -131,7 +138,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
           <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
             <div className="flex items-center space-x-1 bg-muted/50 px-2 py-1 rounded-full">
               <Calendar className="h-4 w-4" />
-              <span className="font-medium">{animal.age}</span>
+              <span className="font-medium">{ageDisplay}</span>
             </div>
             <div className="flex items-center space-x-1 bg-muted/50 px-2 py-1 rounded-full">
               <MapPin className="h-4 w-4" />

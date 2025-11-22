@@ -123,6 +123,7 @@ export type Database = {
           active: boolean | null
           adoption_status: Database["public"]["Enums"]["adoption_status"] | null
           age: number | null
+          birth_date: string | null
           breed: string | null
           created_at: string | null
           description: string | null
@@ -140,6 +141,7 @@ export type Database = {
             | Database["public"]["Enums"]["adoption_status"]
             | null
           age?: number | null
+          birth_date?: string | null
           breed?: string | null
           created_at?: string | null
           description?: string | null
@@ -157,6 +159,7 @@ export type Database = {
             | Database["public"]["Enums"]["adoption_status"]
             | null
           age?: number | null
+          birth_date?: string | null
           breed?: string | null
           created_at?: string | null
           description?: string | null
