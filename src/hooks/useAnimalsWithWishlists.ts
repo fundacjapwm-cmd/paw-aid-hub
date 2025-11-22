@@ -9,6 +9,7 @@ export interface WishlistItem {
   bought: boolean;
   product_id: string;
   quantity: number; // Max quantity from wishlist
+  image_url: string;
 }
 
 export interface GalleryImage {
@@ -82,7 +83,8 @@ export const useAnimalsWithWishlists = () => {
           products (
             id,
             name,
-            price
+            price,
+            image_url
           )
         `)
         .in('animal_id', animalIds);
@@ -152,6 +154,7 @@ export const useAnimalsWithWishlists = () => {
             bought: purchasedSet.has(`${animal.id}-${w.products?.id}`),
             product_id: w.products?.id || '',
             quantity: w.quantity || 1,
+            image_url: w.products?.image_url || '/placeholder.svg',
           })),
           gallery: gallery,
         };
