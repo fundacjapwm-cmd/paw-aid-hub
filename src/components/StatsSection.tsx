@@ -1,19 +1,17 @@
-import { Heart, Building2, ShoppingBag, Sparkles } from "lucide-react";
+import { HandHeart, Dog, Building2, Package } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-interface StatCardProps {
+interface StatItemProps {
   value: number;
   label: string;
   icon: React.ReactNode;
-  className?: string;
-  isMain?: boolean;
   suffix?: string;
 }
 
-const StatCard = ({ value, label, icon, className = "", isMain = false, suffix = "" }: StatCardProps) => {
+const StatItem = ({ value, label, icon, suffix = "" }: StatItemProps) => {
   const [displayValue, setDisplayValue] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -28,19 +26,19 @@ const StatCard = ({ value, label, icon, className = "", isMain = false, suffix =
       { threshold: 0.3 }
     );
 
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
+    if (itemRef.current) {
+      observer.observe(itemRef.current);
     }
 
     return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current);
+      if (itemRef.current) {
+        observer.unobserve(itemRef.current);
       }
     };
   }, [hasAnimated]);
 
   const animateValue = () => {
-    const duration = 2000; // 2 seconds
+    const duration = 2000;
     const steps = 60;
     const stepValue = value / steps;
     let currentStep = 0;
@@ -59,108 +57,51 @@ const StatCard = ({ value, label, icon, className = "", isMain = false, suffix =
   const formattedValue = displayValue.toLocaleString('pl-PL');
 
   return (
-    <div
-      ref={cardRef}
-      className={`
-        ${className} 
-        rounded-3xl p-6 md:p-8 
-        hover:scale-[1.02] transition-all duration-300 
-        shadow-card
-        ${isMain ? 'relative overflow-hidden' : ''}
-      `}
-    >
-      {isMain && (
-        <div className="absolute -right-8 -bottom-8 opacity-20">
-          <Sparkles className="h-48 w-48" />
-        </div>
-      )}
-      
-      <div className={`relative z-10 h-full flex flex-col ${isMain ? 'justify-center items-center text-center' : 'justify-between'}`}>
-        {!isMain && (
-          <div className={`${isMain ? 'mb-6' : 'mb-4'} flex justify-center md:justify-start`}>
-            {icon}
-          </div>
-        )}
-        
-        <div className={isMain ? 'space-y-4' : 'space-y-2'}>
-          <p className={`font-bold ${isMain ? 'text-5xl md:text-7xl' : 'text-3xl md:text-4xl'} ${isMain ? 'text-white' : 'text-foreground'}`}>
-            {formattedValue}{suffix}
-          </p>
-          <p className={`${isMain ? 'text-lg md:text-xl' : 'text-sm md:text-base'} ${isMain ? 'text-white/90' : 'text-muted-foreground'}`}>
-            {label}
-          </p>
-        </div>
-
-        {isMain && (
-          <div className="mt-6">
-            <Sparkles className="h-12 w-12 text-white animate-pulse" />
-          </div>
-        )}
+    <div ref={itemRef} className="flex flex-col items-center text-center px-4">
+      <div className="mb-2 p-3 bg-primary/10 rounded-2xl text-primary">
+        {icon}
       </div>
+      <span className="text-3xl md:text-4xl font-black text-foreground">
+        {formattedValue}{suffix}
+      </span>
+      <span className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-semibold mt-1">
+        {label}
+      </span>
     </div>
   );
 };
 
 const StatsSection = () => {
   return (
-    <section className="py-16 md:py-20 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-5xl font-bold text-foreground mb-4">
-            Razem możemy więcej
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Zobacz, jak wiele udało nam się osiągnąć dzięki wspólnym działaniom
-          </p>
-        </div>
-
-        {/* Bento Grid Layout */}
-        <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-6 max-w-6xl mx-auto">
-          {/* Main Card - Zebrane środki (col-span-2 row-span-2 on desktop) */}
-          <StatCard
-            value={328445}
-            label="Zebranych środków"
-            suffix=" zł"
-            icon={<Sparkles className="h-16 w-16 text-white" />}
-            className="col-span-2 row-span-2 bg-gradient-to-br from-primary/80 to-primary text-white"
-            isMain={true}
-          />
-
-          {/* Animals Card (row-span-2 on desktop) */}
-          <StatCard
-            value={1247}
-            label="Wspartych zwierząt"
-            icon={
-              <div className="bg-primary rounded-2xl p-3 w-14 h-14 flex items-center justify-center">
-                <Heart className="h-7 w-7 text-white fill-white animate-pulse" />
-              </div>
-            }
-            className="col-span-2 md:col-span-1 md:row-span-2 bg-white border-2 border-primary/10"
-          />
-
-          {/* Organizations Card */}
-          <StatCard
-            value={89}
-            label="Organizacji"
-            icon={
-              <div className="bg-secondary rounded-2xl p-3 w-14 h-14 flex items-center justify-center">
-                <Building2 className="h-7 w-7 text-white" />
-              </div>
-            }
-            className="bg-secondary/20"
-          />
-
-          {/* Products Card */}
-          <StatCard
-            value={15623}
-            label="Zakupionych produktów"
-            icon={
-              <div className="bg-accent rounded-2xl p-3 w-14 h-14 flex items-center justify-center">
-                <ShoppingBag className="h-7 w-7 text-white" />
-              </div>
-            }
-            className="bg-accent/20"
-          />
+    <section className="py-8 px-4 relative z-20 -mt-8">
+      <div className="container mx-auto">
+        <div className="bg-white/80 backdrop-blur-md rounded-[3rem] shadow-xl p-8 md:p-10 border border-primary/10 max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:flex md:justify-around md:items-center gap-8 md:gap-0 md:divide-x md:divide-primary/10">
+            <StatItem
+              value={0}
+              label="Wsparcie przekazane"
+              suffix=" zł"
+              icon={<HandHeart className="w-6 h-6" />}
+            />
+            
+            <StatItem
+              value={12}
+              label="Nakarmionych zwierząt"
+              icon={<Dog className="w-6 h-6" />}
+            />
+            
+            <StatItem
+              value={3}
+              label="Wspieranych organizacji"
+              icon={<Building2 className="w-6 h-6" />}
+            />
+            
+            <StatItem
+              value={0}
+              label="Dostarczonych darów"
+              icon={<Package className="w-6 h-6" />}
+            />
+          </div>
         </div>
       </div>
     </section>
