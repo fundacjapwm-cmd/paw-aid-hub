@@ -34,7 +34,7 @@ const Index = () => {
       if (element) {
         setTimeout(() => {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        }, 300);
       }
     }
   }, [location]);
