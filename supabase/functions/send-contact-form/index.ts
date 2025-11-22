@@ -71,24 +71,34 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Message saved to database successfully");
 
+    // HTML encode function to prevent XSS
+    const htmlEncode = (str: string): string => {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    };
+
     // Send email notification to organization
     try {
       const emailResponse = await resend.emails.send({
         from: "Pączki w Maśle <onboarding@resend.dev>",
         to: ["fundacjapwm@gmail.com"],
-        subject: `Nowa wiadomość od ${name}`,
+        subject: `Nowa wiadomość od ${htmlEncode(name)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #F97316;">Nowa wiadomość kontaktowa</h2>
             <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>Imię:</strong> ${name}</p>
-              <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-              ${phone ? `<p><strong>Telefon:</strong> ${phone}</p>` : ""}
+              <p><strong>Imię:</strong> ${htmlEncode(name)}</p>
+              <p><strong>Email:</strong> <a href="mailto:${htmlEncode(email)}">${htmlEncode(email)}</a></p>
+              ${phone ? `<p><strong>Telefon:</strong> ${htmlEncode(phone)}</p>` : ""}
               <p><strong>Data:</strong> ${new Date().toLocaleString("pl-PL")}</p>
             </div>
             <div style="margin: 20px 0;">
               <h3>Wiadomość:</h3>
-              <p style="white-space: pre-wrap;">${message}</p>
+              <p style="white-space: pre-wrap;">${htmlEncode(message)}</p>
             </div>
             <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
             <p style="color: #888; font-size: 12px;">
