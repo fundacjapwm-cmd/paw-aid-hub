@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MapPin, Calendar, ShoppingCart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { MapPin, Calendar, ShoppingCart, Plus, Minus, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +19,7 @@ interface WishlistItem {
   bought?: boolean;
   product_id?: string;
   quantity: number;
+  image_url?: string;
 }
 
 interface Animal {
@@ -38,12 +41,27 @@ interface AnimalCardProps {
 }
 
 const AnimalCard = ({ animal }: AnimalCardProps) => {
-  const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded } = useCart();
+  const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded, cart: globalCart, removeFromCart } = useCart();
   const navigate = useNavigate();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationShown, setCelebrationShown] = useState(false);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   
   const wishlistItems = animal.wishlist || [];
+  
+  // Initialize quantities when wishlist loads
+  useEffect(() => {
+    if (wishlistItems.length > 0) {
+      const initialQuantities = wishlistItems.reduce((acc: Record<string, number>, item) => {
+        const productId = item.product_id || String(item.id);
+        if (!item.bought) {
+          acc[productId] = 1;
+        }
+        return acc;
+      }, {});
+      setQuantities(initialQuantities);
+    }
+  }, [wishlistItems]);
   
   // Check if wishlist is 100% complete
   const allItemsBought = wishlistItems.length > 0 && wishlistItems.every(item => item.bought);
@@ -58,16 +76,50 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
     }
   }, [allItemsBought, celebrationShown]);
 
+  const isInCart = (productId: string) => {
+    return globalCart.some(item => item.productId === productId);
+  };
+
+  const getCartQuantity = (productId: string) => {
+    const cartItem = globalCart.find(item => item.productId === productId);
+    return cartItem?.quantity || 0;
+  };
+
+  // Calculate cart total for this animal
+  const cartTotalForAnimal = globalCart
+    .filter(item => item.animalId === String(animal.id))
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  // Calculate total missing cost
+  const totalMissingCost = wishlistItems
+    .filter(item => !item.bought)
+    .reduce((sum, item) => sum + item.price, 0);
+
+  const handleQuantityChange = (productId: string, change: number, maxLimit: number) => {
+    setQuantities((prev) => {
+      const currentQty = prev[productId] || 1;
+      const newQty = Math.max(1, Math.min(maxLimit, currentQty + change));
+      return { ...prev, [productId]: newQty };
+    });
+  };
+
   const handleAddToCart = (e: React.MouseEvent, item: WishlistItem) => {
     e.stopPropagation();
+    const productId = item.product_id || String(item.id);
+    const quantity = quantities[productId] || 1;
     addToCart({
-      productId: item.product_id || String(item.id),
+      productId,
       productName: item.name,
       price: item.price,
       maxQuantity: item.quantity,
       animalId: String(animal.id),
       animalName: animal.name,
-    });
+    }, quantity);
+  };
+
+  const handleRemoveFromCart = (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    removeFromCart(productId);
   };
 
   const handleBuyAll = (e: React.MouseEvent) => {
@@ -155,80 +207,193 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
           </button>
         </div>
 
-        {/* Wishlist - scrollable */}
+        {/* Wishlist - scrollable with modern design */}
         {wishlistItems.length > 0 && (
           <div className="flex-1 flex flex-col min-h-0">
             <h4 className="text-sm font-semibold text-foreground mb-2">Lista życzeń:</h4>
-            <ScrollArea className="flex-1 pr-4" style={{ maxHeight: '200px' }}>
-              <div className="space-y-2">
-                {wishlistItems.map((item) => (
-                  <div 
-                    key={item.id} 
-                    className={`flex items-center justify-between gap-2 p-2 rounded-lg transition-all ${
-                      item.bought 
-                        ? 'bg-green-50 border border-green-200' 
-                        : 'bg-muted/30 hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className={`text-sm font-medium truncate ${
-                          item.bought ? 'text-green-700 line-through' : 'text-foreground'
-                        }`}>
-                          {item.name}
-                        </p>
-                        {item.bought && (
-                          <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
-                            ✓ Kupione
-                          </span>
-                        )}
-                      </div>
-                      <p className={`text-xs font-semibold ${
-                        item.bought ? 'text-green-600' : 'text-primary'
-                      }`}>
-                        {item.price.toFixed(2)} zł {item.quantity > 1 && `(x${item.quantity})`}
-                      </p>
-                    </div>
-                    {!item.bought && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 flex-shrink-0"
-                        onClick={(e) => handleAddToCart(e, item)}
+            <ScrollArea className="flex-1 pr-4" style={{ maxHeight: '250px' }}>
+              <TooltipProvider>
+                <div className="space-y-2">
+                  {wishlistItems.map((item) => {
+                    const productId = item.product_id || String(item.id);
+                    const quantity = quantities[productId] || 1;
+                    const itemInCart = isInCart(productId);
+                    const cartQuantity = getCartQuantity(productId);
+                    const neededQuantity = item.quantity || 1;
+                    
+                    return (
+                      <div 
+                        key={item.id} 
+                        className={`rounded-lg transition-all p-2 ${
+                          item.bought 
+                            ? 'bg-green-50 border border-green-200' 
+                            : 'bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-primary/20'
+                        }`}
                       >
-                        <ShoppingCart className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
+                        <div className="flex gap-2">
+                          {/* Product Image */}
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border">
+                            <img 
+                              src={item.image_url || '/placeholder.svg'} 
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          
+                          {/* Product Info */}
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div>
+                              <p className={`text-xs font-medium leading-tight line-clamp-1 ${
+                                item.bought ? 'text-green-700 line-through' : 'text-foreground'
+                              }`}>
+                                {item.name}
+                              </p>
+                              <div className="flex items-baseline gap-1.5">
+                                <p className={`text-sm font-bold ${
+                                  item.bought ? 'text-green-600' : 'text-primary'
+                                }`}>
+                                  {item.price.toFixed(2)} zł
+                                </p>
+                                {!item.bought && neededQuantity > 1 && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setQuantities(prev => ({ ...prev, [productId]: neededQuantity }));
+                                        }}
+                                        className="text-xs text-primary underline hover:text-primary/80 cursor-pointer transition-colors font-medium"
+                                      >
+                                        potrzebne: {neededQuantity} szt
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Kliknij, aby ustawić {neededQuantity} szt</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
+                            </div>
+
+                            {item.bought ? (
+                              <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold inline-block">
+                                ✓ Kupione
+                              </span>
+                            ) : (
+                              /* Actions Row */
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {/* Counter */}
+                                <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg px-1">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-5 w-5 hover:bg-background transition-all"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleQuantityChange(productId, -1, neededQuantity);
+                                    }}
+                                    disabled={quantity <= 1}
+                                  >
+                                    <Minus className="h-2.5 w-2.5" />
+                                  </Button>
+                                  <span className="w-5 text-center text-xs font-semibold text-foreground">
+                                    {quantity}
+                                  </span>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-5 w-5 hover:bg-background transition-all"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleQuantityChange(productId, 1, neededQuantity);
+                                    }}
+                                    disabled={quantity >= neededQuantity}
+                                  >
+                                    <Plus className="h-2.5 w-2.5" />
+                                  </Button>
+                                </div>
+
+                                {/* Remove from cart if already added */}
+                                {itemInCart && (
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-5 w-5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                    onClick={(e) => handleRemoveFromCart(e, productId)}
+                                  >
+                                    <X className="h-2.5 w-2.5" />
+                                  </Button>
+                                )}
+
+                                {/* Add Button */}
+                                <div className="relative ml-auto">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`h-6 px-2 text-xs font-medium rounded-lg transition-all ${
+                                      itemInCart 
+                                        ? 'bg-green-500 hover:bg-green-600 text-white' 
+                                        : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105'
+                                    }`}
+                                    onClick={(e) => handleAddToCart(e, item)}
+                                    disabled={itemInCart}
+                                  >
+                                    <ShoppingCart className="h-2.5 w-2.5 mr-1" />
+                                    {itemInCart ? 'Dodano' : 'Dodaj'}
+                                  </Button>
+                                  {cartQuantity > 0 && (
+                                    <Badge 
+                                      className="absolute -top-1.5 -right-1.5 h-4 w-4 flex items-center justify-center p-0 text-xs bg-red-500 text-white border border-background"
+                                    >
+                                      {cartQuantity}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TooltipProvider>
             </ScrollArea>
           </div>
         )}
 
-        {/* Buy All Button */}
-        <div className="pt-3 border-t border-border/30">
+        {/* Buy All Button with improved footer */}
+        <div className="pt-3 border-t border-border/30 space-y-2">
           {(() => {
             const availableItems = wishlistItems.filter(item => !item.bought);
             const allBought = availableItems.length === 0;
-            const totalPrice = availableItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
             return (
-              <Button 
-                variant="success" 
-                size="sm" 
-                className="w-full rounded-xl font-bold shadow-sm"
-                onClick={handleBuyAll}
-                disabled={allBought || fullyAdded}
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                {allBought 
-                  ? 'Wszystko kupione!' 
-                  : fullyAdded 
-                  ? 'Już dodano do koszyka!' 
-                  : `Dodaj wszystko do koszyka (${totalPrice.toFixed(2)} zł)`
-                }
-              </Button>
+              <>
+                {/* Cart Total for this animal */}
+                {cartTotalForAnimal > 0 && (
+                  <div className="flex items-center justify-between text-sm pb-2 border-b border-border/30">
+                    <span className="text-muted-foreground">Łącznie w koszyku:</span>
+                    <span className="font-bold text-foreground">{cartTotalForAnimal.toFixed(2)} zł</span>
+                  </div>
+                )}
+
+                <Button 
+                  variant="success" 
+                  size="sm" 
+                  className="w-full rounded-xl font-bold shadow-sm"
+                  onClick={handleBuyAll}
+                  disabled={allBought || fullyAdded}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {allBought 
+                    ? 'Wszystko kupione!' 
+                    : fullyAdded 
+                    ? 'Już dodano do koszyka!' 
+                    : `Kup wszystkie produkty ${totalMissingCost > 0 ? `(${totalMissingCost.toFixed(2)} zł)` : ''}`
+                  }
+                </Button>
+              </>
             );
           })()}
         </div>
