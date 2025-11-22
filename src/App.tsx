@@ -10,7 +10,7 @@ import Index from "./pages/Index";
 import AnimalProfile from "./pages/AnimalProfile";
 import NotFound from "./pages/NotFound";
 import ONas from "./pages/ONas";
-import JakToDziala from "./pages/JakToDziala";
+
 import Organizacje from "./pages/Organizacje";
 import Zwierzeta from "./pages/Zwierzeta";
 import Kontakt from "./pages/Kontakt";
@@ -54,7 +54,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/zwierze/:id" element={<AnimalProfile />} />
             <Route path="/o-nas" element={<ONas />} />
-            <Route path="/jak-to-dziala" element={<JakToDziala />} />
+            
             <Route path="/organizacje" element={<Organizacje />} />
             <Route path="/organizacje/:slug" element={<OrganizationPublicProfile />} />
             <Route path="/zwierzeta" element={<Zwierzeta />} />
