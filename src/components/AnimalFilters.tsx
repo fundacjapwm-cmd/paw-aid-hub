@@ -126,7 +126,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
             <SelectValue placeholder="Wybierz typ" />
           </SelectTrigger>
           <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
-            <SelectItem value="wszystkie">Wszystkie</SelectItem>
+            <SelectItem value="wszystkie">Wszystkie zwierzęta</SelectItem>
             <SelectItem value="Pies">Pies</SelectItem>
             <SelectItem value="Kot">Kot</SelectItem>
             <SelectItem value="Inne">Inne</SelectItem>
