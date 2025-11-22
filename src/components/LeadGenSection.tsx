@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { validateNIP } from "@/lib/validations/nip";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import dogPhone from "@/assets/dog-phone.png";
 
 const leadFormSchema = z.object({
   organizationName: z.string()
@@ -100,7 +99,7 @@ const LeadGenSection = () => {
   return (
     <section id="dolacz" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto text-center mb-12">
+        <div className="max-w-3xl mx-auto text-center mb-12">
           <h2 className="text-3xl lg:text-5xl font-bold text-foreground mb-6">
             Chcesz dołączyć do naszych organizacji?
           </h2>
@@ -109,19 +108,8 @@ const LeadGenSection = () => {
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
-          {/* Dog Image */}
-          <div className="hidden lg:flex justify-center items-end">
-            <img 
-              src={dogPhone} 
-              alt="Pies z telefonem" 
-              className="w-full max-w-md h-auto object-contain"
-            />
-          </div>
-
-          {/* Form */}
-          <Card className="p-8 rounded-3xl shadow-card border-0">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Card className="max-w-2xl mx-auto p-8 rounded-3xl shadow-card border-0">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="organizationName">Nazwa organizacji</Label>
@@ -217,9 +205,8 @@ const LeadGenSection = () => {
                 'Wyślij zgłoszenie'
               )}
             </Button>
-            </form>
-          </Card>
-        </div>
+          </form>
+        </Card>
       </div>
     </section>
   );
