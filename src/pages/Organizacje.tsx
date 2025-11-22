@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 
 interface Organization {
   id: string;
@@ -30,8 +32,8 @@ const Organizacje = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [orgType, setOrgType] = useState("wszystkie");
-  const [province, setProvince] = useState("wszystkie");
   const [city, setCity] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     fetchOrganizations();
@@ -75,23 +77,27 @@ const Organizacje = () => {
       const matchesSearch = org.name.toLowerCase().includes(search.toLowerCase()) ||
                            (org.description || "").toLowerCase().includes(search.toLowerCase());
       
-      const matchesProvince = province === "wszystkie" || org.province === province;
-      
       const matchesCity = city === "" || 
                          (org.city || "").toLowerCase().includes(city.toLowerCase());
       
-      return matchesSearch && matchesProvince && matchesCity;
+      return matchesSearch && matchesCity;
     });
-  }, [organizations, search, province, city]);
+  }, [organizations, search, city]);
+
+  const searchSuggestions = useMemo(() => {
+    if (search.length < 3) return [];
+    return organizations.filter((org) => 
+      org.name.toLowerCase().includes(search.toLowerCase())
+    ).slice(0, 5);
+  }, [organizations, search]);
 
   const handleClearFilters = () => {
     setSearch("");
     setOrgType("wszystkie");
-    setProvince("wszystkie");
     setCity("");
   };
 
-  const hasActiveFilters = search !== "" || orgType !== "wszystkie" || province !== "wszystkie" || city !== "";
+  const hasActiveFilters = search !== "" || orgType !== "wszystkie" || city !== "";
   
   return (
     <div className="min-h-screen bg-background">
@@ -130,17 +136,63 @@ const Organizacje = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                {/* Search */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Szukaj organizacji..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 rounded-2xl border-border/50 focus:border-primary"
-                  />
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {/* Search with Autocomplete */}
+                <Popover open={isSearchOpen && search.length >= 3} onOpenChange={setIsSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Szukaj organizacji..."
+                        value={search}
+                        onChange={(e) => {
+                          setSearch(e.target.value);
+                          setIsSearchOpen(true);
+                        }}
+                        onFocus={() => setIsSearchOpen(true)}
+                        className="pl-9 rounded-2xl border-border/50 focus:border-primary"
+                      />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandList>
+                        {searchSuggestions.length === 0 ? (
+                          <CommandEmpty>Brak wyników</CommandEmpty>
+                        ) : (
+                          <CommandGroup>
+                            {searchSuggestions.map((org) => (
+                              <CommandItem
+                                key={org.id}
+                                value={org.name}
+                                onSelect={() => {
+                                  navigate(`/organizacje/${org.slug}`);
+                                  setIsSearchOpen(false);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {org.logo_url && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage src={org.logo_url} alt={org.name} />
+                                      <AvatarFallback>{org.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                  )}
+                                  <div>
+                                    <div className="font-medium">{org.name}</div>
+                                    {org.city && (
+                                      <div className="text-xs text-muted-foreground">{org.city}</div>
+                                    )}
+                                  </div>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
 
                 {/* Organization Type */}
                 <Select value={orgType} onValueChange={setOrgType}>
@@ -152,19 +204,6 @@ const Organizacje = () => {
                     <SelectItem value="fundacja">Fundacja</SelectItem>
                     <SelectItem value="stowarzyszenie">Stowarzyszenie</SelectItem>
                     <SelectItem value="schronisko">Schronisko</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {/* Province */}
-                <Select value={province} onValueChange={setProvince}>
-                  <SelectTrigger className="rounded-2xl border-border/50">
-                    <SelectValue placeholder="Województwo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="wszystkie">Wszystkie województwa</SelectItem>
-                    <SelectItem value="Mazowieckie">Mazowieckie</SelectItem>
-                    <SelectItem value="Śląskie">Śląskie</SelectItem>
-                    <SelectItem value="Małopolskie">Małopolskie</SelectItem>
                   </SelectContent>
                 </Select>
 
