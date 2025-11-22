@@ -15,7 +15,7 @@ const MobileMenu = () => {
   const menuItems = [
     { label: 'Strona główna', path: '/' },
     { label: 'O nas', path: '/o-nas' },
-    { label: 'Jak to działa?', path: '/jak-to-dziala' },
+    { label: 'Jak to działa?', path: '/#jak-to-dziala' },
     { label: 'Organizacje', path: '/organizacje' },
     { label: 'Zwierzęta', path: '/zwierzeta' },
     { label: 'Kontakt', path: '/kontakt' },

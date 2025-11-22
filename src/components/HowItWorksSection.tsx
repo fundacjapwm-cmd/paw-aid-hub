@@ -29,7 +29,7 @@ const HowItWorksSection = () => {
   return (
     <>
       {/* Hero Header */}
-      <section className="py-16 md:py-24 bg-background">
+      <section id="jak-to-dziala" className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
             Jak to działa?

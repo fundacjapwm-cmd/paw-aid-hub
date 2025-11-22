@@ -54,15 +54,10 @@ const Navigation = () => {
               )}
             </a>
             <a 
-              href="/jak-to-dziala" 
-              className={`relative text-foreground hover:text-primary transition-colors font-medium ${
-                isActive('/jak-to-dziala') ? 'text-primary' : ''
-              }`}
+              href="/#jak-to-dziala" 
+              className="relative text-foreground hover:text-primary transition-colors font-medium"
             >
               Jak to działa?
-              {isActive('/jak-to-dziala') && (
-                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
-              )}
             </a>
             <a 
               href="/organizacje" 
