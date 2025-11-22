@@ -5,8 +5,10 @@ import { Heart, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const Zwierzeta = () => {
+  const navigate = useNavigate();
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
   const [filters, setFilters] = useState({
     organization: "",
@@ -163,15 +165,16 @@ const Zwierzeta = () => {
                 </div>
                 
                 <div className="text-center">
-                  <a href="/#dolacz">
-                    <Button 
-                      variant="light" 
-                      size="hero" 
-                      className="w-full md:w-auto"
-                    >
-                      Zgłoś swoją organizację
-                    </Button>
-                  </a>
+                  <Button 
+                    variant="light" 
+                    size="hero" 
+                    className="w-full md:w-auto"
+                    onClick={() => {
+                      navigate('/', { state: { scrollTo: 'dolacz' } });
+                    }}
+                  >
+                    Zgłoś swoją organizację
+                  </Button>
                 </div>
               </div>
             </div>
