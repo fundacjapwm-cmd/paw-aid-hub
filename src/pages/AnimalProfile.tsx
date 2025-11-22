@@ -2,7 +2,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Plus, Minus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
@@ -20,6 +20,9 @@ const AnimalProfile = () => {
 
   const animal = animals.find(a => a.id === id);
 
+  // State for quantity counters
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+
   // Check if wishlist is 100% complete
   const allItemsBought = animal?.wishlist?.length > 0 && animal.wishlist.every((item: any) => item.bought);
   
@@ -29,6 +32,19 @@ const AnimalProfile = () => {
       setCelebrationShown(true);
     }
   }, [allItemsBought, celebrationShown]);
+
+  // Initialize quantities when animal loads
+  useEffect(() => {
+    if (animal?.wishlist) {
+      const initialQuantities = animal.wishlist.reduce((acc: Record<string, number>, item: any) => {
+        if (!item.bought) {
+          acc[item.product_id] = 1;
+        }
+        return acc;
+      }, {});
+      setQuantities(initialQuantities);
+    }
+  }, [animal?.wishlist]);
 
   if (loading) {
     return (
@@ -52,15 +68,27 @@ const AnimalProfile = () => {
     );
   }
 
+  const handleQuantityChange = (productId: string, change: number) => {
+    setQuantities((prev) => {
+      const currentQty = prev[productId] || 1;
+      const newQty = Math.max(1, currentQty + change); // Min: 1
+      return { ...prev, [productId]: newQty };
+    });
+  };
+
   const handleAddToCart = (item: any) => {
     if (!item.product_id) return;
-    addToCart({
-      productId: item.product_id,
-      productName: item.name,
-      price: item.price,
-      animalId: id,
-      animalName: animal.name,
-    });
+    const quantity = quantities[item.product_id] || 1;
+    addToCart(
+      {
+        productId: item.product_id,
+        productName: item.name,
+        price: item.price,
+        animalId: id,
+        animalName: animal.name,
+      },
+      quantity
+    );
   };
 
   const handleAddAllToCart = () => {
@@ -71,6 +99,7 @@ const AnimalProfile = () => {
       price: item.price,
       animalId: id,
       animalName: animal.name,
+      maxQuantity: quantities[item.product_id] || 1,
     }));
     addAllForAnimal(items, animal.name);
   };
@@ -207,71 +236,120 @@ const AnimalProfile = () => {
             <div className="space-y-6">
               <WishlistProgressBar wishlist={animal.wishlist} />
 
-              <Card className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold text-foreground">Lista potrzeb</h2>
-                  {animal.wishlist.some((item: any) => !item.bought) && (
-                    <Button 
-                      size="sm"
-                      onClick={handleAddAllToCart}
-                      className="text-xs"
-                    >
-                      <ShoppingCart className="h-3 w-3 mr-1" />
-                      Kup wszystko
-                    </Button>
-                  )}
+              {/* Modernized Wishlist Card with Sticky Footer */}
+              <Card className="p-0 flex flex-col h-[600px] rounded-3xl overflow-hidden">
+                {/* Header */}
+                <div className="p-6 pb-4 border-b">
+                  <h2 className="text-xl font-bold text-foreground">
+                    Potrzeby {animal.name}
+                  </h2>
                 </div>
 
-                <div className="space-y-3">
+                {/* Body - Scrollable List */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-3">
                   {animal.wishlist.map((item: any) => {
                     const itemInCart = isInCart(item.product_id);
+                    const quantity = quantities[item.product_id] || 1;
+                    
                     return (
                       <div 
                         key={item.id}
                         className={`p-4 rounded-xl border-2 transition-all ${
                           item.bought 
                             ? 'bg-muted/50 border-muted' 
-                            : 'bg-card border-border'
+                            : 'bg-card border-border hover:border-primary/20'
                         }`}
                       >
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-start gap-3">
+                          {/* Product Info */}
                           <div className="flex-1">
-                            <h4 className={`font-medium ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                            <h4 className={`font-medium mb-1 ${item.bought ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                               {item.name}
                             </h4>
+                            <span className={`font-bold text-lg ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
+                              {Number(item.price).toFixed(2)} zł
+                            </span>
                             {item.bought && (
-                              <Badge variant="secondary" className="mt-1">✓ Kupione</Badge>
+                              <Badge variant="secondary" className="mt-2 block w-fit">✓ Kupione</Badge>
                             )}
                           </div>
-                          <span className={`font-bold ml-2 ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
-                            {Number(item.price).toFixed(2)} zł
-                          </span>
+
+                          {/* Actions: Counter + Cart Button */}
+                          {!item.bought && (
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              {/* Counter with animation */}
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 hover:scale-110 transition-all"
+                                  onClick={() => handleQuantityChange(item.product_id, -1)}
+                                  disabled={quantity <= 1}
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                <span className="w-8 text-center bg-transparent font-bold text-foreground text-lg animate-scale-in">
+                                  {quantity}
+                                </span>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 hover:scale-110 transition-all"
+                                  onClick={() => handleQuantityChange(item.product_id, 1)}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              {/* Add to Cart Icon Button with pulse animation */}
+                              <Button
+                                size="icon"
+                                disabled={itemInCart}
+                                className={`h-12 w-12 rounded-full shadow-md transition-all ${
+                                  itemInCart 
+                                    ? 'bg-green-500 hover:bg-green-600' 
+                                    : 'bg-primary hover:bg-primary/90 hover:scale-110'
+                                }`}
+                                onClick={() => handleAddToCart(item)}
+                              >
+                                {itemInCart ? (
+                                  <span className="text-lg">✓</span>
+                                ) : (
+                                  <ShoppingCart className="h-5 w-5" />
+                                )}
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                        {!item.bought && (
-                          <Button 
-                            size="sm"
-                            className="w-full mt-2"
-                            variant={itemInCart ? "secondary" : "default"}
-                            onClick={() => handleAddToCart(item)}
-                            disabled={itemInCart}
-                          >
-                            {itemInCart ? (
-                              <>
-                                <ShoppingCart className="h-4 w-4 mr-2" />
-                                W koszyku
-                              </>
-                            ) : (
-                              <>
-                                <ShoppingCart className="h-4 w-4 mr-2" />
-                                Dodaj do koszyka
-                              </>
-                            )}
-                          </Button>
-                        )}
                       </div>
                     );
                   })}
                 </div>
+
+                {/* Footer - Sticky Summary */}
+                {animal.wishlist.some((item: any) => !item.bought) && (
+                  <div className="bg-gradient-to-t from-gray-50 to-white p-6 border-t shadow-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm text-muted-foreground font-medium">
+                        Łącznie:
+                      </span>
+                      <span className="text-3xl font-bold text-foreground">
+                        {animal.wishlist
+                          .filter((item: any) => !item.bought)
+                          .reduce((sum: number, item: any) => sum + Number(item.price), 0)
+                          .toFixed(2)} zł
+                      </span>
+                    </div>
+                    <Button 
+                      size="lg"
+                      onClick={handleAddAllToCart}
+                      className="w-full rounded-2xl font-bold shadow-md hover:scale-105 transition-transform"
+                    >
+                      <ShoppingCart className="h-5 w-5 mr-2" />
+                      Kup wszystkie produkty
+                    </Button>
+                  </div>
+                )}
               </Card>
             </div>
           </div>
