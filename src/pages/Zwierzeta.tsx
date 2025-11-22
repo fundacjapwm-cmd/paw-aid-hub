@@ -5,9 +5,10 @@ import { Heart, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Zwierzeta = () => {
+  const navigate = useNavigate();
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
   const [filters, setFilters] = useState({
     organization: "",
@@ -168,9 +169,7 @@ const Zwierzeta = () => {
                     variant="light" 
                     size="hero" 
                     className="w-full md:w-auto"
-                    onClick={() => {
-                      window.location.href = '/#dolacz';
-                    }}
+                    onClick={() => navigate('/#dolacz')}
                   >
                     Zgłoś swoją organizację
                   </Button>
