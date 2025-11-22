@@ -83,6 +83,10 @@ const HowItWorksSection = () => {
                 relative overflow-hidden rounded-[200px] shadow-2xl
                 transition-all duration-700
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}
+                ${index === 0 ? 'h-[400px]' : ''}
+                ${index === 1 ? 'h-[600px]' : ''}
+                ${index === 2 ? 'h-[520px]' : ''}
+                ${index === 3 ? 'h-[400px]' : ''}
               `}
               style={{
                 transitionDelay: isVisible ? `${step.delay}ms` : '0ms',
@@ -96,17 +100,11 @@ const HowItWorksSection = () => {
                   className="w-full h-full object-cover"
                 />
                 {/* Ciemny overlay dla czytelności */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/80" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/95" />
               </div>
 
               {/* Treść */}
-              <div className={`
-                relative z-10 flex flex-col items-center text-center px-8 py-16 justify-end
-                ${index === 0 ? 'min-h-[400px]' : ''}
-                ${index === 1 ? 'min-h-[600px]' : ''}
-                ${index === 2 ? 'min-h-[520px]' : ''}
-                ${index === 3 ? 'min-h-[400px]' : ''}
-              `}>
+              <div className="relative z-10 flex flex-col items-center text-center px-8 py-16 justify-end h-full">
                 {/* Ikona w kółku */}
                 <div className="mb-6 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
                   <step.icon className="w-10 h-10 text-primary" strokeWidth={2} />
