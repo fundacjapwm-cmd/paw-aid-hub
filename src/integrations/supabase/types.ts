@@ -268,6 +268,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          batch_order_id: string | null
           created_at: string | null
           id: string
           payment_method: string | null
@@ -279,6 +280,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          batch_order_id?: string | null
           created_at?: string | null
           id?: string
           payment_method?: string | null
@@ -290,6 +292,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          batch_order_id?: string | null
           created_at?: string | null
           id?: string
           payment_method?: string | null
@@ -300,7 +303,56 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_batch_order_id_fkey"
+            columns: ["batch_order_id"]
+            isOneToOne: false
+            referencedRelation: "organization_batch_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_batch_orders: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          processed_at: string | null
+          status: string
+          tracking_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          processed_at?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          processed_at?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_batch_orders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organization_images: {
         Row: {
