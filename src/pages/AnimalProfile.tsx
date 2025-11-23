@@ -100,7 +100,7 @@ const AnimalProfile = () => {
       price: item.price,
       animalId: id,
       animalName: animal.name,
-      maxQuantity: quantities[item.product_id] || 1,
+      maxQuantity: item.quantity_needed - item.quantity_bought,
     }));
     addAllForAnimal(items, animal.name);
   };
@@ -124,9 +124,24 @@ const AnimalProfile = () => {
     .filter((item: any) => !item.bought)
     .reduce((sum: number, item: any) => {
       const productId = item.product_id || String(item.id);
-      const neededQuantity = (item.quantity || 1) - getCartQuantity(productId);
+      const neededQuantity = (item.quantity_needed - item.quantity_bought) - getCartQuantity(productId);
       return sum + (Number(item.price) * Math.max(0, neededQuantity));
     }, 0) || 0;
+
+  // Oblicz całkowitą wartość wishlisty (ile kosztuje wypełnienie całej listy)
+  const totalWishlistCost = animal?.wishlist
+    .filter((item: any) => !item.bought)
+    .reduce((sum: number, item: any) => {
+      return sum + (Number(item.price) * (item.quantity_needed - item.quantity_bought));
+    }, 0) || 0;
+
+  // Sprawdź czy wszystkie potrzebne produkty są już w koszyku
+  const allItemsInCart = animal?.wishlist
+    .filter((item: any) => !item.bought)
+    .every((item: any) => {
+      const neededQuantity = item.quantity_needed - item.quantity_bought;
+      return getCartQuantity(item.product_id) >= neededQuantity;
+    }) && animal?.wishlist.some((item: any) => !item.bought);
 
   // Calculate age display
   const ageInfo = animal?.birth_date ? calculateAnimalAge(animal.birth_date) : null;
@@ -430,15 +445,20 @@ const AnimalProfile = () => {
                       </div>
                     )}
                     
-                    {/* Kup wszystkie produkty */}
+                    {/* Dodaj wszystko do koszyka */}
                     <Button 
                       size="default"
                       onClick={handleAddAllToCart}
-                      disabled={totalMissingCost === 0}
-                      className="w-full rounded-xl font-semibold text-sm h-11 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                      disabled={totalMissingCost === 0 || allItemsInCart}
+                      className={`w-full rounded-xl font-semibold text-sm h-11 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 ${
+                        allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
+                      }`}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      Kup wszystkie produkty {totalMissingCost > 0 && `(${totalMissingCost.toFixed(2)} zł)`}
+                      {allItemsInCart 
+                        ? `Dodano do koszyka (${totalWishlistCost.toFixed(2)} zł)` 
+                        : `Dodaj wszystko do koszyka! (${totalWishlistCost.toFixed(2)} zł)`
+                      }
                     </Button>
                   </div>
                 )}

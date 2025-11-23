@@ -96,7 +96,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     items.forEach(item => addToCart(item, item.maxQuantity || 1));
     toast({
       title: "Dodano do koszyka",
-      description: `${items.length} ${items.length === 1 ? 'produkt' : items.length < 5 ? 'produkty' : 'produktów'} dla ${animalName}`,
+      description: "Dodano do koszyka wszystkie potrzebne produkty!",
     });
   };
 
