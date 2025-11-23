@@ -181,7 +181,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   });
 
   const WishlistCart = () => (
-    <Card className="h-full">
+    <Card className="h-full lg:sticky lg:top-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShoppingCart className="h-5 w-5 text-primary" />
@@ -192,7 +192,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
         {wishlist.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>Brak produktów w koszyku</p>
-            <p className="text-sm mt-2">Dodaj produkty z katalogu →</p>
+            <p className="text-sm mt-2">Dodaj produkty z katalogu ←</p>
           </div>
         ) : (
           <div className="space-y-3">
