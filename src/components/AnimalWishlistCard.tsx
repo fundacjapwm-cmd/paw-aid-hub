@@ -229,35 +229,36 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                           </div>
                         </div>
 
-                        {/* 3. KOLUMNA: AKCJE (Fixed Stack) - jedna linia na dole */}
+                        {/* 3. KOLUMNA: AKCJE (Zwarty blok) */}
                         {!isFullyBought && (
-                          <div className="flex items-end shrink-0">
-                            <div className="flex items-center gap-2">
-                              {/* Licznik po lewej */}
-                              <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-6 w-6 flex items-center justify-center bg-white rounded-md shadow-sm hover:bg-gray-100 transition-colors"
-                                  onClick={() => handleQuantityChange(product.id, -1, missing)}
-                                  disabled={quantity <= 1}
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </Button>
-                                <span className="w-6 text-center text-sm font-medium bg-transparent">
-                                  {quantity}
-                                </span>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-6 w-6 flex items-center justify-center bg-white rounded-md shadow-sm hover:bg-gray-100 transition-colors"
-                                  onClick={() => handleQuantityChange(product.id, 1, missing)}
-                                  disabled={quantity >= missing}
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </Button>
-                              </div>
+                          <div className="flex flex-col items-end justify-center gap-2 shrink-0 pl-2">
+                            {/* Licznik */}
+                            <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 h-8 shadow-inner">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6 rounded-md hover:bg-white hover:shadow-sm transition-all"
+                                onClick={() => handleQuantityChange(product.id, -1, missing)}
+                                disabled={quantity <= 1}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="w-8 text-center text-xs font-bold tabular-nums">
+                                {quantity}
+                              </span>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6 rounded-md hover:bg-white hover:shadow-sm transition-all"
+                                onClick={() => handleQuantityChange(product.id, 1, missing)}
+                                disabled={quantity >= missing}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
 
+                            {/* Przyciski Usuń + Dodaj (w jednej linii) */}
+                            <div className="flex items-center gap-1.5">
                               {/* Przycisk Usuń (jeśli w koszyku) */}
                               {itemInCart && (
                                 <Tooltip>
@@ -277,16 +278,16 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                                 </Tooltip>
                               )}
 
-                              {/* Przycisk Dodaj po prawej */}
+                              {/* Przycisk Dodaj */}
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="relative">
                                     <Button 
                                       size="icon" 
-                                      className={`h-9 w-9 rounded-xl shadow-sm transition-all ${
+                                      className={`h-9 w-9 rounded-xl shadow-sm hover:scale-105 transition-all ${
                                         itemInCart 
                                           ? 'bg-green-500 hover:bg-green-600' 
-                                          : 'bg-primary hover:bg-primary/90 hover:scale-105'
+                                          : 'bg-primary hover:bg-primary/90'
                                       }`}
                                       onClick={() => handleAddProduct(product)}
                                       disabled={itemInCart}
