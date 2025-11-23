@@ -61,8 +61,14 @@ export default function Auth() {
 
   // Redirect if already logged in (but not during password reset)
   useEffect(() => {
+    if (!user || loading || showResetForm) return;
+    
+    let redirected = false;
+    
     const checkUserAndRedirect = async () => {
-      if (user && !loading && !showResetForm) {
+      if (redirected) return;
+      
+      try {
         // Pobierz profil, aby sprawdzić rolę i wymuszenie zmiany hasła
         const { data: profileData } = await supabase
           .from('profiles')
@@ -70,37 +76,42 @@ export default function Auth() {
           .eq('id', user.id)
           .single();
         
+        if (redirected) return;
+        redirected = true;
+        
         // 1. Priorytet: Wymuszona zmiana hasła
         if (profileData?.must_change_password) {
-          navigate('/set-password');
+          navigate('/set-password', { replace: true });
           return;
         }
 
         // 2. Sprawdź czy jest parametr ?redirect (np. z koszyka)
         const redirectParam = searchParams.get('redirect');
         if (redirectParam) {
-          navigate(redirectParam);
+          navigate(redirectParam, { replace: true });
           return;
         }
 
         // 3. Inteligentne przekierowanie na podstawie roli
         switch (profileData?.role) {
           case 'ADMIN':
-            navigate('/admin');
+            navigate('/admin', { replace: true });
             break;
           case 'ORG':
-            navigate('/organizacja');
+            navigate('/organizacja', { replace: true });
             break;
           default:
             // Dla roli USER (Darczyńca)
-            navigate('/profil');
+            navigate('/profil', { replace: true });
             break;
         }
+      } catch (error) {
+        console.error('Error checking profile:', error);
       }
     };
     
     checkUserAndRedirect();
-  }, [user, loading, navigate, searchParams, showResetForm]);
+  }, [user?.id, loading, showResetForm]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
