@@ -211,35 +211,85 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
           ) : (
             <div className="space-y-3">
               {wishlist.map((item) => (
-                <div
+                <Card
                   key={item.id}
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl hover:bg-muted transition-colors"
+                  className="p-3 bg-muted/50 hover:bg-muted transition-colors"
                 >
-                  {item.products?.image_url && (
-                    <img
-                      src={item.products.image_url}
-                      alt={item.products.name}
-                      className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium">{item.products?.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {item.quantity} {item.products?.unit} × {item.products?.price.toFixed(2)} zł
-                    </p>
-                    <p className="text-sm font-semibold text-primary">
-                      = {((item.products?.price || 0) * item.quantity).toFixed(2)} zł
-                    </p>
+                  <div className="flex items-start gap-3">
+                    {item.products?.image_url && (
+                      <img
+                        src={item.products.image_url}
+                        alt={item.products.name}
+                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium mb-1">{item.products?.name}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {item.products?.price.toFixed(2)} zł / {item.products?.unit}
+                      </p>
+                      <p className="text-sm font-semibold text-primary">
+                        Razem: {((item.products?.price || 0) * item.quantity).toFixed(2)} zł
+                      </p>
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveFromWishlist(item.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-                  >
-                    Usuń
-                  </Button>
-                </div>
+                  
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleUpdateQuantity(
+                          item.id,
+                          item.product_id || '',
+                          item.quantity - 1
+                        )}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === '' || val === '0') {
+                            handleRemoveFromWishlist(item.id);
+                          } else {
+                            const num = parseInt(val, 10);
+                            if (!isNaN(num) && num >= 0) {
+                              handleUpdateQuantity(item.id, item.product_id || '', num);
+                            }
+                          }
+                        }}
+                        className="text-center w-16 h-8"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleUpdateQuantity(
+                          item.id,
+                          item.product_id || '',
+                          item.quantity + 1
+                        )}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveFromWishlist(item.id)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      Usuń
+                    </Button>
+                  </div>
+                </Card>
               ))}
             </div>
           )}
