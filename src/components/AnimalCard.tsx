@@ -90,10 +90,14 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
     .filter(item => item.animalId === String(animal.id))
     .reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // Calculate total missing cost
+  // Calculate total missing cost (price × needed quantity for each item)
   const totalMissingCost = wishlistItems
     .filter(item => !item.bought)
-    .reduce((sum, item) => sum + item.price, 0);
+    .reduce((sum, item) => {
+      const productId = item.product_id || String(item.id);
+      const neededQuantity = (item.quantity || 1) - getCartQuantity(productId);
+      return sum + (item.price * Math.max(0, neededQuantity));
+    }, 0);
 
   const handleQuantityChange = (productId: string, change: number, maxLimit: number) => {
     setQuantities((prev) => {
