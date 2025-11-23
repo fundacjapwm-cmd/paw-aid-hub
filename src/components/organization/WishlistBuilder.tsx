@@ -182,48 +182,64 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
     return matchesSearch && matchesCategory;
   });
 
-  const WishlistCart = () => (
-    <Card className="h-full lg:sticky lg:top-6">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5 text-primary" />
-          Koszyk Potrzeb - {animalName}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {wishlist.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Brak produktów w koszyku</p>
-            <p className="text-sm mt-2">Dodaj produkty z katalogu ←</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {wishlist.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between p-3 bg-muted/50 rounded-xl hover:bg-muted transition-colors"
-              >
-                <div className="flex-1">
-                  <p className="font-medium">{item.products?.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {item.quantity} {item.products?.unit}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveFromWishlist(item.id)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+  const WishlistCart = () => {
+    const totalValue = wishlist.reduce((sum, item) => {
+      const itemPrice = item.products?.price || 0;
+      return sum + (itemPrice * item.quantity);
+    }, 0);
+
+    return (
+      <Card className="h-full lg:sticky lg:top-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-primary" />
+            Koszyk Potrzeb - {animalName}
+          </CardTitle>
+          {wishlist.length > 0 && (
+            <div className="mt-2 pt-2 border-t">
+              <p className="text-sm text-muted-foreground">Całkowita wartość</p>
+              <p className="text-2xl font-bold text-primary">{totalValue.toFixed(2)} zł</p>
+            </div>
+          )}
+        </CardHeader>
+        <CardContent>
+          {wishlist.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Brak produktów w koszyku</p>
+              <p className="text-sm mt-2">Dodaj produkty z katalogu ←</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {wishlist.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-xl hover:bg-muted transition-colors"
                 >
-                  Usuń
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+                  <div className="flex-1">
+                    <p className="font-medium">{item.products?.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {item.quantity} {item.products?.unit} × {item.products?.price.toFixed(2)} zł
+                    </p>
+                    <p className="text-sm font-semibold text-primary">
+                      = {((item.products?.price || 0) * item.quantity).toFixed(2)} zł
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveFromWishlist(item.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    Usuń
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   const ProductCatalog = () => (
     <Card className="h-full">
