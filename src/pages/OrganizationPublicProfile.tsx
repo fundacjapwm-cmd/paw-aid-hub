@@ -413,6 +413,7 @@ export default function OrganizationPublicProfile() {
                       product_id: w.product_id,
                       quantity: w.quantity,
                       bought: false,
+                      image_url: w.products?.image_url,
                     })),
                   }}
                 />
