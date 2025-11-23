@@ -86,7 +86,8 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
         *,
         products(*)
       `)
-      .eq("animal_id", animalId);
+      .eq("animal_id", animalId)
+      .order("created_at", { ascending: true });
 
     if (error) {
       toast({
