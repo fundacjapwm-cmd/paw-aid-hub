@@ -63,21 +63,18 @@ export default function Auth() {
   useEffect(() => {
     if (!user || loading || showResetForm) return;
     
-    let redirected = false;
+    let isMounted = true;
     
     const checkUserAndRedirect = async () => {
-      if (redirected) return;
-      
       try {
         // Pobierz profil, aby sprawdzić rolę i wymuszenie zmiany hasła
-        const { data: profileData } = await supabase
+        const { data: profileData, error } = await supabase
           .from('profiles')
           .select('must_change_password, role')
           .eq('id', user.id)
           .single();
         
-        if (redirected) return;
-        redirected = true;
+        if (!isMounted || error) return;
         
         // 1. Priorytet: Wymuszona zmiana hasła
         if (profileData?.must_change_password) {
@@ -111,7 +108,11 @@ export default function Auth() {
     };
     
     checkUserAndRedirect();
-  }, [user?.id, loading, showResetForm]);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, loading, showResetForm, navigate, searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
