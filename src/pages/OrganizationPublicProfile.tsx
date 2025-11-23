@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "@/components/AnimalCard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import WishlistProgressBar from "@/components/WishlistProgressBar";
+import { Card } from "@/components/ui/card";
+import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { MapPin, Heart, Phone, Mail, Users, ShieldCheck, PawPrint, Calendar, Bone } from "lucide-react";
+import { toast } from "sonner";
 
 interface Organization {
   id: string;
@@ -27,7 +30,9 @@ export default function OrganizationPublicProfile() {
   const { slug } = useParams<{ slug: string }>();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [animals, setAnimals] = useState<any[]>([]);
+  const [orgWishlist, setOrgWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (slug) {
@@ -77,10 +82,54 @@ export default function OrganizationPublicProfile() {
       if (animalsError) throw animalsError;
 
       setAnimals(animalsData || []);
+
+      // Fetch organization's wishlist
+      const { data: wishlistData, error: wishlistError } = await supabase
+        .from("organization_wishlists")
+        .select(`
+          id,
+          product_id,
+          quantity,
+          priority,
+          products (
+            id,
+            name,
+            price,
+            image_url,
+            unit,
+            weight_volume
+          )
+        `)
+        .eq("organization_id", org.id)
+        .order("priority", { ascending: false });
+
+      if (wishlistError) throw wishlistError;
+
+      setOrgWishlist(wishlistData || []);
     } catch (error) {
       console.error("Error fetching organization:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddAllToCart = () => {
+    let addedCount = 0;
+    orgWishlist.forEach((item: any) => {
+      if (item.products) {
+        addToCart({
+          productId: item.product_id,
+          productName: item.products.name,
+          price: item.products.price,
+          animalId: undefined,
+          animalName: `Organizacja: ${organization?.name}`,
+        }, item.quantity || 1);
+        addedCount++;
+      }
+    });
+    
+    if (addedCount > 0) {
+      toast.success(`Dodano ${addedCount} produktów do koszyka`);
     }
   };
 
@@ -113,93 +162,206 @@ export default function OrganizationPublicProfile() {
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
       <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-secondary/10 rounded-full blur-3xl" />
 
-      {/* Hero Section - Centralna Karta */}
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        <div className="max-w-4xl mx-auto">
-          {/* Hero Card */}
-          <div className="relative bg-white/60 backdrop-blur-md border border-white/50 shadow-bubbly rounded-[3rem] p-6 md:p-8 overflow-hidden mb-8">
+      {/* Hero Section - Większy i dwukolumnowy */}
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative bg-white/60 backdrop-blur-md border border-white/50 shadow-bubbly rounded-[3rem] p-8 md:p-12 overflow-hidden">
             {/* Dekoracyjne ikony w tle */}
-            <Heart className="absolute top-8 left-8 h-24 w-24 text-primary/5 -rotate-12" />
-            <Bone className="absolute bottom-8 right-8 h-32 w-32 text-accent/5 rotate-12" />
-            <PawPrint className="absolute top-1/2 right-12 h-16 w-16 text-secondary/5 -rotate-6" />
+            <Heart className="absolute top-8 left-8 h-32 w-32 text-primary/5 -rotate-12" />
+            <Bone className="absolute bottom-8 right-8 h-40 w-40 text-accent/5 rotate-12" />
+            <PawPrint className="absolute top-1/2 right-12 h-20 w-20 text-secondary/5 -rotate-6" />
 
-            {/* Flex Container - Horizontal on Desktop */}
-            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 relative z-10">
-              {/* Logo - Large and Prominent */}
-              <div className="shrink-0">
-                <div className="h-32 w-32 sm:h-40 sm:w-40 rounded-3xl border-4 border-white shadow-lg overflow-hidden bg-white">
-                  {organization.logo_url ? (
-                    <img 
-                      src={organization.logo_url} 
-                      alt={organization.name}
-                      className="w-full h-full object-cover object-center"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-                      <Heart className="h-16 w-16 sm:h-20 sm:w-20 text-primary" />
+            {/* Grid Layout - 2 kolumny na desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative z-10">
+              {/* Lewa kolumna - Metryczka */}
+              <div className="space-y-6">
+                {/* Logo i nazwa */}
+                <div className="flex items-start gap-6">
+                  <div className="shrink-0">
+                    <div className="h-32 w-32 rounded-3xl border-4 border-white shadow-lg overflow-hidden bg-white">
+                      {organization.logo_url ? (
+                        <img 
+                          src={organization.logo_url} 
+                          alt={organization.name}
+                          className="w-full h-full object-cover object-center"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
+                          <Heart className="h-16 w-16 text-primary" />
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                        {organization.name}
+                      </h1>
+                      <span title="Zweryfikowana Organizacja">
+                        <ShieldCheck className="h-7 w-7 text-primary shrink-0" />
+                      </span>
+                    </div>
+                    {organization.description && (
+                      <p className="text-muted-foreground leading-relaxed">
+                        {organization.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
+
+                {/* Metryczka */}
+                <Card className="bg-gradient-to-br from-white/80 to-white/60 border-white/50 shadow-md">
+                  <div className="p-6 space-y-4">
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-primary" />
+                      Dane organizacji
+                    </h3>
+                    
+                    <div className="space-y-3 text-sm">
+                      {organization.city && (
+                        <div className="flex items-start gap-3">
+                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                          <div>
+                            <p className="font-medium">Lokalizacja</p>
+                            <p className="text-muted-foreground">
+                              {organization.city}
+                              {organization.province && `, ${organization.province}`}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-start gap-3">
+                        <PawPrint className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-medium">Podopieczni</p>
+                          <p className="text-muted-foreground">{animals.length} zwierzaków</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-medium">Z nami od</p>
+                          <p className="text-muted-foreground">2024</p>
+                        </div>
+                      </div>
+
+                      {organization.contact_phone && (
+                        <div className="flex items-start gap-3">
+                          <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                          <div>
+                            <p className="font-medium">Telefon</p>
+                            <a 
+                              href={`tel:${organization.contact_phone}`}
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              {organization.contact_phone}
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-start gap-3">
+                        <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-medium">Email</p>
+                          <a 
+                            href={`mailto:${organization.contact_email}`}
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            {organization.contact_email}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
               </div>
 
-              {/* Content - Aligned left on desktop */}
-              <div className="flex-1 text-center md:text-left space-y-3">
-                {/* Tytuł z weryfikacją */}
-                <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                  <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-                    {organization.name}
-                  </h1>
-                  <span title="Zweryfikowana Organizacja">
-                    <ShieldCheck className="h-7 w-7 md:h-8 md:w-8 text-primary" />
-                  </span>
-                </div>
-
-                {/* Opis - Clamped to save space */}
-                {organization.description && (
-                  <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto md:mx-0 leading-relaxed line-clamp-2 md:line-clamp-none">
-                    {organization.description}
+              {/* Prawa kolumna - Wishlistę organizacji */}
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+                    <ShoppingCart className="h-6 w-6 text-primary" />
+                    Potrzeby organizacji
+                  </h2>
+                  <p className="text-muted-foreground text-sm">
+                    Ogólne zapotrzebowanie dla wszystkich podopiecznych
                   </p>
-                )}
-
-                {/* Statystyki - Kolorowe Badge'y */}
-                <div className="flex justify-center md:justify-start gap-3 flex-wrap pt-1">
-              {organization.city && (
-                <div className="bg-blue-50 text-blue-600 rounded-full px-4 py-2 font-semibold shadow-sm flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  {organization.city}
                 </div>
-              )}
-              
-              <div className="bg-orange-50 text-orange-600 rounded-full px-4 py-2 font-semibold shadow-sm flex items-center gap-2">
-                <PawPrint className="h-4 w-4" />
-                {animals.length} Podopiecznych
-              </div>
 
-              <div className="bg-green-50 text-green-600 rounded-full px-4 py-2 font-semibold shadow-sm flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Z nami od 2024
-              </div>
-            </div>
+                {orgWishlist.length === 0 ? (
+                  <Card className="bg-white/60 border-white/50 shadow-md">
+                    <div className="p-12 text-center">
+                      <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+                      <p className="text-muted-foreground">
+                        Organizacja nie ma jeszcze ogólnej wishlisty
+                      </p>
+                    </div>
+                  </Card>
+                ) : (
+                  <>
+                    <WishlistProgressBar 
+                      wishlist={orgWishlist.map((item: any) => ({
+                        id: item.id,
+                        name: item.products?.name || '',
+                        price: item.products?.price || 0,
+                        product_id: item.product_id,
+                        quantity: item.quantity,
+                        bought: false,
+                      }))} 
+                    />
+                    
+                    <Card className="bg-white/80 border-white/50 shadow-md">
+                      <div className="p-6">
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                          {orgWishlist.map((item: any) => (
+                            <div 
+                              key={item.id}
+                              className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-white/50"
+                            >
+                              {item.products?.image_url && (
+                                <img 
+                                  src={item.products.image_url}
+                                  alt={item.products.name}
+                                  className="w-12 h-12 rounded-lg object-cover"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm truncate">
+                                  {item.products?.name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.quantity} {item.products?.unit || 'szt'} × {item.products?.price?.toFixed(2)} zł
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold text-primary">
+                                  {((item.quantity || 1) * (item.products?.price || 0)).toFixed(2)} zł
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
 
-            {/* Kontakt w Hero */}
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm pt-2">
-              {organization.contact_phone && (
-                <a 
-                  href={`tel:${organization.contact_phone}`}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Phone className="h-4 w-4" />
-                  {organization.contact_phone}
-                </a>
-              )}
-              <a 
-                href={`mailto:${organization.contact_email}`}
-                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Mail className="h-4 w-4" />
-                {organization.contact_email}
-              </a>
-            </div>
+                        <div className="mt-6 pt-4 border-t">
+                          <Button
+                            onClick={handleAddAllToCart}
+                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+                            size="lg"
+                          >
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            Dodaj wszystko! ({orgWishlist.reduce((sum: number, item: any) => 
+                              sum + ((item.quantity || 1) * (item.products?.price || 0)), 0
+                            ).toFixed(2)} zł)
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  </>
+                )}
               </div>
             </div>
           </div>

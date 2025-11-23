@@ -402,6 +402,48 @@ export type Database = {
           },
         ]
       }
+      organization_wishlists: {
+        Row: {
+          created_at: string | null
+          id: string
+          organization_id: string
+          priority: number | null
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          organization_id: string
+          priority?: number | null
+          product_id: string
+          quantity?: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          organization_id?: string
+          priority?: number | null
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_wishlists_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           active: boolean | null
