@@ -372,7 +372,7 @@ export default function OrganizationPublicProfile() {
       <div id="animals" className="container mx-auto px-4 pb-16 relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-foreground mb-2">
-            Nasi Podopieczni 🐶🐱
+            Nasi Podopieczni
           </h2>
           <p className="text-lg text-muted-foreground">
             Każdy z nich czeka na Twoją pomoc
