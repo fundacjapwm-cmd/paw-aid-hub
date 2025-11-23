@@ -38,7 +38,6 @@ const organizationSchema = z.object({
     .optional()
     .or(z.literal("")),
   city: z.string().min(1, "Miasto jest wymagane"),
-  province: z.string().optional().or(z.literal("")),
   contact_email: z.string().min(1, "Email kontaktowy jest wymagany").email("Nieprawidłowy adres email"),
   contact_phone: z.string().optional().or(z.literal("")),
   website: z.string().url("Nieprawidłowy adres strony (musi zaczynać się od http:// lub https://)").optional().or(z.literal("")),
@@ -99,7 +98,6 @@ export default function OrgProfileForm({ organizationId, isOwner, onSuccess }: O
         address: data.address || "",
         postal_code: data.postal_code || "",
         city: data.city || "",
-        province: data.province || "",
         website: data.website || "",
         description: data.description || "",
       });
@@ -189,7 +187,6 @@ export default function OrgProfileForm({ organizationId, isOwner, onSuccess }: O
         if (krsData.address) form.setValue("address", krsData.address);
         if (krsData.city) form.setValue("city", krsData.city);
         if (krsData.postal_code) form.setValue("postal_code", krsData.postal_code);
-        if (krsData.province) form.setValue("province", krsData.province);
 
         toast({
           title: "Sukces",
@@ -301,7 +298,6 @@ export default function OrgProfileForm({ organizationId, isOwner, onSuccess }: O
         address: data.address || null,
         city: data.city || null,
         postal_code: data.postal_code || null,
-        province: data.province || null,
         website: data.website || null,
         description: data.description || null,
       })
@@ -494,7 +490,7 @@ export default function OrgProfileForm({ organizationId, isOwner, onSuccess }: O
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="postal_code"
@@ -517,20 +513,6 @@ export default function OrgProfileForm({ organizationId, isOwner, onSuccess }: O
                       <FormLabel>Miasto *</FormLabel>
                       <FormControl>
                         <Input placeholder="Warszawa" {...field} disabled={!isOwner} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="province"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Województwo</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Mazowieckie" {...field} disabled={!isOwner} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
