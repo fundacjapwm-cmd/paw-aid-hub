@@ -284,57 +284,60 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                                 ✓ Kupione
                               </span>
                             ) : (
-                              /* Actions Row */
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                {/* Counter */}
-                                <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg px-1">
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-5 w-5 hover:bg-background transition-all"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleQuantityChange(productId, -1, neededQuantity);
-                                    }}
-                                    disabled={quantity <= 1}
-                                  >
-                                    <Minus className="h-2.5 w-2.5" />
-                                  </Button>
-                                  <span className="w-5 text-center text-xs font-semibold text-foreground">
-                                    {quantity}
-                                  </span>
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-5 w-5 hover:bg-background transition-all"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleQuantityChange(productId, 1, neededQuantity);
-                                    }}
-                                    disabled={quantity >= neededQuantity}
-                                  >
-                                    <Plus className="h-2.5 w-2.5" />
-                                  </Button>
+                              /* Actions - vertical stack */
+                              <div className="space-y-1">
+                                {/* Top row: Counter + Remove */}
+                                <div className="flex items-center gap-1.5">
+                                  {/* Counter */}
+                                  <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg px-1">
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-5 w-5 hover:bg-background transition-all"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleQuantityChange(productId, -1, neededQuantity);
+                                      }}
+                                      disabled={quantity <= 1}
+                                    >
+                                      <Minus className="h-2.5 w-2.5" />
+                                    </Button>
+                                    <span className="w-5 text-center text-xs font-semibold text-foreground">
+                                      {quantity}
+                                    </span>
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-5 w-5 hover:bg-background transition-all"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleQuantityChange(productId, 1, neededQuantity);
+                                      }}
+                                      disabled={quantity >= neededQuantity}
+                                    >
+                                      <Plus className="h-2.5 w-2.5" />
+                                    </Button>
+                                  </div>
+
+                                  {/* Remove from cart if already added */}
+                                  {itemInCart && (
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-5 w-5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                      onClick={(e) => handleRemoveFromCart(e, productId)}
+                                    >
+                                      <X className="h-2.5 w-2.5" />
+                                    </Button>
+                                  )}
                                 </div>
 
-                                {/* Remove from cart if already added */}
-                                {itemInCart && (
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-5 w-5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                                    onClick={(e) => handleRemoveFromCart(e, productId)}
-                                  >
-                                    <X className="h-2.5 w-2.5" />
-                                  </Button>
-                                )}
-
-                                {/* Add Button */}
-                                <div className="relative ml-auto">
+                                {/* Bottom row: Add Button */}
+                                <div className="relative">
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className={`h-6 px-2 text-xs font-medium rounded-lg transition-all ${
+                                    className={`h-6 w-full px-2 text-xs font-medium rounded-lg transition-all ${
                                       itemInCart 
                                         ? 'bg-green-500 hover:bg-green-600 text-white' 
                                         : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105'
