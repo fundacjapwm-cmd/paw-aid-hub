@@ -85,7 +85,6 @@ const App = () => (
             <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
             <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
             <Route path="/organizacja/profil" element={<OrgProfile />} />
-            <Route path="/organizacja/zgloszenia" element={<OrgRequests />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-failure" element={<PaymentFailure />} />
