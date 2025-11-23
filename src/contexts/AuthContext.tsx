@@ -33,37 +33,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    
+    const fetchProfile = async (userId: string) => {
+      try {
+        const [{ data: profileData }, { data: roleData }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', userId).single(),
+          supabase.from('user_roles').select('role').eq('user_id', userId).single()
+        ]);
+        
+        if (mounted && profileData) {
+          setProfile({
+            ...profileData,
+            role: roleData?.role || 'USER'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    // Check for existing session first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchProfile(session.user.id).then(() => {
+          if (mounted) setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
+    });
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile - deferred to prevent deadlock
-          setTimeout(() => {
-            Promise.all([
-              supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single(),
-              supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', session.user.id)
-                .single()
-            ]).then(([{ data: profileData }, { data: roleData }]) => {
-              if (profileData) {
-                setProfile({
-                  ...profileData,
-                  role: roleData?.role || 'USER'
-                });
-              }
-            }).catch(error => {
-              console.error('Error fetching profile:', error);
-            });
-          }, 0);
+          fetchProfile(session.user.id);
         } else {
           setProfile(null);
         }
@@ -72,38 +87,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        Promise.all([
-          supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single(),
-          supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .single()
-        ]).then(([{ data: profileData }, { data: roleData }]) => {
-          if (profileData) {
-            setProfile({
-              ...profileData,
-              role: roleData?.role || 'USER'
-            });
-          }
-          setLoading(false);
-        });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
