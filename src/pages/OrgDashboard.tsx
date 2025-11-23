@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard, Trash2, Upload, Calendar as CalendarIcon } from "lucide-react";
+import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard, Trash2, Upload, Calendar as CalendarIcon, ShoppingCart, CheckCircle } from "lucide-react";
 import { useNavigate as useRouterNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -29,6 +29,7 @@ import * as z from "zod";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 const animalSchema = z.object({
   name: z.string().min(2, "Imię musi mieć minimum 2 znaki"),
@@ -98,14 +99,43 @@ export default function OrgDashboard() {
 
       if (!orgId) return { organization: null, animals: [], stats: { animals: 0, wishlistItems: 0, requests: 0 } };
 
-      // Get animals
+      // Get animals with wishlist data
       const { data: animals } = await supabase
         .from("animals")
-        .select("*")
+        .select(`
+          *,
+          animal_wishlists(quantity)
+        `)
         .eq("organization_id", orgId)
         .eq("active", true)
         .order("created_at", { ascending: false })
         .limit(6);
+
+      // Get fulfilled items for all animals
+      const animalIdsForOrders = animals?.map(a => a.id) || [];
+      const { data: orderItems } = await supabase
+        .from("order_items")
+        .select("animal_id, quantity")
+        .in("animal_id", animalIdsForOrders)
+        .eq("fulfillment_status", "fulfilled");
+
+      // Calculate stats for each animal
+      const animalsWithStats = animals?.map(animal => {
+        const wishlistItems = (animal as any).animal_wishlists || [];
+        const totalNeeded = wishlistItems.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+        const fulfilled = orderItems?.filter(oi => oi.animal_id === animal.id)
+          .reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+        const progress = totalNeeded > 0 ? Math.min((fulfilled / totalNeeded) * 100, 100) : 0;
+
+        return {
+          ...animal,
+          wishlistStats: {
+            totalNeeded,
+            fulfilled,
+            progress
+          }
+        };
+      }) || [];
 
       // Count animals
       const { count: animalsCount } = await supabase
@@ -135,7 +165,7 @@ export default function OrgDashboard() {
 
       return {
         organization,
-        animals: animals || [],
+        animals: animalsWithStats,
         stats: {
           animals: animalsCount || 0,
           wishlistItems: wishlistCount || 0,
@@ -513,9 +543,30 @@ export default function OrgDashboard() {
                         )}
                       </div>
                       {animal.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                           {animal.description}
                         </p>
+                      )}
+                      
+                      {/* Wishlist Progress */}
+                      {(animal as any).wishlistStats && (animal as any).wishlistStats.totalNeeded > 0 && (
+                        <div className="space-y-2 pt-3 border-t">
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <ShoppingCart className="h-3 w-3" />
+                              <span>Potrzeby</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-primary font-medium">
+                                {(animal as any).wishlistStats.fulfilled} / {(animal as any).wishlistStats.totalNeeded}
+                              </span>
+                              <span className="text-muted-foreground">
+                                {Math.round((animal as any).wishlistStats.progress)}%
+                              </span>
+                            </div>
+                          </div>
+                          <Progress value={(animal as any).wishlistStats.progress} className="h-2" />
+                        </div>
                       )}
                     </div>
 
