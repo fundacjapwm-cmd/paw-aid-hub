@@ -389,7 +389,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                     allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
                   }`}
                   onClick={handleBuyAll}
-                  disabled={allBought || allItemsInCart}
+                  disabled={allBought}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {allBought 
