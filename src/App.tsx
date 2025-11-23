@@ -34,6 +34,7 @@ import OrgAnimals from "./pages/OrgAnimals";
 import OrgProfile from "./pages/OrgProfile";
 import OrgRequests from "./pages/OrgRequests";
 import OrgWishlist from "./pages/OrgWishlist";
+import OrgOrders from "./pages/OrgOrders";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="/organizacja" element={<OrgDashboard />} />
             <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
             <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
+            <Route path="/organizacja/zamowienia" element={<OrgOrders />} />
             <Route path="/organizacja/profil" element={<OrgProfile />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
