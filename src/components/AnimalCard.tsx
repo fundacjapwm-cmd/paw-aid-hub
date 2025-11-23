@@ -253,7 +253,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                             }`} title={item.name}>
                               {item.name}
                             </p>
-                            {!item.bought && neededQuantity > 1 && (
+                            {!item.bought && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <button

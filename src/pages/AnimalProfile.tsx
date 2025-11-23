@@ -304,7 +304,7 @@ const AnimalProfile = () => {
                                 {Number(item.price).toFixed(2)} zł
                               </div>
                               
-                              {!item.bought && neededQuantity > 1 && (
+                              {!item.bought && (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button
