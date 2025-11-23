@@ -90,14 +90,20 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
     .filter(item => item.animalId === String(animal.id))
     .reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // Calculate total missing cost (price × needed quantity for each item)
-  const totalMissingCost = wishlistItems
+  // Calculate total wishlist cost (price × full needed quantity for all items)
+  const totalWishlistCost = wishlistItems
     .filter(item => !item.bought)
     .reduce((sum, item) => {
-      const productId = item.product_id || String(item.id);
-      const neededQuantity = (item.quantity || 1) - getCartQuantity(productId);
-      return sum + (item.price * Math.max(0, neededQuantity));
+      return sum + (item.price * (item.quantity || 1));
     }, 0);
+
+  // Check if all items are in cart with needed quantities
+  const allItemsInCart = wishlistItems.length > 0 && wishlistItems
+    .filter(item => !item.bought)
+    .every(item => {
+      const productId = item.product_id || String(item.id);
+      return getCartQuantity(productId) >= (item.quantity || 1);
+    });
 
   const handleQuantityChange = (productId: string, change: number, maxLimit: number) => {
     setQuantities((prev) => {
@@ -139,7 +145,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       productId: item.product_id || String(item.id),
       productName: item.name,
       price: item.price,
-      maxQuantity: item.quantity,
+      maxQuantity: item.quantity, // Dodaj pełną potrzebną ilość
       animalId: String(animal.id),
       animalName: animal.name,
     }));
@@ -379,16 +385,18 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 <Button 
                   variant="success" 
                   size="sm" 
-                  className="w-full rounded-xl font-bold shadow-sm"
+                  className={`w-full rounded-xl font-bold shadow-sm ${
+                    allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
+                  }`}
                   onClick={handleBuyAll}
-                  disabled={allBought || fullyAdded}
+                  disabled={allBought || allItemsInCart}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {allBought 
                     ? 'Wszystko kupione!' 
-                    : fullyAdded 
-                    ? 'Już dodano do koszyka!' 
-                    : `Kup wszystkie produkty ${totalMissingCost > 0 ? `(${totalMissingCost.toFixed(2)} zł)` : ''}`
+                    : allItemsInCart 
+                    ? `Dodano do koszyka (${totalWishlistCost.toFixed(2)} zł)` 
+                    : `Dodaj wszystko do koszyka! (${totalWishlistCost.toFixed(2)} zł)`
                   }
                 </Button>
               </>
