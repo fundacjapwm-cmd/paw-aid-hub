@@ -456,8 +456,8 @@ const AnimalProfile = () => {
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       {allItemsInCart 
-                        ? `Dodano do koszyka (${totalWishlistCost.toFixed(2)} zł)` 
-                        : `Dodaj wszystko do koszyka! (${totalWishlistCost.toFixed(2)} zł)`
+                        ? `Dodano (${totalWishlistCost.toFixed(2)} zł)` 
+                        : `Dodaj wszystko! (${totalWishlistCost.toFixed(2)} zł)`
                       }
                     </Button>
                   </div>
