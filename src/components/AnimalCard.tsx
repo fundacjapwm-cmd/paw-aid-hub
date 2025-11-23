@@ -228,136 +228,128 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                     return (
                       <div 
                         key={item.id} 
-                        className={`relative rounded-lg transition-all p-2 ${
+                        className={`flex gap-3 p-3 rounded-xl transition-all ${
                           item.bought 
                             ? 'bg-green-50 border border-green-200' 
-                            : 'bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-primary/20'
+                            : 'bg-white border border-gray-100 shadow-sm hover:border-primary/20'
                         }`}
                       >
-                        {/* Top Right: Counter & Remove (absolute positioning) */}
-                        {!item.bought && (
-                          <div className="absolute top-1.5 right-1.5 flex items-center gap-1 z-10">
-                            {/* Counter */}
-                            <div className="flex items-center gap-0.5 bg-background/95 backdrop-blur-sm rounded-lg px-1 shadow-sm border border-border">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-5 w-5 hover:bg-muted transition-all"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleQuantityChange(productId, -1, neededQuantity);
-                                }}
-                                disabled={quantity <= 1}
-                              >
-                                <Minus className="h-2.5 w-2.5" />
-                              </Button>
-                              <span className="w-5 text-center text-xs font-semibold text-foreground">
-                                {quantity}
-                              </span>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-5 w-5 hover:bg-muted transition-all"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleQuantityChange(productId, 1, neededQuantity);
-                                }}
-                                disabled={quantity >= neededQuantity}
-                              >
-                                <Plus className="h-2.5 w-2.5" />
-                              </Button>
-                            </div>
-
-                            {/* Remove from cart */}
-                            {itemInCart && (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-5 w-5 bg-background/95 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground transition-colors shadow-sm border border-border"
-                                onClick={(e) => handleRemoveFromCart(e, productId)}
-                              >
-                                <X className="h-2.5 w-2.5" />
-                              </Button>
-                            )}
-                          </div>
-                        )}
-
-                        <div className="flex gap-2">
-                          {/* Product Image */}
-                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border">
+                        {/* 1. KOLUMNA: Obrazek produktu (Fixed Width) */}
+                        <div className="shrink-0">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border">
                             <img 
                               src={item.image_url || '/placeholder.svg'} 
                               alt={item.name}
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          
-                          {/* Product Info */}
-                          <div className="flex-1 min-w-0 space-y-1 pr-16">
-                            <div>
-                              <p className={`text-xs font-medium leading-tight line-clamp-1 ${
-                                item.bought ? 'text-green-700 line-through' : 'text-foreground'
-                              }`}>
-                                {item.name}
-                              </p>
-                              <div className="flex items-baseline gap-1.5">
-                                <p className={`text-sm font-bold ${
-                                  item.bought ? 'text-green-600' : 'text-primary'
-                                }`}>
-                                  {item.price.toFixed(2)} zł
-                                </p>
-                                {!item.bought && neededQuantity > 1 && (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setQuantities(prev => ({ ...prev, [productId]: neededQuantity }));
-                                        }}
-                                        className="text-xs text-primary underline hover:text-primary/80 cursor-pointer transition-colors font-medium"
-                                      >
-                                        potrzebne: {neededQuantity} szt
-                                      </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="text-xs">Kliknij, aby ustawić {neededQuantity} szt</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                )}
-                              </div>
-                            </div>
+                        </div>
 
-                            {/* Bottom: Add Button */}
-                            {item.bought ? (
-                              <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold inline-block">
-                                ✓ Kupione
-                              </span>
-                            ) : (
-                              <div className="relative w-fit">
+                        {/* 2. KOLUMNA: Informacje o produkcie (Flex-1) */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                          <div>
+                            <p className={`text-sm font-bold leading-tight line-clamp-2 mb-1 ${
+                              item.bought ? 'text-green-700 line-through' : 'text-foreground'
+                            }`} title={item.name}>
+                              {item.name}
+                            </p>
+                            {!item.bought && neededQuantity > 1 && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setQuantities(prev => ({ ...prev, [productId]: neededQuantity }));
+                                    }}
+                                    className="text-xs text-muted-foreground hover:text-primary transition-colors text-left underline decoration-dotted"
+                                  >
+                                    Potrzeba: {neededQuantity} szt
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs">Kliknij, aby ustawić {neededQuantity} szt</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                          <div className={`text-base font-bold ${
+                            item.bought ? 'text-green-600' : 'text-primary'
+                          }`}>
+                            {item.price.toFixed(2)} zł
+                          </div>
+                        </div>
+
+                        {/* 3. KOLUMNA: Akcje (Fixed Width, Horizontal Layout) */}
+                        <div className="flex flex-col justify-end items-end shrink-0 pl-2">
+                          {item.bought ? (
+                            <span className="text-xs bg-green-500 text-white px-3 py-1.5 rounded-lg font-semibold">
+                              ✓ Kupione
+                            </span>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              {/* Licznik ilości */}
+                              <div className="flex items-center bg-gray-50 rounded-lg h-9 p-1 shadow-inner">
+                                <button 
+                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleQuantityChange(productId, -1, neededQuantity);
+                                  }}
+                                  disabled={quantity <= 1}
+                                >
+                                  -
+                                </button>
+                                <span className="w-6 text-center text-sm font-bold tabular-nums">
+                                  {quantity}
+                                </span>
+                                <button 
+                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleQuantityChange(productId, 1, neededQuantity);
+                                  }}
+                                  disabled={quantity >= neededQuantity}
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* Przycisk Usuń z koszyka (jeśli dodano) */}
+                              {itemInCart && (
                                 <Button
+                                  size="icon"
                                   variant="ghost"
-                                  size="sm"
-                                  className={`h-6 px-2 text-xs font-medium rounded-lg transition-all ${
+                                  className="h-9 w-9 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                  onClick={(e) => handleRemoveFromCart(e, productId)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              )}
+
+                              {/* Przycisk Dodaj/Dodano do koszyka */}
+                              <div className="relative">
+                                <Button
+                                  size="icon"
+                                  className={`h-9 w-9 rounded-xl transition-all ${
                                     itemInCart 
                                       ? 'bg-green-500 hover:bg-green-600 text-white' 
-                                      : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105'
+                                      : 'bg-primary hover:bg-primary/90 text-white shadow-bubbly hover:scale-105'
                                   }`}
                                   onClick={(e) => handleAddToCart(e, item)}
                                   disabled={itemInCart}
                                 >
-                                  <ShoppingCart className="h-2.5 w-2.5 mr-1" />
-                                  {itemInCart ? 'Dodano' : 'Dodaj'}
+                                  <ShoppingCart className="h-4 w-4" />
                                 </Button>
                                 {cartQuantity > 0 && (
                                   <Badge 
-                                    className="absolute -top-1.5 -right-1.5 h-4 w-4 flex items-center justify-center p-0 text-xs bg-red-500 text-white border border-background"
+                                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background rounded-full"
                                   >
                                     {cartQuantity}
                                   </Badge>
                                 )}
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
