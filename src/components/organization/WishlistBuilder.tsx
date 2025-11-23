@@ -264,7 +264,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                             }
                           }
                         }}
-                        className="text-center w-16 h-8"
+                        className="text-center w-16 h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <Button
                         type="button"
@@ -388,7 +388,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                                 }
                               }
                             }}
-                            className="text-center w-20"
+                            className="text-center w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                           <Button
                             type="button"
