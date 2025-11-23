@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, PawPrint, ClipboardList, Settings, LogOut, ExternalLink, Package } from "lucide-react";
+import { Home, PawPrint, ClipboardList, Settings, LogOut, ExternalLink, Package, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -28,6 +28,7 @@ interface OrgLayoutProps {
 const menuItems = [
   { title: "Pulpit", url: "/organizacja", icon: Home },
   { title: "Lista potrzeb", url: "/organizacja/lista-potrzeb", icon: Package },
+  { title: "Zamówienia", url: "/organizacja/zamowienia", icon: ShoppingBag },
   { title: "Ustawienia", url: "/organizacja/profil", icon: Settings },
 ];
 
