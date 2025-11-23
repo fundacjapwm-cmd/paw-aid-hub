@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, ShoppingCart } from "lucide-react";
+import { Search, Plus, ShoppingCart, Minus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -274,23 +274,43 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                         </h4>
                         <div className="space-y-2">
                           <Label htmlFor="quantity">Ilość</Label>
-                          <Input
-                            id="quantity"
-                            type="number"
-                            min="1"
-                            value={quantity}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val === '' || val === '0') {
-                                setQuantity(1);
-                              } else {
-                                const num = parseInt(val, 10);
-                                if (!isNaN(num) && num > 0) {
-                                  setQuantity(num);
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                              disabled={quantity <= 1}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <Input
+                              id="quantity"
+                              type="number"
+                              min="1"
+                              value={quantity}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '' || val === '0') {
+                                  setQuantity(1);
+                                } else {
+                                  const num = parseInt(val, 10);
+                                  if (!isNaN(num) && num > 0) {
+                                    setQuantity(num);
+                                  }
                                 }
-                              }
-                            }}
-                          />
+                              }}
+                              className="text-center"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setQuantity(quantity + 1)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                         <Button
                           className="w-full"
