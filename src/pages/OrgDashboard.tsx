@@ -18,6 +18,7 @@ export default function OrgDashboard() {
   const navigate = useNavigate();
   const routerNavigate = useRouterNavigate();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -98,10 +99,15 @@ export default function OrgDashboard() {
   });
 
   const organization = dashboardData?.organization;
-  const animals = dashboardData?.animals || [];
+  const allAnimals = dashboardData?.animals || [];
   const stats = dashboardData?.stats || { animals: 0, wishlistItems: 0, requests: 0 };
   const orgId = dashboardData?.organization?.id;
   const isOwner = true; // User in dashboard is always owner or has access
+
+  // Filter animals based on search query
+  const animals = allAnimals.filter((animal) =>
+    animal.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (!user || profile?.role !== "ORG") {
     return null;
@@ -255,20 +261,31 @@ export default function OrgDashboard() {
 
         {/* Animals Section */}
         <div>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
               <h2 className="text-2xl font-bold text-foreground">Nasi Podopieczni</h2>
               <p className="text-muted-foreground">
-                {animals.length > 0 ? `${animals.length} najnowszych zwierząt` : 'Nie masz jeszcze żadnych podopiecznych'}
+                {allAnimals.length > 0 ? `${allAnimals.length} ${allAnimals.length === 1 ? 'zwierzę' : 'zwierząt'} w systemie` : 'Nie masz jeszcze żadnych podopiecznych'}
               </p>
             </div>
-            <Button 
-              onClick={() => routerNavigate('/organizacja/zwierzeta')}
-              className="rounded-2xl shadow-soft hover:scale-105 transition-transform"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Dodaj podopiecznego
-            </Button>
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1 md:w-64">
+                <input
+                  type="text"
+                  placeholder="Szukaj po imieniu..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <Button 
+                onClick={() => routerNavigate('/organizacja/zwierzeta')}
+                className="rounded-2xl shadow-soft hover:scale-105 transition-transform whitespace-nowrap"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Dodaj
+              </Button>
+            </div>
           </div>
 
           {animals.length === 0 ? (
@@ -278,75 +295,78 @@ export default function OrgDashboard() {
                   <PawPrint className="h-10 w-10 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Brak podopiecznych</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {searchQuery ? 'Nie znaleziono podopiecznych' : 'Brak podopiecznych'}
+                  </h3>
                   <p className="text-muted-foreground mb-4">
-                    Zacznij dodawać zwierzęta, które potrzebują wsparcia
+                    {searchQuery 
+                      ? `Brak wyników dla "${searchQuery}"`
+                      : 'Zacznij dodawać zwierzęta, które potrzebują wsparcia'
+                    }
                   </p>
-                  <Button 
-                    onClick={() => routerNavigate('/organizacja/zwierzeta')}
-                    className="rounded-2xl"
-                  >
-                    Dodaj pierwszego podopiecznego
-                  </Button>
+                  {!searchQuery && (
+                    <Button 
+                      onClick={() => routerNavigate('/organizacja/zwierzeta')}
+                      className="rounded-2xl"
+                    >
+                      Dodaj pierwszego podopiecznego
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-4">
               {animals.map((animal) => (
                 <Card
                   key={animal.id}
-                  className="group overflow-hidden hover:shadow-bubbly transition-all duration-300 hover:-translate-y-2 rounded-3xl border-0 shadow-card cursor-pointer"
+                  className="group overflow-hidden hover:shadow-bubbly transition-all duration-300 hover:-translate-y-1 rounded-3xl border-0 shadow-card cursor-pointer"
                   onClick={() => routerNavigate(`/zwierze/${animal.id}`)}
                 >
-                  <div className="relative aspect-square overflow-hidden">
-                    <img
-                      src={animal.image_url || '/placeholder.svg'}
-                      alt={animal.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 right-3">
-                      <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm">
-                        {animal.species}
-                      </Badge>
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="relative w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden">
+                      <img
+                        src={animal.image_url || '/placeholder.svg'}
+                        alt={animal.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute top-2 right-2">
+                        <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-xs">
+                          {animal.species}
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {animal.name}
-                    </h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                      {animal.age && (
-                        <span className="bg-muted/50 px-2 py-1 rounded-full">
-                          {animal.age} {animal.age === 1 ? 'rok' : 'lat'}
-                        </span>
-                      )}
-                      {animal.breed && (
-                        <span className="bg-muted/50 px-2 py-1 rounded-full">
-                          {animal.breed}
-                        </span>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                        {animal.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
+                        {animal.age && (
+                          <span className="bg-muted/50 px-2 py-1 rounded-full">
+                            {animal.age} {animal.age === 1 ? 'rok' : 'lat'}
+                          </span>
+                        )}
+                        {animal.breed && (
+                          <span className="bg-muted/50 px-2 py-1 rounded-full">
+                            {animal.breed}
+                          </span>
+                        )}
+                        {animal.gender && (
+                          <span className="bg-muted/50 px-2 py-1 rounded-full">
+                            {animal.gender}
+                          </span>
+                        )}
+                      </div>
+                      {animal.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {animal.description}
+                        </p>
                       )}
                     </div>
-                    {animal.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {animal.description}
-                      </p>
-                    )}
-                  </div>
+                  </CardContent>
                 </Card>
               ))}
-            </div>
-          )}
-
-          {animals.length > 0 && (
-            <div className="flex justify-center mt-6">
-              <Button
-                variant="outline"
-                onClick={() => routerNavigate('/organizacja/zwierzeta')}
-                className="rounded-2xl"
-              >
-                Zobacz wszystkich podopiecznych
-              </Button>
             </div>
           )}
         </div>
