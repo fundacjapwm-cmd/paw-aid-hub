@@ -35,32 +35,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile
-          setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            // Fetch role from secure user_roles table
-            const { data: roleData } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', session.user.id)
-              .single();
-            
-            if (profileData) {
-              setProfile({
-                ...profileData,
-                role: roleData?.role || 'USER'
-              });
-            }
+          // Fetch user profile - deferred to prevent deadlock
+          setTimeout(() => {
+            Promise.all([
+              supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single(),
+              supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', session.user.id)
+                .single()
+            ]).then(([{ data: profileData }, { data: roleData }]) => {
+              if (profileData) {
+                setProfile({
+                  ...profileData,
+                  role: roleData?.role || 'USER'
+                });
+              }
+            }).catch(error => {
+              console.error('Error fetching profile:', error);
+            });
           }, 0);
         } else {
           setProfile(null);
