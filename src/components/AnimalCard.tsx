@@ -228,12 +228,60 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                     return (
                       <div 
                         key={item.id} 
-                        className={`rounded-lg transition-all p-2 ${
+                        className={`relative rounded-lg transition-all p-2 ${
                           item.bought 
                             ? 'bg-green-50 border border-green-200' 
                             : 'bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-primary/20'
                         }`}
                       >
+                        {/* Top Right: Counter & Remove (absolute positioning) */}
+                        {!item.bought && (
+                          <div className="absolute top-1.5 right-1.5 flex items-center gap-1 z-10">
+                            {/* Counter */}
+                            <div className="flex items-center gap-0.5 bg-background/95 backdrop-blur-sm rounded-lg px-1 shadow-sm border border-border">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5 hover:bg-muted transition-all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuantityChange(productId, -1, neededQuantity);
+                                }}
+                                disabled={quantity <= 1}
+                              >
+                                <Minus className="h-2.5 w-2.5" />
+                              </Button>
+                              <span className="w-5 text-center text-xs font-semibold text-foreground">
+                                {quantity}
+                              </span>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5 hover:bg-muted transition-all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuantityChange(productId, 1, neededQuantity);
+                                }}
+                                disabled={quantity >= neededQuantity}
+                              >
+                                <Plus className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+
+                            {/* Remove from cart */}
+                            {itemInCart && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5 bg-background/95 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground transition-colors shadow-sm border border-border"
+                                onClick={(e) => handleRemoveFromCart(e, productId)}
+                              >
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
+
                         <div className="flex gap-2">
                           {/* Product Image */}
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border">
@@ -245,7 +293,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                           </div>
                           
                           {/* Product Info */}
-                          <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex-1 min-w-0 space-y-1 pr-16">
                             <div>
                               <p className={`text-xs font-medium leading-tight line-clamp-1 ${
                                 item.bought ? 'text-green-700 line-through' : 'text-foreground'
@@ -279,83 +327,34 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                               </div>
                             </div>
 
+                            {/* Bottom: Add Button */}
                             {item.bought ? (
                               <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold inline-block">
                                 ✓ Kupione
                               </span>
                             ) : (
-                              /* Actions - vertical stack */
-                              <div className="space-y-1">
-                                {/* Top row: Counter + Remove */}
-                                <div className="flex items-center gap-1.5">
-                                  {/* Counter */}
-                                  <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg px-1">
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="h-5 w-5 hover:bg-background transition-all"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleQuantityChange(productId, -1, neededQuantity);
-                                      }}
-                                      disabled={quantity <= 1}
-                                    >
-                                      <Minus className="h-2.5 w-2.5" />
-                                    </Button>
-                                    <span className="w-5 text-center text-xs font-semibold text-foreground">
-                                      {quantity}
-                                    </span>
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="h-5 w-5 hover:bg-background transition-all"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleQuantityChange(productId, 1, neededQuantity);
-                                      }}
-                                      disabled={quantity >= neededQuantity}
-                                    >
-                                      <Plus className="h-2.5 w-2.5" />
-                                    </Button>
-                                  </div>
-
-                                  {/* Remove from cart if already added */}
-                                  {itemInCart && (
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="h-5 w-5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                                      onClick={(e) => handleRemoveFromCart(e, productId)}
-                                    >
-                                      <X className="h-2.5 w-2.5" />
-                                    </Button>
-                                  )}
-                                </div>
-
-                                {/* Bottom row: Add Button */}
-                                <div className="relative">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className={`h-6 w-full px-2 text-xs font-medium rounded-lg transition-all ${
-                                      itemInCart 
-                                        ? 'bg-green-500 hover:bg-green-600 text-white' 
-                                        : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105'
-                                    }`}
-                                    onClick={(e) => handleAddToCart(e, item)}
-                                    disabled={itemInCart}
+                              <div className="relative w-fit">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-6 px-2 text-xs font-medium rounded-lg transition-all ${
+                                    itemInCart 
+                                      ? 'bg-green-500 hover:bg-green-600 text-white' 
+                                      : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105'
+                                  }`}
+                                  onClick={(e) => handleAddToCart(e, item)}
+                                  disabled={itemInCart}
+                                >
+                                  <ShoppingCart className="h-2.5 w-2.5 mr-1" />
+                                  {itemInCart ? 'Dodano' : 'Dodaj'}
+                                </Button>
+                                {cartQuantity > 0 && (
+                                  <Badge 
+                                    className="absolute -top-1.5 -right-1.5 h-4 w-4 flex items-center justify-center p-0 text-xs bg-red-500 text-white border border-background"
                                   >
-                                    <ShoppingCart className="h-2.5 w-2.5 mr-1" />
-                                    {itemInCart ? 'Dodano' : 'Dodaj'}
-                                  </Button>
-                                  {cartQuantity > 0 && (
-                                    <Badge 
-                                      className="absolute -top-1.5 -right-1.5 h-4 w-4 flex items-center justify-center p-0 text-xs bg-red-500 text-white border border-background"
-                                    >
-                                      {cartQuantity}
-                                    </Badge>
-                                  )}
-                                </div>
+                                    {cartQuantity}
+                                  </Badge>
+                                )}
                               </div>
                             )}
                           </div>
