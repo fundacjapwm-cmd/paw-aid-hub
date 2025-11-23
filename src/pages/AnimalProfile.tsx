@@ -119,10 +119,14 @@ const AnimalProfile = () => {
     .filter(item => item.animalId === id)
     .reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // Oblicz kwotę wszystkich brakujących produktów
+  // Oblicz kwotę wszystkich brakujących produktów (cena × potrzebna ilość dla każdego produktu)
   const totalMissingCost = animal?.wishlist
     .filter((item: any) => !item.bought)
-    .reduce((sum: number, item: any) => sum + Number(item.price), 0) || 0;
+    .reduce((sum: number, item: any) => {
+      const productId = item.product_id || String(item.id);
+      const neededQuantity = (item.quantity || 1) - getCartQuantity(productId);
+      return sum + (Number(item.price) * Math.max(0, neededQuantity));
+    }, 0) || 0;
 
   // Calculate age display
   const ageInfo = animal?.birth_date ? calculateAnimalAge(animal.birth_date) : null;
