@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, Plus, ShoppingCart, Minus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -182,7 +182,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
     return matchesSearch && matchesCategory;
   });
 
-  const WishlistCart = () => {
+  const wishlistCart = useMemo(() => {
     const totalValue = wishlist.reduce((sum, item) => {
       const itemPrice = item.products?.price || 0;
       return sum + (itemPrice * item.quantity);
@@ -239,9 +239,9 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
         </CardContent>
       </Card>
     );
-  };
+  }, [wishlist, animalName]);
 
-  const ProductCatalog = () => (
+  const productCatalog = useMemo(() => (
     <Card className="h-full">
       <CardHeader>
         <CardTitle>Katalog Produktów</CardTitle>
@@ -365,7 +365,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
         )}
       </CardContent>
     </Card>
-  );
+  ), [searchQuery, selectedCategory, filteredProducts, wishlist]);
 
   if (isMobile) {
     return (
@@ -378,10 +378,10 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
             </TabsTrigger>
           </TabsList>
           <TabsContent value="catalog" className="mt-4">
-            <ProductCatalog />
+            {productCatalog}
           </TabsContent>
           <TabsContent value="wishlist" className="mt-4">
-            <WishlistCart />
+            {wishlistCart}
           </TabsContent>
         </Tabs>
         <ProductRequestDialog
@@ -396,10 +396,10 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <ProductCatalog />
+          {productCatalog}
         </div>
         <div className="lg:col-span-1">
-          <WishlistCart />
+          {wishlistCart}
         </div>
       </div>
       <ProductRequestDialog
