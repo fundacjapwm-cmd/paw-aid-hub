@@ -31,8 +31,9 @@ interface WishlistItem {
 }
 
 interface WishlistBuilderProps {
-  animalId: string;
-  animalName: string;
+  entityId: string;
+  entityName: string;
+  entityType: "animal" | "organization";
 }
 
 const categoryFilters = [
@@ -43,7 +44,7 @@ const categoryFilters = [
   { id: "leki", label: "Leki" },
 ];
 
-export default function WishlistBuilder({ animalId, animalName }: WishlistBuilderProps) {
+export default function WishlistBuilder({ entityId, entityName, entityType }: WishlistBuilderProps) {
   const isMobile = useIsMobile();
   const [products, setProducts] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
@@ -54,7 +55,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   useEffect(() => {
     fetchProducts();
     fetchWishlist();
-  }, [animalId]);
+  }, [entityId]);
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -80,47 +81,87 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   };
 
   const fetchWishlist = async () => {
-    const { data, error } = await supabase
-      .from("animal_wishlists")
-      .select(`
-        *,
-        products(*)
-      `)
-      .eq("animal_id", animalId)
-      .order("created_at", { ascending: true });
+    if (entityType === "animal") {
+      const { data, error } = await supabase
+        .from("animal_wishlists")
+        .select(`
+          *,
+          products(*)
+        `)
+        .eq("animal_id", entityId)
+        .order("created_at", { ascending: true });
 
-    if (error) {
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać wishlisty",
-        variant: "destructive",
-      });
-      return;
+      if (error) {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się pobrać wishlisty",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setWishlist(data || []);
+    } else {
+      const { data, error } = await supabase
+        .from("organization_wishlists")
+        .select(`
+          *,
+          products(*)
+        `)
+        .eq("organization_id", entityId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się pobrać wishlisty",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setWishlist(data || []);
     }
-
-    setWishlist(data || []);
   };
 
   const handleAddToWishlist = async (productId: string) => {
-    const { error } = await supabase.from("animal_wishlists").insert({
-      animal_id: animalId,
-      product_id: productId,
-      quantity: 1,
-      priority: 0,
-    });
-
-    if (error) {
-      toast({
-        title: "Błąd",
-        description: "Nie udało się dodać produktu do wishlisty",
-        variant: "destructive",
+    if (entityType === "animal") {
+      const { error } = await supabase.from("animal_wishlists").insert({
+        animal_id: entityId,
+        product_id: productId,
+        quantity: 1,
+        priority: 0,
       });
-      return;
+
+      if (error) {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się dodać produktu do wishlisty",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      const { error } = await supabase.from("organization_wishlists").insert({
+        organization_id: entityId,
+        product_id: productId,
+        quantity: 1,
+        priority: 0,
+      });
+
+      if (error) {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się dodać produktu do wishlisty",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     toast({
       title: "Sukces",
-      description: `Dodano do potrzeb ${animalName}`,
+      description: `Dodano do potrzeb ${entityName}`,
     });
 
     fetchWishlist();
@@ -132,8 +173,10 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
       return;
     }
 
+    const tableName = entityType === "animal" ? "animal_wishlists" : "organization_wishlists";
+    
     const { error } = await supabase
-      .from("animal_wishlists")
+      .from(tableName)
       .update({ quantity: newQuantity })
       .eq("id", itemId);
 
@@ -154,7 +197,9 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   };
 
   const handleRemoveFromWishlist = async (itemId: string) => {
-    const { error } = await supabase.from("animal_wishlists").delete().eq("id", itemId);
+    const tableName = entityType === "animal" ? "animal_wishlists" : "organization_wishlists";
+    
+    const { error } = await supabase.from(tableName).delete().eq("id", itemId);
 
     if (error) {
       toast({
@@ -192,10 +237,10 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
     return (
       <Card className="h-full lg:sticky lg:top-6">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5 text-primary" />
-            Koszyk Potrzeb - {animalName}
-          </CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-primary" />
+              Koszyk Potrzeb - {entityName}
+            </CardTitle>
           {wishlist.length > 0 && (
             <div className="mt-2 pt-2 border-t">
               <p className="text-sm text-muted-foreground">Całkowita wartość</p>
@@ -297,7 +342,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
         </CardContent>
       </Card>
     );
-  }, [wishlist, animalName]);
+  }, [wishlist, entityName]);
 
   const productCatalog = useMemo(() => (
     <Card className="h-full">

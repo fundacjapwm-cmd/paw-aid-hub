@@ -946,8 +946,9 @@ export default function OrgAnimals() {
             </DialogHeader>
             {selectedAnimal && (
               <WishlistBuilder
-                animalId={selectedAnimal.id}
-                animalName={selectedAnimal.name}
+                entityId={selectedAnimal.id}
+                entityName={selectedAnimal.name}
+                entityType="animal"
               />
             )}
           </DialogContent>

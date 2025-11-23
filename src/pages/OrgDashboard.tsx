@@ -795,8 +795,9 @@ export default function OrgDashboard() {
               <TabsContent value="wishlist">
                 {editingAnimal && (
                   <WishlistBuilder
-                    animalId={editingAnimal.id}
-                    animalName={editingAnimal.name}
+                    entityId={editingAnimal.id}
+                    entityName={editingAnimal.name}
+                    entityType="animal"
                   />
                 )}
               </TabsContent>
