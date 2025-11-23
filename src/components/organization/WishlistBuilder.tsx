@@ -52,7 +52,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddingProduct, setIsAddingProduct] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [showRequestDialog, setShowRequestDialog] = useState(false);
 
   useEffect(() => {
@@ -105,10 +105,11 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   };
 
   const handleAddToWishlist = async (productId: string) => {
+    const currentQuantity = quantities[productId] || 1;
     const { error } = await supabase.from("animal_wishlists").insert({
       animal_id: animalId,
       product_id: productId,
-      quantity: quantity,
+      quantity: currentQuantity,
       priority: 0,
     });
 
@@ -123,11 +124,11 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
 
     toast({
       title: "Sukces",
-      description: `Dodano ${quantity} szt. do potrzeb ${animalName}`,
+      description: `Dodano ${currentQuantity} szt. do potrzeb ${animalName}`,
     });
 
     setIsAddingProduct(null);
-    setQuantity(1);
+    setQuantities(prev => ({ ...prev, [productId]: 1 }));
     fetchWishlist();
   };
 
@@ -279,8 +280,11 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                               type="button"
                               variant="outline"
                               size="icon"
-                              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                              disabled={quantity <= 1}
+                              onClick={() => setQuantities(prev => ({ 
+                                ...prev, 
+                                [product.id]: Math.max(1, (prev[product.id] || 1) - 1) 
+                              }))}
+                              disabled={(quantities[product.id] || 1) <= 1}
                             >
                               <Minus className="h-4 w-4" />
                             </Button>
@@ -288,15 +292,15 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                               id="quantity"
                               type="number"
                               min="1"
-                              value={quantity}
+                              value={quantities[product.id] || 1}
                               onChange={(e) => {
                                 const val = e.target.value;
                                 if (val === '' || val === '0') {
-                                  setQuantity(1);
+                                  setQuantities(prev => ({ ...prev, [product.id]: 1 }));
                                 } else {
                                   const num = parseInt(val, 10);
                                   if (!isNaN(num) && num > 0) {
-                                    setQuantity(num);
+                                    setQuantities(prev => ({ ...prev, [product.id]: num }));
                                   }
                                 }
                               }}
@@ -306,7 +310,10 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                               type="button"
                               variant="outline"
                               size="icon"
-                              onClick={() => setQuantity(quantity + 1)}
+                              onClick={() => setQuantities(prev => ({ 
+                                ...prev, 
+                                [product.id]: (prev[product.id] || 1) + 1 
+                              }))}
                             >
                               <Plus className="h-4 w-4" />
                             </Button>
