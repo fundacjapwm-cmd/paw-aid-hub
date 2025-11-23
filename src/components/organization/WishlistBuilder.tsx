@@ -213,9 +213,16 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
               {wishlist.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-xl hover:bg-muted transition-colors"
+                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl hover:bg-muted transition-colors"
                 >
-                  <div className="flex-1">
+                  {item.products?.image_url && (
+                    <img
+                      src={item.products.image_url}
+                      alt={item.products.name}
+                      className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
                     <p className="font-medium">{item.products?.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {item.quantity} {item.products?.unit} × {item.products?.price.toFixed(2)} zł
@@ -228,7 +235,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRemoveFromWishlist(item.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
                   >
                     Usuń
                   </Button>
