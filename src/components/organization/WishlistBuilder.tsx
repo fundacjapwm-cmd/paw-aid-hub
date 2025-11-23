@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -51,8 +49,6 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [isAddingProduct, setIsAddingProduct] = useState<string | null>(null);
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [showRequestDialog, setShowRequestDialog] = useState(false);
 
   useEffect(() => {
@@ -105,11 +101,10 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   };
 
   const handleAddToWishlist = async (productId: string) => {
-    const currentQuantity = quantities[productId] || 1;
     const { error } = await supabase.from("animal_wishlists").insert({
       animal_id: animalId,
       product_id: productId,
-      quantity: currentQuantity,
+      quantity: 1,
       priority: 0,
     });
 
@@ -124,12 +119,37 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
 
     toast({
       title: "Sukces",
-      description: `Dodano ${currentQuantity} szt. do potrzeb ${animalName}`,
+      description: `Dodano do potrzeb ${animalName}`,
     });
 
-    setIsAddingProduct(null);
-    setQuantities(prev => ({ ...prev, [productId]: 1 }));
     fetchWishlist();
+  };
+
+  const handleUpdateQuantity = async (itemId: string, productId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      await handleRemoveFromWishlist(itemId);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("animal_wishlists")
+      .update({ quantity: newQuantity })
+      .eq("id", itemId);
+
+    if (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zaktualizować ilości",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    fetchWishlist();
+  };
+
+  const getWishlistItem = (productId: string) => {
+    return wishlist.find(item => item.product_id === productId);
   };
 
   const handleRemoveFromWishlist = async (itemId: string) => {
@@ -241,96 +261,85 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProducts.map((product) => (
-              <Card key={product.id} className="shadow-card hover:shadow-bubbly transition-shadow">
-                <CardContent className="p-4">
-                  {product.image_url && (
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-32 object-cover rounded-lg mb-3"
-                    />
-                  )}
-                  <h3 className="font-semibold mb-1">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {product.producers?.name}
-                  </p>
-                  <p className="text-lg font-bold text-primary mb-3">
-                    {product.price.toFixed(2)} zł
-                  </p>
-                  <Popover
-                    open={isAddingProduct === product.id}
-                    onOpenChange={(open) => setIsAddingProduct(open ? product.id : null)}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button className="w-full rounded-2xl" size="lg">
+            {filteredProducts.map((product) => {
+              const wishlistItem = getWishlistItem(product.id);
+              
+              return (
+                <Card key={product.id} className="shadow-card hover:shadow-bubbly transition-shadow">
+                  <CardContent className="p-4">
+                    {product.image_url && (
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-32 object-cover rounded-lg mb-3"
+                      />
+                    )}
+                    <h3 className="font-semibold mb-1">{product.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {product.producers?.name}
+                    </p>
+                    <p className="text-lg font-bold text-primary mb-3">
+                      {product.price.toFixed(2)} zł
+                    </p>
+                    
+                    {wishlistItem ? (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleUpdateQuantity(
+                            wishlistItem.id,
+                            product.id,
+                            wishlistItem.quantity - 1
+                          )}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={wishlistItem.quantity}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '' || val === '0') {
+                              handleRemoveFromWishlist(wishlistItem.id);
+                            } else {
+                              const num = parseInt(val, 10);
+                              if (!isNaN(num) && num >= 0) {
+                                handleUpdateQuantity(wishlistItem.id, product.id, num);
+                              }
+                            }
+                          }}
+                          className="text-center"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleUpdateQuantity(
+                            wishlistItem.id,
+                            product.id,
+                            wishlistItem.quantity + 1
+                          )}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button 
+                        className="w-full rounded-2xl" 
+                        size="lg"
+                        onClick={() => handleAddToWishlist(product.id)}
+                      >
                         <Plus className="h-5 w-5 mr-2" />
                         Dodaj
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <div className="space-y-4">
-                        <h4 className="font-semibold">
-                          Ile sztuk potrzebuje {animalName}?
-                        </h4>
-                        <div className="space-y-2">
-                          <Label htmlFor="quantity">Ilość</Label>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setQuantities(prev => ({ 
-                                ...prev, 
-                                [product.id]: Math.max(1, (prev[product.id] || 1) - 1) 
-                              }))}
-                              disabled={(quantities[product.id] || 1) <= 1}
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <Input
-                              id="quantity"
-                              type="number"
-                              min="1"
-                              value={quantities[product.id] || 1}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === '' || val === '0') {
-                                  setQuantities(prev => ({ ...prev, [product.id]: 1 }));
-                                } else {
-                                  const num = parseInt(val, 10);
-                                  if (!isNaN(num) && num > 0) {
-                                    setQuantities(prev => ({ ...prev, [product.id]: num }));
-                                  }
-                                }
-                              }}
-                              className="text-center"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setQuantities(prev => ({ 
-                                ...prev, 
-                                [product.id]: (prev[product.id] || 1) + 1 
-                              }))}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                        <Button
-                          className="w-full"
-                          onClick={() => handleAddToWishlist(product.id)}
-                        >
-                          Potwierdź
-                        </Button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </CardContent>
-              </Card>
-            ))}
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </CardContent>
