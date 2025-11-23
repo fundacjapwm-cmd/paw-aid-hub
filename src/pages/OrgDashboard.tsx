@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -582,7 +583,7 @@ export default function OrgDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Image Upload */}
                   <div className="space-y-4">
-                    <FormLabel>Zdjęcie główne</FormLabel>
+                    <Label>Zdjęcie główne</Label>
                     {imagePreview && (
                       <Avatar className="h-48 w-48 mx-auto">
                         <AvatarImage src={imagePreview} alt="Podgląd" />
