@@ -5,24 +5,68 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
 import OrgProfileForm from "@/components/organization/OrgProfileForm";
+import WishlistBuilder from "@/components/organization/WishlistBuilder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard, Trash2 } from "lucide-react";
+import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard, Trash2, Upload, Calendar as CalendarIcon } from "lucide-react";
 import { useNavigate as useRouterNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+
+const animalSchema = z.object({
+  name: z.string().min(2, "Imię musi mieć minimum 2 znaki"),
+  species: z.enum(["Pies", "Kot", "Inne"]),
+  breed: z.string().optional(),
+  age: z.coerce.number().min(0).optional(),
+  gender: z.string().optional(),
+  description: z.string().optional(),
+  birth_date: z.date().optional(),
+});
+
+type AnimalFormData = z.infer<typeof animalSchema>;
 
 export default function OrgDashboard() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const routerNavigate = useRouterNavigate();
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editOrgDialogOpen, setEditOrgDialogOpen] = useState(false);
+  const [editAnimalDialogOpen, setEditAnimalDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [animalToDelete, setAnimalToDelete] = useState<any | null>(null);
+  const [editingAnimal, setEditingAnimal] = useState<any | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const form = useForm<AnimalFormData>({
+    resolver: zodResolver(animalSchema),
+    defaultValues: {
+      name: "",
+      species: "Pies",
+      breed: "",
+      age: 0,
+      gender: "",
+      description: "",
+      birth_date: undefined,
+    },
+  });
 
   useEffect(() => {
     if (!user) {
@@ -141,7 +185,81 @@ export default function OrgDashboard() {
 
   const handleEditClick = (animal: any, e: React.MouseEvent) => {
     e.stopPropagation();
-    routerNavigate('/organizacja/zwierzeta');
+    setEditingAnimal(animal);
+    form.reset({
+      name: animal.name,
+      species: animal.species,
+      breed: animal.breed || "",
+      age: animal.age || 0,
+      gender: animal.gender || "",
+      description: animal.description || "",
+      birth_date: animal.birth_date ? new Date(animal.birth_date) : undefined,
+    });
+    setImagePreview(animal.image_url);
+    setEditAnimalDialogOpen(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onEditSubmit = async (data: AnimalFormData) => {
+    if (!editingAnimal || !orgId) return;
+
+    try {
+      setUploading(true);
+      let imageUrl = editingAnimal.image_url;
+
+      // Upload new main image if selected
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `animals/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+
+      // Update animal
+      const { error } = await supabase.from("animals")
+        .update({
+          ...data,
+          birth_date: data.birth_date ? format(data.birth_date, 'yyyy-MM-dd') : null,
+          image_url: imageUrl,
+        } as any)
+        .eq("id", editingAnimal.id);
+
+      if (error) throw error;
+
+      toast.success("Podopieczny został zaktualizowany!");
+      setEditAnimalDialogOpen(false);
+      setEditingAnimal(null);
+      form.reset();
+      setImagePreview(null);
+      setImageFile(null);
+      setUploading(false);
+      refetch();
+    } catch (error: any) {
+      toast.error("Błąd podczas aktualizacji: " + error.message);
+      setUploading(false);
+    }
   };
 
   if (!user || profile?.role !== "ORG") {
@@ -173,7 +291,7 @@ export default function OrgDashboard() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setEditDialogOpen(true)}
+                    onClick={() => setEditOrgDialogOpen(true)}
                     className="gap-2 rounded-2xl flex-shrink-0"
                   >
                     <Pencil className="h-4 w-4" />
@@ -426,7 +544,7 @@ export default function OrgDashboard() {
         </div>
 
         {/* Edit Organization Dialog */}
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <Dialog open={editOrgDialogOpen} onOpenChange={setEditOrgDialogOpen}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edytuj dane organizacji</DialogTitle>
@@ -436,11 +554,201 @@ export default function OrgDashboard() {
                 organizationId={orgId} 
                 isOwner={isOwner}
                 onSuccess={() => {
-                  setEditDialogOpen(false);
+                  setEditOrgDialogOpen(false);
                   refetch();
                 }}
               />
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Animal Dialog */}
+        <Dialog open={editAnimalDialogOpen} onOpenChange={setEditAnimalDialogOpen}>
+          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto rounded-3xl">
+            <DialogHeader>
+              <DialogTitle>Edytuj podopiecznego</DialogTitle>
+              <DialogDescription>
+                Zaktualizuj dane zwierzęcia i zarządzaj jego listą potrzeb
+              </DialogDescription>
+            </DialogHeader>
+
+            <Tabs defaultValue="info" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="info">Informacje</TabsTrigger>
+                <TabsTrigger value="wishlist">Lista potrzeb</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="info" className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Image Upload */}
+                  <div className="space-y-4">
+                    <FormLabel>Zdjęcie główne</FormLabel>
+                    {imagePreview && (
+                      <Avatar className="h-48 w-48 mx-auto">
+                        <AvatarImage src={imagePreview} alt="Podgląd" />
+                        <AvatarFallback>Zdjęcie</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+
+                  {/* Form */}
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Imię</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Burek" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="species"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gatunek</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Wybierz gatunek" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Pies">Pies</SelectItem>
+                                <SelectItem value="Kot">Kot</SelectItem>
+                                <SelectItem value="Inne">Inne</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="breed"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Rasa</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Owczarek niemiecki" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Płeć</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Samiec, Samica" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="birth_date"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Data urodzenia</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    className={cn(
+                                      "w-full pl-3 text-left font-normal",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP", { locale: pl })
+                                    ) : (
+                                      <span>Wybierz datę</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  disabled={(date) =>
+                                    date > new Date() || date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                  locale={pl}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Opis</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Opisz zwierzę..."
+                                className="min-h-[100px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Button
+                        type="submit"
+                        disabled={uploading}
+                        className="w-full rounded-2xl"
+                      >
+                        {uploading ? "Zapisywanie..." : "Zapisz zmiany"}
+                      </Button>
+                    </form>
+                  </Form>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="wishlist">
+                {editingAnimal && (
+                  <WishlistBuilder
+                    animalId={editingAnimal.id}
+                    animalName={editingAnimal.name}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
 
