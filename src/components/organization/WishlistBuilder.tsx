@@ -279,7 +279,17 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
                             type="number"
                             min="1"
                             value={quantity}
-                            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === '' || val === '0') {
+                                setQuantity(1);
+                              } else {
+                                const num = parseInt(val, 10);
+                                if (!isNaN(num) && num > 0) {
+                                  setQuantity(num);
+                                }
+                              }
+                            }}
                           />
                         </div>
                         <Button
