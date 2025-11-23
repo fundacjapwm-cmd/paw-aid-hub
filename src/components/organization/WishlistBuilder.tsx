@@ -173,7 +173,9 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.producers?.name && product.producers.name.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory =
       selectedCategory === "all" ||
       product.product_categories?.name.toLowerCase().includes(selectedCategory);
@@ -231,7 +233,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Szukaj produktu..."
+              placeholder="Szukaj po nazwie lub producencie..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -251,7 +253,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-h-[600px]">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-4">Nie znaleziono produktów</p>
@@ -260,8 +262,7 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredProducts.map((product) => {
+          <div className="space-y-3">{filteredProducts.map((product) => {
               const wishlistItem = getWishlistItem(product.id);
               
               return (
