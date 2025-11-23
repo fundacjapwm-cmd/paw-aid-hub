@@ -12,7 +12,6 @@ interface KRSData {
   address?: string;
   city?: string;
   postal_code?: string;
-  province?: string;
 }
 
 function validateNIP(nip: string): boolean {
@@ -95,7 +94,6 @@ Deno.serve(async (req) => {
               : undefined,
             city: firma.adres?.miejscowosc || undefined,
             postal_code: firma.adres?.kodPocztowy || undefined,
-            province: firma.adres?.wojewodztwo || undefined,
           };
 
           console.log('Parsed CEIDG data:', result);
@@ -145,7 +143,6 @@ Deno.serve(async (req) => {
               : undefined,
             city: adres?.miejscowosc || undefined,
             postal_code: adres?.kodPocztowy || undefined,
-            province: adres?.wojewodztwo || undefined,
           };
 
           console.log('Parsed KRS data:', result);
