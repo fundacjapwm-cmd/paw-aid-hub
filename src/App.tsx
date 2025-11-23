@@ -33,6 +33,7 @@ import OrgDashboard from "./pages/OrgDashboard";
 import OrgAnimals from "./pages/OrgAnimals";
 import OrgProfile from "./pages/OrgProfile";
 import OrgRequests from "./pages/OrgRequests";
+import OrgWishlist from "./pages/OrgWishlist";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
@@ -82,6 +83,7 @@ const App = () => (
             {/* Organization Routes */}
             <Route path="/organizacja" element={<OrgDashboard />} />
             <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
+            <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
             <Route path="/organizacja/profil" element={<OrgProfile />} />
             <Route path="/organizacja/zgloszenia" element={<OrgRequests />} />
             <Route path="/checkout" element={<Checkout />} />
