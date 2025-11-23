@@ -27,9 +27,7 @@ interface OrgLayoutProps {
 
 const menuItems = [
   { title: "Pulpit", url: "/organizacja", icon: Home },
-  { title: "Zwierzęta", url: "/organizacja/zwierzeta", icon: PawPrint },
   { title: "Lista potrzeb", url: "/organizacja/lista-potrzeb", icon: Package },
-  { title: "Zgłoszenia", url: "/organizacja/zgloszenia", icon: ClipboardList },
   { title: "Ustawienia", url: "/organizacja/profil", icon: Settings },
 ];
 
