@@ -100,7 +100,7 @@ const AnimalProfile = () => {
       price: item.price,
       animalId: id,
       animalName: animal.name,
-      maxQuantity: item.quantity_needed - item.quantity_bought,
+      maxQuantity: item.quantity || 1,
     }));
     addAllForAnimal(items, animal.name);
   };
@@ -124,7 +124,7 @@ const AnimalProfile = () => {
     .filter((item: any) => !item.bought)
     .reduce((sum: number, item: any) => {
       const productId = item.product_id || String(item.id);
-      const neededQuantity = (item.quantity_needed - item.quantity_bought) - getCartQuantity(productId);
+      const neededQuantity = (item.quantity || 1) - getCartQuantity(productId);
       return sum + (Number(item.price) * Math.max(0, neededQuantity));
     }, 0) || 0;
 
@@ -132,14 +132,14 @@ const AnimalProfile = () => {
   const totalWishlistCost = animal?.wishlist
     .filter((item: any) => !item.bought)
     .reduce((sum: number, item: any) => {
-      return sum + (Number(item.price) * (item.quantity_needed - item.quantity_bought));
+      return sum + (Number(item.price) * (item.quantity || 1));
     }, 0) || 0;
 
   // Sprawdź czy wszystkie potrzebne produkty są już w koszyku
   const allItemsInCart = animal?.wishlist
     .filter((item: any) => !item.bought)
     .every((item: any) => {
-      const neededQuantity = item.quantity_needed - item.quantity_bought;
+      const neededQuantity = item.quantity || 1;
       return getCartQuantity(item.product_id) >= neededQuantity;
     }) && animal?.wishlist.some((item: any) => !item.bought);
 
