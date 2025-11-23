@@ -260,82 +260,86 @@ export default function WishlistBuilder({ animalId, animalName }: WishlistBuilde
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-3">
             {filteredProducts.map((product) => {
               const wishlistItem = getWishlistItem(product.id);
               
               return (
                 <Card key={product.id} className="shadow-card hover:shadow-bubbly transition-shadow">
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 flex items-center gap-4">
                     {product.image_url && (
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className="w-full h-32 object-cover rounded-lg mb-3"
+                        className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
                       />
                     )}
-                    <h3 className="font-semibold mb-1">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {product.producers?.name}
-                    </p>
-                    <p className="text-lg font-bold text-primary mb-3">
-                      {product.price.toFixed(2)} zł
-                    </p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold mb-1">{product.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {product.producers?.name}
+                      </p>
+                      <p className="text-lg font-bold text-primary">
+                        {product.price.toFixed(2)} zł
+                      </p>
+                    </div>
                     
-                    {wishlistItem ? (
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleUpdateQuantity(
-                            wishlistItem.id,
-                            product.id,
-                            wishlistItem.quantity - 1
-                          )}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={wishlistItem.quantity}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === '' || val === '0') {
-                              handleRemoveFromWishlist(wishlistItem.id);
-                            } else {
-                              const num = parseInt(val, 10);
-                              if (!isNaN(num) && num >= 0) {
-                                handleUpdateQuantity(wishlistItem.id, product.id, num);
+                    <div className="flex-shrink-0">
+                      {wishlistItem ? (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleUpdateQuantity(
+                              wishlistItem.id,
+                              product.id,
+                              wishlistItem.quantity - 1
+                            )}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <Input
+                            type="number"
+                            min="0"
+                            value={wishlistItem.quantity}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === '' || val === '0') {
+                                handleRemoveFromWishlist(wishlistItem.id);
+                              } else {
+                                const num = parseInt(val, 10);
+                                if (!isNaN(num) && num >= 0) {
+                                  handleUpdateQuantity(wishlistItem.id, product.id, num);
+                                }
                               }
-                            }
-                          }}
-                          className="text-center"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleUpdateQuantity(
-                            wishlistItem.id,
-                            product.id,
-                            wishlistItem.quantity + 1
-                          )}
+                            }}
+                            className="text-center w-20"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleUpdateQuantity(
+                              wishlistItem.id,
+                              product.id,
+                              wishlistItem.quantity + 1
+                            )}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button 
+                          className="rounded-2xl" 
+                          size="lg"
+                          onClick={() => handleAddToWishlist(product.id)}
                         >
-                          <Plus className="h-4 w-4" />
+                          <Plus className="h-5 w-5 mr-2" />
+                          Dodaj
                         </Button>
-                      </div>
-                    ) : (
-                      <Button 
-                        className="w-full rounded-2xl" 
-                        size="lg"
-                        onClick={() => handleAddToWishlist(product.id)}
-                      >
-                        <Plus className="h-5 w-5 mr-2" />
-                        Dodaj
-                      </Button>
-                    )}
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               );
