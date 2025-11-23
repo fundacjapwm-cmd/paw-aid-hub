@@ -229,44 +229,40 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                           </div>
                         </div>
 
-                        {/* 3. KOLUMNA: AKCJE (Zwarty blok) */}
+                        {/* 3. KOLUMNA: AKCJE (Poziomy układ) */}
                         {!isFullyBought && (
-                          <div className="flex flex-col items-end justify-center gap-2 shrink-0 pl-2">
-                            {/* Licznik */}
-                            <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 h-8 shadow-inner">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-6 w-6 rounded-md hover:bg-white hover:shadow-sm transition-all"
-                                onClick={() => handleQuantityChange(product.id, -1, missing)}
-                                disabled={quantity <= 1}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-8 text-center text-xs font-bold tabular-nums">
-                                {quantity}
-                              </span>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-6 w-6 rounded-md hover:bg-white hover:shadow-sm transition-all"
-                                onClick={() => handleQuantityChange(product.id, 1, missing)}
-                                disabled={quantity >= missing}
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
+                          <div className="flex flex-col justify-end items-end shrink-0 pl-2">
+                            {/* Kontener Akcji: Licznik + Przyciski w jednym rzędzie */}
+                            <div className="flex items-center gap-2">
+                              
+                              {/* Licznik */}
+                              <div className="flex items-center bg-gray-50 rounded-lg h-9 p-1 shadow-inner">
+                                <button 
+                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                  onClick={() => handleQuantityChange(product.id, -1, missing)}
+                                  disabled={quantity <= 1}
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <span className="w-6 text-center text-sm font-bold tabular-nums">
+                                  {quantity}
+                                </span>
+                                <button 
+                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all"
+                                  onClick={() => handleQuantityChange(product.id, 1, missing)}
+                                  disabled={quantity >= missing}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </div>
 
-                            {/* Przyciski Usuń + Dodaj (w jednej linii) */}
-                            <div className="flex items-center gap-1.5">
                               {/* Przycisk Usuń (jeśli w koszyku) */}
                               {itemInCart && (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
                                       size="icon"
-                                      variant="ghost"
-                                      className="h-9 w-9 rounded-xl bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                      className="h-9 w-9 rounded-xl bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all"
                                       onClick={() => removeFromCart(product.id)}
                                     >
                                       <X className="h-4 w-4" />
