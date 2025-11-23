@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard, Trash2 } from "lucide-react";
 import { useNavigate as useRouterNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function OrgDashboard() {
   const { user, profile } = useAuth();
@@ -19,6 +21,8 @@ export default function OrgDashboard() {
   const routerNavigate = useRouterNavigate();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [animalToDelete, setAnimalToDelete] = useState<any | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -108,6 +112,37 @@ export default function OrgDashboard() {
   const animals = allAnimals.filter((animal) =>
     animal.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleDeleteClick = (animal: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAnimalToDelete(animal);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!animalToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("animals")
+        .delete()
+        .eq("id", animalToDelete.id);
+
+      if (error) throw error;
+
+      toast.success("Podopieczny został usunięty");
+      setDeleteDialogOpen(false);
+      setAnimalToDelete(null);
+      refetch();
+    } catch (error: any) {
+      toast.error("Błąd podczas usuwania: " + error.message);
+    }
+  };
+
+  const handleEditClick = (animal: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    routerNavigate('/organizacja/zwierzeta');
+  };
 
   if (!user || profile?.role !== "ORG") {
     return null;
@@ -364,6 +399,25 @@ export default function OrgDashboard() {
                         </p>
                       )}
                     </div>
+
+                    <div className="flex flex-col gap-2 flex-shrink-0">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={(e) => handleEditClick(animal, e)}
+                        className="rounded-2xl h-9 w-9"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={(e) => handleDeleteClick(animal, e)}
+                        className="rounded-2xl h-9 w-9 text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -389,6 +443,24 @@ export default function OrgDashboard() {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Delete Animal Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Czy na pewno chcesz usunąć?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Ta akcja spowoduje trwałe usunięcie podopiecznego <strong>{animalToDelete?.name}</strong> z bazy danych. Tej operacji nie można cofnąć.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Anuluj</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Usuń
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </OrgLayout>
   );
