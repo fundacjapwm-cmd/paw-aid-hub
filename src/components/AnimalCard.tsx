@@ -221,7 +221,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         {wishlistItems.length > 0 && (
           <div className="flex-1 flex flex-col min-h-0">
             <h4 className="text-sm font-semibold text-foreground mb-2">Lista życzeń:</h4>
-            <ScrollArea className="flex-1 pr-4" style={{ maxHeight: '250px' }}>
+            <ScrollArea className="h-[250px] pr-4">
               <TooltipProvider>
                 <div className="space-y-2">
                   {wishlistItems.map((item) => {
