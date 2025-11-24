@@ -1,6 +1,7 @@
 import HeroSection from "@/components/HeroSection";
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
+import AnimalCardSkeleton from "@/components/AnimalCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { useState, useMemo, useEffect } from "react";
@@ -88,8 +89,24 @@ const Index = () => {
             </div>
 
             {loading ? (
-              <div className="py-20 text-center">
-                <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
+              <div className="px-12">
+                <Carousel
+                  opts={{
+                    align: "start",
+                    loop: false,
+                  }}
+                  className="w-full"
+                >
+                  <CarouselContent className="-ml-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <CarouselItem key={i} className="pl-4 md:basis-1/2">
+                        <AnimalCardSkeleton />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </div>
             ) : error ? (
               <div className="py-20 text-center">
