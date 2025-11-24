@@ -75,7 +75,7 @@ const HowItWorksSection = () => {
         </div>
 
         {/* Grid z 4 kartami */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto items-stretch">
           {steps.map((step, index) => (
             <div
               key={index}
@@ -83,10 +83,11 @@ const HowItWorksSection = () => {
                 relative overflow-hidden rounded-[200px] shadow-2xl
                 transition-all duration-700
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}
-                ${index === 0 ? 'h-[400px]' : ''}
-                ${index === 1 ? 'h-[600px]' : ''}
-                ${index === 2 ? 'h-[520px]' : ''}
-                ${index === 3 ? 'h-[400px]' : ''}
+                h-[420px] sm:h-auto
+                ${index === 0 ? 'sm:h-[400px]' : ''}
+                ${index === 1 ? 'sm:h-[600px]' : ''}
+                ${index === 2 ? 'sm:h-[520px]' : ''}
+                ${index === 3 ? 'sm:h-[400px]' : ''}
               `}
               style={{
                 transitionDelay: isVisible ? `${step.delay}ms` : '0ms',
