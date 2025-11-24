@@ -60,26 +60,6 @@ const Index = () => {
       .slice(0, 10);
   }, [animals]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-20 text-center">
-          <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-20 text-center">
-          <p className="text-lg text-destructive">Błąd ładowania: {error}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <main>
@@ -107,29 +87,41 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="mb-8">
-              <AnimalFilters onFilterChange={setFilters} />
-            </div>
+            {loading ? (
+              <div className="py-20 text-center">
+                <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
+              </div>
+            ) : error ? (
+              <div className="py-20 text-center">
+                <p className="text-lg text-destructive">Błąd ładowania: {error}</p>
+              </div>
+            ) : (
+              <>
+                <div className="mb-8">
+                  <AnimalFilters onFilterChange={setFilters} />
+                </div>
 
-            <div className="px-12">
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: false,
-                }}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-4">
-                  {newestAnimals.map((animal) => (
-                    <CarouselItem key={animal.id} className="pl-4 md:basis-1/2">
-                      <AnimalCard animal={animal} />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
+                <div className="px-12">
+                  <Carousel
+                    opts={{
+                      align: "start",
+                      loop: false,
+                    }}
+                    className="w-full"
+                  >
+                    <CarouselContent className="-ml-4">
+                      {newestAnimals.map((animal) => (
+                        <CarouselItem key={animal.id} className="pl-4 md:basis-1/2">
+                          <AnimalCard animal={animal} />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
+                </div>
+              </>
+            )}
 
             <div className="text-center mt-12">
               <Link to="/zwierzeta">
