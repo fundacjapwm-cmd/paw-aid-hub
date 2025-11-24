@@ -303,7 +303,7 @@ const Organizacje = () => {
                     <Card 
                       key={org.id}
                       onClick={() => navigate(`/organizacje/${org.slug}`)}
-                      className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer"
+                      className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer animate-fade-in"
                     >
                       {/* Header with Background Image */}
                       <div 
