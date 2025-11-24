@@ -1,5 +1,6 @@
 import { HandHeart, Dog, Building2, Package } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StatItemProps {
   value: number;
@@ -72,32 +73,87 @@ const StatItem = ({ value, label, icon, suffix = "" }: StatItemProps) => {
 };
 
 const StatsSection = () => {
+  const [stats, setStats] = useState({
+    totalAmount: 0,
+    animalsHelped: 0,
+    organizations: 0,
+    deliveredOrders: 0
+  });
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      // Fetch total amount from completed orders
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('total_amount, status')
+        .eq('payment_status', 'completed');
+
+      const totalAmount = orders?.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
+
+      // Fetch count of unique animals that have items in orders
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('animal_id, orders!inner(payment_status)')
+        .not('animal_id', 'is', null)
+        .eq('orders.payment_status', 'completed');
+
+      const uniqueAnimals = new Set(orderItems?.map(item => item.animal_id) || []);
+      const animalsHelped = uniqueAnimals.size;
+
+      // Fetch count of active organizations
+      const { count: orgCount } = await supabase
+        .from('organizations')
+        .select('*', { count: 'exact', head: true })
+        .eq('active', true);
+
+      // Fetch count of delivered orders (completed status)
+      const { count: deliveredCount } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'completed')
+        .eq('payment_status', 'completed');
+
+      setStats({
+        totalAmount: Math.round(totalAmount),
+        animalsHelped,
+        organizations: orgCount || 0,
+        deliveredOrders: deliveredCount || 0
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   return (
     <section className="py-8 px-4 relative z-20 -mt-[72px]">
       <div className="container mx-auto">
         <div className="bg-white/80 backdrop-blur-md rounded-[3rem] shadow-xl p-8 md:p-10 border border-primary/10 max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:flex md:justify-around md:items-center gap-8 md:gap-0 md:divide-x md:divide-primary/10">
             <StatItem
-              value={0}
+              value={stats.totalAmount}
               label="Wsparcie przekazane"
               suffix=" zł"
               icon={<HandHeart className="w-6 h-6" />}
             />
             
             <StatItem
-              value={12}
-              label="Nakarmionych zwierząt"
+              value={stats.animalsHelped}
+              label="Wspartych zwierząt"
               icon={<Dog className="w-6 h-6" />}
             />
             
             <StatItem
-              value={3}
+              value={stats.organizations}
               label="Wspieranych organizacji"
               icon={<Building2 className="w-6 h-6" />}
             />
             
             <StatItem
-              value={0}
+              value={stats.deliveredOrders}
               label="Dostarczonych darów"
               icon={<Package className="w-6 h-6" />}
             />
