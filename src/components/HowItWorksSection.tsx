@@ -68,7 +68,7 @@ const HowItWorksSection = () => {
       <div className="container mx-auto px-4">
         
         {/* Nagłówek */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground">
             Jak to działa?
           </h2>
