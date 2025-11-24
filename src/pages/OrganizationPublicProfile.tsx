@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "@/components/AnimalCard";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { Card } from "@/components/ui/card";
-import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart } from "lucide-react";
+import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart, Plus, Minus, Check, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 interface Organization {
   id: string;
@@ -32,7 +34,8 @@ export default function OrganizationPublicProfile() {
   const [animals, setAnimals] = useState<any[]>([]);
   const [orgWishlist, setOrgWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
+  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
+  const { addToCart, cart, removeFromCart } = useCart();
 
   useEffect(() => {
     if (slug) {
@@ -106,11 +109,37 @@ export default function OrganizationPublicProfile() {
       if (wishlistError) throw wishlistError;
 
       setOrgWishlist(wishlistData || []);
+      
+      // Initialize quantities for each product
+      const initialQuantities = (wishlistData || []).reduce((acc: any, item: any) => {
+        acc[item.product_id] = 1;
+        return acc;
+      }, {});
+      setSelectedQuantities(initialQuantities);
     } catch (error) {
       console.error("Error fetching organization:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuantityChange = (productId: string, change: number) => {
+    setSelectedQuantities((prev) => {
+      const currentQty = prev[productId] || 1;
+      const newQty = Math.max(1, currentQty + change);
+      return { ...prev, [productId]: newQty };
+    });
+  };
+
+  const handleAddProduct = (item: any) => {
+    const quantity = selectedQuantities[item.product_id] || 1;
+    addToCart({
+      productId: item.product_id,
+      productName: item.products.name,
+      price: item.products.price,
+      animalId: undefined,
+      animalName: `Organizacja: ${organization?.name}`,
+    }, quantity);
   };
 
   const handleAddAllToCart = () => {
@@ -132,6 +161,19 @@ export default function OrganizationPublicProfile() {
       toast.success(`Dodano ${addedCount} produktów do koszyka`);
     }
   };
+
+  const isInCart = (productId: string) => {
+    return cart.some(item => item.productId === productId);
+  };
+
+  const getCartQuantity = (productId: string) => {
+    const cartItem = cart.find(item => item.productId === productId);
+    return cartItem?.quantity || 0;
+  };
+
+  const cartTotalForOrg = cart
+    .filter(item => !item.animalId && item.animalName?.includes(organization?.name || ''))
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   if (loading) {
     return (
@@ -315,44 +357,134 @@ export default function OrganizationPublicProfile() {
                     />
                     
                     <Card className="bg-white/80 border-white/50 shadow-md">
-                      <div className="p-6">
-                        <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                          {orgWishlist.map((item: any) => (
-                            <div 
-                              key={item.id}
-                              className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-white/50"
-                            >
-                              {item.products?.image_url && (
-                                <img 
-                                  src={item.products.image_url}
-                                  alt={item.products.name}
-                                  className="w-12 h-12 rounded-lg object-cover"
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-sm truncate">
-                                  {item.products?.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {item.quantity} {item.products?.unit || 'szt'} × {item.products?.price?.toFixed(2)} zł
-                                </p>
+                      <div className="p-6 flex flex-col h-[600px]">
+                        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                          {orgWishlist.map((item: any) => {
+                            const quantity = selectedQuantities[item.product_id] || 1;
+                            const itemInCart = isInCart(item.product_id);
+                            const cartQuantity = getCartQuantity(item.product_id);
+
+                            return (
+                              <div 
+                                key={item.id}
+                                className="flex gap-3 p-3 bg-white/60 rounded-xl border border-white/50 hover:shadow-md transition-shadow"
+                              >
+                                {/* Image */}
+                                <div className="shrink-0">
+                                  {item.products?.image_url ? (
+                                    <img 
+                                      src={item.products.image_url}
+                                      alt={item.products.name}
+                                      className="w-20 h-20 rounded-lg object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-20 h-20 rounded-lg bg-gray-50 flex items-center justify-center">
+                                      <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                                  <div>
+                                    <p className="font-semibold text-sm line-clamp-2">
+                                      {item.products?.name}
+                                    </p>
+                                    <p className="text-primary font-bold text-base mt-1">
+                                      {item.products?.price?.toFixed(2)} zł
+                                    </p>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Potrzeba: {item.quantity} {item.products?.unit || 'szt'}
+                                  </p>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex flex-col justify-end items-end shrink-0 pl-2">
+                                  <div className="flex items-center gap-2">
+                                    {/* Quantity Counter */}
+                                    <div className="flex items-center bg-gray-50 rounded-lg h-9 p-1 shadow-inner">
+                                      <button 
+                                        className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                        onClick={() => handleQuantityChange(item.product_id, -1)}
+                                        disabled={quantity <= 1}
+                                      >
+                                        <Minus className="h-3 w-3" />
+                                      </button>
+                                      <span className="w-6 text-center text-sm font-bold tabular-nums">
+                                        {quantity}
+                                      </span>
+                                      <button 
+                                        className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all"
+                                        onClick={() => handleQuantityChange(item.product_id, 1)}
+                                      >
+                                        <Plus className="h-3 w-3" />
+                                      </button>
+                                    </div>
+
+                                    {/* Remove Button */}
+                                    {itemInCart && (
+                                      <Button
+                                        size="icon"
+                                        className="h-9 w-9 rounded-xl bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all"
+                                        onClick={() => removeFromCart(item.product_id)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    )}
+
+                                    {/* Add Button */}
+                                    <div className="relative">
+                                      <Button 
+                                        size="icon" 
+                                        className={`h-9 w-9 rounded-xl shadow-sm hover:scale-105 transition-all ${
+                                          itemInCart 
+                                            ? 'bg-green-500 hover:bg-green-600' 
+                                            : 'bg-primary hover:bg-primary/90'
+                                        }`}
+                                        onClick={() => handleAddProduct(item)}
+                                        disabled={itemInCart}
+                                      >
+                                        {itemInCart ? (
+                                          <Check className="h-4 w-4" />
+                                        ) : (
+                                          <ShoppingCart className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                      {cartQuantity > 0 && (
+                                        <Badge 
+                                          className="absolute -top-1.5 -right-1.5 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
+                                        >
+                                          {cartQuantity}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="text-right">
-                                <p className="font-bold text-primary">
-                                  {((item.quantity || 1) * (item.products?.price || 0)).toFixed(2)} zł
-                                </p>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
 
-                        <div className="mt-6 pt-4 border-t">
+                        {/* Footer */}
+                        <div className="mt-4 pt-4 border-t space-y-3">
+                          {cartTotalForOrg > 0 && (
+                            <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">
+                                Łącznie w koszyku:
+                              </span>
+                              <span className="text-lg font-bold text-foreground">
+                                {cartTotalForOrg.toFixed(2)} zł
+                              </span>
+                            </div>
+                          )}
+                          
                           <Button
                             onClick={handleAddAllToCart}
-                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity rounded-xl font-semibold"
                             size="lg"
                           >
-                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            <ShoppingCart className="h-5 w-5 mr-2" />
                             Dodaj wszystko! ({orgWishlist.reduce((sum: number, item: any) => 
                               sum + ((item.quantity || 1) * (item.products?.price || 0)), 0
                             ).toFixed(2)} zł)
