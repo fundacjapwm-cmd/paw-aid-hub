@@ -10,9 +10,9 @@ const CTASection = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="grid md:grid-cols-2 gap-6">
           {/* Chcesz pomóc? */}
-          <div className="group relative overflow-hidden rounded-3xl min-h-[500px] flex items-end">
+          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-end">
             <div 
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+              className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${ctaHelpImage})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
@@ -39,9 +39,9 @@ const CTASection = () => {
           </div>
 
           {/* Jesteś fundacją? */}
-          <div className="group relative overflow-hidden rounded-3xl min-h-[500px] flex items-end">
+          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-end">
             <div 
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+              className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${ctaFoundationImage})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
