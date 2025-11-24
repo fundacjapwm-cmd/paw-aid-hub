@@ -25,9 +25,9 @@ const Navigation = () => {
           </div>
 
           {/* Logo */}
-          <div className="flex items-center">
+          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Logo className="h-10 w-auto sm:h-12 md:h-14" />
-          </div>
+          </a>
 
           {/* Navigation Menu */}
           <div className="hidden md:flex items-center space-x-8">
