@@ -52,24 +52,24 @@ const HeroSection = () => {
         <div className="relative hidden lg:block">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
-              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-2 hover:rotate-0 transition-transform duration-300">
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-2">
                 <div className="aspect-square rounded-2xl overflow-hidden">
                   <img src={heroCat1} alt="" className="w-full h-full object-cover" />
                 </div>
               </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-1">
                 <div className="aspect-square rounded-2xl overflow-hidden">
                   <img src={heroCatDog} alt="" className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
             <div className="space-y-4 mt-8">
-              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-2">
                 <div className="aspect-square rounded-2xl overflow-hidden">
                   <img src={heroDog1} alt="" className="w-full h-full object-cover" />
                 </div>
               </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-1 hover:rotate-0 transition-transform duration-300">
+              <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-1">
                 <div className="aspect-square rounded-2xl overflow-hidden">
                   <img src={heroDog2} alt="" className="w-full h-full object-cover" />
                 </div>
