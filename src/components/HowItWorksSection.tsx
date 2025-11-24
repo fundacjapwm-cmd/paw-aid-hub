@@ -84,7 +84,6 @@ const HowItWorksSection = () => {
                 transition-all duration-700
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}
                 h-[400px]
-                md:h-auto
                 ${index === 0 ? 'md:h-[400px]' : ''}
                 ${index === 1 ? 'md:h-[600px]' : ''}
                 ${index === 2 ? 'md:h-[520px]' : ''}
