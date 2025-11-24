@@ -176,8 +176,8 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       onClick={() => navigate(`/zwierze/${animal.id}`)}
     >
       {/* Decorative bubbly elements */}
-      <div className="absolute top-2 left-2 w-4 h-4 bg-primary/20 rounded-full animate-bounce-gentle z-10"></div>
-      <div className="absolute top-6 right-6 w-2 h-2 bg-accent/30 rounded-full animate-bounce-gentle delay-300 z-10"></div>
+      <div className="absolute top-2 left-2 w-3 h-3 sm:w-4 sm:h-4 bg-primary/20 rounded-full animate-bounce-gentle z-10"></div>
+      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 w-2 h-2 bg-accent/30 rounded-full animate-bounce-gentle delay-300 z-10"></div>
       
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden rounded-t-3xl">
@@ -188,22 +188,22 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         />
         
         {/* Progress indicator overlay */}
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
           <WishlistProgressBar wishlist={wishlistItems} compact />
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-4 relative flex flex-col flex-1">
+      <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 relative flex flex-col flex-1">
         <div>
-          <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">{animal.name}</h3>
-          <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
+          <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">{animal.name}</h3>
+          <div className="flex items-center flex-wrap gap-2 sm:space-x-4 text-xs sm:text-sm text-muted-foreground mb-3">
             <div className="flex items-center space-x-1 bg-muted/50 px-2 py-1 rounded-full">
-              <Calendar className="h-4 w-4" />
+              <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="font-medium">{ageDisplay}</span>
             </div>
             <div className="flex items-center space-x-1 bg-muted/50 px-2 py-1 rounded-full">
-              <MapPin className="h-4 w-4" />
+              <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="font-medium">{animal.location}</span>
             </div>
           </div>
@@ -220,8 +220,8 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         {/* Wishlist - scrollable with modern design */}
         {wishlistItems.length > 0 && (
           <div className="flex-1 flex flex-col min-h-0">
-            <h4 className="text-sm font-semibold text-foreground mb-2">Lista życzeń:</h4>
-            <ScrollArea className="h-[250px] pr-4">
+            <h4 className="text-xs sm:text-sm font-semibold text-foreground mb-2">Lista życzeń:</h4>
+            <ScrollArea className="h-[220px] sm:h-[250px] pr-2 sm:pr-4">
               <TooltipProvider>
                 <div className="space-y-2">
                   {wishlistItems.map((item) => {
@@ -234,7 +234,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                     return (
                       <div 
                         key={item.id} 
-                        className={`flex gap-3 p-3 rounded-xl transition-all ${
+                        className={`flex gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl transition-all ${
                           item.bought 
                             ? 'bg-green-50 border border-green-200' 
                             : 'bg-white border border-gray-100 shadow-sm hover:border-primary/20'
@@ -242,7 +242,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                       >
                         {/* 1. KOLUMNA: Obrazek produktu (Fixed Width) */}
                         <div className="shrink-0">
-                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border">
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-muted border border-border">
                             <img 
                               src={item.image_url || '/placeholder.svg'} 
                               alt={item.name}
@@ -254,7 +254,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                         {/* 2. KOLUMNA: Informacje o produkcie (Flex-1) */}
                         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                           <div>
-                            <p className={`text-sm font-bold leading-tight line-clamp-2 mb-1 ${
+                            <p className={`text-xs sm:text-sm font-bold leading-tight line-clamp-2 mb-1 ${
                               item.bought ? 'text-green-700 line-through' : 'text-foreground'
                             }`} title={item.name}>
                               {item.name}
@@ -267,7 +267,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                                       e.stopPropagation();
                                       setQuantities(prev => ({ ...prev, [productId]: neededQuantity }));
                                     }}
-                                    className="text-xs text-muted-foreground hover:text-primary transition-colors text-left underline decoration-dotted"
+                                    className="text-[10px] sm:text-xs text-muted-foreground hover:text-primary transition-colors text-left underline decoration-dotted"
                                   >
                                     Potrzeba: {neededQuantity} szt
                                   </button>
@@ -278,85 +278,88 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                               </Tooltip>
                             )}
                           </div>
-                          <div className={`text-base font-bold ${
+                          <div className={`text-sm sm:text-base font-bold ${
                             item.bought ? 'text-green-600' : 'text-primary'
                           }`}>
                             {item.price.toFixed(2)} zł
                           </div>
                         </div>
 
-                        {/* 3. KOLUMNA: Akcje (Fixed Width, Horizontal Layout) */}
-                        <div className="flex flex-col justify-end items-end shrink-0 pl-2">
-                          {item.bought ? (
-                            <span className="text-xs bg-green-500 text-white px-3 py-1.5 rounded-lg font-semibold">
-                              ✓ Kupione
-                            </span>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              {/* Licznik ilości */}
-                              <div className="flex items-center bg-gray-50 rounded-lg h-9 p-1 shadow-inner">
-                                <button 
-                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleQuantityChange(productId, -1, neededQuantity);
-                                  }}
-                                  disabled={quantity <= 1}
-                                >
-                                  -
-                                </button>
-                                <span className="w-6 text-center text-sm font-bold tabular-nums">
-                                  {quantity}
-                                </span>
-                                <button 
-                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleQuantityChange(productId, 1, neededQuantity);
-                                  }}
-                                  disabled={quantity >= neededQuantity}
-                                >
-                                  +
-                                </button>
-                              </div>
+                         {/* 3. KOLUMNA: Akcje (Fixed Width, Horizontal Layout) */}
+                         <div className="flex flex-col justify-end items-end shrink-0 pl-2 gap-2">
+                           {item.bought ? (
+                             <span className="text-xs bg-green-500 text-white px-3 py-1.5 rounded-lg font-semibold">
+                               ✓ Kupione
+                             </span>
+                           ) : (
+                             <>
+                               {/* Licznik ilości */}
+                               <div className="flex items-center bg-gray-50 rounded-lg h-10 p-1 shadow-inner">
+                                 <button 
+                                   className="w-8 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleQuantityChange(productId, -1, neededQuantity);
+                                   }}
+                                   disabled={quantity <= 1}
+                                 >
+                                   <Minus className="h-4 w-4" />
+                                 </button>
+                                 <span className="w-8 text-center text-sm font-bold tabular-nums">
+                                   {quantity}
+                                 </span>
+                                 <button 
+                                   className="w-8 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleQuantityChange(productId, 1, neededQuantity);
+                                   }}
+                                   disabled={quantity >= neededQuantity}
+                                 >
+                                   <Plus className="h-4 w-4" />
+                                 </button>
+                               </div>
 
-                              {/* Przycisk Usuń z koszyka (jeśli dodano) */}
-                              {itemInCart && (
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-9 w-9 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                                  onClick={(e) => handleRemoveFromCart(e, productId)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              )}
+                               {/* Przyciski akcji */}
+                               <div className="flex items-center gap-2">
+                                 {/* Przycisk Usuń z koszyka (jeśli dodano) */}
+                                 {itemInCart && (
+                                   <Button
+                                     size="icon"
+                                     variant="ghost"
+                                     className="h-10 w-10 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                     onClick={(e) => handleRemoveFromCart(e, productId)}
+                                   >
+                                     <X className="h-5 w-5" />
+                                   </Button>
+                                 )}
 
-                              {/* Przycisk Dodaj/Dodano do koszyka */}
-                              <div className="relative">
-                                <Button
-                                  size="icon"
-                                  className={`h-9 w-9 rounded-xl transition-all ${
-                                    itemInCart 
-                                      ? 'bg-green-500 hover:bg-green-600 text-white' 
-                                      : 'bg-primary hover:bg-primary/90 text-white shadow-bubbly hover:scale-105'
-                                  }`}
-                                  onClick={(e) => handleAddToCart(e, item)}
-                                  disabled={itemInCart}
-                                >
-                                  <ShoppingCart className="h-4 w-4" />
-                                </Button>
-                                {cartQuantity > 0 && (
-                                  <Badge 
-                                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background rounded-full"
-                                  >
-                                    {cartQuantity}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                                 {/* Przycisk Dodaj/Dodano do koszyka */}
+                                 <div className="relative">
+                                   <Button
+                                     size="icon"
+                                     className={`h-10 w-10 rounded-xl transition-all ${
+                                       itemInCart 
+                                         ? 'bg-green-500 hover:bg-green-600 text-white' 
+                                         : 'bg-primary hover:bg-primary/90 text-white shadow-bubbly hover:scale-105'
+                                     }`}
+                                     onClick={(e) => handleAddToCart(e, item)}
+                                     disabled={itemInCart}
+                                   >
+                                     <ShoppingCart className="h-5 w-5" />
+                                   </Button>
+                                   {cartQuantity > 0 && (
+                                     <Badge 
+                                       className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background rounded-full"
+                                     >
+                                       {cartQuantity}
+                                     </Badge>
+                                   )}
+                                 </div>
+                               </div>
+                             </>
+                           )}
+                         </div>
                       </div>
                     );
                   })}
