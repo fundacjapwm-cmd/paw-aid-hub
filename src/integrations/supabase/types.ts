@@ -503,7 +503,6 @@ export type Database = {
         Row: {
           active: boolean | null
           address: string | null
-          bank_account_number: string | null
           city: string | null
           contact_email: string
           contact_phone: string | null
@@ -523,7 +522,6 @@ export type Database = {
         Insert: {
           active?: boolean | null
           address?: string | null
-          bank_account_number?: string | null
           city?: string | null
           contact_email: string
           contact_phone?: string | null
@@ -543,7 +541,6 @@ export type Database = {
         Update: {
           active?: boolean | null
           address?: string | null
-          bank_account_number?: string | null
           city?: string | null
           contact_email?: string
           contact_phone?: string | null

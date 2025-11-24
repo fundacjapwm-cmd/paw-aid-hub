@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import OrganizationProfileSkeleton from "@/components/OrganizationProfileSkeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Organization {
   id: string;
@@ -31,6 +32,7 @@ interface Organization {
 
 export default function OrganizationPublicProfile() {
   const { slug } = useParams<{ slug: string }>();
+  const { user } = useAuth();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [animals, setAnimals] = useState<any[]>([]);
   const [orgWishlist, setOrgWishlist] = useState<any[]>([]);
@@ -284,33 +286,38 @@ export default function OrganizationPublicProfile() {
                         </div>
                       </div>
 
-                      {organization.contact_phone && (
-                        <div className="flex items-start gap-3">
-                          <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                          <div>
-                            <p className="font-medium">Telefon</p>
-                            <a 
-                              href={`tel:${organization.contact_phone}`}
-                              className="text-muted-foreground hover:text-primary transition-colors"
-                            >
-                              {organization.contact_phone}
-                            </a>
-                          </div>
-                        </div>
-                      )}
+                      {/* Dane kontaktowe - tylko dla zalogowanych użytkowników */}
+                      {user && (
+                        <>
+                          {organization.contact_phone && (
+                            <div className="flex items-start gap-3">
+                              <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                              <div>
+                                <p className="font-medium">Telefon</p>
+                                <a 
+                                  href={`tel:${organization.contact_phone}`}
+                                  className="text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  {organization.contact_phone}
+                                </a>
+                              </div>
+                            </div>
+                          )}
 
-                      <div className="flex items-start gap-3">
-                        <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="font-medium">Email</p>
-                          <a 
-                            href={`mailto:${organization.contact_email}`}
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            {organization.contact_email}
-                          </a>
-                        </div>
-                      </div>
+                          <div className="flex items-start gap-3">
+                            <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                            <div>
+                              <p className="font-medium">Email</p>
+                              <a 
+                                href={`mailto:${organization.contact_email}`}
+                                className="text-muted-foreground hover:text-primary transition-colors"
+                              >
+                                {organization.contact_email}
+                              </a>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </Card>

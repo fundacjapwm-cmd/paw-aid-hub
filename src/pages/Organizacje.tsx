@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import OrganizationCardSkeleton from "@/components/OrganizationCardSkeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Organization {
   id: string;
@@ -28,6 +29,7 @@ interface Organization {
 
 const Organizacje = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -364,19 +366,21 @@ const Organizacje = () => {
                           </div>
                         </div>
 
-                        {/* Contact Info */}
-                        <div className="space-y-2 pt-4 border-t border-border/50">
-                          {org.contact_phone && (
+                        {/* Contact Info - tylko dla zalogowanych */}
+                        {user && (
+                          <div className="space-y-2 pt-4 border-t border-border/50">
+                            {org.contact_phone && (
+                              <div className="flex items-center text-sm text-muted-foreground">
+                                <Phone className="h-4 w-4 mr-2" />
+                                {org.contact_phone}
+                              </div>
+                            )}
                             <div className="flex items-center text-sm text-muted-foreground">
-                              <Phone className="h-4 w-4 mr-2" />
-                              {org.contact_phone}
+                              <Mail className="h-4 w-4 mr-2" />
+                              {org.contact_email}
                             </div>
-                          )}
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Mail className="h-4 w-4 mr-2" />
-                            {org.contact_email}
                           </div>
-                        </div>
+                        )}
 
                         {/* CTA */}
                         <Button 
