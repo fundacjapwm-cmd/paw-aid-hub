@@ -286,17 +286,17 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                         </div>
 
                         {/* 3. KOLUMNA: Akcje (Fixed Width, Horizontal Layout) */}
-                        <div className="flex flex-col justify-end items-end shrink-0 pl-2">
+                        <div className="flex flex-col justify-end items-end shrink-0 pl-2 min-w-[140px] md:min-w-[160px]">
                           {item.bought ? (
                             <span className="text-xs bg-green-500 text-white px-3 py-1.5 rounded-lg font-semibold">
                               ✓ Kupione
                             </span>
                           ) : (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 flex-wrap justify-end">
                               {/* Licznik ilości */}
                               <div className="flex items-center bg-gray-50 rounded-lg h-9 p-1 shadow-inner">
                                 <button 
-                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                  className="w-7 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30 text-base font-bold"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleQuantityChange(productId, -1, neededQuantity);
@@ -305,11 +305,11 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                                 >
                                   -
                                 </button>
-                                <span className="w-6 text-center text-sm font-bold tabular-nums">
+                                <span className="w-8 text-center text-sm font-bold tabular-nums">
                                   {quantity}
                                 </span>
                                 <button 
-                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
+                                  className="w-7 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30 text-base font-bold"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleQuantityChange(productId, 1, neededQuantity);
@@ -325,7 +325,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                                 <Button
                                   size="icon"
                                   variant="ghost"
-                                  className="h-9 w-9 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                  className="h-9 w-9 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors shrink-0"
                                   onClick={(e) => handleRemoveFromCart(e, productId)}
                                 >
                                   <X className="h-4 w-4" />
@@ -333,7 +333,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                               )}
 
                               {/* Przycisk Dodaj/Dodano do koszyka */}
-                              <div className="relative">
+                              <div className="relative shrink-0">
                                 <Button
                                   size="icon"
                                   className={`h-9 w-9 rounded-xl transition-all ${
@@ -384,14 +384,14 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
 
                 <Button 
                   variant="success" 
-                  size="sm" 
-                  className={`w-full rounded-xl font-bold shadow-sm ${
+                  size="lg" 
+                  className={`w-full rounded-xl font-bold shadow-sm py-6 ${
                     allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
                   }`}
                   onClick={handleBuyAll}
                   disabled={allBought}
                 >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  <ShoppingCart className="h-5 w-5 mr-2" />
                   {allBought 
                     ? 'Wszystko kupione!' 
                     : allItemsInCart 

@@ -114,9 +114,9 @@ const Index = () => {
                   }}
                   className="w-full"
                 >
-                  <CarouselContent className="-ml-4">
+                  <CarouselContent className="-ml-2 md:-ml-4">
                     {[1, 2, 3, 4].map((i) => (
-                      <CarouselItem key={i} className="pl-4 basis-full md:basis-1/2">
+                      <CarouselItem key={i} className="pl-2 md:pl-4 basis-full md:basis-1/2">
                         <AnimalCardSkeleton />
                       </CarouselItem>
                     ))}
@@ -146,9 +146,9 @@ const Index = () => {
                     }}
                     className="w-full"
                   >
-                    <CarouselContent className="-ml-4">
+                    <CarouselContent className="-ml-2 md:-ml-4">
                       {newestAnimals.map((animal) => (
-                        <CarouselItem key={animal.id} className="pl-4 basis-full md:basis-1/2">
+                        <CarouselItem key={animal.id} className="pl-2 md:pl-4 basis-full md:basis-1/2">
                           <AnimalCard animal={animal} />
                         </CarouselItem>
                       ))}
