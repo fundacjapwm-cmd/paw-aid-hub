@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import OrganizationProfileSkeleton from "@/components/OrganizationProfileSkeleton";
 
 interface Organization {
   id: string;
@@ -176,14 +177,7 @@ export default function OrganizationPublicProfile() {
     .reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Heart className="h-12 w-12 animate-pulse text-primary mx-auto mb-4" />
-          <p className="text-lg text-muted-foreground">Ładowanie profilu organizacji...</p>
-        </div>
-      </div>
-    );
+    return <OrganizationProfileSkeleton />;
   }
 
   if (!organization) {
