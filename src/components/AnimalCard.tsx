@@ -370,7 +370,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         )}
 
         {/* Buy All Button with improved footer */}
-        <div className="pt-3 border-t border-border/30 space-y-2">
+        <div className="pt-2 sm:pt-3 border-t border-border/30 space-y-2">
           {(() => {
             const availableItems = wishlistItems.filter(item => !item.bought);
             const allBought = availableItems.length === 0;
@@ -379,8 +379,8 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
               <>
                 {/* Cart Total for this animal */}
                 {cartTotalForAnimal > 0 && (
-                  <div className="flex items-center justify-between text-sm pb-2 border-b border-border/30">
-                    <span className="text-muted-foreground">Łącznie w koszyku:</span>
+                  <div className="flex items-center justify-between text-xs sm:text-sm pb-2 border-b border-border/30">
+                    <span className="text-muted-foreground">W koszyku:</span>
                     <span className="font-bold text-foreground">{cartTotalForAnimal.toFixed(2)} zł</span>
                   </div>
                 )}
@@ -388,19 +388,19 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 <Button 
                   variant="success" 
                   size="sm" 
-                  className={`w-full rounded-xl font-bold shadow-sm ${
-                    allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
-                  }`}
+                  className="w-full rounded-xl font-bold shadow-sm text-xs sm:text-sm h-10 sm:h-auto"
                   onClick={handleBuyAll}
                   disabled={allBought}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  {allBought 
-                    ? 'Wszystko kupione!' 
-                    : allItemsInCart 
-                    ? `Dodano (${totalWishlistCost.toFixed(2)} zł)` 
-                    : `Dodaj wszystko! (${totalWishlistCost.toFixed(2)} zł)`
-                  }
+                  <span className="truncate">
+                    {allBought 
+                      ? 'Wszystko kupione!' 
+                      : allItemsInCart 
+                      ? `Dodano (${totalWishlistCost.toFixed(2)} zł)` 
+                      : `Dodaj wszystko (${totalWishlistCost.toFixed(2)} zł)`
+                    }
+                  </span>
                 </Button>
               </>
             );
