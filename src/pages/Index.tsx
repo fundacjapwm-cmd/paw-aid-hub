@@ -17,6 +17,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 
 const Index = () => {
@@ -27,6 +28,9 @@ const Index = () => {
     species: "wszystkie",
     city: ""
   });
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
 
   // Handle scrolling to anchor after navigation
   useEffect(() => {
@@ -39,6 +43,19 @@ const Index = () => {
       }
     }
   }, [location]);
+
+  useEffect(() => {
+    if (!carouselApi) {
+      return;
+    }
+
+    setCount(carouselApi.scrollSnapList().length);
+    setCurrent(carouselApi.selectedScrollSnap() + 1);
+
+    carouselApi.on("select", () => {
+      setCurrent(carouselApi.selectedScrollSnap() + 1);
+    });
+  }, [carouselApi]);
 
   const filteredAnimals = useMemo(() => {
     return animals.filter((animal) => {
@@ -89,7 +106,7 @@ const Index = () => {
             </div>
 
             {loading ? (
-              <div className="px-12">
+              <div className="md:px-12">
                 <Carousel
                   opts={{
                     align: "start",
@@ -99,13 +116,15 @@ const Index = () => {
                 >
                   <CarouselContent className="-ml-4">
                     {[1, 2, 3, 4].map((i) => (
-                      <CarouselItem key={i} className="pl-4 md:basis-1/2">
+                      <CarouselItem key={i} className="pl-4 basis-full md:basis-1/2">
                         <AnimalCardSkeleton />
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
+                  <div className="hidden md:block">
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </div>
                 </Carousel>
               </div>
             ) : error ? (
@@ -118,24 +137,43 @@ const Index = () => {
                   <AnimalFilters onFilterChange={setFilters} />
                 </div>
 
-                <div className="px-12">
+                <div className="md:px-12">
                   <Carousel
+                    setApi={setCarouselApi}
                     opts={{
                       align: "start",
-                      loop: false,
+                      loop: true,
                     }}
                     className="w-full"
                   >
                     <CarouselContent className="-ml-4">
                       {newestAnimals.map((animal) => (
-                        <CarouselItem key={animal.id} className="pl-4 md:basis-1/2">
+                        <CarouselItem key={animal.id} className="pl-4 basis-full md:basis-1/2">
                           <AnimalCard animal={animal} />
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
+                    <div className="hidden md:block">
+                      <CarouselPrevious />
+                      <CarouselNext />
+                    </div>
                   </Carousel>
+                  
+                  {/* Dot indicators for mobile */}
+                  <div className="flex justify-center gap-2 mt-4 md:hidden">
+                    {Array.from({ length: count }).map((_, index) => (
+                      <button
+                        key={index}
+                        className={`h-2 rounded-full transition-all ${
+                          index === current - 1
+                            ? "w-8 bg-primary"
+                            : "w-2 bg-muted-foreground/30"
+                        }`}
+                        onClick={() => carouselApi?.scrollTo(index)}
+                        aria-label={`Przejdź do slajdu ${index + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </>
             )}

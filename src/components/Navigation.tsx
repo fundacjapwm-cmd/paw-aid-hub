@@ -19,11 +19,6 @@ const Navigation = () => {
     <nav className="bg-background/95 backdrop-blur-sm sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Mobile Menu */}
-          <div className="md:hidden">
-            <MobileMenu />
-          </div>
-
           {/* Logo */}
           <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Logo className="h-10 w-auto sm:h-12 md:h-14" />
@@ -90,12 +85,14 @@ const Navigation = () => {
 
           {/* Cart and Actions */}
           <div className="flex items-center space-x-4">
-            <CartDrawer />
-            
-            {loading ? (
-              <div className="h-8 w-8 animate-pulse bg-muted rounded-full" />
-            ) : user ? (
-              <DropdownMenu>
+            {/* Desktop only cart & user menu */}
+            <div className="hidden md:flex items-center space-x-4">
+              <CartDrawer />
+              
+              {loading ? (
+                <div className="h-8 w-8 animate-pulse bg-muted rounded-full" />
+              ) : user ? (
+                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
@@ -162,6 +159,12 @@ const Navigation = () => {
                 Zaloguj się
               </Button>
             )}
+            </div>
+            
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <MobileMenu />
+            </div>
           </div>
         </div>
       </div>

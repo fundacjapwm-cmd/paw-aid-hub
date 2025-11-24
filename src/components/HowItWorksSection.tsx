@@ -80,13 +80,15 @@ const HowItWorksSection = () => {
             <div
               key={index}
               className={`
-                relative overflow-hidden rounded-[200px] shadow-2xl
+                relative overflow-hidden rounded-[50px] md:rounded-[200px] shadow-2xl
                 transition-all duration-700
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}
-                ${index === 0 ? 'h-[400px]' : ''}
-                ${index === 1 ? 'h-[600px]' : ''}
-                ${index === 2 ? 'h-[520px]' : ''}
-                ${index === 3 ? 'h-[400px]' : ''}
+                h-[400px]
+                md:h-auto
+                ${index === 0 ? 'md:h-[400px]' : ''}
+                ${index === 1 ? 'md:h-[600px]' : ''}
+                ${index === 2 ? 'md:h-[520px]' : ''}
+                ${index === 3 ? 'md:h-[400px]' : ''}
               `}
               style={{
                 transitionDelay: isVisible ? `${step.delay}ms` : '0ms',
