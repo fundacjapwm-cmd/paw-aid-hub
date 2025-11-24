@@ -172,7 +172,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         />
       )}
       <Card
-      className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in"
+      className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-[50px] md:rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in"
       onClick={() => navigate(`/zwierze/${animal.id}`)}
     >
       {/* Decorative bubbly elements */}

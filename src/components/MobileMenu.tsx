@@ -1,16 +1,27 @@
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Menu, ShoppingCart, User, Settings, LogOut } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
+import { useAuth } from '@/contexts/AuthContext';
+import CartDrawer from '@/components/CartDrawer';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 
 const MobileMenu = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
+  
+  const handleSignOut = async () => {
+    await signOut();
+    setOpen(false);
+    navigate('/');
+  };
 
   const menuItems = [
     { label: 'Strona główna', path: '/' },
@@ -33,7 +44,7 @@ const MobileMenu = () => {
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
         <div className="flex items-center space-x-2 mb-8">
           <Logo className="h-8 w-auto" />
           <span className="text-xl font-bold text-primary">Pączki w Maśle</span>
@@ -56,6 +67,65 @@ const MobileMenu = () => {
               )}
             </button>
           ))}
+          
+          <Separator className="my-4" />
+          
+          {user ? (
+            <>
+              <div className="flex items-center space-x-3 py-2">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback>{profile?.display_name?.[0] || user.email?.[0] || 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{profile?.display_name || 'Użytkownik'}</span>
+                  <span className="text-xs text-muted-foreground">{user.email}</span>
+                </div>
+              </div>
+              
+              <CartDrawer />
+              
+              <button
+                onClick={() => handleNavigation('/profile')}
+                className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
+              >
+                <User className="h-5 w-5" />
+                <span>Profil</span>
+              </button>
+              
+              {profile?.role === 'ADMIN' && (
+                <button
+                  onClick={() => handleNavigation('/admin')}
+                  className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
+                >
+                  <Settings className="h-5 w-5" />
+                  <span>Panel administratora</span>
+                </button>
+              )}
+              
+              {profile?.role === 'ORG' && (
+                <button
+                  onClick={() => handleNavigation('/org')}
+                  className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
+                >
+                  <Settings className="h-5 w-5" />
+                  <span>Panel organizacji</span>
+                </button>
+              )}
+              
+              <button
+                onClick={handleSignOut}
+                className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Wyloguj się</span>
+              </button>
+            </>
+          ) : (
+            <Button asChild variant="default" className="w-full">
+              <Link to="/auth" onClick={() => setOpen(false)}>Zaloguj się</Link>
+            </Button>
+          )}
         </nav>
       </SheetContent>
     </Sheet>
