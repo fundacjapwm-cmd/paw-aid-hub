@@ -1,5 +1,6 @@
 import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
+import AnimalCardSkeleton from "@/components/AnimalCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Heart, Users } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
@@ -63,9 +64,40 @@ const Zwierzeta = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-20 text-center">
-          <p className="text-lg text-muted-foreground">Ładowanie zwierząt...</p>
-        </div>
+        <main>
+          {/* Header Section */}
+          <section className="py-12 md:py-20 bg-background">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+                Nasi podopieczni
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+                Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
+              </p>
+            </div>
+          </section>
+
+          {/* Filters Section */}
+          <section className="py-8 bg-muted/30">
+            <div className="container mx-auto px-4 max-w-7xl">
+              <AnimalFilters onFilterChange={setFilters} />
+            </div>
+          </section>
+
+          {/* Skeleton Loading Section */}
+          <section className="py-16 px-4">
+            <div className="container mx-auto max-w-6xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <AnimalCardSkeleton key={i} />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <LeadGenSection />
+        </main>
+        <Footer />
       </div>
     );
   }
