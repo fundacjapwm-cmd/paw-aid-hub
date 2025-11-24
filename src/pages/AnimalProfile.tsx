@@ -10,6 +10,7 @@ import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { calculateAnimalAge, formatDetailedAge } from "@/lib/utils/ageCalculator";
+import AnimalProfileSkeleton from "@/components/AnimalProfileSkeleton";
 
 const AnimalProfile = () => {
   const { id } = useParams();
@@ -48,14 +49,7 @@ const AnimalProfile = () => {
   }, [animal?.wishlist]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-20 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Ładowanie profilu zwierzęcia...</p>
-        </div>
-      </div>
-    );
+    return <AnimalProfileSkeleton />;
   }
 
   if (!animal) {
