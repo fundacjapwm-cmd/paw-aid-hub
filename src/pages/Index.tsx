@@ -106,7 +106,7 @@ const Index = () => {
             </div>
 
             {loading ? (
-              <div className="md:px-12">
+              <div>
                 <Carousel
                   opts={{
                     align: "start",
@@ -137,7 +137,7 @@ const Index = () => {
                   <AnimalFilters onFilterChange={setFilters} />
                 </div>
 
-                <div className="md:px-12">
+                <div>
                   <Carousel
                     setApi={setCarouselApi}
                     opts={{
