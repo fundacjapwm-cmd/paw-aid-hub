@@ -7,9 +7,9 @@ import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import OrganizationCardSkeleton from "@/components/OrganizationCardSkeleton";
 
 interface Organization {
   id: string;
@@ -283,15 +283,8 @@ const Organizacje = () => {
           <div className="container mx-auto max-w-7xl">
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[1, 2, 3, 4].map((i) => (
-                  <Card key={i} className="rounded-3xl overflow-hidden">
-                    <Skeleton className="h-48 w-full" />
-                    <div className="p-6 space-y-4">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-full" />
-                    </div>
-                  </Card>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <OrganizationCardSkeleton key={i} />
                 ))}
               </div>
             ) : filteredOrganizations.length === 0 ? (
