@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateNIP } from "@/lib/validations/nip";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const leadFormSchema = z.object({
   organizationName: z.string()
@@ -166,7 +167,7 @@ const LeadGenSection = () => {
                     htmlFor="acceptedTerms"
                     className="text-sm text-muted-foreground font-normal cursor-pointer"
                   >
-                    Akceptuję <a href="#" className="italic underline hover:text-foreground">Regulamin</a> i <a href="#" className="italic underline hover:text-foreground">Politykę Prywatności</a> serwisu Pączki w Maśle.
+                    Akceptuję <Link to="/regulamin" className="italic underline hover:text-foreground" target="_blank">Regulamin</Link> i <Link to="/prywatnosc" className="italic underline hover:text-foreground" target="_blank">Politykę Prywatności</Link> serwisu Pączki w Maśle.
                   </Label>
                   {errors.acceptedTerms && (
                     <p className="text-sm text-destructive">{errors.acceptedTerms.message}</p>
