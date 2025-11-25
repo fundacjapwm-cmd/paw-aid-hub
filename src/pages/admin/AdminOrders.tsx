@@ -94,6 +94,7 @@ export default function AdminOrders() {
               )
             `)
             .eq("batch_order_id", batch.id)
+            .eq("payment_status", "completed")
             .order("created_at", { ascending: false });
 
           return {
