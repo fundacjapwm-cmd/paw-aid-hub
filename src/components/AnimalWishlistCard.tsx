@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
-import { ShoppingCart, Plus, Minus, Check, X } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "react-router-dom";
+import { WishlistProductCard } from "@/components/WishlistProductCard";
 
 interface Product {
   id: string;
@@ -143,179 +141,38 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
           {animal.products.length > 0 ? (
             <>
               {/* Body - Scrollable List */}
-              <TooltipProvider>
-                <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-3">
-                  {animal.products.map((product) => {
-                    const quantity = selectedQuantities[product.id] || 1;
-                    const bought = product.bought || 0;
-                    const needed = product.quantity || 1;
-                    const missing = Math.max(0, needed - bought);
-                    const isFullyBought = bought >= needed;
-                    const progress = (bought / needed) * 100;
-                    const itemInCart = isInCart(product.id);
-                    const cartQuantity = getCartQuantity(product.id);
+              <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-3">
+                {animal.products.map((product) => {
+                  const quantity = selectedQuantities[product.id] || 1;
+                  const bought = product.bought || 0;
+                  const needed = product.quantity || 1;
+                  const missing = Math.max(0, needed - bought);
+                  const isFullyBought = bought >= needed;
 
-                    return (
-                      <div
-                        key={product.id}
-                        className="flex gap-4 p-4 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-orange-50/30 transition-all duration-300 group"
-                      >
-                        {/* 1. KOLUMNA: ZDJĘCIE (Fixed) */}
-                        <div className="shrink-0 relative">
-                          {product.image ? (
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-20 h-20 rounded-2xl object-cover shadow-inner bg-white"
-                            />
-                          ) : (
-                            <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center shadow-inner">
-                              <ShoppingCart className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* 2. KOLUMNA: TREŚĆ (Flexible) */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          {/* Góra: Nazwa produktu */}
-                          <h4 
-                            className="font-bold text-base text-gray-800 leading-tight line-clamp-2 mb-1" 
-                            title={product.name}
-                          >
-                            {product.name}
-                          </h4>
-                          
-                          {/* Dół: Cena + Progress + Smart Shortcut */}
-                          <div className="space-y-1">
-                            <div className="text-primary font-black text-lg">
-                              {product.price.toFixed(2)} zł
-                            </div>
-                            
-                            {/* Progress Bar */}
-                            {!isFullyBought && (
-                              <div className="space-y-0.5">
-                                <Progress value={progress} className="h-1.5" />
-                                <div className="flex items-center justify-between">
-                                  <p className="text-xs text-muted-foreground">
-                                    {bought} / {needed} szt
-                                  </p>
-                                   {/* Smart Shortcut */}
-                                   {missing > 1 && (
-                                     <Tooltip>
-                                       <TooltipTrigger asChild>
-                                         <button
-                                           onClick={() => handleSmartFill(product.id, missing)}
-                                           className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md inline-block hover:text-primary hover:bg-primary/5 transition-colors"
-                                         >
-                                           Brakuje: {missing}
-                                         </button>
-                                       </TooltipTrigger>
-                                       <TooltipContent>
-                                         <p className="text-xs">Kliknij, aby ustawić {missing} szt</p>
-                                       </TooltipContent>
-                                     </Tooltip>
-                                   )}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Status gdy w pełni kupione */}
-                            {isFullyBought && (
-                              <div className="flex items-center gap-1.5 text-green-600 font-medium text-xs">
-                                <Check className="h-3.5 w-3.5" />
-                                <span>Zrealizowane</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* 3. KOLUMNA: AKCJE (Pionowy układ) */}
-                        {!isFullyBought && (
-                          <div className="flex flex-col justify-center items-end gap-3 shrink-0">
-                            {/* Licznik Pigułka */}
-                            <div className="flex items-center gap-2 bg-gray-50 rounded-full px-1 py-1 border border-gray-100 shadow-inner">
-                              <button 
-                                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 hover:text-primary hover:scale-110 transition-all disabled:opacity-30"
-                                onClick={() => handleQuantityChange(product.id, -1, missing)}
-                                disabled={quantity <= 1}
-                              >
-                                <Minus className="h-3.5 w-3.5" />
-                              </button>
-                              <span className="w-6 text-center font-bold text-sm text-primary tabular-nums">
-                                {quantity}
-                              </span>
-                              <button 
-                                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 hover:text-primary hover:scale-110 transition-all disabled:opacity-30"
-                                onClick={() => handleQuantityChange(product.id, 1, missing)}
-                                disabled={quantity >= missing}
-                              >
-                                <Plus className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-
-                            {/* Kontener z przyciskami */}
-                            <div className="flex items-center gap-2">
-                              {/* Przycisk Usuń (jeśli w koszyku) */}
-                              {itemInCart && (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      size="icon"
-                                      className="h-10 w-10 rounded-full bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all shadow-bubbly hover:scale-105"
-                                      onClick={() => removeFromCart(product.id)}
-                                    >
-                                      <X className="h-5 w-5" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="text-xs">Usuń z koszyka</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              )}
-
-                              {/* Przycisk Dodaj */}
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="relative">
-                                    <Button 
-                                      size="icon" 
-                                      className={`h-10 w-10 rounded-full shadow-bubbly hover:scale-105 transition-all ${
-                                        itemInCart 
-                                          ? 'bg-green-500 hover:bg-green-600' 
-                                          : 'bg-primary hover:bg-primary/90'
-                                      }`}
-                                      onClick={() => handleAddProduct(product)}
-                                      disabled={itemInCart}
-                                    >
-                                      {itemInCart ? (
-                                        <Check className="h-5 w-5" />
-                                      ) : (
-                                        <ShoppingCart className="h-5 w-5" />
-                                      )}
-                                    </Button>
-                                    {cartQuantity > 0 && (
-                                      <Badge 
-                                        className="absolute -top-1.5 -right-1.5 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
-                                      >
-                                        {cartQuantity}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="text-xs">
-                                    {itemInCart ? `${cartQuantity} szt. w koszyku` : 'Dodaj do koszyka'}
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </TooltipProvider>
+                  return (
+                    <WishlistProductCard
+                      key={product.id}
+                      product={{
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image_url: product.image,
+                        quantity: needed,
+                        bought: isFullyBought,
+                      }}
+                      quantity={quantity}
+                      maxQuantity={missing}
+                      isInCart={isInCart(product.id)}
+                      cartQuantity={getCartQuantity(product.id)}
+                      onQuantityChange={(_, change) => handleQuantityChange(product.id, change, missing)}
+                      showSmartFill={missing > 1}
+                      onSmartFill={(_, qty) => handleSmartFill(product.id, qty)}
+                      onAddToCart={() => handleAddProduct(product)}
+                      onRemoveFromCart={() => removeFromCart(product.id)}
+                    />
+                  );
+                })}
+              </div>
 
               {/* Footer - Sticky Summary */}
               <div className="bg-gradient-to-t from-muted/50 to-transparent p-5 border-t space-y-3">
@@ -333,7 +190,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                 
                 {/* Kup wszystkie brakujące */}
                 <Button
-                  className="w-full rounded-xl font-semibold shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
+                  className="w-full rounded-3xl md:rounded-xl font-semibold shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
                   size="lg"
                   onClick={handleBuyAllMissing}
                   disabled={missingTotal === 0}
