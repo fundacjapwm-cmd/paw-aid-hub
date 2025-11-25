@@ -156,8 +156,12 @@ serve(async (req) => {
     const posId = Deno.env.get('PAYU_POS_ID')!;
     const clientId = Deno.env.get('PAYU_CLIENT_ID')!;
     const clientSecret = Deno.env.get('PAYU_CLIENT_SECRET')!;
+    const isSandbox = Deno.env.get('PAYU_SANDBOX') === 'true';
 
-    const authResponse = await fetch('https://secure.payu.com/pl/standard/user/oauth/authorize', {
+    const payuBaseUrl = isSandbox ? 'https://secure.snd.payu.com' : 'https://secure.payu.com';
+    console.log(`Using PayU ${isSandbox ? 'SANDBOX' : 'PRODUCTION'} environment`);
+
+    const authResponse = await fetch(`${payuBaseUrl}/pl/standard/user/oauth/authorize`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -166,10 +170,13 @@ serve(async (req) => {
     });
 
     if (!authResponse.ok) {
-      throw new Error('PayU authentication failed');
+      const errorText = await authResponse.text();
+      console.error('PayU authentication failed:', errorText);
+      throw new Error(`PayU authentication failed: ${errorText}`);
     }
 
     const { access_token } = await authResponse.json();
+    console.log('PayU authentication successful');
 
     // Get the origin URL from the request for redirect URLs
     const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || supabaseUrl;
@@ -196,9 +203,9 @@ serve(async (req) => {
       extOrderId: order.id,
     };
 
-    console.log('Creating PayU order:', payuOrder);
+    console.log('Creating PayU order:', JSON.stringify(payuOrder, null, 2));
 
-    const payuResponse = await fetch('https://secure.payu.com/api/v2_1/orders', {
+    const payuResponse = await fetch(`${payuBaseUrl}/api/v2_1/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
