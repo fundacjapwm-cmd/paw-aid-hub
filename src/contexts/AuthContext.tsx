@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let refreshInterval: NodeJS.Timeout | null = null;
     
     const fetchProfile = async (userId: string) => {
       try {
@@ -53,6 +54,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    const checkAndRefreshSession = async () => {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) return;
+      
+      const expiresAt = currentSession.expires_at;
+      if (!expiresAt) return;
+      
+      const now = Math.floor(Date.now() / 1000);
+      const timeUntilExpiry = expiresAt - now;
+      const REFRESH_THRESHOLD = 5 * 60; // 5 minutes before expiry
+      
+      if (timeUntilExpiry < REFRESH_THRESHOLD && timeUntilExpiry > 0) {
+        console.log('Session expiring soon, refreshing...');
+        const { data, error } = await supabase.auth.refreshSession();
+        
+        if (error) {
+          console.error('Failed to refresh session:', error);
+        } else if (data.session && mounted) {
+          setSession(data.session);
+          setUser(data.session.user);
+          console.log('Session refreshed successfully');
+        }
+      }
+    };
+
     // Check for existing session first
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
@@ -64,6 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fetchProfile(session.user.id).then(() => {
           if (mounted) setLoading(false);
         });
+        
+        // Start periodic session check (every 60 seconds)
+        refreshInterval = setInterval(checkAndRefreshSession, 60 * 1000);
       } else {
         setLoading(false);
       }
@@ -78,9 +108,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          fetchProfile(session.user.id);
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+          }, 0);
+          
+          // Start/restart periodic session check
+          if (refreshInterval) clearInterval(refreshInterval);
+          refreshInterval = setInterval(checkAndRefreshSession, 60 * 1000);
         } else {
           setProfile(null);
+          if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+          }
         }
         
         setLoading(false);
@@ -90,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      if (refreshInterval) clearInterval(refreshInterval);
     };
   }, []);
 
