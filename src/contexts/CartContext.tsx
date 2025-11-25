@@ -37,7 +37,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
-  const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
+  const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1, silent: boolean = false) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((cartItem) => cartItem.productId === item.productId);
       
@@ -47,18 +47,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         const maxQty = item.maxQuantity || Infinity;
         
         if (newQuantity > maxQty) {
-          toast({
-            title: "Limit osiągnięty",
-            description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
-            variant: "destructive",
-          });
+          if (!silent) {
+            toast({
+              title: "Limit osiągnięty",
+              description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
+              variant: "destructive",
+            });
+          }
           return prevCart;
         }
         
-        toast({
-          title: "Zaktualizowano koszyk",
-          description: `Zwiększono ilość: ${item.productName}`,
-        });
+        if (!silent) {
+          toast({
+            title: "Zaktualizowano koszyk",
+            description: `Zwiększono ilość: ${item.productName}`,
+          });
+        }
         return prevCart.map((cartItem) =>
           cartItem.productId === item.productId
             ? { ...cartItem, quantity: newQuantity }
@@ -68,18 +72,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         // Check if initial quantity exceeds max
         const maxQty = item.maxQuantity || Infinity;
         if (quantity > maxQty) {
-          toast({
-            title: "Limit osiągnięty",
-            description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
-            variant: "destructive",
-          });
+          if (!silent) {
+            toast({
+              title: "Limit osiągnięty",
+              description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
+              variant: "destructive",
+            });
+          }
           return prevCart;
         }
         
-        toast({
-          title: "Dodano do koszyka",
-          description: `${item.productName} - ${item.price.toFixed(2)} zł`,
-        });
+        if (!silent) {
+          toast({
+            title: "Dodano do koszyka",
+            description: `${item.productName} - ${item.price.toFixed(2)} zł`,
+          });
+        }
         return [...prevCart, { ...item, quantity }];
       }
     });
@@ -95,11 +103,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    items.forEach(item => addToCart(item, item.maxQuantity || 1));
-    toast({
-      title: "Dodano do koszyka",
-      description: "Dodano do koszyka wszystkie potrzebne produkty!",
-    });
+    // Use silent mode - the calling component will show its own toast with totals
+    items.forEach(item => addToCart(item, item.maxQuantity || 1, true));
   };
 
   const isAnimalFullyAdded = (animalId: string) => {
