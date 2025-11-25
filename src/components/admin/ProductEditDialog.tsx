@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { validateImageFile } from '@/lib/validations/imageFile';
 
 interface Product {
   id: string;
@@ -46,6 +47,13 @@ export default function ProductEditDialog({ product, productCategories, onClose,
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
     if (!file) return null;
+    
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return null;
+    }
     
     setUploadingImage(true);
     try {
@@ -129,7 +137,7 @@ export default function ProductEditDialog({ product, productCategories, onClose,
               <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors">
                 <input
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
