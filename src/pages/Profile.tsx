@@ -209,7 +209,7 @@ export default function Profile() {
   };
 
   if (loading) {
-    return <div className="container mx-auto py-8">Ładowanie...</div>;
+    return <div className="md:container md:mx-auto md:px-8 py-8 px-4">Ładowanie...</div>;
   }
 
   if (!user) {
@@ -265,7 +265,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="md:container md:mx-auto md:px-8 py-8 px-4 space-y-6">
       {/* Profile Header */}
       <Card>
         <CardHeader>

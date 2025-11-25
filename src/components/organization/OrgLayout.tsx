@@ -126,7 +126,7 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
             </div>
           </div>
         </header>
-        <main className="p-4">{children}</main>
+        <main className="md:p-4">{children}</main>
       </div>
     );
   }
@@ -157,7 +157,7 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
               )}
             </div>
           </header>
-          <div className="p-6">{children}</div>
+          <div className="md:p-6">{children}</div>
         </main>
       </div>
     </SidebarProvider>
