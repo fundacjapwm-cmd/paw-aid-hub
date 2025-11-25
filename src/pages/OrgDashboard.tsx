@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
-import EditableOrgField from "@/components/organization/EditableOrgField";
 import OrgProfileForm from "@/components/organization/OrgProfileForm";
 import WishlistBuilder from "@/components/organization/WishlistBuilder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Building2, Hash, CreditCard, Trash2, Upload, Calendar as CalendarIcon, ShoppingCart, CheckCircle } from "lucide-react";
+import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Hash, Trash2, Upload, Calendar as CalendarIcon, ShoppingCart, CheckCircle } from "lucide-react";
 import { useNavigate as useRouterNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -184,24 +183,6 @@ export default function OrgDashboard() {
   const orgId = dashboardData?.organization?.id;
   const isOwner = true; // User in dashboard is always owner or has access
 
-  // Update single organization field
-  const updateOrgField = async (field: string, value: string) => {
-    if (!orgId) return;
-    
-    const { error } = await supabase
-      .from("organizations")
-      .update({ [field]: value })
-      .eq("id", orgId);
-
-    if (error) {
-      toast.error("Błąd podczas zapisywania");
-      throw error;
-    }
-    
-    toast.success("Zapisano");
-    refetch();
-  };
-
   const animals = allAnimals.filter((animal) =>
     animal.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -362,65 +343,84 @@ export default function OrgDashboard() {
             {/* Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Address */}
-              <EditableOrgField
-                value={[organization?.address, organization?.postal_code, organization?.city].filter(Boolean).join(", ") || ""}
-                onSave={async (value) => {
-                  // For address, open the full edit dialog
-                  setEditOrgDialogOpen(true);
-                }}
-                label="Adres"
-                icon={<MapPin className="h-5 w-5" />}
-                editable={true}
-              />
+              {(organization?.address || organization?.city || organization?.postal_code) && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Adres</div>
+                    <div className="text-sm text-muted-foreground space-y-0.5">
+                      {organization?.address && <div>{organization.address}</div>}
+                      {(organization?.postal_code || organization?.city) && (
+                        <div>
+                          {organization?.postal_code && `${organization.postal_code} `}
+                          {organization?.city}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Contact Email */}
-              <EditableOrgField
-                value={organization?.contact_email || ""}
-                onSave={(value) => updateOrgField("contact_email", value)}
-                label="Email"
-                icon={<Mail className="h-5 w-5" />}
-                type="email"
-                isLink={true}
-                linkPrefix="mailto:"
-              />
+              {organization?.contact_email && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Mail className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Email</div>
+                    <a 
+                      href={`mailto:${organization.contact_email}`}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors break-all"
+                    >
+                      {organization.contact_email}
+                    </a>
+                  </div>
+                </div>
+              )}
 
               {/* Contact Phone */}
-              <EditableOrgField
-                value={organization?.contact_phone || ""}
-                onSave={(value) => updateOrgField("contact_phone", value)}
-                label="Telefon"
-                icon={<Phone className="h-5 w-5" />}
-                type="tel"
-                isLink={true}
-                linkPrefix="tel:"
-              />
+              {organization?.contact_phone && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Phone className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Telefon</div>
+                    <a 
+                      href={`tel:${organization.contact_phone}`}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {organization.contact_phone}
+                    </a>
+                  </div>
+                </div>
+              )}
 
               {/* Website */}
-              <EditableOrgField
-                value={organization?.website || ""}
-                onSave={(value) => updateOrgField("website", value)}
-                label="Strona WWW"
-                icon={<Globe className="h-5 w-5" />}
-                type="url"
-                isLink={true}
-              />
+              {organization?.website && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Globe className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">Strona WWW</div>
+                    <a 
+                      href={organization.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors break-all"
+                    >
+                      {organization.website}
+                    </a>
+                  </div>
+                </div>
+              )}
 
-              {/* NIP - Not editable */}
-              <EditableOrgField
-                value={organization?.nip || ""}
-                onSave={async () => {}}
-                label="NIP"
-                icon={<Hash className="h-5 w-5" />}
-                editable={false}
-              />
-
-              {/* REGON */}
-              <EditableOrgField
-                value={organization?.regon || ""}
-                onSave={(value) => updateOrgField("regon", value)}
-                label="REGON"
-                icon={<Building2 className="h-5 w-5" />}
-              />
+              {/* NIP */}
+              {organization?.nip && (
+                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
+                  <Hash className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground mb-1">NIP</div>
+                    <div className="text-sm text-muted-foreground">{organization.nip}</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
