@@ -303,10 +303,8 @@ serve(async (req) => {
     const posId = Deno.env.get('PAYU_POS_ID')!;
     const clientId = Deno.env.get('PAYU_CLIENT_ID')!;
     const clientSecret = Deno.env.get('PAYU_CLIENT_SECRET')!;
-    const isSandbox = Deno.env.get('PAYU_SANDBOX') === 'true';
-
-    const payuBaseUrl = isSandbox ? 'https://secure.snd.payu.com' : 'https://secure.payu.com';
-    console.log(`Using PayU ${isSandbox ? 'SANDBOX' : 'PRODUCTION'} environment`);
+    const payuBaseUrl = 'https://secure.payu.com';
+    console.log('Using PayU PRODUCTION environment');
 
     const authResponse = await fetch(`${payuBaseUrl}/pl/standard/user/oauth/authorize`, {
       method: 'POST',
