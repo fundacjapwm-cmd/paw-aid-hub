@@ -404,9 +404,11 @@ export default function OrganizationPublicProfile() {
                                   isInCart={itemInCart}
                                   cartQuantity={cartQuantity}
                                   onQuantityChange={(productId, change) => handleQuantityChange(productId, change)}
+                                  onSetQuantity={(productId, qty) => setSelectedQuantities(prev => ({ ...prev, [productId]: qty }))}
                                   onAddToCart={handleAddProduct}
                                   onRemoveFromCart={removeFromCart}
                                   showSmartFill={false}
+                                  unlimitedQuantity={true}
                                 />
                               );
                             })}
