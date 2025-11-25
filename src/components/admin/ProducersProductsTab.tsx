@@ -62,6 +62,120 @@ interface Props {
   onDeleteProduct: (id: string) => Promise<void>;
 }
 
+// Reusable component for logo with hover upload/remove
+function ProducerLogoWithHover({ 
+  producer, 
+  onUpdate 
+}: { 
+  producer: Producer; 
+  onUpdate: (data: any) => Promise<void>;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    if (!file) return;
+    
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${producer.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      await onUpdate({ ...producer, logo_url: publicUrl });
+      toast.success('Logo zostało zaktualizowane');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Błąd podczas przesyłania logo');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    try {
+      await onUpdate({ ...producer, logo_url: '' });
+      toast.success('Logo zostało usunięte');
+    } catch (error) {
+      console.error('Error removing logo:', error);
+      toast.error('Nie udało się usunąć logo');
+    }
+  };
+
+  return (
+    <div className="flex-shrink-0 relative group">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleUpload(file);
+        }}
+      />
+      
+      {producer.logo_url ? (
+        <div className="h-24 w-24 border rounded-lg p-2 relative">
+          <img 
+            src={producer.logo_url} 
+            alt={`${producer.name} logo`}
+            className="h-full w-full object-contain"
+          />
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-lg">
+            {uploading ? (
+              <div className="text-xs text-muted-foreground">Przesyłanie...</div>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleRemove}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div 
+          className="h-24 w-24 bg-muted rounded-lg flex items-center justify-center cursor-pointer hover:bg-muted/70 transition-colors"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {uploading ? (
+            <div className="text-xs text-muted-foreground text-center px-2">Przesyłanie...</div>
+          ) : (
+            <div className="flex flex-col items-center gap-1">
+              <Building2 className="h-8 w-8 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Dodaj logo</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProducersProductsTab({
   producers,
   products,
@@ -212,20 +326,11 @@ export default function ProducersProductsTab({
         <Card>
           <CardContent className="p-6">
             <div className="flex gap-6">
-              {/* Logo */}
-              {producer?.logo_url ? (
-                <div className="flex-shrink-0">
-                  <img 
-                    src={producer.logo_url} 
-                    alt={`${producer.name} logo`}
-                    className="h-24 w-24 object-contain border rounded-lg p-2"
-                  />
-                </div>
-              ) : (
-                <div className="flex-shrink-0 h-24 w-24 bg-muted rounded-lg flex items-center justify-center">
-                  <Building2 className="h-10 w-10 text-muted-foreground" />
-                </div>
-              )}
+              {/* Logo with hover upload/remove */}
+              <ProducerLogoWithHover 
+                producer={producer!}
+                onUpdate={onUpdateProducer}
+              />
               
               {/* Producer Info */}
               <div className="flex-1 space-y-3">
@@ -1005,12 +1110,54 @@ function ProducerCard({
     }
 
     try {
-      await onUpdate(validation.data);
+      // Include id in the update data
+      await onUpdate({ ...validation.data, id: producer.id });
       setIsEditOpen(false);
       toast.success('Dane producenta zostały zaktualizowane');
     } catch (error) {
       console.error('Error updating producer:', error);
       toast.error('Nie udało się zaktualizować danych');
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    try {
+      await onUpdate({ ...producer, logo_url: '' });
+      setEditData({ ...editData, logo_url: '' });
+      toast.success('Logo zostało usunięte');
+    } catch (error) {
+      console.error('Error removing logo:', error);
+      toast.error('Nie udało się usunąć logo');
+    }
+  };
+
+  const handleQuickLogoUpload = async (file: File) => {
+    if (!file) return;
+    
+    setUploadingLogo(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${producer.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      await onUpdate({ ...producer, logo_url: publicUrl });
+      setEditData({ ...editData, logo_url: publicUrl });
+      toast.success('Logo zostało zaktualizowane');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Błąd podczas przesyłania logo');
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -1091,37 +1238,74 @@ function ProducerCard({
             <DialogTitle>Edytuj producenta</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Logo Upload */}
+            {/* Logo Upload with hover */}
             <div>
               <Label>Logo firmy</Label>
-              <div className="flex items-center gap-4 mt-2">
-                {editData.logo_url && (
-                  <div className="relative">
-                    <img 
-                      src={editData.logo_url} 
-                      alt="Logo preview"
-                      className="h-20 w-20 object-contain border rounded-lg p-2"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6"
-                      onClick={() => setEditData({ ...editData, logo_url: '' })}
+              <div className="mt-2">
+                <div className="relative group inline-block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="edit-logo-upload"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleLogoUpload(file);
+                    }}
+                    disabled={uploadingLogo}
+                  />
+                  
+                  {editData.logo_url ? (
+                    <div className="h-24 w-24 border rounded-lg p-2 relative">
+                      <img 
+                        src={editData.logo_url} 
+                        alt="Logo preview"
+                        className="h-full w-full object-contain"
+                      />
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-lg">
+                        {uploadingLogo ? (
+                          <div className="text-xs text-muted-foreground">Przesyłanie...</div>
+                        ) : (
+                          <>
+                            <label htmlFor="edit-logo-upload" className="cursor-pointer">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 pointer-events-none"
+                                asChild
+                              >
+                                <span><Upload className="h-4 w-4" /></span>
+                              </Button>
+                            </label>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setEditData({ ...editData, logo_url: '' })}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <label 
+                      htmlFor="edit-logo-upload"
+                      className="h-24 w-24 bg-muted rounded-lg flex items-center justify-center cursor-pointer hover:bg-muted/70 transition-colors block"
                     >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleLogoUpload(file);
-                  }}
-                  disabled={uploadingLogo}
-                  className="flex-1"
-                />
+                      {uploadingLogo ? (
+                        <div className="text-xs text-muted-foreground text-center px-2">Przesyłanie...</div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1">
+                          <Upload className="h-8 w-8 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Dodaj logo</span>
+                        </div>
+                      )}
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
 
