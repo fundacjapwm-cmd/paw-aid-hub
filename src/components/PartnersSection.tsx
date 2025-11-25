@@ -11,10 +11,10 @@ const PartnersSection = () => {
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Partnerzy
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground">
+          <p className="text-base md:text-lg text-muted-foreground">
             Współpracujemy z najlepszymi organizacjami i specjalistami
           </p>
         </div>

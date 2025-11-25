@@ -103,7 +103,7 @@ const LeadGenSection = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             Chcesz dołączyć do naszych organizacji?
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-base md:text-lg text-muted-foreground">
             Wypełnij krótki formularz i poczekaj na kontakt! Razem możemy więcej.
           </p>
         </div>
