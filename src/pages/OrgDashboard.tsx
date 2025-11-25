@@ -574,7 +574,7 @@ export default function OrgDashboard() {
               {animals.map((animal) => (
                 <Card
                   key={animal.id}
-                  className="group overflow-hidden transition-all duration-300 rounded-3xl border-0 shadow-card cursor-pointer md:hover:shadow-bubbly md:hover:-translate-y-1"
+                  className="group overflow-hidden transition-all duration-300 rounded-3xl border border-border/40 shadow-card cursor-pointer md:hover:shadow-bubbly md:hover:-translate-y-1"
                   onClick={() => routerNavigate(`/zwierze/${animal.id}`)}
                 >
                   <CardContent className="p-4 flex items-center gap-4">

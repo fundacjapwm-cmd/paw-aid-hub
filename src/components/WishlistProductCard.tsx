@@ -43,7 +43,7 @@ export const WishlistProductCard = ({
   return (
     <>
       {/* MOBILE VIEW: Soft Pop Design */}
-      <div className="flex md:hidden flex-col gap-4 p-4 bg-white rounded-3xl border border-gray-100 shadow-sm transition-all duration-300">
+      <div className="flex md:hidden flex-col gap-4 p-4 bg-card rounded-3xl border border-border/50 shadow-card transition-all duration-300">
         {/* Top Row: Image + Price */}
         <div className="flex items-start justify-between gap-3">
           {/* Image */}
@@ -187,7 +187,7 @@ export const WishlistProductCard = ({
       <div className={`hidden md:flex gap-3 p-3 rounded-xl transition-all ${
         product.bought 
           ? 'bg-green-50 border border-green-200' 
-          : 'bg-white border border-gray-100 shadow-sm md:hover:border-primary/20'
+          : 'bg-card border border-border/50 shadow-card md:hover:border-primary/30 md:hover:shadow-bubbly'
       }`}>
         {/* Image */}
         <div className="shrink-0">
