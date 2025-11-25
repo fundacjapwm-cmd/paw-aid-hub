@@ -158,28 +158,28 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                     return (
                       <div
                         key={product.id}
-                        className="flex gap-3 p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
+                        className="flex gap-4 p-4 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-orange-50/30 transition-all duration-300 group"
                       >
                         {/* 1. KOLUMNA: ZDJĘCIE (Fixed) */}
-                        <div className="shrink-0">
+                        <div className="shrink-0 relative">
                           {product.image ? (
                             <img
                               src={product.image}
                               alt={product.name}
-                              className="w-20 h-20 rounded-xl object-cover bg-gray-50"
+                              className="w-20 h-20 rounded-2xl object-cover shadow-inner bg-white"
                             />
                           ) : (
-                            <div className="w-20 h-20 rounded-xl bg-gray-50 flex items-center justify-center">
+                            <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center shadow-inner">
                               <ShoppingCart className="h-8 w-8 text-muted-foreground" />
                             </div>
                           )}
                         </div>
 
                         {/* 2. KOLUMNA: TREŚĆ (Flexible) */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
                           {/* Góra: Nazwa produktu */}
                           <h4 
-                            className="text-sm font-semibold text-foreground line-clamp-2 leading-tight" 
+                            className="font-bold text-base text-gray-800 leading-tight line-clamp-2 mb-1" 
                             title={product.name}
                           >
                             {product.name}
@@ -187,7 +187,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                           
                           {/* Dół: Cena + Progress + Smart Shortcut */}
                           <div className="space-y-1">
-                            <div className="text-primary font-bold text-base">
+                            <div className="text-primary font-black text-lg">
                               {product.price.toFixed(2)} zł
                             </div>
                             
@@ -199,22 +199,22 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                                   <p className="text-xs text-muted-foreground">
                                     {bought} / {needed} szt
                                   </p>
-                                  {/* Smart Shortcut */}
-                                  {missing > 1 && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          onClick={() => handleSmartFill(product.id, missing)}
-                                          className="text-xs text-muted-foreground hover:text-primary transition-colors underline decoration-dotted"
-                                        >
-                                          Brakuje: {missing} szt
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p className="text-xs">Kliknij, aby ustawić {missing} szt</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
+                                   {/* Smart Shortcut */}
+                                   {missing > 1 && (
+                                     <Tooltip>
+                                       <TooltipTrigger asChild>
+                                         <button
+                                           onClick={() => handleSmartFill(product.id, missing)}
+                                           className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md inline-block hover:text-primary hover:bg-primary/5 transition-colors"
+                                         >
+                                           Brakuje: {missing}
+                                         </button>
+                                       </TooltipTrigger>
+                                       <TooltipContent>
+                                         <p className="text-xs">Kliknij, aby ustawić {missing} szt</p>
+                                       </TooltipContent>
+                                     </Tooltip>
+                                   )}
                                 </div>
                               </div>
                             )}
@@ -229,43 +229,42 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                           </div>
                         </div>
 
-                        {/* 3. KOLUMNA: AKCJE (Poziomy układ) */}
+                        {/* 3. KOLUMNA: AKCJE (Pionowy układ) */}
                         {!isFullyBought && (
-                          <div className="flex flex-col justify-end items-end shrink-0 pl-2">
-                            {/* Kontener Akcji: Licznik + Przyciski w jednym rzędzie */}
-                            <div className="flex items-center gap-2">
-                              
-                              {/* Licznik */}
-                              <div className="flex items-center bg-gray-50 rounded-lg h-9 p-1 shadow-inner">
-                                <button 
-                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
-                                  onClick={() => handleQuantityChange(product.id, -1, missing)}
-                                  disabled={quantity <= 1}
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </button>
-                                <span className="w-6 text-center text-sm font-bold tabular-nums">
-                                  {quantity}
-                                </span>
-                                <button 
-                                  className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all"
-                                  onClick={() => handleQuantityChange(product.id, 1, missing)}
-                                  disabled={quantity >= missing}
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </button>
-                              </div>
+                          <div className="flex flex-col justify-center items-end gap-3 shrink-0">
+                            {/* Licznik Pigułka */}
+                            <div className="flex items-center gap-2 bg-gray-50 rounded-full px-1 py-1 border border-gray-100 shadow-inner">
+                              <button 
+                                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 hover:text-primary hover:scale-110 transition-all disabled:opacity-30"
+                                onClick={() => handleQuantityChange(product.id, -1, missing)}
+                                disabled={quantity <= 1}
+                              >
+                                <Minus className="h-3.5 w-3.5" />
+                              </button>
+                              <span className="w-6 text-center font-bold text-sm text-primary tabular-nums">
+                                {quantity}
+                              </span>
+                              <button 
+                                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 hover:text-primary hover:scale-110 transition-all disabled:opacity-30"
+                                onClick={() => handleQuantityChange(product.id, 1, missing)}
+                                disabled={quantity >= missing}
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
 
+                            {/* Kontener z przyciskami */}
+                            <div className="flex items-center gap-2">
                               {/* Przycisk Usuń (jeśli w koszyku) */}
                               {itemInCart && (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
                                       size="icon"
-                                      className="h-9 w-9 rounded-xl bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all"
+                                      className="h-10 w-10 rounded-full bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all shadow-bubbly hover:scale-105"
                                       onClick={() => removeFromCart(product.id)}
                                     >
-                                      <X className="h-4 w-4" />
+                                      <X className="h-5 w-5" />
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent>
@@ -280,7 +279,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                                   <div className="relative">
                                     <Button 
                                       size="icon" 
-                                      className={`h-9 w-9 rounded-xl shadow-sm hover:scale-105 transition-all ${
+                                      className={`h-10 w-10 rounded-full shadow-bubbly hover:scale-105 transition-all ${
                                         itemInCart 
                                           ? 'bg-green-500 hover:bg-green-600' 
                                           : 'bg-primary hover:bg-primary/90'
@@ -289,9 +288,9 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                                       disabled={itemInCart}
                                     >
                                       {itemInCart ? (
-                                        <Check className="h-4 w-4" />
+                                        <Check className="h-5 w-5" />
                                       ) : (
-                                        <ShoppingCart className="h-4 w-4" />
+                                        <ShoppingCart className="h-5 w-5" />
                                       )}
                                     </Button>
                                     {cartQuantity > 0 && (
