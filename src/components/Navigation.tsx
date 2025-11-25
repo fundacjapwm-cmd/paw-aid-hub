@@ -85,6 +85,11 @@ const Navigation = () => {
 
           {/* Cart and Actions */}
           <div className="flex items-center space-x-4">
+            {/* Mobile cart - always visible */}
+            <div className="lg:hidden">
+              <CartDrawer />
+            </div>
+            
             {/* Desktop only cart & user menu */}
             <div className="hidden lg:flex items-center space-x-4">
               <CartDrawer />
