@@ -25,7 +25,7 @@ const Navigation = () => {
           </a>
 
           {/* Navigation Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-8">
             <a 
               href="/" 
               className={`relative text-foreground hover:text-primary transition-colors font-medium ${
@@ -86,7 +86,7 @@ const Navigation = () => {
           {/* Cart and Actions */}
           <div className="flex items-center space-x-4">
             {/* Desktop only cart & user menu */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden lg:flex items-center space-x-4">
               <CartDrawer />
               
               {loading ? (
@@ -162,7 +162,7 @@ const Navigation = () => {
             </div>
             
             {/* Mobile Menu */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <MobileMenu />
             </div>
           </div>
