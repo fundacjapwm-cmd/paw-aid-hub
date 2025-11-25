@@ -68,7 +68,7 @@ const HowItWorksSection = () => {
       <div className="container mx-auto px-4 md:px-8">
         
         {/* Nagłówek */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
             Jak to działa?
           </h2>
@@ -107,12 +107,12 @@ const HowItWorksSection = () => {
               {/* Treść */}
               <div className="relative z-10 flex flex-col items-center text-center px-8 py-16 justify-end h-full">
                 {/* Ikona w kółku */}
-                <div className="mb-6 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
+                <div className="mb-4 md:mb-6 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
                   <step.icon className="w-10 h-10 text-primary" strokeWidth={2} />
                 </div>
 
                 {/* Tytuł */}
-                <h3 className="text-2xl font-bold text-white mb-4">
+                <h3 className="text-2xl font-bold text-white mb-3 md:mb-4">
                   {step.title}
                 </h3>
 

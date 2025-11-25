@@ -15,7 +15,7 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Text Content */}
           <div className="text-center lg:text-left">
-            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight">
               Odmień życie<br />
               <span className="text-white/90">bezdomniaczka</span><br />
               <span className="bg-white text-primary px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-3xl inline-block transform rotate-1 shadow-bubbly font-black text-2xl sm:text-3xl lg:text-4xl mt-2">
@@ -23,7 +23,7 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            <p className="text-base md:text-lg text-white/95 mb-6 sm:mb-8 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
+            <p className="text-base md:text-lg text-white/95 mb-4 md:mb-8 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
               Karma wraca! Wspieraj zwierzęta i organizacje kupując im potrzebne produkty. 
               Każdy zakup to realna pomoc dla naszych czworonożnych przyjaciół.
             </p>

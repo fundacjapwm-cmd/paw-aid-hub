@@ -18,15 +18,15 @@ const CTASection = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
             
             <div className="relative z-10 p-6 md:p-12 w-full">
-              <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+              <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4 md:mb-6">
                 <Heart className="w-5 h-5 text-primary" />
                 <span className="text-sm font-medium text-white">Wsparcie</span>
               </div>
               
-              <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              <h3 className="text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
                 Chcesz pomóc?
               </h3>
-              <p className="text-base md:text-lg text-white/90 mb-8 max-w-md">
+              <p className="text-base md:text-lg text-white/90 mb-6 md:mb-8 max-w-md">
                 Wybierz zwierzaka i spełnij jego marzenia. Każda pomoc się liczy.
               </p>
               
@@ -47,15 +47,15 @@ const CTASection = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
             
             <div className="relative z-10 p-6 md:p-12 w-full">
-              <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+              <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4 md:mb-6">
                 <Building2 className="w-5 h-5 text-primary" />
                 <span className="text-sm font-medium text-white">Dla organizacji</span>
               </div>
               
-              <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              <h3 className="text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
                 Jesteś fundacją?
               </h3>
-              <p className="text-base md:text-lg text-white/90 mb-8 max-w-md">
+              <p className="text-base md:text-lg text-white/90 mb-6 md:mb-8 max-w-md">
                 Dołącz do nas i pomóż swoim podopiecznym znaleźć wsparcie.
               </p>
               
