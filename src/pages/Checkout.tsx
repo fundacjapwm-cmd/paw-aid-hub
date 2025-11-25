@@ -31,6 +31,7 @@ const Checkout = () => {
   const { cart, cartTotal, clearCart } = useCart();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [cartMinimized, setCartMinimized] = useState(false);
   const [customerName, setCustomerName] = useState(profile?.display_name || '');
   const [customerEmail, setCustomerEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
@@ -147,39 +148,61 @@ const Checkout = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Order Summary */}
             <Card>
-              <CardHeader>
-                <CardTitle>Podsumowanie zamówienia</CardTitle>
-                <CardDescription>Sprawdź wybrane produkty</CardDescription>
+              <CardHeader 
+                className="cursor-pointer" 
+                onClick={() => setCartMinimized(!cartMinimized)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Podsumowanie zamówienia</CardTitle>
+                    <CardDescription>Sprawdź wybrane produkty</CardDescription>
+                  </div>
+                  <Button variant="ghost" size="sm" type="button">
+                    {cartMinimized ? 'Rozwiń' : 'Zwiń'}
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {cart.map((item) => (
-                    <div key={item.productId} className="flex justify-between items-start pb-4 border-b">
-                      <div className="flex-1">
-                        <p className="font-medium">{item.productName}</p>
-                        {item.animalName && (
-                          <p className="text-sm text-muted-foreground">dla {item.animalName}</p>
-                        )}
-                        <p className="text-sm text-muted-foreground">Ilość: {item.quantity}</p>
-                      </div>
-                      <p className="font-semibold">
-                        {(item.price * item.quantity).toFixed(2)} zł
-                      </p>
+              {!cartMinimized && (
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
+                      {cart.map((item) => (
+                        <div key={item.productId} className="flex justify-between items-start pb-4 border-b">
+                          <div className="flex-1">
+                            <p className="font-medium">{item.productName}</p>
+                            {item.animalName && (
+                              <p className="text-sm text-muted-foreground">dla {item.animalName}</p>
+                            )}
+                            <p className="text-sm text-muted-foreground">Ilość: {item.quantity}</p>
+                          </div>
+                          <p className="font-semibold">
+                            {(item.price * item.quantity).toFixed(2)} zł
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
 
-                  <Separator className="my-4" />
+                    <Separator className="my-4" />
 
+                    <div className="flex justify-between items-center text-lg font-bold">
+                      <span>Suma całkowita:</span>
+                      <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
+                    </div>
+                  </div>
+                </CardContent>
+              )}
+              {cartMinimized && (
+                <CardContent>
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>Suma całkowita:</span>
                     <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
                   </div>
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
 
             {/* Payment Form */}
-            <Card>
+            <Card className="md:sticky md:top-24">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5" />
