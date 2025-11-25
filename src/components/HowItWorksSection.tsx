@@ -117,7 +117,7 @@ const HowItWorksSection = () => {
                 </h3>
 
                 {/* Opis */}
-                <p className="text-sm text-white/90 leading-relaxed">
+                <p className="text-base md:text-lg text-white/90 leading-relaxed">
                   {step.description}
                 </p>
               </div>

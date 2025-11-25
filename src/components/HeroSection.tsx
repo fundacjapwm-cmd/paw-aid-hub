@@ -23,7 +23,7 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg lg:text-xl text-white/95 mb-6 sm:mb-8 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
+            <p className="text-base md:text-lg text-white/95 mb-6 sm:mb-8 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
               Karma wraca! Wspieraj zwierzęta i organizacje kupując im potrzebne produkty. 
               Każdy zakup to realna pomoc dla naszych czworonożnych przyjaciół.
             </p>

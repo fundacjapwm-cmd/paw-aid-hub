@@ -26,7 +26,7 @@ const CTASection = () => {
               <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4">
                 Chcesz pomóc?
               </h3>
-              <p className="text-lg text-white/90 mb-8 max-w-md">
+              <p className="text-base md:text-lg text-white/90 mb-8 max-w-md">
                 Wybierz zwierzaka i spełnij jego marzenia. Każda pomoc się liczy.
               </p>
               
@@ -55,7 +55,7 @@ const CTASection = () => {
               <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4">
                 Jesteś fundacją?
               </h3>
-              <p className="text-lg text-white/90 mb-8 max-w-md">
+              <p className="text-base md:text-lg text-white/90 mb-8 max-w-md">
                 Dołącz do nas i pomóż swoim podopiecznym znaleźć wsparcie.
               </p>
               
