@@ -32,7 +32,7 @@ import AdminLeadsArchive from "./pages/admin/AdminLeadsArchive";
 import AdminProductRequests from "./pages/admin/AdminProductRequests";
 import AdminOrders from "./pages/admin/AdminOrders";
 import OrgDashboard from "./pages/OrgDashboard";
-import OrgAnimals from "./pages/OrgAnimals";
+
 import OrgProfile from "./pages/OrgProfile";
 import OrgRequests from "./pages/OrgRequests";
 import OrgWishlist from "./pages/OrgWishlist";
@@ -91,7 +91,7 @@ function AppContent() {
           
           {/* Organization Routes */}
           <Route path="/organizacja" element={<OrgDashboard />} />
-          <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
+          
           <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
           <Route path="/organizacja/zamowienia" element={<OrgOrders />} />
           <Route path="/organizacja/profil" element={<OrgProfile />} />
