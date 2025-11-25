@@ -35,9 +35,6 @@ import { Progress } from "@/components/ui/progress";
 const animalSchema = z.object({
   name: z.string().min(2, "Imię musi mieć minimum 2 znaki"),
   species: z.enum(["Pies", "Kot", "Inne"]),
-  breed: z.string().optional(),
-  age: z.coerce.number().min(0).optional(),
-  gender: z.string().optional(),
   description: z.string().optional(),
   birth_date: z.date().optional(),
 });
@@ -71,9 +68,6 @@ export default function OrgDashboard() {
     defaultValues: {
       name: "",
       species: "Pies",
-      breed: "",
-      age: 0,
-      gender: "",
       description: "",
       birth_date: undefined,
     },
@@ -228,9 +222,6 @@ export default function OrgDashboard() {
     form.reset({
       name: animal.name,
       species: animal.species,
-      breed: animal.breed || "",
-      age: animal.age || 0,
-      gender: animal.gender || "",
       description: animal.description || "",
       birth_date: animal.birth_date ? new Date(animal.birth_date) : undefined,
     });
@@ -739,23 +730,6 @@ export default function OrgDashboard() {
                       <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                         {animal.name}
                       </h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
-                        {animal.age && (
-                          <span className="bg-muted/50 px-2 py-1 rounded-full">
-                            {animal.age} {animal.age === 1 ? 'rok' : 'lat'}
-                          </span>
-                        )}
-                        {animal.breed && (
-                          <span className="bg-muted/50 px-2 py-1 rounded-full">
-                            {animal.breed}
-                          </span>
-                        )}
-                        {animal.gender && (
-                          <span className="bg-muted/50 px-2 py-1 rounded-full">
-                            {animal.gender}
-                          </span>
-                        )}
-                      </div>
                       {animal.description && (
                         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                           {animal.description}
@@ -905,33 +879,6 @@ export default function OrgDashboard() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="breed"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Rasa</FormLabel>
-                            <FormControl>
-                              <Input placeholder="np. Owczarek niemiecki" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Płeć</FormLabel>
-                            <FormControl>
-                              <Input placeholder="np. Samiec, Samica" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
                       <FormField
                         control={form.control}
@@ -1131,33 +1078,6 @@ export default function OrgDashboard() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="breed"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Rasa</FormLabel>
-                            <FormControl>
-                              <Input placeholder="np. Owczarek niemiecki" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Płeć</FormLabel>
-                            <FormControl>
-                              <Input placeholder="np. Samiec, Samica" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
                       <FormField
                         control={form.control}
