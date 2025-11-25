@@ -155,6 +155,25 @@ const LeadGenSection = () => {
             </div>
 
             <div className="space-y-4 pt-2">
+              {/* Select All Option */}
+              <div className="flex items-center space-x-3 pb-2 border-b">
+                <Checkbox
+                  id="selectAll"
+                  checked={acceptedTerms && marketingConsent}
+                  onCheckedChange={(checked) => {
+                    const isChecked = checked as boolean;
+                    setValue("acceptedTerms", isChecked);
+                    setValue("marketingConsent", isChecked);
+                  }}
+                />
+                <Label 
+                  htmlFor="selectAll"
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Zaznacz wszystkie zgody
+                </Label>
+              </div>
+
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="acceptedTerms"
