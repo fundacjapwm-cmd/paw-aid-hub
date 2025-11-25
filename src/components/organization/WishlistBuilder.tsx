@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { WishlistProductCard } from "@/components/WishlistProductCard";
 import ProductRequestDialog from "./ProductRequestDialog";
 
 interface Product {
@@ -381,91 +383,43 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">{filteredProducts.map((product) => {
-              const wishlistItem = getWishlistItem(product.id);
-              
-              return (
-                <Card key={product.id} className="shadow-card hover:shadow-bubbly transition-shadow rounded-3xl md:rounded-lg border-gray-100 md:border-border">
-                  <CardContent className="p-4 md:p-4 flex items-center gap-4">
-                    {product.image_url && (
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-2xl md:rounded-lg flex-shrink-0 shadow-inner md:shadow-none"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-base md:font-semibold md:text-base text-gray-800 md:text-foreground mb-1 leading-tight">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {product.producers?.name}
-                      </p>
-                      <p className="text-lg font-black md:font-bold text-primary">
-                        {product.price.toFixed(2)} zł
-                      </p>
-                    </div>
-                    
-                    <div className="flex-shrink-0">
-                      {wishlistItem ? (
-                        <div className="flex items-center gap-2 bg-gray-50 md:bg-transparent rounded-full md:rounded-none px-1 py-1 md:p-0 border border-gray-100 md:border-0 shadow-inner md:shadow-none">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="w-7 h-7 md:w-10 md:h-10 bg-white md:bg-background rounded-full md:rounded-md shadow-sm md:shadow-none border-0 md:border hover:scale-110 md:hover:scale-100"
-                            onClick={() => handleUpdateQuantity(
-                              wishlistItem.id,
-                              product.id,
-                              wishlistItem.quantity - 1
-                            )}
-                          >
-                            <Minus className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                          </Button>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={wishlistItem.quantity}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val === '' || val === '0') {
-                                handleRemoveFromWishlist(wishlistItem.id);
-                              } else {
-                                const num = parseInt(val, 10);
-                                if (!isNaN(num) && num >= 0) {
-                                  handleUpdateQuantity(wishlistItem.id, product.id, num);
-                                }
-                              }
-                            }}
-                            className="text-center w-12 md:w-20 h-7 md:h-10 font-bold text-sm text-primary md:text-foreground border-0 md:border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="w-7 h-7 md:w-10 md:h-10 bg-white md:bg-background rounded-full md:rounded-md shadow-sm md:shadow-none border-0 md:border hover:scale-110 md:hover:scale-100"
-                            onClick={() => handleUpdateQuantity(
-                              wishlistItem.id,
-                              product.id,
-                              wishlistItem.quantity + 1
-                            )}
-                          >
-                            <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button 
-                          className="rounded-full md:rounded-2xl shadow-bubbly md:shadow-sm h-10 w-10 md:w-auto md:h-auto p-0 md:p-4 hover:scale-105" 
-                          size="lg"
-                          onClick={() => handleAddToWishlist(product.id)}
-                        >
-                          <Plus className="h-5 w-5 md:mr-2" />
-                          <span className="hidden md:inline">Dodaj</span>
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="space-y-3">
+            <TooltipProvider>
+              {filteredProducts.map((product) => {
+                const wishlistItem = getWishlistItem(product.id);
+                
+                return (
+                  <WishlistProductCard
+                    key={product.id}
+                    product={{
+                      id: product.id,
+                      product_id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image_url: product.image_url,
+                      quantity: wishlistItem?.quantity || 1,
+                      bought: false,
+                    }}
+                    quantity={wishlistItem?.quantity || 1}
+                    isInCart={!!wishlistItem}
+                    cartQuantity={wishlistItem?.quantity || 0}
+                    onQuantityChange={(productId, change) => {
+                      if (wishlistItem) {
+                        const newQty = wishlistItem.quantity + change;
+                        if (newQty <= 0) {
+                          handleRemoveFromWishlist(wishlistItem.id);
+                        } else {
+                          handleUpdateQuantity(wishlistItem.id, productId, newQty);
+                        }
+                      }
+                    }}
+                    onAddToCart={() => handleAddToWishlist(product.id)}
+                    onRemoveFromCart={() => wishlistItem && handleRemoveFromWishlist(wishlistItem.id)}
+                    showSmartFill={false}
+                  />
+                );
+              })}
+            </TooltipProvider>
           </div>
         )}
       </CardContent>
