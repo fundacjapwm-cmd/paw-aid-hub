@@ -103,8 +103,6 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
   }, [user]);
 
   if (isMobile) {
-    const location = useLocation();
-    
     return (
       <div className="min-h-screen bg-muted/30">
         <header className="sticky top-0 z-50 bg-white border-b border-border shadow-soft">
@@ -128,31 +126,7 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
             </div>
           </div>
         </header>
-        <main className="md:p-4 pb-20">{children}</main>
-        
-        {/* Bottom Navigation Bar */}
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
-          <div className="flex items-center justify-around h-16 px-2">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.url;
-              return (
-                <Link
-                  key={item.url}
-                  to={item.url}
-                  className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                    isActive
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Icon className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : ""}`} />
-                  <span className="text-xs font-medium">{item.title}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+        <main className="md:p-4">{children}</main>
       </div>
     );
   }

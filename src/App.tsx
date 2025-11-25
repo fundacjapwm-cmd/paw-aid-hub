@@ -3,9 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import Navigation from "./components/Navigation";
+import OrgBottomNav from "./components/OrgBottomNav";
 import Index from "./pages/Index";
 import AnimalProfile from "./pages/AnimalProfile";
 import NotFound from "./pages/NotFound";
@@ -47,6 +48,65 @@ import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
+function AppContent() {
+  const { profile } = useAuth();
+  const isOrgUser = profile?.role === "ORG";
+
+  return (
+    <>
+      <Navigation />
+      <div className={isOrgUser ? "pb-20 lg:pb-0" : ""}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/zwierze/:id" element={<AnimalProfile />} />
+          <Route path="/o-nas" element={<ONas />} />
+          
+          <Route path="/organizacje" element={<Organizacje />} />
+          <Route path="/organizacje/:slug" element={<OrganizationPublicProfile />} />
+          <Route path="/zwierzeta" element={<Zwierzeta />} />
+          <Route path="/kontakt" element={<Kontakt />} />
+          <Route path="/prywatnosc" element={<PolitykaPrywatnosci />} />
+          <Route path="/regulamin" element={<Regulamin />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/set-password" element={<SetPassword />} />
+          <Route path="/profil" element={<Profile />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminStats />} />
+            <Route path="organizacje" element={<AdminOrganizations />} />
+            <Route path="zgloszenia" element={<AdminLeads />} />
+            <Route path="zgloszenia/archiwum" element={<AdminLeadsArchive />} />
+            <Route path="zgloszenia-produktow" element={<AdminProductRequests />} />
+            <Route path="producenci" element={<AdminProducers />} />
+            <Route path="uzytkownicy" element={<AdminUsers />} />
+            <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
+            <Route path="finanse" element={<AdminFinances />} />
+            <Route path="zamowienia" element={<AdminOrders />} />
+            <Route path="logistyka/oczekujace" element={<AdminLogistics />} />
+            <Route path="logistyka/archiwum" element={<AdminLogisticsArchive />} />
+            <Route path="logi" element={<AdminLogs />} />
+          </Route>
+          
+          {/* Organization Routes */}
+          <Route path="/organizacja" element={<OrgDashboard />} />
+          <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
+          <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
+          <Route path="/organizacja/zamowienia" element={<OrgOrders />} />
+          <Route path="/organizacja/profil" element={<OrgProfile />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+      <OrgBottomNav />
+    </>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -55,53 +115,8 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Navigation />
-            <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/zwierze/:id" element={<AnimalProfile />} />
-            <Route path="/o-nas" element={<ONas />} />
-            
-            <Route path="/organizacje" element={<Organizacje />} />
-            <Route path="/organizacje/:slug" element={<OrganizationPublicProfile />} />
-            <Route path="/zwierzeta" element={<Zwierzeta />} />
-            <Route path="/kontakt" element={<Kontakt />} />
-            <Route path="/prywatnosc" element={<PolitykaPrywatnosci />} />
-            <Route path="/regulamin" element={<Regulamin />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/set-password" element={<SetPassword />} />
-            <Route path="/profil" element={<Profile />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminStats />} />
-              <Route path="organizacje" element={<AdminOrganizations />} />
-              <Route path="zgloszenia" element={<AdminLeads />} />
-              <Route path="zgloszenia/archiwum" element={<AdminLeadsArchive />} />
-              <Route path="zgloszenia-produktow" element={<AdminProductRequests />} />
-              <Route path="producenci" element={<AdminProducers />} />
-              <Route path="uzytkownicy" element={<AdminUsers />} />
-              <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
-              <Route path="finanse" element={<AdminFinances />} />
-              <Route path="zamowienia" element={<AdminOrders />} />
-              <Route path="logistyka/oczekujace" element={<AdminLogistics />} />
-              <Route path="logistyka/archiwum" element={<AdminLogisticsArchive />} />
-              <Route path="logi" element={<AdminLogs />} />
-            </Route>
-            
-            {/* Organization Routes */}
-            <Route path="/organizacja" element={<OrgDashboard />} />
-            <Route path="/organizacja/zwierzeta" element={<OrgAnimals />} />
-            <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
-            <Route path="/organizacja/zamowienia" element={<OrgOrders />} />
-            <Route path="/organizacja/profil" element={<OrgProfile />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-failure" element={<PaymentFailure />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
         </TooltipProvider>
       </CartProvider>
     </AuthProvider>
