@@ -10,6 +10,17 @@ import { useState, useEffect } from "react";
 import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface WishlistItem {
   id: string | number;
@@ -306,15 +317,32 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 
                 {/* Remove all button - shows when items are in cart */}
                 {cartTotalForAnimal > 0 && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
-                    onClick={handleRemoveAll}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Usuń wszystko z koszyka
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Usuń wszystko z koszyka
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Czy na pewno chcesz usunąć?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Wszystkie produkty dla {animal.name} zostaną usunięte z koszyka.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRemoveAll} className="bg-destructive hover:bg-destructive/90">
+                          Usuń
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
               </>
             );

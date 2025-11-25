@@ -12,6 +12,17 @@ import OrganizationProfileSkeleton from "@/components/OrganizationProfileSkeleto
 import { useAuth } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Organization {
   id: string;
@@ -433,15 +444,32 @@ export default function OrganizationPublicProfile() {
                           
                           {/* Usuń wszystko z koszyka */}
                           {cartTotalForOrg > 0 && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleRemoveAllFromCart}
-                              className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Usuń wszystko z koszyka
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Usuń wszystko z koszyka
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Czy na pewno chcesz usunąć?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Wszystkie produkty dla organizacji {organization?.name} zostaną usunięte z koszyka.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                                  <AlertDialogAction onClick={handleRemoveAllFromCart} className="bg-destructive hover:bg-destructive/90">
+                                    Usuń
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           )}
                         </div>
                       </div>
