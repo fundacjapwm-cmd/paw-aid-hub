@@ -265,6 +265,27 @@ const Checkout = () => {
 
                   {/* RODO Checkboxes */}
                   <div className="space-y-3">
+                    {/* Select All Option */}
+                    <div className="flex items-center space-x-2 pb-2 border-b">
+                      <Checkbox
+                        id="selectAll"
+                        checked={acceptDataProcessing && acceptTerms && acceptPrivacy && newsletter}
+                        onCheckedChange={(checked) => {
+                          const isChecked = checked as boolean;
+                          setAcceptDataProcessing(isChecked);
+                          setAcceptTerms(isChecked);
+                          setAcceptPrivacy(isChecked);
+                          setNewsletter(isChecked);
+                        }}
+                      />
+                      <label
+                        htmlFor="selectAll"
+                        className="text-sm font-medium leading-none cursor-pointer"
+                      >
+                        Zaznacz wszystkie zgody
+                      </label>
+                    </div>
+
                     <div className="flex items-start space-x-2">
                       <Checkbox
                         id="acceptDataProcessing"
