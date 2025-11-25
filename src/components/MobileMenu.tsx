@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, ShoppingCart, User, Settings, LogOut } from 'lucide-react';
+import { Menu, Settings, LogOut } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
-import CartDrawer from '@/components/CartDrawer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
@@ -82,16 +81,6 @@ const MobileMenu = () => {
                   <span className="text-xs text-muted-foreground">{user.email}</span>
                 </div>
               </div>
-              
-              <CartDrawer />
-              
-              <button
-                onClick={() => handleNavigation('/profile')}
-                className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
-              >
-                <User className="h-5 w-5" />
-                <span>Profil</span>
-              </button>
               
               {profile?.role === 'ADMIN' && (
                 <button
