@@ -345,10 +345,10 @@ export default function OrganizationPublicProfile() {
                   </Card>
                 ) : (
                   <Card className="bg-white/80 border-white/50 shadow-md">
-                      <div className="p-6 flex flex-col h-[600px]">
-                        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                      <div className="p-6 flex flex-col">
+                        <div className="space-y-3">
                           <TooltipProvider>
-                            {orgWishlist.map((item: any) => {
+                            {orgWishlist.slice(0, 4).map((item: any) => {
                               const quantity = selectedQuantities[item.product_id] || 1;
                               const itemInCart = isInCart(item.product_id);
                               const cartQuantity = getCartQuantity(item.product_id);
@@ -375,6 +375,12 @@ export default function OrganizationPublicProfile() {
                               );
                             })}
                           </TooltipProvider>
+                          
+                          {orgWishlist.length > 4 && (
+                            <p className="text-sm text-muted-foreground text-center pt-2">
+                              +{orgWishlist.length - 4} więcej produktów
+                            </p>
+                          )}
                         </div>
 
                         {/* Footer - only show when items in cart */}
