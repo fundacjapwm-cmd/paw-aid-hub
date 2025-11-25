@@ -445,30 +445,32 @@ export default function OrgDashboard() {
 
         {/* Animals Section */}
         <div>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">Nasi Podopieczni</h2>
-              <p className="text-muted-foreground">
-                {allAnimals.length > 0 ? `${allAnimals.length} ${allAnimals.length === 1 ? 'zwierzę' : 'zwierząt'} w systemie` : 'Nie masz jeszcze żadnych podopiecznych'}
-              </p>
-            </div>
-            <div className="flex gap-2 items-center">
-              <div className="relative flex-1 md:w-64">
-                <input
-                  type="text"
-                  placeholder="Szukaj po imieniu..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                />
+          <div className="bg-background/50 rounded-2xl p-4 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Nasi Podopieczni</h2>
+                <p className="text-muted-foreground">
+                  {allAnimals.length > 0 ? `${allAnimals.length} ${allAnimals.length === 1 ? 'zwierzę' : 'zwierząt'} w systemie` : 'Nie masz jeszcze żadnych podopiecznych'}
+                </p>
               </div>
-              <Button 
-                onClick={() => routerNavigate('/organizacja/zwierzeta')}
-                className="shadow-soft md:hover:scale-105 transition-transform whitespace-nowrap"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Dodaj
-              </Button>
+              <div className="flex gap-2 items-center">
+                <div className="relative flex-1 md:w-64">
+                  <input
+                    type="text"
+                    placeholder="Szukaj po imieniu..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <Button 
+                  onClick={() => routerNavigate('/organizacja/zwierzeta')}
+                  className="shadow-soft md:hover:scale-105 transition-transform whitespace-nowrap"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Dodaj
+                </Button>
+              </div>
             </div>
           </div>
 
