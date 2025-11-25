@@ -11,7 +11,7 @@ const ONas = () => {
       <main>
         {/* Hero Section with Large Logo */}
         <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
-          <div className="container mx-auto px-4">
+          <div className="md:container md:mx-auto md:px-8 px-4">
             <div className="max-w-4xl mx-auto text-center">
               <div className="mb-12 flex justify-center">
                 <div className="bg-white rounded-3xl p-12 md:p-16 shadow-xl">
@@ -29,8 +29,8 @@ const ONas = () => {
         </section>
 
         {/* O Nas Section */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto max-w-7xl">
+        <section className="py-20">
+          <div className="md:container md:mx-auto md:max-w-7xl md:px-8 px-4">
             <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-16">
               O nas
             </h2>
@@ -79,7 +79,7 @@ const ONas = () => {
 
         {/* Nasza Misja Section */}
         <section className="py-20 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-          <div className="container mx-auto px-4">
+          <div className="md:container md:mx-auto md:px-8 px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-16">
                 Nasza misja

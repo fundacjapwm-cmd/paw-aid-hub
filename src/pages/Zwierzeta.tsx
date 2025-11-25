@@ -67,7 +67,7 @@ const Zwierzeta = () => {
         <main>
           {/* Header Section */}
           <section className="py-12 md:py-20 bg-background">
-            <div className="container mx-auto px-4 text-center">
+            <div className="md:container md:mx-auto md:px-8 px-4 text-center">
               <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
                 Nasi podopieczni
               </h1>
@@ -79,14 +79,14 @@ const Zwierzeta = () => {
 
           {/* Filters Section */}
           <section className="py-8 bg-muted/30">
-            <div className="container mx-auto px-4 max-w-7xl">
+            <div className="md:container md:mx-auto md:px-8 md:max-w-7xl px-4">
               <AnimalFilters onFilterChange={setFilters} />
             </div>
           </section>
 
           {/* Skeleton Loading Section */}
-          <section className="py-16 px-4">
-            <div className="container mx-auto max-w-6xl">
+          <section className="py-16">
+            <div className="md:container md:mx-auto md:max-w-6xl md:px-8 px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                   <AnimalCardSkeleton key={i} />
@@ -117,7 +117,7 @@ const Zwierzeta = () => {
       <main>
         {/* Header Section */}
         <section className="py-12 md:py-20 bg-background">
-          <div className="container mx-auto px-4 text-center">
+          <div className="md:container md:mx-auto md:px-8 px-4 text-center">
             <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
               Nasi podopieczni
             </h1>
@@ -129,14 +129,14 @@ const Zwierzeta = () => {
 
         {/* Filters Section */}
         <section className="py-8 bg-muted/30">
-          <div className="container mx-auto px-4 max-w-7xl">
+          <div className="md:container md:mx-auto md:px-8 md:max-w-7xl px-4">
             <AnimalFilters onFilterChange={setFilters} />
           </div>
         </section>
 
         {/* Animals Section */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto max-w-6xl">
+        <section className="py-16">
+          <div className="md:container md:mx-auto md:max-w-6xl md:px-8 px-4">
             {filteredAndSortedAnimals.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-lg text-muted-foreground">

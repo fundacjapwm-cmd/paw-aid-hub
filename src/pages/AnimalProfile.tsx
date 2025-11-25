@@ -152,7 +152,7 @@ const AnimalProfile = () => {
         />
       )}
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto max-w-7xl px-4 py-8">
+        <main className="md:container md:mx-auto md:max-w-7xl md:px-8 py-8 px-4">
           <Button 
             variant="outline" 
             size="sm" 
