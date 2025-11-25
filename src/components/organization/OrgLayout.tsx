@@ -106,24 +106,8 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
     return (
       <div className="min-h-screen bg-muted/30">
         <header className="sticky top-0 z-50 bg-white border-b border-border shadow-soft">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-2">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Home className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-72 p-0">
-                  <SidebarProvider>
-                    <Sidebar className="w-full border-none">
-                      <OrgSidebarContent />
-                    </Sidebar>
-                  </SidebarProvider>
-                </SheetContent>
-              </Sheet>
-              <h1 className="font-semibold text-lg">{organizationName || "Panel"}</h1>
-            </div>
+          <div className="flex items-center justify-center p-4">
+            <h1 className="font-semibold text-lg">{organizationName || "Panel"}</h1>
           </div>
         </header>
         <main className="md:p-4">{children}</main>
