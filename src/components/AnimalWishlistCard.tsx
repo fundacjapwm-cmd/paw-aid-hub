@@ -59,6 +59,14 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
     return cartItem?.quantity || 0;
   };
 
+  // Sprawdź czy wszystkie brakujące produkty są już w koszyku
+  const allMissingInCart = animal.products.every((product) => {
+    const bought = product.bought || 0;
+    const needed = product.quantity || 1;
+    const missing = Math.max(0, needed - bought);
+    return missing === 0 || getCartQuantity(product.id) >= missing;
+  });
+
   const handleQuantityChange = (productId: string, change: number, maxLimit: number) => {
     setSelectedQuantities((prev) => {
       const currentQty = prev[productId] || 1;
@@ -197,13 +205,18 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                 
                 {/* Kup wszystkie brakujące */}
                 <Button
-                  className="w-full rounded-3xl md:rounded-xl font-semibold shadow-sm md:hover:shadow-md md:hover:scale-[1.02] transition-all"
+                  className={`w-full rounded-3xl md:rounded-xl font-semibold shadow-sm md:hover:shadow-md md:hover:scale-[1.02] transition-all ${
+                    allMissingInCart && missingTotal > 0 ? 'bg-green-500 hover:bg-green-600' : ''
+                  }`}
                   size="lg"
                   onClick={handleBuyAllMissing}
-                  disabled={missingTotal === 0}
+                  disabled={missingTotal === 0 || allMissingInCart}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  Kup wszystko co brakuje {missingTotal > 0 && `(${missingTotal.toFixed(2)} zł)`}
+                  {allMissingInCart && missingTotal > 0 
+                    ? `Dodano (${missingTotal.toFixed(2)} zł)`
+                    : `Kup wszystko co brakuje ${missingTotal > 0 ? `(${missingTotal.toFixed(2)} zł)` : ''}`
+                  }
                 </Button>
               </div>
             </>

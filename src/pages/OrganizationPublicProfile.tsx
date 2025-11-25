@@ -412,13 +412,17 @@ export default function OrganizationPublicProfile() {
                           
                           <Button
                             onClick={handleAddAllToCart}
-                            className="w-full bg-gradient-to-r from-primary to-primary-glow md:hover:opacity-90 transition-opacity rounded-3xl md:rounded-xl font-semibold"
+                            className={`w-full bg-gradient-to-r from-primary to-primary-glow md:hover:opacity-90 transition-opacity rounded-3xl md:rounded-xl font-semibold ${
+                              orgWishlist.every((item: any) => getCartQuantity(item.product_id) >= (item.quantity || 1)) ? 'from-green-500 to-green-600' : ''
+                            }`}
                             size="lg"
+                            disabled={orgWishlist.every((item: any) => getCartQuantity(item.product_id) >= (item.quantity || 1))}
                           >
                             <ShoppingCart className="h-5 w-5 mr-2" />
-                            Dodaj wszystko! ({orgWishlist.reduce((sum: number, item: any) => 
-                              sum + ((item.quantity || 1) * (item.products?.price || 0)), 0
-                            ).toFixed(2)} zł)
+                            {orgWishlist.every((item: any) => getCartQuantity(item.product_id) >= (item.quantity || 1))
+                              ? `Dodano (${orgWishlist.reduce((sum: number, item: any) => sum + ((item.quantity || 1) * (item.products?.price || 0)), 0).toFixed(2)} zł)`
+                              : `Dodaj wszystko! (${orgWishlist.reduce((sum: number, item: any) => sum + ((item.quantity || 1) * (item.products?.price || 0)), 0).toFixed(2)} zł)`
+                            }
                           </Button>
                         </div>
                       </div>
