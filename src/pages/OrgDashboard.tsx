@@ -251,25 +251,34 @@ export default function OrgDashboard() {
   };
 
   const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 6) {
-      toast.error("Maksymalnie 6 zdjęć w galerii");
+    const newFiles = Array.from(e.target.files || []);
+    const totalFiles = galleryFiles.length + newFiles.length;
+    
+    if (totalFiles > 6) {
+      toast.error(`Możesz dodać jeszcze ${6 - galleryFiles.length} zdjęć (max 6)`);
       return;
     }
     
-    setGalleryFiles(files);
+    // Append new files to existing ones
+    const updatedFiles = [...galleryFiles, ...newFiles];
+    setGalleryFiles(updatedFiles);
     
-    const previews: string[] = [];
-    files.forEach((file) => {
+    // Generate previews for new files and append to existing previews
+    newFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        previews.push(reader.result as string);
-        if (previews.length === files.length) {
-          setGalleryPreviews([...previews]);
-        }
+        setGalleryPreviews(prev => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
     });
+    
+    // Reset input to allow selecting the same file again
+    e.target.value = '';
+  };
+
+  const handleRemoveGalleryImage = (index: number) => {
+    setGalleryFiles(prev => prev.filter((_, i) => i !== index));
+    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const onAddAnimalSubmit = async (data: AnimalFormData) => {
@@ -1049,26 +1058,36 @@ export default function OrgDashboard() {
                     </div>
 
                     <div className="pt-4">
-                      <Label>Galeria zdjęć (max 6)</Label>
+                      <Label>Galeria zdjęć ({galleryPreviews.length}/6)</Label>
                       {galleryPreviews.length > 0 && (
                         <div className="grid grid-cols-3 gap-2 mt-2">
                           {galleryPreviews.map((preview, idx) => (
-                            <Avatar key={idx} className="h-16 w-16">
-                              <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
-                              <AvatarFallback>{idx + 1}</AvatarFallback>
-                            </Avatar>
+                            <div key={idx} className="relative group">
+                              <Avatar className="h-16 w-16">
+                                <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
+                                <AvatarFallback>{idx + 1}</AvatarFallback>
+                              </Avatar>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveGalleryImage(idx)}
+                                className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            </div>
                           ))}
                         </div>
                       )}
-                      <div className="flex items-center gap-2 mt-2">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleGalleryChange}
-                        />
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                      </div>
+                      {galleryPreviews.length < 6 && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleGalleryChange}
+                          />
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
                   </div>
 
