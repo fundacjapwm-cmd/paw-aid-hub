@@ -243,14 +243,41 @@ serve(async (req) => {
         'Authorization': `Bearer ${access_token}`,
       },
       body: JSON.stringify(payuOrder),
+      redirect: 'manual', // Don't follow redirects - PayU returns 302
     });
 
+    console.log('PayU response status:', payuResponse.status);
+
+    // PayU returns 302 redirect on success
+    if (payuResponse.status === 302) {
+      const redirectUri = payuResponse.headers.get('Location');
+      console.log('PayU redirect URI:', redirectUri);
+      
+      if (!redirectUri) {
+        throw new Error('PayU returned 302 but no Location header');
+      }
+
+      return new Response(
+        JSON.stringify({
+          orderId: order.id,
+          redirectUri: redirectUri,
+          status: { statusCode: 'SUCCESS' },
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Handle error responses
     if (!payuResponse.ok) {
       const errorText = await payuResponse.text();
       console.error('PayU order creation failed:', errorText);
       throw new Error(`PayU order creation failed: ${errorText}`);
     }
 
+    // Fallback for 200 responses (shouldn't happen normally)
     const payuData = await payuResponse.json();
     console.log('PayU order created:', payuData);
 
