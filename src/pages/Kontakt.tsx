@@ -31,7 +31,6 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const Kontakt = () => {
-  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
@@ -63,11 +62,7 @@ const Kontakt = () => {
         }
       });
       setErrors(fieldErrors);
-      toast({
-        title: "Błąd walidacji",
-        description: "Sprawdź poprawność wprowadzonych danych",
-        variant: "destructive",
-      });
+      toast.error("Sprawdź poprawność wprowadzonych danych");
       return;
     }
 
@@ -80,10 +75,7 @@ const Kontakt = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Wiadomość wysłana!",
-        description: "Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.",
-      });
+      toast.success("Wiadomość wysłana! Dziękujemy za kontakt.");
 
       // Reset form
       setFormData({
@@ -95,11 +87,7 @@ const Kontakt = () => {
       setErrors({});
     } catch (error: any) {
       console.error("Error sending contact form:", error);
-      toast({
-        title: "Błąd wysyłania",
-        description: error.message || "Nie udało się wysłać wiadomości. Spróbuj ponownie później.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Nie udało się wysłać wiadomości. Spróbuj ponownie później.");
     } finally {
       setIsSubmitting(false);
     }
