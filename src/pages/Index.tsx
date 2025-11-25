@@ -93,8 +93,8 @@ const Index = () => {
         <CTASection />
 
         {/* Animals Section */}
-        <section className="py-8 md:py-12 px-4 md:px-8">
-          <div className="container mx-auto max-w-6xl">
+        <section className="py-8 md:py-12">
+          <div className="md:container md:mx-auto md:max-w-6xl md:px-8 px-4">
             <div className="text-center mb-8 md:mb-12">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
                 Nasi podopieczni
