@@ -372,7 +372,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
           </div>
         </div>
       </CardHeader>
-      <CardContent className="min-h-[600px]">
+      <CardContent className="max-h-[70vh] overflow-y-auto">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-4">Nie znaleziono produktów</p>
