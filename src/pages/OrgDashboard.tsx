@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
 import OrgProfileForm from "@/components/organization/OrgProfileForm";
+import ImageCropDialog from "@/components/organization/ImageCropDialog";
 import WishlistBuilder from "@/components/organization/WishlistBuilder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Hash, Trash2, Upload, Calendar as CalendarIcon, ShoppingCart, CheckCircle } from "lucide-react";
+import { PawPrint, Package, AlertCircle, Plus, MapPin, Pencil, Mail, Phone, Globe, Hash, Trash2, Upload, Calendar as CalendarIcon, ShoppingCart, CheckCircle, Camera } from "lucide-react";
 import { useNavigate as useRouterNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -56,6 +57,9 @@ export default function OrgDashboard() {
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [logoToCrop, setLogoToCrop] = useState<string | null>(null);
+  const [logoCropDialogOpen, setLogoCropDialogOpen] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const form = useForm<AnimalFormData>({
     resolver: zodResolver(animalSchema),
@@ -241,6 +245,63 @@ export default function OrgDashboard() {
     }
   };
 
+  const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Wybierz plik graficzny (JPG, PNG, itp.)");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setLogoToCrop(reader.result as string);
+      setLogoCropDialogOpen(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleLogoCropComplete = async (croppedImage: Blob) => {
+    if (!orgId) return;
+    
+    setUploadingLogo(true);
+    
+    const fileName = `${orgId}-${Date.now()}.jpg`;
+    const filePath = `logos/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("product-images")
+      .upload(filePath, croppedImage);
+
+    if (uploadError) {
+      toast.error("Nie udało się przesłać logo");
+      setUploadingLogo(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("product-images")
+      .getPublicUrl(filePath);
+
+    const { error: updateError } = await supabase
+      .from("organizations")
+      .update({ logo_url: urlData.publicUrl })
+      .eq("id", orgId);
+
+    if (updateError) {
+      toast.error("Nie udało się zapisać logo");
+    } else {
+      toast.success("Logo zostało zaktualizowane");
+      refetch();
+    }
+
+    setUploadingLogo(false);
+    setLogoCropDialogOpen(false);
+    setLogoToCrop(null);
+  };
+
   const onEditSubmit = async (data: AnimalFormData) => {
     if (!editingAnimal || !orgId) return;
 
@@ -304,12 +365,36 @@ export default function OrgDashboard() {
           <div className="flex flex-col gap-6">
             {/* Top Section - Logo, Name, Edit Button */}
             <div className="flex items-start gap-4 md:gap-6">
-              <Avatar className="h-20 w-20 md:h-24 md:w-24 border-4 border-white shadow-card flex-shrink-0">
-                <AvatarImage src={organization?.logo_url || ''} alt={organization?.name} />
-                <AvatarFallback className="text-2xl">
-                  {organization?.name?.charAt(0) || 'O'}
-                </AvatarFallback>
-              </Avatar>
+              {/* Clickable Avatar for Logo Change */}
+              <div className="relative group flex-shrink-0">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoSelect}
+                  disabled={uploadingLogo}
+                  className="hidden"
+                  id="logo-upload-dashboard"
+                />
+                <label
+                  htmlFor="logo-upload-dashboard"
+                  className="cursor-pointer block"
+                >
+                  <Avatar className="h-20 w-20 md:h-24 md:w-24 border-4 border-white shadow-card transition-opacity group-hover:opacity-80">
+                    <AvatarImage src={organization?.logo_url || ''} alt={organization?.name} />
+                    <AvatarFallback className="text-2xl">
+                      {organization?.name?.charAt(0) || 'O'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="h-6 w-6 text-white" />
+                  </div>
+                </label>
+                {uploadingLogo && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                    <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -807,6 +892,19 @@ export default function OrgDashboard() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Logo Crop Dialog */}
+        {logoToCrop && (
+          <ImageCropDialog
+            open={logoCropDialogOpen}
+            onClose={() => {
+              setLogoCropDialogOpen(false);
+              setLogoToCrop(null);
+            }}
+            imageSrc={logoToCrop}
+            onCropComplete={handleLogoCropComplete}
+          />
+        )}
       </div>
     </OrgLayout>
   );
