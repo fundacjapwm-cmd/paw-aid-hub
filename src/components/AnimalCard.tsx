@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MapPin, Calendar, ShoppingCart } from "lucide-react";
+import { MapPin, Calendar, ShoppingCart, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
@@ -41,7 +41,7 @@ interface AnimalCardProps {
 }
 
 const AnimalCard = ({ animal }: AnimalCardProps) => {
-  const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded, cart: globalCart, removeFromCart } = useCart();
+  const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showCelebration, setShowCelebration] = useState(false);
@@ -158,6 +158,11 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
     markAnimalAsAdded(String(animal.id));
     
     toast({ title: `Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}` });
+  };
+
+  const handleRemoveAll = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeAllForAnimal(String(animal.id), animal.name);
   };
 
   const handleOrganizationClick = (e: React.MouseEvent) => {
@@ -298,6 +303,19 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                     : `Dodaj wszystko! (${totalWishlistCost.toFixed(2)} zł)`
                   }
                 </Button>
+                
+                {/* Remove all button - shows when items are in cart */}
+                {cartTotalForAnimal > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
+                    onClick={handleRemoveAll}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Usuń wszystko z koszyka
+                  </Button>
+                )}
               </>
             );
           })()}

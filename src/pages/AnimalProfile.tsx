@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
@@ -19,7 +19,7 @@ const AnimalProfile = () => {
   const navigate = useNavigate();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationShown, setCelebrationShown] = useState(false);
-  const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart } = useCart();
+  const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const { animals, loading } = useAnimalsWithWishlists();
   const { toast } = useToast();
 
@@ -106,6 +106,12 @@ const AnimalProfile = () => {
     addAllForAnimal(items, animal.name);
     
     toast({ title: `Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}` });
+  };
+
+  const handleRemoveAllFromCart = () => {
+    if (id && animal) {
+      removeAllForAnimal(id, animal.name);
+    }
   };
 
   const isInCart = (itemId: string) => {
@@ -349,6 +355,19 @@ const AnimalProfile = () => {
                         : `Dodaj wszystko! (${totalWishlistCost.toFixed(2)} zł)`
                       }
                     </Button>
+                    
+                    {/* Usuń wszystko z koszyka */}
+                    {cartTotalForAnimal > 0 && (
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveAllFromCart}
+                        className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Usuń wszystko z koszyka
+                      </Button>
+                    )}
                   </div>
                 )}
               </Card>

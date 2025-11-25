@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "react-router-dom";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
@@ -29,7 +29,7 @@ interface AnimalWishlistCardProps {
 }
 
 const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
-  const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart } = useCart();
+  const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const { toast } = useToast();
   
   // State for quantity counters - każdy produkt ma swoją ilość (domyślnie 1)
@@ -125,6 +125,10 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
     }
   };
 
+  const handleRemoveAllFromCart = () => {
+    removeAllForAnimal(animal.id, animal.name);
+  };
+
   return (
     <Card className="overflow-hidden bg-card rounded-3xl border-0 shadow-card">
       <div className="grid md:grid-cols-2 gap-6 p-4 md:p-6">
@@ -218,6 +222,19 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                     : `Kup wszystko co brakuje ${missingTotal > 0 ? `(${missingTotal.toFixed(2)} zł)` : ''}`
                   }
                 </Button>
+                
+                {/* Usuń wszystko z koszyka */}
+                {cartTotalForAnimal > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveAllFromCart}
+                    className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Usuń wszystko z koszyka
+                  </Button>
+                )}
               </div>
             </>
           ) : (

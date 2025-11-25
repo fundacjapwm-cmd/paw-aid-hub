@@ -18,6 +18,7 @@ interface CartContextType {
   cartCount: number;
   addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
+  removeAllForAnimal: (animalId: string, animalName: string) => void;
   clearCart: () => void;
   updateQuantity: (productId: string, quantity: number) => void;
   addAllForAnimal: (items: Omit<CartItem, 'quantity'>[], animalName: string) => void;
@@ -177,6 +178,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const removeAllForAnimal = (animalId: string, animalName: string) => {
+    const itemsToRemove = cart.filter(item => item.animalId === animalId);
+    if (itemsToRemove.length === 0) return;
+    
+    setCart((prevCart) => prevCart.filter((item) => item.animalId !== animalId));
+    setAddedAnimals(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(animalId);
+      return newSet;
+    });
+    
+    toast({
+      title: `Usunięto produkty dla: ${animalName}`,
+      description: `Usunięto ${itemsToRemove.length} produktów z koszyka`,
+      variant: "destructive",
+    });
+  };
+
   const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
@@ -205,6 +224,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         cartCount,
         addToCart,
         removeFromCart,
+        removeAllForAnimal,
         clearCart,
         updateQuantity,
         addAllForAnimal,
