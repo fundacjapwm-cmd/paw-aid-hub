@@ -220,11 +220,11 @@ const AnimalProfile = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => navigate("/")}
+            onClick={() => navigate(-1)}
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Wróć do listy zwierząt
+            Wróć
           </Button>
 
           <div className="grid lg:grid-cols-3 gap-8">
