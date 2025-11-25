@@ -616,21 +616,21 @@ export default function OrgDashboard() {
 
         {/* Edit Animal Dialog */}
         <Dialog open={editAnimalDialogOpen} onOpenChange={setEditAnimalDialogOpen}>
-          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto rounded-3xl">
-            <DialogHeader>
+          <DialogContent className="max-w-7xl h-[90vh] flex flex-col rounded-3xl">
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle>Edytuj podopiecznego</DialogTitle>
               <DialogDescription>
                 Zaktualizuj dane zwierzęcia i zarządzaj jego listą potrzeb
               </DialogDescription>
             </DialogHeader>
 
-            <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+            <Tabs defaultValue="info" className="w-full flex-1 flex flex-col overflow-hidden">
+              <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
                 <TabsTrigger value="info">Informacje</TabsTrigger>
                 <TabsTrigger value="wishlist">Lista potrzeb</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="space-y-4">
+              <TabsContent value="info" className="space-y-4 flex-1 overflow-y-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Image Upload */}
                   <div className="space-y-4">
@@ -792,7 +792,7 @@ export default function OrgDashboard() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="wishlist">
+              <TabsContent value="wishlist" className="flex-1 overflow-y-auto">
                 {editingAnimal && (
                   <WishlistBuilder
                     entityId={editingAnimal.id}

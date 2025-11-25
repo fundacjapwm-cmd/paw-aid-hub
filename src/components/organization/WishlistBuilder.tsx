@@ -235,8 +235,8 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
     }, 0);
 
     return (
-      <Card className="h-full lg:sticky lg:top-6">
-        <CardHeader>
+      <Card className="flex flex-col h-full lg:sticky lg:top-6 max-h-[70vh]">
+        <CardHeader className="flex-shrink-0">
             <CardTitle className="flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-primary" />
               Koszyk Potrzeb - {entityName}
@@ -248,7 +248,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
             </div>
           )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 overflow-y-auto">
           {wishlist.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>Brak produktów w koszyku</p>
