@@ -26,23 +26,15 @@ const PaymentSuccess = () => {
           return;
         }
 
-        // Fetch order details
-        const { data: order, error: orderError } = await supabase
-          .from('orders')
-          .select(`
-            *,
-            order_items (
-              *,
-              products (name, price),
-              animals (name)
-            )
-          `)
-          .eq('id', orderId)
-          .single();
+        // Use edge function to fetch order (bypasses RLS for guest orders)
+        const { data, error: fetchError } = await supabase.functions.invoke('get-order-details', {
+          body: { orderId }
+        });
 
-        if (orderError) throw orderError;
+        if (fetchError) throw fetchError;
+        if (data.error) throw new Error(data.error);
 
-        setOrderDetails(order);
+        setOrderDetails(data.order);
       } catch (err: any) {
         console.error('Error fetching order:', err);
         setError('Nie udało się pobrać szczegółów zamówienia');
@@ -140,15 +132,31 @@ const PaymentSuccess = () => {
                   <h3 className="font-semibold mb-3">Zakupione produkty:</h3>
                   <div className="space-y-3">
                     {orderDetails.order_items?.map((item: any, index: number) => (
-                      <div key={index} className="flex justify-between items-start p-3 bg-secondary/50 rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium">{item.products?.name}</p>
+                      <div key={index} className="flex gap-3 items-center p-3 bg-secondary/50 rounded-lg">
+                        {item.products?.image_url && (
+                          <img 
+                            src={item.products.image_url} 
+                            alt={item.products.name}
+                            className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{item.products?.name}</p>
                           {item.animals?.name && (
-                            <p className="text-sm text-muted-foreground">dla {item.animals.name}</p>
+                            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                              {item.animals?.image_url && (
+                                <img 
+                                  src={item.animals.image_url} 
+                                  alt={item.animals.name}
+                                  className="w-5 h-5 object-cover rounded-full"
+                                />
+                              )}
+                              <span>dla {item.animals.name}</span>
+                            </div>
                           )}
                           <p className="text-sm text-muted-foreground">Ilość: {item.quantity}</p>
                         </div>
-                        <p className="font-semibold">
+                        <p className="font-semibold flex-shrink-0">
                           {(item.unit_price * item.quantity).toFixed(2)} zł
                         </p>
                       </div>
