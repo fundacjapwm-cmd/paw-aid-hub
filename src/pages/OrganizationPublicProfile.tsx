@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "@/components/AnimalCard";
-import WishlistProgressBar from "@/components/WishlistProgressBar";
+
 import { Card } from "@/components/ui/card";
 import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -367,19 +367,7 @@ export default function OrganizationPublicProfile() {
                     </div>
                   </Card>
                 ) : (
-                  <>
-                    <WishlistProgressBar 
-                      wishlist={orgWishlist.map((item: any) => ({
-                        id: item.id,
-                        name: item.products?.name || '',
-                        price: item.products?.price || 0,
-                        product_id: item.product_id,
-                        quantity: item.quantity,
-                        bought: false,
-                      }))} 
-                    />
-                    
-                    <Card className="bg-white/80 border-white/50 shadow-md">
+                  <Card className="bg-white/80 border-white/50 shadow-md">
                       <div className="p-6 flex flex-col h-[600px]">
                         <div className="flex-1 overflow-y-auto space-y-3 pr-2">
                           <TooltipProvider>
@@ -474,7 +462,6 @@ export default function OrganizationPublicProfile() {
                         </div>
                       </div>
                     </Card>
-                  </>
                 )}
               </div>
             </div>
