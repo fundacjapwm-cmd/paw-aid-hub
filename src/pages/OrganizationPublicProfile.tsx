@@ -201,7 +201,7 @@ export default function OrganizationPublicProfile() {
       <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-secondary/10 rounded-full blur-3xl" />
 
       {/* Hero Section - Większy i dwukolumnowy */}
-      <div className="container mx-auto px-4 py-12 relative z-10">
+      <div className="md:container md:mx-auto md:px-8 py-12 px-4 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="relative bg-white/60 backdrop-blur-md border border-white/50 shadow-bubbly rounded-[3rem] p-8 md:p-12 overflow-hidden">
             {/* Dekoracyjne ikony w tle */}
@@ -502,7 +502,7 @@ export default function OrganizationPublicProfile() {
       </div>
 
       {/* Animals Section */}
-      <div id="animals" className="container mx-auto px-4 pb-16 relative z-10">
+      <div id="animals" className="md:container md:mx-auto md:px-8 pb-16 px-4 relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-foreground mb-2">
             Nasi Podopieczni

@@ -110,7 +110,7 @@ const Kontakt = () => {
       <main>
         {/* Header Section */}
         <section className="py-12 md:py-20 bg-background">
-          <div className="container mx-auto px-4 text-center">
+          <div className="md:container md:mx-auto md:px-8 px-4 text-center">
             <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
               Kontakt
             </h1>
@@ -121,8 +121,8 @@ const Kontakt = () => {
         </section>
 
         {/* Contact Form Section */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto max-w-6xl">
+        <section className="py-16">
+          <div className="md:container md:mx-auto md:max-w-6xl md:px-8 px-4">
             <div className="grid lg:grid-cols-2 gap-16">
               {/* Contact Form */}
               <div>
