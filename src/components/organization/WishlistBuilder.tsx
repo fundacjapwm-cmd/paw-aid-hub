@@ -238,26 +238,26 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
 
     return (
       <Card className="flex flex-col h-full lg:sticky lg:top-6 max-h-[70vh]">
-        <CardHeader className="flex-shrink-0">
-            <CardTitle className="flex items-center gap-2">
+        <CardHeader className="flex-shrink-0 space-y-4">
+            <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
               <ShoppingCart className="h-5 w-5 text-primary" />
               Koszyk Potrzeb - {entityName}
             </CardTitle>
           {wishlist.length > 0 && (
-            <div className="mt-2 pt-2 border-t">
+            <div className="pt-2 border-t">
               <p className="text-sm text-muted-foreground">Całkowita wartość</p>
               <p className="text-2xl font-bold text-primary">{totalValue.toFixed(2)} zł</p>
             </div>
           )}
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto">
+        <CardContent className="flex-1 overflow-y-auto pt-4">
           {wishlist.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>Brak produktów w koszyku</p>
               <p className="text-sm mt-2">Dodaj produkty z katalogu ←</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {wishlist.map((item) => (
                 <Card
                   key={item.id}
@@ -348,9 +348,9 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
 
   const productCatalog = useMemo(() => (
     <Card className="h-full">
-      <CardHeader>
-        <CardTitle>Katalog Produktów</CardTitle>
-        <div className="space-y-4 mt-4">
+      <CardHeader className="space-y-4 md:space-y-6">
+        <CardTitle className="text-xl md:text-2xl">Katalog Produktów</CardTitle>
+        <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -374,7 +374,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
           </div>
         </div>
       </CardHeader>
-      <CardContent className="max-h-[70vh] overflow-y-auto">
+      <CardContent className="max-h-[70vh] overflow-y-auto pt-4">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-4">Nie znaleziono produktów</p>
@@ -383,7 +383,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <TooltipProvider>
               {filteredProducts.map((product) => {
                 const wishlistItem = getWishlistItem(product.id);
@@ -430,16 +430,16 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
     return (
       <>
         <Tabs defaultValue="catalog" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 mb-4 md:mb-8">
             <TabsTrigger value="catalog">Katalog</TabsTrigger>
             <TabsTrigger value="wishlist">
               Koszyk ({wishlist.length})
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="catalog" className="mt-4">
+          <TabsContent value="catalog" className="mt-0">
             {productCatalog}
           </TabsContent>
-          <TabsContent value="wishlist" className="mt-4">
+          <TabsContent value="wishlist" className="mt-0">
             {wishlistCart}
           </TabsContent>
         </Tabs>
