@@ -93,6 +93,11 @@ const CartDrawer = () => {
                       <div className="flex-1">
                         <h4 className="font-medium">{item.productName}</h4>
                         <p className="text-sm font-semibold mt-1">{item.price.toFixed(2)} zł</p>
+                        {item.maxQuantity && (
+                          <p className="text-xs text-muted-foreground">
+                            Potrzeba: {item.maxQuantity} szt.
+                          </p>
+                        )}
                         
                         <div className="flex items-center gap-2 mt-2">
                           <Button
@@ -109,6 +114,7 @@ const CartDrawer = () => {
                             size="icon"
                             className="h-8 w-8"
                             onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            disabled={item.maxQuantity ? item.quantity >= item.maxQuantity : false}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>

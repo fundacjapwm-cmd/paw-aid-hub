@@ -227,9 +227,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.productId === productId ? { ...item, quantity } : item
-      )
+      prevCart.map((item) => {
+        if (item.productId === productId) {
+          // Validate against maxQuantity for animal wishlists
+          const maxQty = item.maxQuantity;
+          if (maxQty && quantity > maxQty) {
+            toast({
+              title: "Limit osiągnięty",
+              description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
+              variant: "destructive",
+            });
+            return { ...item, quantity: maxQty };
+          }
+          return { ...item, quantity };
+        }
+        return item;
+      })
     );
   };
 
