@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle2, XCircle, Mail, Phone, FileText, Inbox, Check, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { slugify } from "@/lib/utils/slugify";
 
 interface Lead {
