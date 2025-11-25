@@ -20,6 +20,9 @@ interface CheckoutRequest {
   customerEmail: string;
   customerName: string;
   totalAmount: number;
+  password?: string;
+  newsletter?: boolean;
+  isGuest?: boolean;
 }
 
 serve(async (req) => {
@@ -32,27 +35,55 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Try to get authenticated user (optional for guest checkout)
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    let userId: string | null = null;
     
-    if (userError || !user) {
-      throw new Error('Unauthorized');
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(token);
+      userId = user?.id || null;
     }
 
-    const { items, customerEmail, customerName, totalAmount }: CheckoutRequest = await req.json();
+    const { 
+      items, 
+      customerEmail, 
+      customerName, 
+      totalAmount,
+      password,
+      newsletter,
+      isGuest
+    }: CheckoutRequest = await req.json();
 
-    console.log('Creating order for user:', user.id, 'Total:', totalAmount);
+    console.log('Creating order for:', isGuest ? 'guest' : 'user', customerEmail);
+
+    // If guest checkout with password, create account
+    if (isGuest && password) {
+      console.log('Creating account for guest:', customerEmail);
+      
+      const { data: signUpData, error: signUpError } = await supabase.auth.admin.createUser({
+        email: customerEmail,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          display_name: customerName,
+        }
+      });
+
+      if (signUpError) {
+        console.error('Account creation error:', signUpError);
+        // Continue with guest checkout if account creation fails
+      } else {
+        userId = signUpData.user.id;
+        console.log('Account created successfully:', userId);
+      }
+    }
 
     // Create order in database
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: user.id,
+        user_id: userId, // Can be null for guest orders
         total_amount: totalAmount,
         status: 'pending',
         payment_status: 'pending',

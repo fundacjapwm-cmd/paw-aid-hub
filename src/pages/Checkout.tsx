@@ -1,16 +1,30 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import { Loader2, ShoppingCart, CreditCard } from 'lucide-react';
+import { z } from 'zod';
+
+const checkoutSchema = z.object({
+  customerName: z.string().trim().min(2, 'Imię i nazwisko musi mieć minimum 2 znaki').max(100, 'Imię i nazwisko za długie'),
+  customerEmail: z.string().trim().email('Nieprawidłowy adres email').max(255, 'Email za długi'),
+  password: z.string().min(6, 'Hasło musi mieć minimum 6 znaków').max(72, 'Hasło za długie').optional().or(z.literal('')),
+  acceptTerms: z.boolean().refine(val => val === true, 'Musisz zaakceptować regulamin'),
+  acceptPrivacy: z.boolean().refine(val => val === true, 'Musisz zaakceptować politykę prywatności'),
+  acceptDataProcessing: z.boolean().refine(val => val === true, 'Musisz wyrazić zgodę na przetwarzanie danych'),
+  newsletter: z.boolean().optional(),
+});
+
+type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -19,19 +33,14 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [customerName, setCustomerName] = useState(profile?.display_name || '');
   const [customerEmail, setCustomerEmail] = useState(user?.email || '');
+  const [password, setPassword] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [acceptDataProcessing, setAcceptDataProcessing] = useState(false);
+  const [newsletter, setNewsletter] = useState(false);
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!user) {
-      toast({
-        title: "Wymagane logowanie",
-        description: "Musisz być zalogowany aby dokonać płatności",
-        variant: "destructive",
-      });
-      navigate('/auth');
-      return;
-    }
 
     if (cart.length === 0) {
       toast({
@@ -42,13 +51,26 @@ const Checkout = () => {
       return;
     }
 
-    if (!customerName.trim() || !customerEmail.trim()) {
-      toast({
-        title: "Wypełnij dane",
-        description: "Imię i email są wymagane",
-        variant: "destructive",
+    // Validate form data
+    try {
+      checkoutSchema.parse({
+        customerName,
+        customerEmail,
+        password: password || '',
+        acceptTerms,
+        acceptPrivacy,
+        acceptDataProcessing,
+        newsletter,
       });
-      return;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Błąd walidacji",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -60,6 +82,9 @@ const Checkout = () => {
           customerEmail,
           customerName,
           totalAmount: cartTotal,
+          password: password || undefined,
+          newsletter,
+          isGuest: !user,
         },
       });
 
@@ -160,12 +185,14 @@ const Checkout = () => {
                   <CreditCard className="w-5 h-5" />
                   Dane do płatności
                 </CardTitle>
-                <CardDescription>Wprowadź swoje dane</CardDescription>
+                <CardDescription>
+                  {user ? 'Potwierdź swoje dane' : 'Możesz kupić jako gość lub założyć konto'}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleCheckout} className="space-y-4">
                   <div>
-                    <Label htmlFor="name">Imię i nazwisko</Label>
+                    <Label htmlFor="name">Imię i nazwisko *</Label>
                     <Input
                       id="name"
                       type="text"
@@ -173,11 +200,12 @@ const Checkout = () => {
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Jan Kowalski"
                       required
+                      maxLength={100}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">Email *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -185,10 +213,101 @@ const Checkout = () => {
                       onChange={(e) => setCustomerEmail(e.target.value)}
                       placeholder="jan@example.com"
                       required
+                      maxLength={255}
+                      disabled={!!user}
                     />
                     <p className="text-sm text-muted-foreground mt-1">
                       Na ten adres otrzymasz potwierdzenie darowizny
                     </p>
+                  </div>
+
+                  {!user && (
+                    <div>
+                      <Label htmlFor="password">Hasło (opcjonalne)</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Zostaw puste aby kupić jako gość"
+                        maxLength={72}
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Jeśli podasz hasło, utworzymy dla Ciebie konto
+                      </p>
+                    </div>
+                  )}
+
+                  <Separator className="my-6" />
+
+                  {/* RODO Checkboxes */}
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="acceptDataProcessing"
+                        checked={acceptDataProcessing}
+                        onCheckedChange={(checked) => setAcceptDataProcessing(checked as boolean)}
+                        required
+                      />
+                      <label
+                        htmlFor="acceptDataProcessing"
+                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Wyrażam zgodę na przetwarzanie moich danych osobowych w celu realizacji darowizny *
+                      </label>
+                    </div>
+
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="acceptTerms"
+                        checked={acceptTerms}
+                        onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                        required
+                      />
+                      <label
+                        htmlFor="acceptTerms"
+                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Akceptuję{' '}
+                        <Link to="/regulamin" className="text-primary hover:underline" target="_blank">
+                          regulamin platformy
+                        </Link>{' '}
+                        *
+                      </label>
+                    </div>
+
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="acceptPrivacy"
+                        checked={acceptPrivacy}
+                        onCheckedChange={(checked) => setAcceptPrivacy(checked as boolean)}
+                        required
+                      />
+                      <label
+                        htmlFor="acceptPrivacy"
+                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Akceptuję{' '}
+                        <Link to="/polityka-prywatnosci" className="text-primary hover:underline" target="_blank">
+                          politykę prywatności
+                        </Link>{' '}
+                        *
+                      </label>
+                    </div>
+
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="newsletter"
+                        checked={newsletter}
+                        onCheckedChange={(checked) => setNewsletter(checked as boolean)}
+                      />
+                      <label
+                        htmlFor="newsletter"
+                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Chcę otrzymywać newsletter z informacjami o zwierzętach (opcjonalne)
+                      </label>
+                    </div>
                   </div>
 
                   <Separator className="my-6" />
@@ -221,7 +340,7 @@ const Checkout = () => {
                   </Button>
 
                   <p className="text-xs text-center text-muted-foreground mt-4">
-                    Klikając "Zapłać" akceptujesz regulamin i zostaniesz przekierowany do bezpiecznej płatności PayU
+                    * Pola wymagane
                   </p>
                 </form>
               </CardContent>
