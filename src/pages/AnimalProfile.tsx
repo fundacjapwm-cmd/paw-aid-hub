@@ -2,8 +2,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Plus, Minus, X } from "lucide-react";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
@@ -11,6 +11,7 @@ import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { calculateAnimalAge, formatDetailedAge } from "@/lib/utils/ageCalculator";
 import AnimalProfileSkeleton from "@/components/AnimalProfileSkeleton";
+import { WishlistProductCard } from "@/components/WishlistProductCard";
 
 const AnimalProfile = () => {
   const { id } = useParams();
@@ -284,141 +285,27 @@ const AnimalProfile = () => {
                       const neededQuantity = item.quantity || 1;
                       
                       return (
-                        <div 
+                        <WishlistProductCard
                           key={item.id}
-                          className="flex gap-4 p-4 md:gap-3 md:p-3 bg-white rounded-3xl md:rounded-2xl border border-gray-100 shadow-sm hover:shadow-md md:hover:shadow-sm hover:border-primary/20 hover:bg-orange-50/30 md:hover:bg-transparent transition-all duration-300"
-                        >
-                          {/* 1. KOLUMNA: ZDJĘCIE (Fixed) */}
-                          <div className="shrink-0 relative">
-                            <img 
-                              src={item.image_url || '/placeholder.svg'} 
-                              alt={item.name}
-                              className="w-20 h-20 rounded-2xl md:rounded-xl object-cover shadow-inner md:shadow-none bg-white md:bg-gray-50"
-                            />
-                          </div>
-
-                          {/* 2. KOLUMNA: TREŚĆ (Flexible) */}
-                          <div className="flex-1 min-w-0 flex flex-col justify-center md:justify-between md:py-0.5">
-                            {/* Góra: Nazwa produktu */}
-                            <h4 
-                              className={`font-bold text-base md:text-sm md:font-semibold leading-tight line-clamp-2 mb-1 md:mb-0 ${item.bought ? 'text-muted-foreground line-through' : 'text-gray-800 md:text-foreground'}`}
-                              title={item.name}
-                            >
-                              {item.name}
-                            </h4>
-                            
-                            {/* Dół: Cena + Smart Shortcut */}
-                            <div>
-                              <div className={`font-black text-lg md:font-bold md:text-base ${item.bought ? 'text-muted-foreground' : 'text-primary'}`}>
-                                {Number(item.price).toFixed(2)} zł
-                              </div>
-                              
-                              {!item.bought && (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      onClick={() => setQuantities(prev => ({ ...prev, [item.product_id]: neededQuantity }))}
-                                      className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md inline-block mt-1 hover:text-primary hover:bg-primary/5 md:bg-transparent md:px-0 md:py-0 md:mt-0 md:font-normal md:text-muted-foreground md:underline md:decoration-dotted transition-colors"
-                                    >
-                                      Brakuje: {neededQuantity}
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="text-xs">Kliknij, aby ustawić {neededQuantity} szt</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              )}
-
-                              {item.bought && (
-                                <Badge variant="secondary" className="text-xs w-fit mt-1">✓ Kupione</Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* 3. KOLUMNA: AKCJE */}
-                          {!item.bought && (
-                            <div className="flex flex-col justify-center md:justify-end items-end gap-3 md:gap-0 shrink-0 md:pl-2">
-                              {/* Licznik Pigułka (mobile) / Standardowy (desktop) */}
-                              <div className="flex items-center gap-2 bg-gray-50 rounded-full md:rounded-lg px-1 py-1 md:h-9 md:p-1 border border-gray-100 md:border-0 shadow-inner">
-                                <button 
-                                  className="w-7 h-7 md:w-6 md:h-full bg-white md:bg-transparent rounded-full md:rounded-md shadow-sm md:shadow-none flex items-center justify-center text-gray-600 md:text-gray-500 hover:text-primary hover:scale-110 md:hover:scale-100 md:hover:bg-white transition-all disabled:opacity-30"
-                                  onClick={() => handleQuantityChange(item.product_id, -1)}
-                                  disabled={quantity <= 1}
-                                >
-                                  <Minus className="h-3.5 w-3.5 md:h-3 md:w-3" />
-                                </button>
-                                <span className="w-6 text-center font-bold text-sm text-primary md:text-foreground tabular-nums">
-                                  {quantity}
-                                </span>
-                                <button 
-                                  className="w-7 h-7 md:w-6 md:h-full bg-white md:bg-transparent rounded-full md:rounded-md shadow-sm md:shadow-none flex items-center justify-center text-gray-600 md:text-gray-500 hover:text-primary hover:scale-110 md:hover:scale-100 md:hover:bg-white transition-all disabled:opacity-30"
-                                  onClick={() => handleQuantityChange(item.product_id, 1)}
-                                  disabled={quantity >= neededQuantity}
-                                >
-                                  <Plus className="h-3.5 w-3.5 md:h-3 md:w-3" />
-                                </button>
-                              </div>
-
-                              {/* Kontener z przyciskami */}
-                              <div className="flex items-center gap-2 md:gap-2">
-
-                                {/* Przycisk Usuń (jeśli w koszyku) */}
-                                {itemInCart && (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        size="icon"
-                                        className="h-10 w-10 md:h-9 md:w-9 rounded-full md:rounded-xl bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all shadow-bubbly md:shadow-none hover:scale-105"
-                                        onClick={() => removeFromCart(item.product_id)}
-                                      >
-                                        <X className="h-5 w-5 md:h-4 md:w-4" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="text-xs">Usuń z koszyka</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                )}
-
-                                {/* Przycisk Dodaj */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="relative">
-                                      <Button 
-                                        size="icon" 
-                                        className={`h-10 w-10 md:h-9 md:w-9 rounded-full md:rounded-xl shadow-bubbly md:shadow-sm hover:scale-105 transition-all ${
-                                          itemInCart 
-                                            ? 'bg-green-500 hover:bg-green-600' 
-                                            : 'bg-primary hover:bg-primary/90'
-                                        }`}
-                                        onClick={() => handleAddToCart(item)}
-                                        disabled={itemInCart}
-                                      >
-                                        {itemInCart ? (
-                                          <ShoppingCart className="h-5 w-5 md:h-4 md:w-4" />
-                                        ) : (
-                                          <ShoppingCart className="h-5 w-5 md:h-4 md:w-4" />
-                                        )}
-                                      </Button>
-                                      {cartQuantity > 0 && (
-                                        <Badge 
-                                          className="absolute -top-1.5 -right-1.5 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
-                                        >
-                                          {cartQuantity}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="text-xs">
-                                      {itemInCart ? `${cartQuantity} szt. w koszyku` : 'Dodaj do koszyka'}
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                          product={{
+                            id: item.id,
+                            product_id: item.product_id,
+                            name: item.name,
+                            price: item.price,
+                            image_url: item.image_url,
+                            quantity: neededQuantity,
+                            bought: item.bought,
+                          }}
+                          quantity={quantity}
+                          maxQuantity={neededQuantity}
+                          isInCart={itemInCart}
+                          cartQuantity={cartQuantity}
+                          onQuantityChange={(productId, change) => handleQuantityChange(productId, change)}
+                          onAddToCart={handleAddToCart}
+                          onRemoveFromCart={removeFromCart}
+                          showSmartFill={!item.bought}
+                          onSmartFill={(productId, qty) => setQuantities(prev => ({ ...prev, [productId]: qty }))}
+                        />
                       );
                     })}
                   </TooltipProvider>
@@ -444,7 +331,7 @@ const AnimalProfile = () => {
                       size="default"
                       onClick={handleAddAllToCart}
                       disabled={!animal.wishlist.some((item: any) => !item.bought)}
-                      className={`w-full rounded-xl font-semibold text-sm h-11 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 ${
+                      className={`w-full rounded-3xl md:rounded-xl font-semibold text-sm h-11 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 ${
                         allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
                       }`}
                     >

@@ -4,14 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "@/components/AnimalCard";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { Card } from "@/components/ui/card";
-import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart, Plus, Minus, Check, X } from "lucide-react";
+import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
 import OrganizationProfileSkeleton from "@/components/OrganizationProfileSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { WishlistProductCard } from "@/components/WishlistProductCard";
 
 interface Organization {
   id: string;
@@ -360,111 +360,36 @@ export default function OrganizationPublicProfile() {
                     <Card className="bg-white/80 border-white/50 shadow-md">
                       <div className="p-6 flex flex-col h-[600px]">
                         <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                          {orgWishlist.map((item: any) => {
-                            const quantity = selectedQuantities[item.product_id] || 1;
-                            const itemInCart = isInCart(item.product_id);
-                            const cartQuantity = getCartQuantity(item.product_id);
+                          <TooltipProvider>
+                            {orgWishlist.map((item: any) => {
+                              const quantity = selectedQuantities[item.product_id] || 1;
+                              const itemInCart = isInCart(item.product_id);
+                              const cartQuantity = getCartQuantity(item.product_id);
 
-                            return (
-                              <div 
-                                key={item.id}
-                                className="flex gap-3 p-3 bg-white/60 rounded-xl border border-white/50 hover:shadow-md transition-shadow"
-                              >
-                                {/* Image */}
-                                <div className="shrink-0">
-                                  {item.products?.image_url ? (
-                                    <img 
-                                      src={item.products.image_url}
-                                      alt={item.products.name}
-                                      className="w-20 h-20 rounded-lg object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-20 h-20 rounded-lg bg-gray-50 flex items-center justify-center">
-                                      <ShoppingCart className="h-8 w-8 text-muted-foreground" />
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* Content */}
-                                <div className="flex-1 min-w-0 flex flex-col justify-between">
-                                  <div>
-                                    <p className="font-semibold text-sm line-clamp-2">
-                                      {item.products?.name}
-                                    </p>
-                                    <p className="text-primary font-bold text-base mt-1">
-                                      {item.products?.price?.toFixed(2)} zł
-                                    </p>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Potrzeba: {item.quantity} {item.products?.unit || 'szt'}
-                                  </p>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex flex-col justify-end items-end shrink-0 pl-2">
-                                  <div className="flex items-center gap-2">
-                                    {/* Quantity Counter */}
-                                    <div className="flex items-center bg-gray-50 rounded-lg h-9 p-1 shadow-inner">
-                                      <button 
-                                        className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30"
-                                        onClick={() => handleQuantityChange(item.product_id, -1)}
-                                        disabled={quantity <= 1}
-                                      >
-                                        <Minus className="h-3 w-3" />
-                                      </button>
-                                      <span className="w-6 text-center text-sm font-bold tabular-nums">
-                                        {quantity}
-                                      </span>
-                                      <button 
-                                        className="w-6 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all"
-                                        onClick={() => handleQuantityChange(item.product_id, 1)}
-                                      >
-                                        <Plus className="h-3 w-3" />
-                                      </button>
-                                    </div>
-
-                                    {/* Remove Button */}
-                                    {itemInCart && (
-                                      <Button
-                                        size="icon"
-                                        className="h-9 w-9 rounded-xl bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all"
-                                        onClick={() => removeFromCart(item.product_id)}
-                                      >
-                                        <X className="h-4 w-4" />
-                                      </Button>
-                                    )}
-
-                                    {/* Add Button */}
-                                    <div className="relative">
-                                      <Button 
-                                        size="icon" 
-                                        className={`h-9 w-9 rounded-xl shadow-sm hover:scale-105 transition-all ${
-                                          itemInCart 
-                                            ? 'bg-green-500 hover:bg-green-600' 
-                                            : 'bg-primary hover:bg-primary/90'
-                                        }`}
-                                        onClick={() => handleAddProduct(item)}
-                                        disabled={itemInCart}
-                                      >
-                                        {itemInCart ? (
-                                          <Check className="h-4 w-4" />
-                                        ) : (
-                                          <ShoppingCart className="h-4 w-4" />
-                                        )}
-                                      </Button>
-                                      {cartQuantity > 0 && (
-                                        <Badge 
-                                          className="absolute -top-1.5 -right-1.5 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
-                                        >
-                                          {cartQuantity}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
+                              return (
+                                <WishlistProductCard
+                                  key={item.id}
+                                  product={{
+                                    id: item.id,
+                                    product_id: item.product_id,
+                                    name: item.products?.name || '',
+                                    price: item.products?.price || 0,
+                                    image_url: item.products?.image_url,
+                                    quantity: item.quantity,
+                                    bought: false,
+                                  }}
+                                  quantity={quantity}
+                                  maxQuantity={item.quantity}
+                                  isInCart={itemInCart}
+                                  cartQuantity={cartQuantity}
+                                  onQuantityChange={(productId, change) => handleQuantityChange(productId, change)}
+                                  onAddToCart={handleAddProduct}
+                                  onRemoveFromCart={removeFromCart}
+                                  showSmartFill={false}
+                                />
+                              );
+                            })}
+                          </TooltipProvider>
                         </div>
 
                         {/* Footer */}
@@ -482,7 +407,7 @@ export default function OrganizationPublicProfile() {
                           
                           <Button
                             onClick={handleAddAllToCart}
-                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity rounded-xl font-semibold"
+                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity rounded-3xl md:rounded-xl font-semibold"
                             size="lg"
                           >
                             <ShoppingCart className="h-5 w-5 mr-2" />
