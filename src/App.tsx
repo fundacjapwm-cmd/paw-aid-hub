@@ -45,6 +45,7 @@ import OrganizationPublicProfile from "./pages/OrganizationPublicProfile";
 import PolitykaPrywatnosci from "./pages/PolitykaPrywatnosci";
 import Regulamin from "./pages/Regulamin";
 import FAQ from "./pages/FAQ";
+import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -116,6 +117,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AppContent />
+            <CookieConsent />
           </BrowserRouter>
         </TooltipProvider>
       </CartProvider>
