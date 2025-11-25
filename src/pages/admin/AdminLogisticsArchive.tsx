@@ -14,7 +14,6 @@ interface ArchiveItem {
   fulfillmentStatus: string;
   updatedAt: string;
   productName: string;
-  unit: string;
   organizationName: string;
   animalName: string;
 }
@@ -81,7 +80,6 @@ export default function AdminLogisticsArchive() {
         fulfillmentStatus: item.fulfillment_status,
         updatedAt: item.updated_at,
         productName: item.products?.name || 'N/A',
-        unit: item.products?.unit || 'szt',
         organizationName: item.animals?.organizations?.name || 'N/A',
         animalName: item.animals?.name || 'N/A'
       })) || [];
@@ -184,7 +182,7 @@ export default function AdminLogisticsArchive() {
                       <TableCell>{item.productName}</TableCell>
                       <TableCell className="text-center">
                         <Badge variant="outline">
-                          {item.quantity} {item.unit}
+                          {item.quantity} szt
                         </Badge>
                       </TableCell>
                       <TableCell>{item.organizationName}</TableCell>

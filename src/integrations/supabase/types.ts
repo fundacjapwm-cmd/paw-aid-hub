@@ -710,9 +710,7 @@ export type Database = {
           price: number
           producer_id: string | null
           purchase_price: number | null
-          unit: string | null
           updated_at: string | null
-          weight_volume: string | null
         }
         Insert: {
           active?: boolean | null
@@ -725,9 +723,7 @@ export type Database = {
           price: number
           producer_id?: string | null
           purchase_price?: number | null
-          unit?: string | null
           updated_at?: string | null
-          weight_volume?: string | null
         }
         Update: {
           active?: boolean | null
@@ -740,9 +736,7 @@ export type Database = {
           price?: number
           producer_id?: string | null
           purchase_price?: number | null
-          unit?: string | null
           updated_at?: string | null
-          weight_volume?: string | null
         }
         Relationships: [
           {

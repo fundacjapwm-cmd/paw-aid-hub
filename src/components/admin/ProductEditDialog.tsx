@@ -15,11 +15,9 @@ interface Product {
   name: string;
   price: number;
   purchase_price?: number;
-  unit: string;
   producer_id: string;
   category_id: string;
   description?: string;
-  weight_volume?: string;
   image_url?: string;
 }
 
@@ -190,42 +188,19 @@ export default function ProductEditDialog({ product, productCategories, onClose,
             </div>
           )}
 
-          {/* Unit, Category, Weight */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>Jednostka</Label>
-              <Select value={editData.unit} onValueChange={(value) => setEditData({ ...editData, unit: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="szt">Sztuka</SelectItem>
-                  <SelectItem value="kg">Kilogram</SelectItem>
-                  <SelectItem value="l">Litr</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Kategoria</Label>
-              <Select value={editData.category_id} onValueChange={(value) => setEditData({ ...editData, category_id: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Wybierz" />
-                </SelectTrigger>
-                <SelectContent>
-                  {productCategories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Waga/Objętość</Label>
-              <Input
-                value={editData.weight_volume || ''}
-                onChange={(e) => setEditData({ ...editData, weight_volume: e.target.value })}
-                placeholder="2kg, 500ml"
-              />
-            </div>
+          {/* Category */}
+          <div>
+            <Label>Kategoria</Label>
+            <Select value={editData.category_id} onValueChange={(value) => setEditData({ ...editData, category_id: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Wybierz" />
+              </SelectTrigger>
+              <SelectContent>
+                {productCategories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Description */}

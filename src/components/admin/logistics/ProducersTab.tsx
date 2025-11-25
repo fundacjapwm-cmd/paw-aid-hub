@@ -17,7 +17,6 @@ interface ProducerOrder {
     productId: string;
     productName: string;
     totalQuantity: number;
-    unit: string;
     recipients: {
       organizationName: string;
       organizationAddress: string;
@@ -108,7 +107,6 @@ export default function ProducersTab() {
             productId: product.id,
             productName: product.name,
             totalQuantity: 0,
-            unit: product.unit || 'szt',
             recipients: [],
             itemIds: []
           };
@@ -169,12 +167,12 @@ export default function ProducersTab() {
 
   const exportToCSV = (producerOrder: ProducerOrder) => {
     let csv = `Producent: ${producerOrder.producerName}\nEmail: ${producerOrder.producerEmail}\n\n`;
-    csv += "Produkt,Ilość,Jednostka,Odbiorca,Adres dostawy,Dla zwierzaka\n";
+    csv += "Produkt,Ilość,Odbiorca,Adres dostawy,Dla zwierzaka\n";
 
     producerOrder.products.forEach(product => {
       product.recipients.forEach(recipient => {
         const address = `${recipient.organizationAddress} ${recipient.organizationPostalCode} ${recipient.organizationCity}`.trim();
-        csv += `"${product.productName}",${recipient.quantity},${product.unit},"${recipient.organizationName}","${address}","${recipient.animalName}"\n`;
+        csv += `"${product.productName}",${recipient.quantity},"${recipient.organizationName}","${address}","${recipient.animalName}"\n`;
       });
     });
 
@@ -266,7 +264,7 @@ export default function ProducersTab() {
                             </TableCell>
                             <TableCell className="text-center">
                               <Badge variant="outline">
-                                {product.totalQuantity} {product.unit}
+                                {product.totalQuantity} szt
                               </Badge>
                             </TableCell>
                             <TableCell>
@@ -276,7 +274,7 @@ export default function ProducersTab() {
                                     <span className="font-medium">{recipient.organizationName}</span>
                                     {' - '}
                                     <span className="text-muted-foreground">
-                                      {recipient.quantity} {product.unit} dla {recipient.animalName}
+                                      {recipient.quantity} szt dla {recipient.animalName}
                                     </span>
                                   </div>
                                 ))}

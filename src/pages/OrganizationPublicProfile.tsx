@@ -121,9 +121,7 @@ export default function OrganizationPublicProfile() {
             id,
             name,
             price,
-            image_url,
-            unit,
-            weight_volume
+            image_url
           )
         `)
         .eq("organization_id", org.id)

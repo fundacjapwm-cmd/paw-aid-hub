@@ -16,8 +16,6 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  unit: string;
-  weight_volume?: string;
   description?: string;
   image_url?: string;
   producers?: { name: string };
@@ -274,7 +272,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
                     <div className="flex-1 min-w-0">
                       <p className="font-medium mb-1">{item.products?.name}</p>
                       <p className="text-sm text-muted-foreground mb-2">
-                        {item.products?.price.toFixed(2)} zł / {item.products?.unit}
+                        {item.products?.price.toFixed(2)} zł
                       </p>
                       <p className="text-sm font-semibold text-primary">
                         Razem: {((item.products?.price || 0) * item.quantity).toFixed(2)} zł
