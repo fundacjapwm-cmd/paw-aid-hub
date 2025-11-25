@@ -1,4 +1,5 @@
 import { Send } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -198,13 +199,13 @@ const Kontakt = () => {
                           className="text-sm font-normal cursor-pointer leading-relaxed"
                         >
                           Akceptuję{" "}
-                          <a 
-                            href="/polityka-prywatnosci" 
+                          <Link 
+                            to="/prywatnosc" 
                             target="_blank"
                             className="text-primary hover:underline font-medium"
                           >
                             politykę prywatności
-                          </a>{" "}
+                          </Link>{" "}
                           i wyrażam zgodę na przetwarzanie moich danych osobowych*
                         </Label>
                         {errors.acceptsPrivacyPolicy && (
