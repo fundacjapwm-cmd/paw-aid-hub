@@ -157,28 +157,6 @@ export default function OrganizationPublicProfile() {
     }, quantity);
   };
 
-  const handleAddAllToCart = () => {
-    let addedCount = 0;
-    let totalPrice = 0;
-    
-    orgWishlist.forEach((item: any) => {
-      if (item.products) {
-        addToCart({
-          productId: item.product_id,
-          productName: item.products.name,
-          price: item.products.price,
-          animalId: undefined,
-          animalName: `Organizacja: ${organization?.name}`,
-        }, 1);
-        addedCount += 1;
-        totalPrice += item.products.price;
-      }
-    });
-    
-    if (addedCount > 0) {
-      toast({ title: `Dodano do koszyka ${addedCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${organization?.name}` });
-    }
-  };
 
   const handleRemoveAllFromCart = () => {
     if (organization) {
@@ -399,10 +377,10 @@ export default function OrganizationPublicProfile() {
                           </TooltipProvider>
                         </div>
 
-                        {/* Footer */}
-                        <div className="mt-4 pt-4 border-t space-y-3">
-                          {cartTotalForOrg > 0 && (
-                            <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                        {/* Footer - only show when items in cart */}
+                        {cartTotalForOrg > 0 && (
+                          <div className="mt-4 pt-4 border-t space-y-3">
+                            <div className="flex items-center justify-between pb-2">
                               <span className="text-sm text-muted-foreground">
                                 Łącznie w koszyku:
                               </span>
@@ -410,25 +388,8 @@ export default function OrganizationPublicProfile() {
                                 {cartTotalForOrg.toFixed(2)} zł
                               </span>
                             </div>
-                          )}
-                          
-                          <Button
-                            onClick={handleAddAllToCart}
-                            className={`w-full bg-gradient-to-r from-primary to-primary-glow md:hover:opacity-90 transition-opacity rounded-3xl md:rounded-xl font-semibold ${
-                              orgWishlist.every((item: any) => getCartQuantity(item.product_id) >= (item.quantity || 1)) ? 'from-green-500 to-green-600' : ''
-                            }`}
-                            size="lg"
-                            disabled={orgWishlist.every((item: any) => getCartQuantity(item.product_id) >= (item.quantity || 1))}
-                          >
-                            <ShoppingCart className="h-5 w-5 mr-2" />
-                            {orgWishlist.every((item: any) => getCartQuantity(item.product_id) >= (item.quantity || 1))
-                              ? `Dodano (${orgWishlist.reduce((sum: number, item: any) => sum + ((item.quantity || 1) * (item.products?.price || 0)), 0).toFixed(2)} zł)`
-                              : `Dodaj wszystko! (${orgWishlist.reduce((sum: number, item: any) => sum + ((item.quantity || 1) * (item.products?.price || 0)), 0).toFixed(2)} zł)`
-                            }
-                          </Button>
-                          
-                          {/* Usuń wszystko z koszyka */}
-                          {cartTotalForOrg > 0 && (
+                            
+                            {/* Usuń wszystko z koszyka */}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
@@ -455,8 +416,8 @@ export default function OrganizationPublicProfile() {
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </Card>
                 )}
