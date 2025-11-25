@@ -9,7 +9,7 @@ import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
-import { calculateAnimalAge, formatDetailedAge } from "@/lib/utils/ageCalculator";
+import { formatDetailedAge } from "@/lib/utils/ageCalculator";
 import AnimalProfileSkeleton from "@/components/AnimalProfileSkeleton";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
 import { useToast } from "@/hooks/use-toast";
@@ -164,7 +164,6 @@ const AnimalProfile = () => {
     }) && animal?.wishlist.some((item: any) => !item.bought);
 
   // Calculate age display
-  const ageInfo = animal?.birth_date ? calculateAnimalAge(animal.birth_date) : null;
   const ageDisplay = animal?.birth_date 
     ? formatDetailedAge(animal.birth_date)
     : animal?.age || 'Wiek nieznany';
@@ -249,14 +248,7 @@ const AnimalProfile = () => {
                             <Cake className="h-4 w-4 text-primary" />
                             <span className="text-sm text-muted-foreground">Wiek</span>
                           </div>
-                          <div className="text-right">
-                            <span className="text-sm font-semibold text-foreground block">{ageDisplay}</span>
-                            {ageInfo && (
-                              <span className="text-xs text-muted-foreground">
-                                {ageInfo.days} dni / {ageInfo.weeks} tyg. / {ageInfo.months} mies.
-                              </span>
-                            )}
-                          </div>
+                          <span className="text-sm font-semibold text-foreground">{ageDisplay}</span>
                         </div>
 
                         <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
