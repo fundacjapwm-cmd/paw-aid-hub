@@ -179,7 +179,7 @@ export default function AdminOrganizations() {
   };
 
   return (
-    <div className="grid gap-6">
+    <div className="md:px-8 px-4 grid gap-6">
       <Card className="rounded-3xl shadow-bubbly">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
