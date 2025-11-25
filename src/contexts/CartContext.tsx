@@ -19,6 +19,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   removeAllForAnimal: (animalId: string, animalName: string) => void;
+  removeAllForOrganization: (organizationName: string) => void;
   clearCart: () => void;
   updateQuantity: (productId: string, quantity: number) => void;
   addAllForAnimal: (items: Omit<CartItem, 'quantity'>[], animalName: string) => void;
@@ -196,6 +197,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const removeAllForOrganization = (organizationName: string) => {
+    const orgLabel = `Organizacja: ${organizationName}`;
+    const itemsToRemove = cart.filter(item => !item.animalId && item.animalName?.includes(organizationName));
+    if (itemsToRemove.length === 0) return;
+    
+    setCart((prevCart) => prevCart.filter((item) => !(item.animalId === undefined && item.animalName?.includes(organizationName))));
+    
+    toast({
+      title: `Usunięto produkty dla: ${organizationName}`,
+      description: `Usunięto ${itemsToRemove.length} produktów z koszyka`,
+      variant: "destructive",
+    });
+  };
+
   const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
@@ -225,6 +240,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         removeFromCart,
         removeAllForAnimal,
+        removeAllForOrganization,
         clearCart,
         updateQuantity,
         addAllForAnimal,
