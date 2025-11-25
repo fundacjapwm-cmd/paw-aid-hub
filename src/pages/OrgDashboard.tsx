@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
+import EditableOrgField from "@/components/organization/EditableOrgField";
 import OrgProfileForm from "@/components/organization/OrgProfileForm";
 import WishlistBuilder from "@/components/organization/WishlistBuilder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -183,7 +184,24 @@ export default function OrgDashboard() {
   const orgId = dashboardData?.organization?.id;
   const isOwner = true; // User in dashboard is always owner or has access
 
-  // Filter animals based on search query
+  // Update single organization field
+  const updateOrgField = async (field: string, value: string) => {
+    if (!orgId) return;
+    
+    const { error } = await supabase
+      .from("organizations")
+      .update({ [field]: value })
+      .eq("id", orgId);
+
+    if (error) {
+      toast.error("Błąd podczas zapisywania");
+      throw error;
+    }
+    
+    toast.success("Zapisano");
+    refetch();
+  };
+
   const animals = allAnimals.filter((animal) =>
     animal.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -304,26 +322,35 @@ export default function OrgDashboard() {
         <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-6 md:p-8 border border-border/50">
           <div className="flex flex-col gap-6">
             {/* Top Section - Logo, Name, Edit Button */}
-            <div className="flex items-start gap-6">
-              <Avatar className="h-24 w-24 border-4 border-white shadow-card flex-shrink-0">
+            <div className="flex items-start gap-4 md:gap-6">
+              <Avatar className="h-20 w-20 md:h-24 md:w-24 border-4 border-white shadow-card flex-shrink-0">
                 <AvatarImage src={organization?.logo_url || ''} alt={organization?.name} />
                 <AvatarFallback className="text-2xl">
                   {organization?.name?.charAt(0) || 'O'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-3xl font-bold text-foreground mb-2">{organization?.name || "Twoja Organizacja"}</h1>
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-2xl md:text-3xl font-bold text-foreground">{organization?.name || "Twoja Organizacja"}</h1>
+                      <button
+                        onClick={() => setEditOrgDialogOpen(true)}
+                        className="md:hidden p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground hover:text-primary transition-colors"
+                        aria-label="Edytuj nazwę"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    </div>
                     {organization?.description && (
-                      <p className="text-muted-foreground line-clamp-2">{organization.description}</p>
+                      <p className="text-muted-foreground line-clamp-2 mt-1">{organization.description}</p>
                     )}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setEditOrgDialogOpen(true)}
-                    className="gap-2 rounded-2xl flex-shrink-0"
+                    className="gap-2 rounded-2xl flex-shrink-0 hidden md:flex"
                   >
                     <Pencil className="h-4 w-4" />
                     Edytuj
@@ -335,109 +362,65 @@ export default function OrgDashboard() {
             {/* Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Address */}
-              {(organization?.address || organization?.city || organization?.postal_code) && (
-                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
-                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground mb-1">Adres</div>
-                    <div className="text-sm text-muted-foreground space-y-0.5">
-                      {organization?.address && <div>{organization.address}</div>}
-                      {(organization?.postal_code || organization?.city) && (
-                        <div>
-                          {organization?.postal_code && `${organization.postal_code} `}
-                          {organization?.city}
-                        </div>
-                      )}
-                      {organization?.province && <div>{organization.province}</div>}
-                    </div>
-                  </div>
-                </div>
-              )}
+              <EditableOrgField
+                value={[organization?.address, organization?.postal_code, organization?.city].filter(Boolean).join(", ") || ""}
+                onSave={async (value) => {
+                  // For address, open the full edit dialog
+                  setEditOrgDialogOpen(true);
+                }}
+                label="Adres"
+                icon={<MapPin className="h-5 w-5" />}
+                editable={true}
+              />
 
               {/* Contact Email */}
-              {organization?.contact_email && (
-                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
-                  <Mail className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground mb-1">Email</div>
-                    <a 
-                      href={`mailto:${organization.contact_email}`}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors break-all"
-                    >
-                      {organization.contact_email}
-                    </a>
-                  </div>
-                </div>
-              )}
+              <EditableOrgField
+                value={organization?.contact_email || ""}
+                onSave={(value) => updateOrgField("contact_email", value)}
+                label="Email"
+                icon={<Mail className="h-5 w-5" />}
+                type="email"
+                isLink={true}
+                linkPrefix="mailto:"
+              />
 
               {/* Contact Phone */}
-              {organization?.contact_phone && (
-                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
-                  <Phone className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground mb-1">Telefon</div>
-                    <a 
-                      href={`tel:${organization.contact_phone}`}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {organization.contact_phone}
-                    </a>
-                  </div>
-                </div>
-              )}
+              <EditableOrgField
+                value={organization?.contact_phone || ""}
+                onSave={(value) => updateOrgField("contact_phone", value)}
+                label="Telefon"
+                icon={<Phone className="h-5 w-5" />}
+                type="tel"
+                isLink={true}
+                linkPrefix="tel:"
+              />
 
               {/* Website */}
-              {organization?.website && (
-                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
-                  <Globe className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground mb-1">Strona WWW</div>
-                    <a 
-                      href={organization.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors break-all"
-                    >
-                      {organization.website}
-                    </a>
-                  </div>
-                </div>
-              )}
+              <EditableOrgField
+                value={organization?.website || ""}
+                onSave={(value) => updateOrgField("website", value)}
+                label="Strona WWW"
+                icon={<Globe className="h-5 w-5" />}
+                type="url"
+                isLink={true}
+              />
 
-              {/* NIP */}
-              {organization?.nip && (
-                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
-                  <Hash className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground mb-1">NIP</div>
-                    <div className="text-sm text-muted-foreground">{organization.nip}</div>
-                  </div>
-                </div>
-              )}
+              {/* NIP - Not editable */}
+              <EditableOrgField
+                value={organization?.nip || ""}
+                onSave={async () => {}}
+                label="NIP"
+                icon={<Hash className="h-5 w-5" />}
+                editable={false}
+              />
 
               {/* REGON */}
-              {organization?.regon && (
-                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
-                  <Building2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground mb-1">REGON</div>
-                    <div className="text-sm text-muted-foreground">{organization.regon}</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Bank Account */}
-              {organization?.bank_account_number && (
-                <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4">
-                  <CreditCard className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground mb-1">Konto bankowe</div>
-                    <div className="text-sm text-muted-foreground font-mono break-all">
-                      {organization.bank_account_number}
-                    </div>
-                  </div>
-                </div>
-              )}
+              <EditableOrgField
+                value={organization?.regon || ""}
+                onSave={(value) => updateOrgField("regon", value)}
+                label="REGON"
+                icon={<Building2 className="h-5 w-5" />}
+              />
             </div>
           </div>
         </div>
