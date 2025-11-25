@@ -464,7 +464,7 @@ export default function OrgDashboard() {
               </div>
               <Button 
                 onClick={() => routerNavigate('/organizacja/zwierzeta')}
-                className="rounded-2xl shadow-soft md:hover:scale-105 transition-transform whitespace-nowrap"
+                className="shadow-soft md:hover:scale-105 transition-transform whitespace-nowrap"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Dodaj

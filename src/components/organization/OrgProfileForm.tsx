@@ -578,7 +578,7 @@ export default function OrgProfileForm({ organizationId, isOwner, onSuccess }: O
                 )}
               />
 
-              <Button type="submit" disabled={isLoading || !isOwner} className="w-full rounded-2xl" size="lg">
+              <Button type="submit" disabled={isLoading || !isOwner} className="w-full" size="lg">
                 {isLoading ? "Zapisywanie..." : "Zapisz zmiany"}
               </Button>
               {!isOwner && (

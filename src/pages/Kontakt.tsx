@@ -217,7 +217,7 @@ const Kontakt = () => {
 
                     <Button 
                       type="submit" 
-                      className="w-full rounded-xl font-bold" 
+                      className="w-full font-bold" 
                       size="lg"
                       disabled={isSubmitting || !formData.acceptsPrivacyPolicy}
                     >
