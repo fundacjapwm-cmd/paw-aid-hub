@@ -7,7 +7,7 @@ import ctaFoundationImage from "@/assets/cta-foundation.png";
 const CTASection = () => {
   return (
     <section className="py-12 px-4">
-      <div className="container mx-auto max-w-7xl">
+      <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-2 gap-6">
           {/* Chcesz pomóc? */}
           <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-end">
