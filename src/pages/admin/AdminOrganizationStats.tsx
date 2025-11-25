@@ -246,7 +246,7 @@ export default function AdminOrganizationStats() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="md:px-8 px-4 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Filtry i Sortowanie</CardTitle>

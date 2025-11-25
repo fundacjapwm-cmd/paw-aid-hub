@@ -4,7 +4,7 @@ import OrganizationsTab from "@/components/admin/logistics/OrganizationsTab";
 
 export default function AdminLogistics() {
   return (
-    <div className="space-y-6">
+    <div className="md:px-8 px-4 space-y-6">
       <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
         <h2 className="text-xl font-semibold text-foreground mb-2">
           Zamówienia Oczekujące

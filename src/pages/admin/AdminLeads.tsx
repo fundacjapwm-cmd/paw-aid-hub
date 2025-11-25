@@ -143,7 +143,7 @@ const AdminLeads = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="md:container md:mx-auto md:px-8 py-8 px-4">
       <div className="mb-10">
         <h1 className="text-4xl font-bold text-foreground mb-3">
           Oczekujące Zgłoszenia

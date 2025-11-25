@@ -182,7 +182,7 @@ export default function AdminStats() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="md:px-8 px-4 space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {statCards.map((stat) => (
           <Card key={stat.title} className="rounded-3xl shadow-bubbly hover:shadow-bubbly-lg transition-shadow">

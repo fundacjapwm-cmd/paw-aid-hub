@@ -419,7 +419,7 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="md:px-8 px-4 space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Zamówienia</h1>
         <p className="text-muted-foreground">

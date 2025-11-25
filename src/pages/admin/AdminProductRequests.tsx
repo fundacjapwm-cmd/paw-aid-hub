@@ -88,7 +88,7 @@ export default function AdminProductRequests() {
   const processedRequests = requests?.filter(r => r.status !== "pending") || [];
 
   return (
-    <div className="space-y-6">
+    <div className="md:px-8 px-4 space-y-6">
       <Card className="rounded-3xl shadow-card">
         <CardHeader>
           <CardTitle>Oczekujące zgłoszenia</CardTitle>

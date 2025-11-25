@@ -120,7 +120,7 @@ export default function AdminLogisticsArchive() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="md:px-8 px-4 space-y-6">
       <Card className="rounded-3xl shadow-card border-border/50">
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

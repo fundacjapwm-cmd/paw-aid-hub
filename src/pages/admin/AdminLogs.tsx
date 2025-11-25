@@ -61,7 +61,7 @@ export default function AdminLogs() {
   };
 
   return (
-    <Card className="rounded-3xl shadow-bubbly">
+    <Card className="rounded-3xl shadow-bubbly md:mx-0">
       <CardHeader>
         <CardTitle>Logi aktywności systemu</CardTitle>
         <CardDescription>Ostatnie 50 akcji w systemie</CardDescription>
