@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "@/components/AnimalCard";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { Card } from "@/components/ui/card";
-import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart } from "lucide-react";
+import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -38,7 +38,7 @@ export default function OrganizationPublicProfile() {
   const [orgWishlist, setOrgWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
-  const { addToCart, cart, removeFromCart } = useCart();
+  const { addToCart, cart, removeFromCart, removeAllForOrganization } = useCart();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -167,6 +167,12 @@ export default function OrganizationPublicProfile() {
     
     if (addedCount > 0) {
       toast({ title: `Dodano do koszyka ${addedCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${organization?.name}` });
+    }
+  };
+
+  const handleRemoveAllFromCart = () => {
+    if (organization) {
+      removeAllForOrganization(organization.name);
     }
   };
 
@@ -424,6 +430,19 @@ export default function OrganizationPublicProfile() {
                               : `Dodaj wszystko! (${orgWishlist.reduce((sum: number, item: any) => sum + ((item.quantity || 1) * (item.products?.price || 0)), 0).toFixed(2)} zł)`
                             }
                           </Button>
+                          
+                          {/* Usuń wszystko z koszyka */}
+                          {cartTotalForOrg > 0 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleRemoveAllFromCart}
+                              className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Usuń wszystko z koszyka
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </Card>
