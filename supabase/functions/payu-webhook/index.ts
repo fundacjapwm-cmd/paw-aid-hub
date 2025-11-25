@@ -84,9 +84,9 @@ serve(async (req) => {
 
     console.log('Order updated successfully');
 
-    // If payment completed, send confirmation email
+    // If payment completed, assign to batch order and send confirmation
     if (status === 'COMPLETED') {
-      console.log('Sending confirmation email for order:', orderId);
+      console.log('Payment completed for order:', orderId);
       
       const { data: orderData } = await supabase
         .from('orders')
@@ -95,20 +95,76 @@ serve(async (req) => {
           order_items (
             *,
             products (name, price),
-            animals (name)
+            animals (name, organization_id)
           )
         `)
         .eq('id', orderId)
         .single();
 
       if (orderData) {
+        // Find organization ID from order items
+        let organizationId: string | null = null;
+        for (const item of orderData.order_items) {
+          if (item.animals?.organization_id) {
+            organizationId = item.animals.organization_id;
+            break;
+          }
+        }
+
+        // Assign to batch order only after payment is confirmed
+        if (organizationId) {
+          // Check if there's an active collecting batch order for this organization
+          const { data: activeBatch } = await supabase
+            .from('organization_batch_orders')
+            .select('id')
+            .eq('organization_id', organizationId)
+            .eq('status', 'collecting')
+            .maybeSingle();
+
+          let batchOrderId: string;
+
+          if (activeBatch) {
+            batchOrderId = activeBatch.id;
+            console.log('Using existing batch order:', batchOrderId);
+          } else {
+            const { data: newBatch, error: batchError } = await supabase
+              .from('organization_batch_orders')
+              .insert({
+                organization_id: organizationId,
+                status: 'collecting'
+              })
+              .select()
+              .single();
+
+            if (batchError) {
+              console.error('Batch order creation error:', batchError);
+            } else {
+              batchOrderId = newBatch.id;
+              console.log('Created new batch order:', batchOrderId);
+            }
+          }
+
+          if (batchOrderId!) {
+            const { error: batchAssignError } = await supabase
+              .from('orders')
+              .update({ batch_order_id: batchOrderId })
+              .eq('id', orderId);
+
+            if (batchAssignError) {
+              console.error('Batch assignment error:', batchAssignError);
+            } else {
+              console.log('Order assigned to batch:', batchOrderId);
+            }
+          }
+        }
+
+        // Send confirmation email
         const { data: profile } = await supabase
           .from('profiles')
           .select('display_name')
           .eq('id', orderData.user_id)
           .single();
 
-        // Call email function
         await supabase.functions.invoke('send-order-confirmation', {
           body: {
             orderId: orderData.id,

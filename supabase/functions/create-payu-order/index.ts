@@ -235,71 +235,8 @@ serve(async (req) => {
 
     console.log('Order items created');
 
-    // Find organization ID from animal IDs
-    let organizationId: string | null = null;
-    const animalIds = items.filter(item => item.animalId).map(item => item.animalId);
-    
-    if (animalIds.length > 0) {
-      const { data: animal } = await supabase
-        .from('animals')
-        .select('organization_id')
-        .eq('id', animalIds[0])
-        .single();
-      
-      organizationId = animal?.organization_id || null;
-    }
-
-    // If organization found, create or assign to batch order
-    if (organizationId) {
-      // Check if there's an active collecting batch order for this organization
-      const { data: activeBatch } = await supabase
-        .from('organization_batch_orders')
-        .select('id')
-        .eq('organization_id', organizationId)
-        .eq('status', 'collecting')
-        .maybeSingle();
-
-      let batchOrderId: string;
-
-      if (activeBatch) {
-        // Use existing batch
-        batchOrderId = activeBatch.id;
-        console.log('Using existing batch order:', batchOrderId);
-      } else {
-        // Create new batch
-        const { data: newBatch, error: batchError } = await supabase
-          .from('organization_batch_orders')
-          .insert({
-            organization_id: organizationId,
-            status: 'collecting'
-          })
-          .select()
-          .single();
-
-        if (batchError) {
-          console.error('Batch order creation error:', batchError);
-          throw batchError;
-        }
-
-        batchOrderId = newBatch.id;
-        console.log('Created new batch order:', batchOrderId);
-      }
-
-      // Assign order to batch
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({ batch_order_id: batchOrderId })
-        .eq('id', order.id);
-
-      if (updateError) {
-        console.error('Order batch assignment error:', updateError);
-        throw updateError;
-      }
-
-      console.log('Order assigned to batch:', batchOrderId);
-    }
-
     // Get PayU OAuth token
+    // Note: Batch order assignment happens in payu-webhook after payment confirmation
     const posId = Deno.env.get('PAYU_POS_ID')!;
     const clientId = Deno.env.get('PAYU_CLIENT_ID')!;
     const clientSecret = Deno.env.get('PAYU_CLIENT_SECRET')!;
