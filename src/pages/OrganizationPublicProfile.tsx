@@ -147,21 +147,25 @@ export default function OrganizationPublicProfile() {
 
   const handleAddAllToCart = () => {
     let addedCount = 0;
+    let totalPrice = 0;
+    
     orgWishlist.forEach((item: any) => {
       if (item.products) {
+        const quantity = item.quantity || 1;
         addToCart({
           productId: item.product_id,
           productName: item.products.name,
           price: item.products.price,
           animalId: undefined,
           animalName: `Organizacja: ${organization?.name}`,
-        }, item.quantity || 1);
-        addedCount++;
+        }, quantity);
+        addedCount += quantity;
+        totalPrice += item.products.price * quantity;
       }
     });
     
     if (addedCount > 0) {
-      toast.success(`Dodano ${addedCount} produktów do koszyka`);
+      toast.success(`Dodano do koszyka ${addedCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${organization?.name}`);
     }
   };
 

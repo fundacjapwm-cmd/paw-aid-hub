@@ -5,6 +5,7 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "react-router-dom";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
+import { toast } from "sonner";
 
 interface Product {
   id: string;
@@ -85,7 +86,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
 
   const handleBuyAllMissing = () => {
     // Dodaj tylko brakujące sztuki (te które jeszcze nie zostały kupione)
-    const items = animal.products
+    const missingItems = animal.products
       .filter((product) => {
         const bought = product.bought || 0;
         const needed = product.quantity || 1;
@@ -105,8 +106,13 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
         };
       });
     
-    if (items.length > 0) {
-      addAllForAnimal(items, animal.name);
+    if (missingItems.length > 0) {
+      const totalCount = missingItems.reduce((sum, item) => sum + (item.maxQuantity || 1), 0);
+      const totalPrice = missingItems.reduce((sum, item) => sum + (item.price * (item.maxQuantity || 1)), 0);
+      
+      addAllForAnimal(missingItems, animal.name);
+      
+      toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
     }
   };
 

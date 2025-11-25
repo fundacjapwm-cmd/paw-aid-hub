@@ -12,6 +12,7 @@ import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { calculateAnimalAge, formatDetailedAge } from "@/lib/utils/ageCalculator";
 import AnimalProfileSkeleton from "@/components/AnimalProfileSkeleton";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
+import { toast } from "sonner";
 
 const AnimalProfile = () => {
   const { id } = useParams();
@@ -97,7 +98,13 @@ const AnimalProfile = () => {
       animalName: animal.name,
       maxQuantity: item.quantity || 1,
     }));
+    
+    const totalCount = availableItems.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+    const totalPrice = availableItems.reduce((sum: number, item: any) => sum + (item.price * (item.quantity || 1)), 0);
+    
     addAllForAnimal(items, animal.name);
+    
+    toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
   };
 
   const isInCart = (itemId: string) => {
