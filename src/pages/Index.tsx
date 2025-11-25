@@ -11,14 +11,6 @@ import StatsSection from "@/components/StatsSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import { Link, useLocation } from "react-router-dom";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from "@/components/ui/carousel";
 
 const Index = () => {
   const location = useLocation();
@@ -26,11 +18,10 @@ const Index = () => {
   const [filters, setFilters] = useState({
     organization: "",
     species: "wszystkie",
-    city: ""
+    city: "",
+    sortBy: "najnowsze"
   });
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(4);
 
   // Handle scrolling to anchor after navigation
   useEffect(() => {
@@ -44,21 +35,19 @@ const Index = () => {
     }
   }, [location]);
 
-  useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
+  // Calculate wishlist progress for an animal
+  const calculateProgress = (animal: any) => {
+    if (!animal.wishlist || animal.wishlist.length === 0) return 0;
+    
+    const totalNeeded = animal.wishlist.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+    const totalPurchased = animal.wishlist.reduce((sum: number, item: any) => sum + (item.purchased_quantity || 0), 0);
+    
+    if (totalNeeded === 0) return 100;
+    return (totalPurchased / totalNeeded) * 100;
+  };
 
-    setCount(carouselApi.scrollSnapList().length);
-    setCurrent(carouselApi.selectedScrollSnap() + 1);
-
-    carouselApi.on("select", () => {
-      setCurrent(carouselApi.selectedScrollSnap() + 1);
-    });
-  }, [carouselApi]);
-
-  const filteredAnimals = useMemo(() => {
-    return animals.filter((animal) => {
+  const filteredAndSortedAnimals = useMemo(() => {
+    let result = animals.filter((animal) => {
       const matchesOrganization = filters.organization === "" || 
                                   animal.organization_id === filters.organization;
       
@@ -70,13 +59,41 @@ const Index = () => {
       
       return matchesOrganization && matchesSpecies && matchesCity;
     });
+
+    // Sort based on selected option
+    switch (filters.sortBy) {
+      case "najstarsze":
+        result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case "alfabetycznie":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "najbardziej_najedzone":
+        result.sort((a, b) => calculateProgress(b) - calculateProgress(a));
+        break;
+      case "najmniej_najedzone":
+        result.sort((a, b) => calculateProgress(a) - calculateProgress(b));
+        break;
+      case "najnowsze":
+      default:
+        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+    }
+
+    return result;
   }, [animals, filters]);
 
-  const newestAnimals = useMemo(() => {
-    return [...animals]
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, 10);
-  }, [animals]);
+  const visibleAnimals = filteredAndSortedAnimals.slice(0, visibleCount);
+  const hasMoreAnimals = visibleCount < filteredAndSortedAnimals.length;
+
+  const handleShowMore = () => {
+    setVisibleCount(prev => prev + 4);
+  };
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(4);
+  }, [filters]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,26 +123,10 @@ const Index = () => {
             </div>
 
             {loading ? (
-              <div>
-                <Carousel
-                  opts={{
-                    align: "start",
-                    loop: false,
-                  }}
-                  className="w-full"
-                >
-                  <CarouselContent className="-ml-2 md:-ml-4">
-                    {[1, 2, 3, 4].map((i) => (
-                      <CarouselItem key={i} className="pl-2 md:pl-4 basis-full md:basis-1/2">
-                        <AnimalCardSkeleton />
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <div className="hidden md:block">
-                    <CarouselPrevious />
-                    <CarouselNext />
-                  </div>
-                </Carousel>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <AnimalCardSkeleton key={i} />
+                ))}
               </div>
             ) : error ? (
               <div className="py-20 text-center">
@@ -137,44 +138,30 @@ const Index = () => {
                   <AnimalFilters onFilterChange={setFilters} />
                 </div>
 
-                <div>
-                  <Carousel
-                    setApi={setCarouselApi}
-                    opts={{
-                      align: "start",
-                      loop: true,
-                    }}
-                    className="w-full"
-                  >
-                    <CarouselContent className="-ml-2 md:-ml-4">
-                      {newestAnimals.map((animal) => (
-                        <CarouselItem key={animal.id} className="pl-2 md:pl-4 basis-full md:basis-1/2">
-                          <AnimalCard animal={animal} />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <div className="hidden md:block">
-                      <CarouselPrevious />
-                      <CarouselNext />
-                    </div>
-                  </Carousel>
-                  
-                  {/* Dot indicators for mobile */}
-                  <div className="flex justify-center gap-2 mt-4 md:hidden">
-                    {Array.from({ length: count }).map((_, index) => (
-                      <button
-                        key={index}
-                        className={`h-2 rounded-full transition-all ${
-                          index === current - 1
-                            ? "w-8 bg-primary"
-                            : "w-2 bg-muted-foreground/30"
-                        }`}
-                        onClick={() => carouselApi?.scrollTo(index)}
-                        aria-label={`Przejdź do slajdu ${index + 1}`}
-                      />
-                    ))}
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {visibleAnimals.map((animal) => (
+                    <AnimalCard key={animal.id} animal={animal} />
+                  ))}
                 </div>
+
+                {visibleAnimals.length === 0 && (
+                  <div className="py-12 text-center">
+                    <p className="text-muted-foreground">Brak zwierząt spełniających kryteria</p>
+                  </div>
+                )}
+
+                {hasMoreAnimals && (
+                  <div className="text-center mt-8">
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      onClick={handleShowMore}
+                      className="rounded-3xl md:rounded-2xl"
+                    >
+                      Pokaż więcej
+                    </Button>
+                  </div>
+                )}
               </>
             )}
 
