@@ -6,7 +6,7 @@ import ctaFoundationImage from "@/assets/cta-foundation.png";
 
 const CTASection = () => {
   return (
-    <section className="py-12 px-4">
+    <section className="py-8 md:py-12 px-4 md:px-8">
       <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-2 gap-6">
           {/* Chcesz pomóc? */}
