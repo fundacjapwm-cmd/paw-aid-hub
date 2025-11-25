@@ -282,6 +282,8 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
             <SelectItem value="najnowsze">Najnowsze</SelectItem>
             <SelectItem value="najstarsze">Najstarsze</SelectItem>
             <SelectItem value="alfabetycznie">Alfabetycznie A-Z</SelectItem>
+            <SelectItem value="najbardziej_najedzone">Brzuszek: od najbardziej najedzonych</SelectItem>
+            <SelectItem value="najmniej_najedzone">Brzuszek: od najmniej najedzonych</SelectItem>
           </SelectContent>
         </Select>
       </div>
