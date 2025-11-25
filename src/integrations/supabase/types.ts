@@ -514,7 +514,6 @@ export type Database = {
           nip: string | null
           postal_code: string | null
           province: string | null
-          regon: string | null
           slug: string
           updated_at: string | null
           website: string | null
@@ -533,7 +532,6 @@ export type Database = {
           nip?: string | null
           postal_code?: string | null
           province?: string | null
-          regon?: string | null
           slug: string
           updated_at?: string | null
           website?: string | null
@@ -552,7 +550,6 @@ export type Database = {
           nip?: string | null
           postal_code?: string | null
           province?: string | null
-          regon?: string | null
           slug?: string
           updated_at?: string | null
           website?: string | null
