@@ -359,16 +359,18 @@ export default function OrgOrders() {
 
   return (
     <OrgLayout organizationName={orgData?.organizations?.name || ""}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Zamówienia</h1>
-          <p className="text-muted-foreground">
+      <div className="px-4 md:px-8 py-8 md:py-12 max-w-6xl mx-auto">
+        <div className="mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
+            Zamówienia
+          </h2>
+          <p className="text-base md:text-lg text-muted-foreground">
             Zarządzaj zamówieniami od darczyńców
           </p>
         </div>
 
         <Tabs defaultValue="in-progress" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 mb-4 md:mb-8">
             <TabsTrigger value="in-progress">
               W trakcie realizacji ({inProgressOrders.length})
             </TabsTrigger>
@@ -377,7 +379,7 @@ export default function OrgOrders() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="in-progress" className="mt-6">
+          <TabsContent value="in-progress" className="mt-0">
             {inProgressOrders.length === 0 ? (
               <Card className="rounded-3xl p-12 text-center shadow-card">
                 <div className="flex flex-col items-center gap-4">
@@ -401,7 +403,7 @@ export default function OrgOrders() {
             )}
           </TabsContent>
 
-          <TabsContent value="completed" className="mt-6">
+          <TabsContent value="completed" className="mt-0">
             {completedOrders.length === 0 ? (
               <Card className="rounded-3xl p-12 text-center shadow-card">
                 <div className="flex flex-col items-center gap-4">
