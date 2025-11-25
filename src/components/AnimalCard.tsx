@@ -9,6 +9,7 @@ import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useState, useEffect } from "react";
 import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
+import { toast } from "sonner";
 
 interface WishlistItem {
   id: string | number;
@@ -148,8 +149,14 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       animalId: String(animal.id),
       animalName: animal.name,
     }));
+    
+    const totalCount = availableItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const totalPrice = availableItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    
     addAllForAnimal(items, animal.name);
     markAnimalAsAdded(String(animal.id));
+    
+    toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
   };
 
   const handleOrganizationClick = (e: React.MouseEvent) => {
