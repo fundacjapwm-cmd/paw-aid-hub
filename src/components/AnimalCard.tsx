@@ -171,7 +171,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
         />
       )}
       <Card
-      className="group overflow-hidden bg-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-3 rounded-[50px] md:rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in"
+      className="group overflow-hidden bg-card transition-all duration-300 rounded-[50px] md:rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in md:hover:shadow-bubbly md:hover:-translate-y-3"
       onClick={() => navigate(`/zwierze/${animal.id}`)}
     >
       {/* Decorative bubbly elements */}
@@ -195,7 +195,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       {/* Content */}
       <div className="p-4 md:p-6 space-y-4 relative flex flex-col flex-1">
         <div>
-          <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">{animal.name}</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2 transition-colors duration-300 md:group-hover:text-primary">{animal.name}</h3>
           <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
             <div className="flex items-center space-x-1 bg-muted/50 px-2 py-1 rounded-full">
               <Calendar className="h-4 w-4" />
@@ -210,7 +210,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
           {/* Organization - clickable */}
           <button
             onClick={handleOrganizationClick}
-            className="text-sm text-primary hover:text-primary/80 font-semibold transition-colors underline-offset-2 hover:underline"
+            className="text-sm text-primary md:hover:text-primary/80 font-semibold transition-colors underline-offset-2 md:hover:underline"
           >
             {animal.organization}
           </button>
@@ -276,7 +276,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 <Button 
                   variant="success" 
                   size="lg" 
-                  className={`w-full rounded-3xl md:rounded-xl font-bold shadow-sm py-6 ${
+                  className={`w-full rounded-3xl md:rounded-xl font-bold shadow-sm py-6 transition-all md:hover:shadow-md md:hover:scale-[1.02] ${
                     allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
                   }`}
                   onClick={handleBuyAll}

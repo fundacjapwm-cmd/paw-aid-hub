@@ -101,7 +101,7 @@ const ONas = () => {
 
               {/* Values Grid */}
               <div className="grid md:grid-cols-3 gap-8">
-                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform transition-transform duration-300 md:hover:scale-105">
                   <div className="bg-primary rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                     <Heart className="h-8 w-8 text-white fill-white" />
                   </div>
@@ -111,7 +111,7 @@ const ONas = () => {
                   </p>
                 </div>
 
-                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform transition-transform duration-300 md:hover:scale-105">
                   <div className="bg-secondary rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                     <Users className="h-8 w-8 text-white" />
                   </div>
@@ -121,7 +121,7 @@ const ONas = () => {
                   </p>
                 </div>
 
-                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform transition-transform duration-300 md:hover:scale-105">
                   <div className="bg-accent rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                     <Shield className="h-8 w-8 text-white" />
                   </div>

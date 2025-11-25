@@ -76,12 +76,13 @@ const HowItWorks = () => {
                     <div 
                       className={`
                         bg-card rounded-[2.5rem] 
-                        shadow-card hover:shadow-bubbly 
+                        shadow-card 
                         transition-all duration-500 
                         border border-border/50
                         relative group
-                        hover:-translate-y-2
                         overflow-hidden
+                        md:hover:shadow-bubbly
+                        md:hover:-translate-y-2
                       `}
                     >
                       {/* Floating Step Number Badge */}
@@ -95,7 +96,7 @@ const HowItWorks = () => {
                           flex items-center justify-center 
                           text-2xl font-bold 
                           shadow-lg 
-                          transform group-hover:-translate-y-2 
+                          transform md:group-hover:-translate-y-2 
                           transition-transform duration-300
                           z-10
                         `}
@@ -112,7 +113,7 @@ const HowItWorks = () => {
                             <img 
                               src={step.image} 
                               alt={step.title}
-                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                              className="absolute inset-0 w-full h-full object-cover md:group-hover:scale-110 transition-transform duration-700"
                             />
                             {/* Image Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-card/20 to-transparent md:hidden" />
@@ -155,12 +156,12 @@ const HowItWorks = () => {
                         border-4 border-primary/20 
                         flex items-center justify-center 
                         shadow-soft
-                        hover:scale-110 hover:border-primary/40
+                        md:hover:scale-110 md:hover:border-primary/40
                         transition-all duration-300
                         group
                       "
                     >
-                      <StepIcon className="w-9 h-9 md:w-11 md:h-11 text-primary group-hover:scale-110 transition-transform" />
+                      <StepIcon className="w-9 h-9 md:w-11 md:h-11 text-primary md:group-hover:scale-110 transition-transform" />
                     </div>
 
                     {/* Pulse Animation Ring */}

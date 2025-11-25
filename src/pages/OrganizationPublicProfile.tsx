@@ -407,7 +407,7 @@ export default function OrganizationPublicProfile() {
                           
                           <Button
                             onClick={handleAddAllToCart}
-                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity rounded-3xl md:rounded-xl font-semibold"
+                            className="w-full bg-gradient-to-r from-primary to-primary-glow md:hover:opacity-90 transition-opacity rounded-3xl md:rounded-xl font-semibold"
                             size="lg"
                           >
                             <ShoppingCart className="h-5 w-5 mr-2" />

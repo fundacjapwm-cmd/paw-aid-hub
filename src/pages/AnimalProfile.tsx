@@ -331,8 +331,8 @@ const AnimalProfile = () => {
                       size="default"
                       onClick={handleAddAllToCart}
                       disabled={!animal.wishlist.some((item: any) => !item.bought)}
-                      className={`w-full rounded-3xl md:rounded-xl font-semibold text-sm h-11 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 ${
-                        allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
+                      className={`w-full rounded-3xl md:rounded-xl font-semibold text-sm h-11 shadow-md md:hover:shadow-lg md:hover:scale-[1.02] transition-all duration-200 ${
+                        allItemsInCart ? 'bg-green-500 md:hover:bg-green-600' : ''
                       }`}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
