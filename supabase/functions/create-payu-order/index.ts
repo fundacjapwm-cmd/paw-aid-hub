@@ -216,7 +216,7 @@ serve(async (req) => {
     const payuOrder = {
       notifyUrl: `${supabaseUrl}/functions/v1/payu-webhook`,
       continueUrl: `${origin}/payment-success?extOrderId=${order.id}`,
-      customerIp: req.headers.get('x-forwarded-for') || '127.0.0.1',
+      customerIp: (req.headers.get('x-forwarded-for') || '127.0.0.1').split(',')[0].trim(),
       merchantPosId: posId,
       description: `Darowizna - Zamówienie ${order.id.substring(0, 8)}`,
       currencyCode: 'PLN',
