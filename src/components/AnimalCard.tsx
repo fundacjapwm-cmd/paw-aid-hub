@@ -276,7 +276,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                 <Button 
                   variant="success" 
                   size="lg" 
-                  className={`w-full rounded-xl font-bold shadow-sm py-6 ${
+                  className={`w-full rounded-[50px] md:rounded-xl font-bold shadow-sm py-6 ${
                     allItemsInCart ? 'bg-green-500 hover:bg-green-600' : ''
                   }`}
                   onClick={handleBuyAll}
