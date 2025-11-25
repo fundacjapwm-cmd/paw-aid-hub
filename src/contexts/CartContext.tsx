@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
 
 const CART_STORAGE_KEY = 'pwm-cart';
 
@@ -9,7 +10,7 @@ export interface CartItem {
   productName: string;
   price: number;
   quantity: number;
-  maxQuantity?: number; // Max quantity from wishlist
+  maxQuantity?: number;
   animalId?: string;
   animalName?: string;
 }
@@ -18,7 +19,7 @@ interface CartContextType {
   cart: CartItem[];
   cartTotal: number;
   cartCount: number;
-  addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
+  addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number, silent?: boolean) => void;
   removeFromCart: (productId: string) => void;
   removeAllForAnimal: (animalId: string, animalName: string) => void;
   removeAllForOrganization: (organizationName: string) => void;
@@ -28,6 +29,7 @@ interface CartContextType {
   completePurchase: () => Promise<{ success: boolean; orderId?: string }>;
   isAnimalFullyAdded: (animalId: string) => boolean;
   markAnimalAsAdded: (animalId: string) => void;
+  isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -55,23 +57,144 @@ const saveCartToStorage = (cart: CartItem[]) => {
 };
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
   const [cart, setCart] = useState<CartItem[]>(() => loadCartFromStorage());
   const [addedAnimals, setAddedAnimals] = useState<Set<string>>(new Set());
-
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    saveCartToStorage(cart);
-  }, [cart]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+
+  // Load cart from database for logged-in users
+  const loadCartFromDatabase = useCallback(async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_carts')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const dbCart: CartItem[] = data.map(item => ({
+          productId: item.product_id,
+          productName: item.product_name,
+          price: Number(item.price),
+          quantity: item.quantity,
+          maxQuantity: item.max_quantity || undefined,
+          animalId: item.animal_id || undefined,
+          animalName: item.animal_name || undefined,
+        }));
+
+        // Merge local cart with database cart
+        const localCart = loadCartFromStorage();
+        const mergedCart = mergeCartsPreferDatabase(localCart, dbCart);
+        
+        setCart(mergedCart);
+        saveCartToStorage(mergedCart);
+        
+        // Sync merged cart back to database if there were local items
+        if (localCart.length > 0 && localCart.some(item => !dbCart.find(dbItem => 
+          dbItem.productId === item.productId && dbItem.animalId === item.animalId
+        ))) {
+          await syncCartToDatabase(mergedCart, user.id);
+        }
+      } else {
+        // No database cart, sync local cart to database
+        const localCart = loadCartFromStorage();
+        if (localCart.length > 0) {
+          await syncCartToDatabase(localCart, user.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cart from database:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  // Merge two carts, preferring database quantities but including new local items
+  const mergeCartsPreferDatabase = (localCart: CartItem[], dbCart: CartItem[]): CartItem[] => {
+    const merged = [...dbCart];
+    
+    for (const localItem of localCart) {
+      const existsInDb = dbCart.find(dbItem => 
+        dbItem.productId === localItem.productId && 
+        dbItem.animalId === localItem.animalId
+      );
+      
+      if (!existsInDb) {
+        merged.push(localItem);
+      }
+    }
+    
+    return merged;
+  };
+
+  // Sync cart to database
+  const syncCartToDatabase = async (cartItems: CartItem[], userId: string) => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    
+    try {
+      // Delete all existing cart items for user
+      await supabase
+        .from('user_carts')
+        .delete()
+        .eq('user_id', userId);
+
+      // Insert new cart items
+      if (cartItems.length > 0) {
+        const dbItems = cartItems.map(item => ({
+          user_id: userId,
+          product_id: item.productId,
+          product_name: item.productName,
+          price: item.price,
+          quantity: item.quantity,
+          max_quantity: item.maxQuantity || null,
+          animal_id: item.animalId || null,
+          animal_name: item.animalName || null,
+        }));
+
+        const { error } = await supabase
+          .from('user_carts')
+          .insert(dbItems);
+
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Error syncing cart to database:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Load cart from database when user logs in
+  useEffect(() => {
+    if (user) {
+      loadCartFromDatabase();
+    }
+  }, [user, loadCartFromDatabase]);
+
+  // Save cart to localStorage and database whenever it changes
+  useEffect(() => {
+    saveCartToStorage(cart);
+    
+    // Sync to database for logged-in users
+    if (user && !isLoading) {
+      syncCartToDatabase(cart, user.id);
+    }
+  }, [cart, user, isLoading]);
 
   const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1, silent: boolean = false) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((cartItem) => cartItem.productId === item.productId);
       
       if (existingItem) {
-        // Check if adding would exceed max quantity
         const newQuantity = existingItem.quantity + quantity;
         const maxQty = item.maxQuantity || Infinity;
         
@@ -98,7 +221,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             : cartItem
         );
       } else {
-        // Check if initial quantity exceeds max
         const maxQty = item.maxQuantity || Infinity;
         if (quantity > maxQty) {
           if (!silent) {
@@ -132,7 +254,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Use silent mode - the calling component will show its own toast with totals
     items.forEach(item => addToCart(item, item.maxQuantity || 1, true));
   };
 
@@ -146,9 +267,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const completePurchase = async (): Promise<{ success: boolean; orderId?: string }> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (!currentUser) {
         toast({
           title: "Błąd",
           description: "Musisz być zalogowany aby dokonać zakupu",
@@ -157,11 +278,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         return { success: false };
       }
 
-      // Create order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: user.id,
+          user_id: currentUser.id,
           total_amount: cartTotal,
           status: 'completed',
           payment_status: 'paid'
@@ -171,7 +291,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       if (orderError) throw orderError;
 
-      // Create order items
       const orderItems = cart.map(item => ({
         order_id: order.id,
         product_id: item.productId,
@@ -192,6 +311,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       });
 
       setCart([]);
+      
+      // Clear database cart
+      if (currentUser) {
+        await supabase
+          .from('user_carts')
+          .delete()
+          .eq('user_id', currentUser.id);
+      }
+      
       return { success: true, orderId: order.id };
     } catch (error) {
       console.error('Purchase error:', error);
@@ -258,7 +386,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart((prevCart) =>
       prevCart.map((item) => {
         if (item.productId === productId) {
-          // Validate against maxQuantity for animal wishlists
           const maxQty = item.maxQuantity;
           if (maxQty && quantity > maxQty) {
             toast({
@@ -299,6 +426,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         completePurchase,
         isAnimalFullyAdded,
         markAnimalAsAdded,
+        isLoading,
       }}
     >
       {children}

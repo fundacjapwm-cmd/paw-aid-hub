@@ -785,6 +785,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_carts: {
+        Row: {
+          animal_id: string | null
+          animal_name: string | null
+          created_at: string
+          id: string
+          max_quantity: number | null
+          price: number
+          product_id: string
+          product_name: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          animal_id?: string | null
+          animal_name?: string | null
+          created_at?: string
+          id?: string
+          max_quantity?: number | null
+          price: number
+          product_id: string
+          product_name: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          animal_id?: string | null
+          animal_name?: string | null
+          created_at?: string
+          id?: string
+          max_quantity?: number | null
+          price?: number
+          product_id?: string
+          product_name?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_carts_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_carts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
