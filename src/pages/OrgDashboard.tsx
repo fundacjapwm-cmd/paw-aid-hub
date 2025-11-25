@@ -50,6 +50,9 @@ export default function OrgDashboard() {
   const routerNavigate = useRouterNavigate();
   const [editOrgDialogOpen, setEditOrgDialogOpen] = useState(false);
   const [editAnimalDialogOpen, setEditAnimalDialogOpen] = useState(false);
+  const [addAnimalDialogOpen, setAddAnimalDialogOpen] = useState(false);
+  const [newAnimalId, setNewAnimalId] = useState<string | null>(null);
+  const [addAnimalStep, setAddAnimalStep] = useState<"info" | "wishlist">("info");
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [animalToDelete, setAnimalToDelete] = useState<any | null>(null);
@@ -57,6 +60,8 @@ export default function OrgDashboard() {
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [logoToCrop, setLogoToCrop] = useState<string | null>(null);
   const [logoCropDialogOpen, setLogoCropDialogOpen] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -243,6 +248,118 @@ export default function OrgDashboard() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 6) {
+      toast.error("Maksymalnie 6 zdjęć w galerii");
+      return;
+    }
+    
+    setGalleryFiles(files);
+    
+    const previews: string[] = [];
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews.push(reader.result as string);
+        if (previews.length === files.length) {
+          setGalleryPreviews([...previews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const onAddAnimalSubmit = async (data: AnimalFormData) => {
+    try {
+      if (!orgId) return;
+
+      setUploading(true);
+      let imageUrl = null;
+
+      // Upload main image if selected
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `animals/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+
+      // Insert animal
+      const { data: newAnimal, error } = await supabase.from("animals")
+        .insert({
+          ...data,
+          birth_date: data.birth_date ? format(data.birth_date, 'yyyy-MM-dd') : null,
+          organization_id: orgId,
+          image_url: imageUrl,
+        } as any)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Upload gallery images if any
+      if (galleryFiles.length > 0 && newAnimal) {
+        for (let i = 0; i < galleryFiles.length; i++) {
+          const file = galleryFiles[i];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `animals/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(filePath, file);
+
+          if (uploadError) {
+            console.error('Gallery upload error:', uploadError);
+            continue;
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(filePath);
+
+          await supabase.from('animal_images').insert({
+            animal_id: newAnimal.id,
+            image_url: publicUrl,
+            display_order: i,
+          });
+        }
+      }
+
+      toast.success("Podopieczny został dodany!");
+      setNewAnimalId(newAnimal.id);
+      setAddAnimalStep("wishlist");
+      setUploading(false);
+      refetch();
+    } catch (error: any) {
+      toast.error("Błąd podczas dodawania: " + error.message);
+      setUploading(false);
+    }
+  };
+
+  const handleCloseAddDialog = () => {
+    setAddAnimalDialogOpen(false);
+    setNewAnimalId(null);
+    setAddAnimalStep("info");
+    form.reset();
+    setImagePreview(null);
+    setImageFile(null);
+    setGalleryFiles([]);
+    setGalleryPreviews([]);
   };
 
   const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -532,7 +649,16 @@ export default function OrgDashboard() {
                   />
                 </div>
                 <Button 
-                  onClick={() => routerNavigate('/organizacja/zwierzeta')}
+                  onClick={() => {
+                    form.reset();
+                    setImagePreview(null);
+                    setImageFile(null);
+                    setGalleryFiles([]);
+                    setGalleryPreviews([]);
+                    setNewAnimalId(null);
+                    setAddAnimalStep("info");
+                    setAddAnimalDialogOpen(true);
+                  }}
                   className="shadow-soft md:hover:scale-105 transition-transform whitespace-nowrap"
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -560,7 +686,16 @@ export default function OrgDashboard() {
                   </p>
                   {!searchQuery && (
                     <Button 
-                      onClick={() => routerNavigate('/organizacja/zwierzeta')}
+                      onClick={() => {
+                        form.reset();
+                        setImagePreview(null);
+                        setImageFile(null);
+                        setGalleryFiles([]);
+                        setGalleryPreviews([]);
+                        setNewAnimalId(null);
+                        setAddAnimalStep("info");
+                        setAddAnimalDialogOpen(true);
+                      }}
                       className="rounded-2xl"
                     >
                       Dodaj pierwszego podopiecznego
@@ -872,6 +1007,227 @@ export default function OrgDashboard() {
                 )}
               </TabsContent>
             </Tabs>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Animal Dialog */}
+        <Dialog open={addAnimalDialogOpen} onOpenChange={(open) => {
+          if (!open) handleCloseAddDialog();
+          else setAddAnimalDialogOpen(true);
+        }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col rounded-3xl">
+            <DialogHeader className="flex-shrink-0">
+              <DialogTitle>
+                {addAnimalStep === "info" ? "Dodaj nowego podopiecznego" : "Dodaj listę potrzeb"}
+              </DialogTitle>
+              <DialogDescription>
+                {addAnimalStep === "info" 
+                  ? "Uzupełnij informacje o zwierzęciu" 
+                  : "Dodaj produkty, których potrzebuje Twój podopieczny"}
+              </DialogDescription>
+            </DialogHeader>
+
+            {addAnimalStep === "info" ? (
+              <div className="flex-1 overflow-y-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-1">
+                  {/* Image Upload */}
+                  <div className="space-y-4">
+                    <Label>Zdjęcie główne</Label>
+                    {imagePreview && (
+                      <Avatar className="h-48 w-48 mx-auto">
+                        <AvatarImage src={imagePreview} alt="Podgląd" />
+                        <AvatarFallback>Zdjęcie</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    </div>
+
+                    <div className="pt-4">
+                      <Label>Galeria zdjęć (max 6)</Label>
+                      {galleryPreviews.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                          {galleryPreviews.map((preview, idx) => (
+                            <Avatar key={idx} className="h-16 w-16">
+                              <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
+                              <AvatarFallback>{idx + 1}</AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleGalleryChange}
+                        />
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form */}
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onAddAnimalSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Imię</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Burek" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="species"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gatunek</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Wybierz gatunek" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Pies">Pies</SelectItem>
+                                <SelectItem value="Kot">Kot</SelectItem>
+                                <SelectItem value="Inne">Inne</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="breed"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Rasa</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Owczarek niemiecki" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Płeć</FormLabel>
+                            <FormControl>
+                              <Input placeholder="np. Samiec, Samica" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="birth_date"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Data urodzenia</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    className={cn(
+                                      "w-full pl-3 text-left font-normal",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP", { locale: pl })
+                                    ) : (
+                                      <span>Wybierz datę</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  disabled={(date) =>
+                                    date > new Date() || date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                  locale={pl}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Opis</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Opisz zwierzę..."
+                                className="min-h-[100px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Button
+                        type="submit"
+                        disabled={uploading}
+                        className="w-full rounded-2xl"
+                      >
+                        {uploading ? "Zapisywanie..." : "Dodaj podopiecznego"}
+                      </Button>
+                    </form>
+                  </Form>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto">
+                {newAnimalId && (
+                  <WishlistBuilder
+                    entityId={newAnimalId}
+                    entityName={form.getValues("name")}
+                    entityType="animal"
+                  />
+                )}
+                <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
+                  <Button variant="outline" onClick={handleCloseAddDialog} className="rounded-2xl">
+                    Zakończ
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 
