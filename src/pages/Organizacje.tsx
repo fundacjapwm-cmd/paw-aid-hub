@@ -132,7 +132,7 @@ const Organizacje = () => {
         {/* Filters Section */}
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4 max-w-7xl">
-            <div className="bg-card rounded-3xl p-4 sm:p-6 shadow-card border border-border/50">
+            <div className="bg-card rounded-3xl p-4 md:p-6 shadow-card border border-border/50">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <div className="flex items-center space-x-2">
                   <Filter className="h-5 w-5 text-primary" />
@@ -333,7 +333,7 @@ const Organizacje = () => {
                       </div>
 
                       {/* Content */}
-                      <div className="p-6 space-y-4">
+                      <div className="p-4 md:p-6 space-y-4">
                         {org.description && (
                           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
                             {org.description}
@@ -341,15 +341,15 @@ const Organizacje = () => {
                         )}
 
                         {/* Stats */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-muted/30 rounded-2xl p-4 text-center">
+                          <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-muted/30 rounded-2xl p-3 md:p-4 text-center">
                             <div className="flex items-center justify-center mb-2">
                               <Heart className="h-5 w-5 text-primary fill-current" />
                             </div>
                             <p className="text-lg font-bold text-foreground">{org.animalsCount || 0}</p>
                             <p className="text-xs text-muted-foreground">podopiecznych</p>
                           </div>
-                          <div className="bg-muted/30 rounded-2xl p-4">
+                          <div className="bg-muted/30 rounded-2xl p-3 md:p-4">
                             <div className="flex items-center justify-center mb-2">
                               <MapPin className="h-5 w-5 text-primary" />
                             </div>

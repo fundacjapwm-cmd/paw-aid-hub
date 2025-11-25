@@ -24,7 +24,7 @@ const PartnersSection = () => {
             <a
               key={index}
               href={partner.url}
-              className="bg-card rounded-2xl p-6 sm:p-8 shadow-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-1 flex items-center justify-center text-center group"
+              className="bg-card rounded-2xl p-6 md:p-8 shadow-card hover:shadow-bubbly transition-all duration-300 hover:-translate-y-1 flex items-center justify-center text-center group"
             >
               <div>
                 <Heart className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-2 md:mb-3 group-hover:fill-primary transition-all" />

@@ -16,7 +16,7 @@ const OrganizationCardSkeleton = () => {
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-4">
+      <div className="p-4 md:p-6 space-y-4">
         {/* Description Skeleton */}
         <div className="space-y-2">
           <Skeleton className="h-4 w-full" />
@@ -26,12 +26,12 @@ const OrganizationCardSkeleton = () => {
 
         {/* Stats Grid Skeleton */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-muted/30 rounded-2xl p-4 text-center space-y-2">
+          <div className="bg-muted/30 rounded-2xl p-3 md:p-4 text-center space-y-2">
             <Skeleton className="h-5 w-5 mx-auto" />
             <Skeleton className="h-6 w-12 mx-auto" />
             <Skeleton className="h-3 w-20 mx-auto" />
           </div>
-          <div className="bg-muted/30 rounded-2xl p-4 text-center space-y-2">
+          <div className="bg-muted/30 rounded-2xl p-3 md:p-4 text-center space-y-2">
             <Skeleton className="h-5 w-5 mx-auto" />
             <Skeleton className="h-4 w-24 mx-auto" />
             <Skeleton className="h-4 w-20 mx-auto" />
