@@ -2,11 +2,20 @@ import AnimalFilters from "@/components/AnimalFilters";
 import AnimalCard from "@/components/AnimalCard";
 import AnimalCardSkeleton from "@/components/AnimalCardSkeleton";
 import { Button } from "@/components/ui/button";
-import { Heart, Users } from "lucide-react";
+import { Heart, Users, Home } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
 import LeadGenSection from "@/components/LeadGenSection";
+import { Link } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const Zwierzeta = () => {
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
@@ -67,13 +76,33 @@ const Zwierzeta = () => {
         <main>
           {/* Header Section */}
           <section className="py-12 md:py-20 bg-background">
-            <div className="md:container md:mx-auto md:px-8 px-4 text-center">
-              <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-                Nasi podopieczni
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
-                Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
-              </p>
+            <div className="md:container md:mx-auto md:px-8 px-4">
+              {/* Breadcrumbs */}
+              <Breadcrumb className="mb-6">
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to="/" className="flex items-center gap-1">
+                        <Home className="h-4 w-4" />
+                        <span className="hidden sm:inline">Strona główna</span>
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Zwierzęta</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+
+              <div className="text-center">
+                <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+                  Nasi podopieczni
+                </h1>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+                  Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
+                </p>
+              </div>
             </div>
           </section>
 
@@ -117,13 +146,33 @@ const Zwierzeta = () => {
       <main>
         {/* Header Section */}
         <section className="py-12 md:py-20 bg-background">
-          <div className="md:container md:mx-auto md:px-8 px-4 text-center">
-            <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-              Nasi podopieczni
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
-              Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
-            </p>
+          <div className="md:container md:mx-auto md:px-8 px-4">
+            {/* Breadcrumbs */}
+            <Breadcrumb className="mb-6">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/" className="flex items-center gap-1">
+                      <Home className="h-4 w-4" />
+                      <span className="hidden sm:inline">Strona główna</span>
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Zwierzęta</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="text-center">
+              <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+                Nasi podopieczni
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+                Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
+              </p>
+            </div>
           </div>
         </section>
 
