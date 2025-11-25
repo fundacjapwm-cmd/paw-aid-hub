@@ -57,13 +57,13 @@ const MobileMenu = () => {
               onClick={() => handleNavigation(item.path)}
               className={`relative text-left text-lg font-medium transition-colors py-2 ${
                 isActive(item.path) 
-                  ? 'text-primary' 
+                  ? 'text-primary pl-4' 
                   : 'text-foreground hover:text-primary'
               }`}
             >
               {item.label}
               {isActive(item.path) && (
-                <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary animate-scale-in" />
+                <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-full animate-scale-in" />
               )}
             </button>
           ))}
