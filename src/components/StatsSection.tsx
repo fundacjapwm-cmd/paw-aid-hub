@@ -59,13 +59,13 @@ const StatItem = ({ value, label, icon, suffix = "" }: StatItemProps) => {
 
   return (
     <div ref={itemRef} className="flex flex-col items-center text-center px-4">
-      <div className="mb-2 p-3 bg-primary/10 rounded-2xl text-primary">
+      <div className="mb-2 md:mb-3 p-3 bg-primary/10 rounded-2xl text-primary">
         {icon}
       </div>
       <span className="text-3xl md:text-4xl font-black text-foreground">
         {formattedValue}{suffix}
       </span>
-      <span className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-semibold mt-1">
+      <span className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-semibold mt-1 md:mt-2">
         {label}
       </span>
     </div>

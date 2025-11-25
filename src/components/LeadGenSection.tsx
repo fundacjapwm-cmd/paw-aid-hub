@@ -99,8 +99,8 @@ const LeadGenSection = () => {
   return (
     <section id="dolacz" className="py-8 md:py-12 px-4 md:px-8 bg-muted/30">
       <div className="container mx-auto">
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+        <div className="max-w-3xl mx-auto text-center mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 md:mb-6">
             Chcesz dołączyć do naszych organizacji?
           </h2>
           <p className="text-base md:text-lg text-muted-foreground">
