@@ -146,12 +146,17 @@ export default function OrganizationPublicProfile() {
     });
   };
 
-  const handleAddProduct = (item: any) => {
-    const quantity = selectedQuantities[item.product_id] || 1;
+  const handleAddProduct = (product: any) => {
+    // Handle both direct product format and wishlist item format
+    const productId = product.product_id || product.id;
+    const productName = product.name || product.products?.name;
+    const price = product.price || product.products?.price;
+    const quantity = selectedQuantities[productId] || 1;
+    
     addToCart({
-      productId: item.product_id,
-      productName: item.products.name,
-      price: item.products.price,
+      productId,
+      productName,
+      price,
       animalId: undefined,
       animalName: `Organizacja: ${organization?.name}`,
     }, quantity);

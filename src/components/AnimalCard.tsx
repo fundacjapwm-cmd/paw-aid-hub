@@ -323,6 +323,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
                         variant="outline" 
                         size="sm" 
                         className="w-full rounded-3xl md:rounded-xl text-destructive border-destructive/30 hover:bg-destructive/10"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Usuń wszystko z koszyka
