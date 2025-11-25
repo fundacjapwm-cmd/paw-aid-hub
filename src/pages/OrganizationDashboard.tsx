@@ -52,8 +52,6 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  unit: string;
-  weight_volume?: string;
   description?: string;
   producers?: { name: string };
   product_categories?: { name: string };
@@ -704,7 +702,7 @@ export default function OrganizationDashboard() {
                     <SelectContent>
                       {products.map((product) => (
                         <SelectItem key={product.id} value={product.id}>
-                          {product.name} - {product.price} PLN/{product.unit}
+                          {product.name} - {product.price} PLN
                         </SelectItem>
                       ))}
                     </SelectContent>

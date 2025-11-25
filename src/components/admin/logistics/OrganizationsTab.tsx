@@ -16,7 +16,6 @@ interface OrganizationDelivery {
   items: {
     productName: string;
     quantity: number;
-    unit: string;
     animalName: string;
   }[];
 }
@@ -40,8 +39,7 @@ export default function OrganizationsTab() {
           fulfillment_status,
           products!inner (
             id,
-            name,
-            unit
+            name
           ),
           animals!inner (
             id,
@@ -87,7 +85,6 @@ export default function OrganizationsTab() {
         delivery.items.push({
           productName: product.name,
           quantity: item.quantity,
-          unit: product.unit || 'szt',
           animalName: animal.name
         });
       });
@@ -188,7 +185,7 @@ export default function OrganizationsTab() {
               ${delivery.items.map(item => `
                 <tr>
                   <td>${item.productName}</td>
-                  <td>${item.quantity} ${item.unit}</td>
+                  <td>${item.quantity} szt</td>
                   <td class="animal-name">${item.animalName}</td>
                 </tr>
               `).join('')}
@@ -269,7 +266,7 @@ export default function OrganizationsTab() {
                       <TableCell className="text-xs">{item.productName}</TableCell>
                       <TableCell className="text-xs text-center">
                         <Badge variant="outline" className="text-xs">
-                          {item.quantity} {item.unit}
+                          {item.quantity} szt
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs font-medium text-primary">

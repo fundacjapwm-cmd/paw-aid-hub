@@ -37,11 +37,9 @@ interface Product {
   name: string;
   price: number;
   purchase_price?: number;
-  unit: string;
   producer_id: string;
   category_id: string;
   description?: string;
-  weight_volume?: string;
   image_url?: string;
   product_categories?: { name: string };
 }
@@ -212,7 +210,7 @@ export default function ProducersProductsTab({
   });
 
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', purchase_price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: ''
+    name: '', price: '', purchase_price: '', category_id: '', description: '', producer_id: '', image_url: ''
   });
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
@@ -301,7 +299,7 @@ export default function ProducersProductsTab({
       producer_id: selectedProducerId,
       purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined
     });
-    setNewProduct({ name: '', price: '', purchase_price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
+    setNewProduct({ name: '', price: '', purchase_price: '', category_id: '', description: '', producer_id: '', image_url: '' });
   };
 
   if (selectedProducerId) {
@@ -464,39 +462,17 @@ export default function ProducersProductsTab({
               </div>
             </div>
 
-            {/* Jednostka, Kategoria, Waga w jednej linii */}
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <Label>Jednostka</Label>
-                <Select value={newProduct.unit} onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="szt">Sztuka</SelectItem>
-                    <SelectItem value="kg">Kilogram</SelectItem>
-                    <SelectItem value="l">Litr</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Kategoria</Label>
-                <Select value={newProduct.category_id} onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Wybierz" /></SelectTrigger>
-                  <SelectContent>
-                    {productCategories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Waga/Objętość</Label>
-                <Input 
-                  value={newProduct.weight_volume} 
-                  onChange={(e) => setNewProduct({ ...newProduct, weight_volume: e.target.value })} 
-                  placeholder="2kg, 500ml"
-                  className="mt-1"
-                />
-              </div>
+            {/* Kategoria */}
+            <div>
+              <Label>Kategoria</Label>
+              <Select value={newProduct.category_id} onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+                <SelectContent>
+                  {productCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Opis */}
@@ -572,7 +548,7 @@ export default function ProducersProductsTab({
                     <div className="flex-1">
                       <h3 className="font-semibold">{product.name}</h3>
                       <div className="flex gap-4 text-sm text-muted-foreground">
-                        <span>Sprzedaż: {product.price} zł / {product.unit}</span>
+                        <span>Sprzedaż: {product.price} zł</span>
                         {product.purchase_price && (
                           <>
                             <span>Zakup: {product.purchase_price} zł</span>
@@ -883,49 +859,22 @@ export default function ProducersProductsTab({
               </div>
             </div>
 
-            {/* Jednostka, Kategoria, Waga w jednej linii */}
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <Label>Jednostka</Label>
-                <Select 
-                  value={newProduct.unit} 
-                  onValueChange={(value) => setNewProduct({ ...newProduct, unit: value })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="szt">Sztuka</SelectItem>
-                    <SelectItem value="kg">Kilogram</SelectItem>
-                    <SelectItem value="l">Litr</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Kategoria</Label>
-                <Select 
-                  value={newProduct.category_id} 
-                  onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Wybierz" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {productCategories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Waga/Objętość</Label>
-                <Input 
-                  value={newProduct.weight_volume} 
-                  onChange={(e) => setNewProduct({ ...newProduct, weight_volume: e.target.value })} 
-                  placeholder="2kg, 500ml"
-                  className="mt-1"
-                />
-              </div>
+            {/* Kategoria */}
+            <div>
+              <Label>Kategoria</Label>
+              <Select 
+                value={newProduct.category_id} 
+                onValueChange={(value) => setNewProduct({ ...newProduct, category_id: value })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Wybierz" />
+                </SelectTrigger>
+                <SelectContent>
+                  {productCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Opis */}
@@ -959,7 +908,7 @@ export default function ProducersProductsTab({
                   producer_id: newProduct.producer_id,
                   purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined
                 });
-                setNewProduct({ name: '', price: '', purchase_price: '', unit: 'szt', category_id: '', description: '', weight_volume: '', producer_id: '', image_url: '' });
+                setNewProduct({ name: '', price: '', purchase_price: '', category_id: '', description: '', producer_id: '', image_url: '' });
               }} 
               className="w-full"
               disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price || !newProduct.image_url || uploadingImage}

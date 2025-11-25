@@ -27,7 +27,6 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  unit: string;
   active: boolean;
   category_id: string;
   producer_id: string;
@@ -249,9 +248,7 @@ export default function AdminProducers() {
         name: newProduct.name,
         price: parseFloat(newProduct.price),
         purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : null,
-        unit: newProduct.unit,
         description: newProduct.description || null,
-        weight_volume: newProduct.weight_volume || null,
         image_url: newProduct.image_url || null,
         category_id: newProduct.category_id,
         producer_id: newProduct.producer_id
@@ -281,9 +278,7 @@ export default function AdminProducers() {
         name: editingProduct.name,
         price: parseFloat(editingProduct.price),
         purchase_price: editingProduct.purchase_price ? parseFloat(editingProduct.purchase_price) : null,
-        unit: editingProduct.unit,
         description: editingProduct.description || null,
-        weight_volume: editingProduct.weight_volume || null,
         image_url: editingProduct.image_url || null,
         category_id: editingProduct.category_id,
         producer_id: editingProduct.producer_id,
