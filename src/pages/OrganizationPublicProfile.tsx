@@ -163,16 +163,15 @@ export default function OrganizationPublicProfile() {
     
     orgWishlist.forEach((item: any) => {
       if (item.products) {
-        const quantity = item.quantity || 1;
         addToCart({
           productId: item.product_id,
           productName: item.products.name,
           price: item.products.price,
           animalId: undefined,
           animalName: `Organizacja: ${organization?.name}`,
-        }, quantity);
-        addedCount += quantity;
-        totalPrice += item.products.price * quantity;
+        }, 1);
+        addedCount += 1;
+        totalPrice += item.products.price;
       }
     });
     
@@ -385,11 +384,9 @@ export default function OrganizationPublicProfile() {
                                     name: item.products?.name || '',
                                     price: item.products?.price || 0,
                                     image_url: item.products?.image_url,
-                                    quantity: item.quantity,
                                     bought: false,
                                   }}
                                   quantity={quantity}
-                                  maxQuantity={item.quantity}
                                   isInCart={itemInCart}
                                   cartQuantity={cartQuantity}
                                   onQuantityChange={(productId, change) => handleQuantityChange(productId, change)}
