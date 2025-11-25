@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowLeft, MapPin, Calendar, ShoppingCart, Users, Cake, Heart, PawPrint, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import { useCart } from "@/contexts/CartContext";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { WishlistCelebration } from "@/components/WishlistCelebration";
@@ -24,6 +24,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 const AnimalProfile = () => {
   const { id } = useParams();
@@ -33,6 +37,8 @@ const AnimalProfile = () => {
   const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const { animals, loading } = useAnimalsWithWishlists();
   const { toast } = useToast();
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const animal = animals.find(a => a.id === id);
 
@@ -61,6 +67,39 @@ const AnimalProfile = () => {
       setQuantities(initialQuantities);
     }
   }, [animal?.wishlist]);
+
+  // Build all images array (main image + gallery)
+  const allImages = animal ? [
+    { id: 'main', image_url: animal.image || '/placeholder.svg' },
+    ...(animal.gallery || [])
+  ] : [];
+
+  const handlePrevImage = useCallback(() => {
+    setLightboxIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+  }, [allImages.length]);
+
+  const handleNextImage = useCallback(() => {
+    setLightboxIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+  }, [allImages.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') handlePrevImage();
+      if (e.key === 'ArrowRight') handleNextImage();
+      if (e.key === 'Escape') setLightboxOpen(false);
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, handlePrevImage, handleNextImage]);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   if (loading) {
     return <AnimalProfileSkeleton />;
@@ -194,7 +233,10 @@ const AnimalProfile = () => {
               <Card className="p-6 md:p-8 rounded-3xl">
                 <div className="flex flex-col md:flex-row gap-6 items-start">
                   <div className="flex-shrink-0">
-                    <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly mb-3">
+                    <div 
+                      className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly mb-3 cursor-pointer"
+                      onClick={() => openLightbox(0)}
+                    >
                       <img 
                         src={animal.image || '/placeholder.svg'} 
                         alt={animal.name}
@@ -205,8 +247,12 @@ const AnimalProfile = () => {
                     {/* Gallery thumbnails - small under profile photo */}
                     {animal.gallery && animal.gallery.length > 0 && (
                       <div className="grid grid-cols-3 gap-2 w-64">
-                        {animal.gallery.slice(0, 3).map((img: any) => (
-                          <div key={img.id} className="aspect-square rounded-lg overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity">
+                        {animal.gallery.slice(0, 3).map((img: any, idx: number) => (
+                          <div 
+                            key={img.id} 
+                            className="aspect-square rounded-lg overflow-hidden border border-border cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => openLightbox(idx + 1)}
+                          >
                             <img 
                               src={img.image_url} 
                               alt={`${animal.name} gallery`}
@@ -394,6 +440,61 @@ const AnimalProfile = () => {
             </div>
           </div>
         </main>
+
+        {/* Lightbox Dialog */}
+        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+          <DialogContent className="max-w-4xl p-0 bg-black/95 border-none">
+            <div className="relative flex items-center justify-center min-h-[60vh]">
+              {/* Close button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 z-10 text-white hover:bg-white/20"
+                onClick={() => setLightboxOpen(false)}
+              >
+                <X className="h-6 w-6" />
+              </Button>
+
+              {/* Previous button */}
+              {allImages.length > 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-2 z-10 text-white hover:bg-white/20 h-12 w-12"
+                  onClick={handlePrevImage}
+                >
+                  <ChevronLeft className="h-8 w-8" />
+                </Button>
+              )}
+
+              {/* Image */}
+              <img
+                src={allImages[lightboxIndex]?.image_url}
+                alt={`${animal.name} - zdjęcie ${lightboxIndex + 1}`}
+                className="max-h-[80vh] max-w-full object-contain"
+              />
+
+              {/* Next button */}
+              {allImages.length > 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 z-10 text-white hover:bg-white/20 h-12 w-12"
+                  onClick={handleNextImage}
+                >
+                  <ChevronRight className="h-8 w-8" />
+                </Button>
+              )}
+
+              {/* Image counter */}
+              {allImages.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+                  {lightboxIndex + 1} / {allImages.length}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
