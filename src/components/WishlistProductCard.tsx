@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ShoppingCart, Plus, Minus, X, Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
 
 interface WishlistProductCardProps {
   product: {
@@ -19,10 +20,12 @@ interface WishlistProductCardProps {
   isInCart?: boolean;
   cartQuantity?: number;
   onQuantityChange: (productId: string, change: number) => void;
+  onSetQuantity?: (productId: string, quantity: number) => void;
   onAddToCart: (product: any) => void;
   onRemoveFromCart?: (productId: string) => void;
   showSmartFill?: boolean;
   onSmartFill?: (productId: string, quantity: number) => void;
+  unlimitedQuantity?: boolean;
 }
 
 export const WishlistProductCard = ({
@@ -32,13 +35,60 @@ export const WishlistProductCard = ({
   isInCart = false,
   cartQuantity = 0,
   onQuantityChange,
+  onSetQuantity,
   onAddToCart,
   onRemoveFromCart,
   showSmartFill = false,
   onSmartFill,
+  unlimitedQuantity = false,
 }: WishlistProductCardProps) => {
   const productId = product.product_id || product.id;
   const neededQuantity = maxQuantity || product.quantity || 1;
+  const [inputValue, setInputValue] = useState(String(quantity));
+
+  // Sync input value when quantity prop changes
+  useEffect(() => {
+    setInputValue(String(quantity));
+  }, [quantity]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow empty input while typing
+    if (value === '') {
+      setInputValue('');
+      return;
+    }
+    // Only allow numbers
+    if (!/^\d+$/.test(value)) return;
+    setInputValue(value);
+  };
+
+  const handleInputBlur = () => {
+    let newQty = parseInt(inputValue) || 1;
+    // Ensure minimum is 1
+    if (newQty < 1) newQty = 1;
+    // Cap at maxQuantity unless unlimited
+    if (!unlimitedQuantity && maxQuantity && newQty > maxQuantity) {
+      newQty = maxQuantity;
+    }
+    setInputValue(String(newQty));
+    // Use onSetQuantity if available, otherwise calculate the change
+    if (onSetQuantity) {
+      onSetQuantity(productId, newQty);
+    } else {
+      const change = newQty - quantity;
+      if (change !== 0) {
+        onQuantityChange(productId, change);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleInputBlur();
+      (e.target as HTMLInputElement).blur();
+    }
+  };
   
   return (
     <>
@@ -98,7 +148,7 @@ export const WishlistProductCard = ({
         {!product.bought && (
           <div className="flex items-center justify-between gap-3">
             {/* Counter Pill */}
-            <div className="flex items-center gap-2 bg-gray-50 rounded-full px-1 py-1 border border-gray-100 shadow-inner">
+            <div className="flex items-center gap-1 bg-gray-50 rounded-full px-1 py-1 border border-gray-100 shadow-inner">
               <button 
                 className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 transition-all disabled:opacity-30"
                 onClick={() => onQuantityChange(productId, -1)}
@@ -106,13 +156,19 @@ export const WishlistProductCard = ({
               >
                 <Minus className="h-3.5 w-3.5" />
               </button>
-              <span className="w-6 text-center font-bold text-sm text-primary tabular-nums">
-                {quantity}
-              </span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={inputValue}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
+                onKeyDown={handleKeyDown}
+                className="w-10 text-center font-bold text-sm text-primary tabular-nums bg-transparent border-none outline-none focus:ring-0"
+              />
               <button 
                 className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 transition-all disabled:opacity-30"
                 onClick={() => onQuantityChange(productId, 1)}
-                disabled={maxQuantity ? quantity >= maxQuantity : false}
+                disabled={!unlimitedQuantity && maxQuantity ? quantity >= maxQuantity : false}
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>
@@ -254,13 +310,19 @@ export const WishlistProductCard = ({
                 >
                   -
                 </button>
-                <span className="w-8 text-center text-sm font-bold tabular-nums">
-                  {quantity}
-                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  onBlur={handleInputBlur}
+                  onKeyDown={handleKeyDown}
+                  className="w-10 text-center text-sm font-bold tabular-nums bg-transparent border-none outline-none focus:ring-0"
+                />
                 <button 
                   className="w-7 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30 text-base font-bold"
                   onClick={() => onQuantityChange(productId, 1)}
-                  disabled={maxQuantity ? quantity >= maxQuantity : false}
+                  disabled={!unlimitedQuantity && maxQuantity ? quantity >= maxQuantity : false}
                 >
                   +
                 </button>

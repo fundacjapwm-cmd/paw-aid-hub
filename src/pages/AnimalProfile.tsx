@@ -401,6 +401,7 @@ const AnimalProfile = () => {
                           isInCart={itemInCart}
                           cartQuantity={cartQuantity}
                           onQuantityChange={(productId, change) => handleQuantityChange(productId, change)}
+                          onSetQuantity={(productId, qty) => setQuantities(prev => ({ ...prev, [productId]: qty }))}
                           onAddToCart={handleAddToCart}
                           onRemoveFromCart={removeFromCart}
                           showSmartFill={!item.bought}
