@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,19 +12,19 @@ import {
 import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-
 
 const CartDrawer = () => {
   const { cart, cartTotal, cartCount, removeFromCart, updateQuantity, clearCart } = useCart();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   const handleCheckout = () => {
+    setOpen(false);
     navigate('/checkout');
   };
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />
@@ -34,7 +35,7 @@ const CartDrawer = () => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-lg flex flex-col">
         <SheetHeader>
           <SheetTitle>Koszyk</SheetTitle>
           <SheetDescription>
@@ -42,17 +43,19 @@ const CartDrawer = () => {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-8 space-y-4">
-          {cart.length === 0 ? (
+        {cart.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center">
             <div className="text-center py-12">
               <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
               <p className="text-muted-foreground">
                 Dodaj produkty do koszyka, aby pomóc zwierzętom
               </p>
             </div>
-          ) : (
-            <>
-              {/* Group items by animal */}
+          </div>
+        ) : (
+          <>
+            {/* Scrollable products area */}
+            <div className="flex-1 overflow-y-auto mt-4 space-y-4 pr-2">
               {Object.entries(
                 cart.reduce((groups, item) => {
                   const animalName = item.animalName || 'Inne';
@@ -116,34 +119,33 @@ const CartDrawer = () => {
                   ))}
                 </div>
               ))}
+            </div>
 
-              <Separator />
-
-              <div className="space-y-4 pt-4">
-                <div className="flex justify-between items-center text-lg font-bold">
-                  <span>Suma:</span>
-                  <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
-                </div>
-
-                <Button
-                  onClick={handleCheckout}
-                  className="w-full"
-                  size="lg"
-                >
-                  Przejdź do płatności
-                </Button>
-
-                <Button
-                  onClick={clearCart}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Wyczyść koszyk
-                </Button>
+            {/* Fixed bottom section with checkout button */}
+            <div className="border-t pt-4 mt-4 space-y-4 bg-background">
+              <div className="flex justify-between items-center text-lg font-bold">
+                <span>Suma:</span>
+                <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
               </div>
-            </>
-          )}
-        </div>
+
+              <Button
+                onClick={handleCheckout}
+                className="w-full"
+                size="lg"
+              >
+                Przejdź do płatności
+              </Button>
+
+              <Button
+                onClick={clearCart}
+                variant="outline"
+                className="w-full"
+              >
+                Wyczyść koszyk
+              </Button>
+            </div>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );
