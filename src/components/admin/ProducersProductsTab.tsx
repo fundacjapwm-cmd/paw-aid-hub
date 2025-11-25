@@ -14,6 +14,7 @@ import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X, Check, ChevronsUpDown,
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { producerSchema } from '@/lib/validations/producer';
+import { validateImageFile } from '@/lib/validations/imageFile';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
 import ProductEditDialog from './ProductEditDialog';
@@ -62,33 +63,6 @@ interface Props {
   onDeleteProduct: (id: string) => Promise<void>;
 }
 
-// File validation constants
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
-const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png'];
-
-// Validate file before upload
-function validateImageFile(file: File): { valid: boolean; error?: string } {
-  if (!file) return { valid: false, error: 'Nie wybrano pliku' };
-  
-  // Check file size
-  if (file.size > MAX_FILE_SIZE) {
-    return { valid: false, error: 'Plik jest za duży. Maksymalny rozmiar to 2MB' };
-  }
-  
-  // Check file type
-  if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-    return { valid: false, error: 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG' };
-  }
-  
-  // Check file extension
-  const extension = file.name.split('.').pop()?.toLowerCase();
-  if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
-    return { valid: false, error: 'Nieprawidłowe rozszerzenie pliku. Dozwolone: .jpg, .jpeg, .png' };
-  }
-  
-  return { valid: true };
-}
 
 // Reusable component for logo with hover upload/remove
 function ProducerLogoWithHover({ 
@@ -246,6 +220,13 @@ export default function ProducersProductsTab({
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
     if (!file) return null;
+    
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return null;
+    }
     
     setUploadingImage(true);
     try {
@@ -428,7 +409,7 @@ export default function ProducersProductsTab({
                 <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors mt-1">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
@@ -651,7 +632,7 @@ export default function ProducersProductsTab({
                 <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
@@ -847,7 +828,7 @@ export default function ProducersProductsTab({
                 <div className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg h-20 w-20 flex items-center justify-center hover:border-primary/50 transition-colors mt-1">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
