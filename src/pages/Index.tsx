@@ -96,7 +96,7 @@ const Index = () => {
         <section className="py-8 md:py-12 px-4 md:px-8">
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                 Nasi podopieczni
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
