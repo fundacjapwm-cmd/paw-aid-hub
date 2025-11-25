@@ -301,7 +301,7 @@ export default function OrgDashboard() {
     <OrgLayout organizationName={organization?.name || ""}>
       <div className="space-y-8">
         {/* Organization Header */}
-        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-8 border border-border/50">
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-6 md:p-8 border border-border/50">
           <div className="flex flex-col gap-6">
             {/* Top Section - Logo, Name, Edit Button */}
             <div className="flex items-start gap-6">

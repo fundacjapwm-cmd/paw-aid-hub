@@ -405,7 +405,7 @@ export default function OrgAnimals() {
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 {/* KOLUMNA LEWA: Formularz w Karcie */}
-                <Card className="p-6 rounded-3xl shadow-card bg-white order-2 lg:order-1">
+              <Card className="p-4 md:p-6 rounded-3xl shadow-card bg-white order-2 lg:order-1">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       {/* Gallery Images Upload */}
@@ -704,7 +704,7 @@ export default function OrgAnimals() {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               {/* KOLUMNA LEWA: Formularz w Karcie */}
-              <Card className="p-6 rounded-3xl shadow-card bg-white order-2 lg:order-1">
+              <Card className="p-4 md:p-6 rounded-3xl shadow-card bg-white order-2 lg:order-1">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-6">
                     {/* Gallery Images Upload */}

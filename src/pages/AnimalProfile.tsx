@@ -166,7 +166,7 @@ const AnimalProfile = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               {/* Main Card with Name, Image, Details and Gallery */}
-              <Card className="p-8 rounded-3xl">
+              <Card className="p-6 md:p-8 rounded-3xl">
                 <div className="flex flex-col md:flex-row gap-6 items-start">
                   <div className="flex-shrink-0">
                     <div className="w-64 h-64 rounded-3xl overflow-hidden border-4 border-primary/20 shadow-bubbly mb-3">

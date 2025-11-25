@@ -20,7 +20,7 @@ const AnimalCardSkeleton = () => {
         </div>
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 md:p-6 space-y-4">
         {/* Name and Age */}
         <div className="space-y-2">
           <Skeleton className="h-7 w-3/4" />

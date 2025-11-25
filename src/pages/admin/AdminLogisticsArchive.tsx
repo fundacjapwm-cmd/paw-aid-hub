@@ -208,7 +208,7 @@ export default function AdminLogisticsArchive() {
 
       {filteredItems.length > 0 && (
         <Card className="rounded-3xl shadow-card border-border/50 bg-gradient-to-r from-primary/5 to-accent/5">
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary">

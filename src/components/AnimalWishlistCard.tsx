@@ -114,7 +114,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
 
   return (
     <Card className="overflow-hidden bg-card rounded-3xl border-0 shadow-card">
-      <div className="grid md:grid-cols-2 gap-6 p-6">
+      <div className="grid md:grid-cols-2 gap-6 p-4 md:p-6">
         {/* Left Side: Animal Description */}
         <div className="space-y-4">
           <div>
@@ -134,7 +134,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
         {/* Right Side: Product Wishlist - Nowy Layout z Sticky Footer */}
         <div className="bg-muted/30 rounded-2xl flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 pb-4">
+          <div className="p-4 md:p-6 pb-4">
             <h4 className="font-bold text-lg text-foreground">
               Potrzeby {animal.name}
             </h4>

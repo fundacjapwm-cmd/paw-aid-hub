@@ -194,7 +194,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-4 relative flex flex-col flex-1">
+      <div className="p-4 md:p-6 space-y-4 relative flex flex-col flex-1">
         <div>
           <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">{animal.name}</h3>
           <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
