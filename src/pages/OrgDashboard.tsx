@@ -710,7 +710,7 @@ export default function OrgDashboard() {
                 <Card
                   key={animal.id}
                   className="group overflow-hidden transition-all duration-300 rounded-3xl border border-border/40 shadow-card cursor-pointer md:hover:shadow-bubbly md:hover:-translate-y-1"
-                  onClick={() => routerNavigate(`/zwierze/${animal.id}`)}
+                  onClick={() => routerNavigate(`/zwierze/${animal.id}`, { state: { fromOrganization: true } })}
                 >
                   <CardContent className="p-4 flex items-center gap-4">
                     <div className="relative w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden">
