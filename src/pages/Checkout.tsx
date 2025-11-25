@@ -311,7 +311,7 @@ const Checkout = () => {
                         className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         Akceptuję{' '}
-                        <Link to="/polityka-prywatnosci" className="text-primary hover:underline" target="_blank">
+                        <Link to="/prywatnosc" className="text-primary hover:underline" target="_blank">
                           politykę prywatności
                         </Link>{' '}
                         *

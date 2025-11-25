@@ -89,7 +89,7 @@ export const CookieConsent = () => {
               Używamy plików cookies, aby zapewnić najlepsze doświadczenie na naszej stronie. 
               Niezbędne cookies są wymagane do działania serwisu. Możesz dostosować swoje preferencje 
               lub zaakceptować wszystkie cookies.{' '}
-              <Link to="/polityka-prywatnosci" className="text-primary hover:underline">
+              <Link to="/prywatnosc" className="text-primary hover:underline">
                 Dowiedz się więcej
               </Link>
             </CardDescription>
