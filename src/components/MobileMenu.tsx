@@ -105,7 +105,7 @@ const MobileMenu = () => {
               
               {profile?.role === 'ORG' && (
                 <button
-                  onClick={() => handleNavigation('/org')}
+                  onClick={() => handleNavigation('/organizacja')}
                   className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
                 >
                   <Settings className="h-5 w-5" />
