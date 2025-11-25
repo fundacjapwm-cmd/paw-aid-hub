@@ -65,7 +65,7 @@ const HowItWorksSection = () => {
 
   return (
     <section id="jak-to-dziala" className="relative py-8 md:py-12 bg-background" ref={sectionRef}>
-      <div className="container mx-auto px-4 md:px-8 max-w-6xl">
+      <div className="md:container md:mx-auto md:px-8 md:max-w-6xl px-4">
         
         {/* Nagłówek */}
         <div className="text-center mb-8 md:mb-12">
