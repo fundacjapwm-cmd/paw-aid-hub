@@ -12,7 +12,7 @@ import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { calculateAnimalAge, formatDetailedAge } from "@/lib/utils/ageCalculator";
 import AnimalProfileSkeleton from "@/components/AnimalProfileSkeleton";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 const AnimalProfile = () => {
   const { id } = useParams();
@@ -21,6 +21,7 @@ const AnimalProfile = () => {
   const [celebrationShown, setCelebrationShown] = useState(false);
   const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart } = useCart();
   const { animals, loading } = useAnimalsWithWishlists();
+  const { toast } = useToast();
 
   const animal = animals.find(a => a.id === id);
 
@@ -104,7 +105,7 @@ const AnimalProfile = () => {
     
     addAllForAnimal(items, animal.name);
     
-    toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
+    toast({ title: `Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}` });
   };
 
   const isInCart = (itemId: string) => {

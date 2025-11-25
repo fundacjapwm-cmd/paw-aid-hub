@@ -9,7 +9,7 @@ import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useState, useEffect } from "react";
 import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 interface WishlistItem {
   id: string | number;
@@ -43,6 +43,7 @@ interface AnimalCardProps {
 const AnimalCard = ({ animal }: AnimalCardProps) => {
   const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded, cart: globalCart, removeFromCart } = useCart();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationShown, setCelebrationShown] = useState(false);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -156,7 +157,7 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
     addAllForAnimal(items, animal.name);
     markAnimalAsAdded(String(animal.id));
     
-    toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
+    toast({ title: `Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}` });
   };
 
   const handleOrganizationClick = (e: React.MouseEvent) => {
