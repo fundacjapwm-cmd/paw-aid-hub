@@ -129,7 +129,7 @@ const StatsSection = () => {
   };
 
   return (
-    <section className="py-12 px-4 md:px-8 relative z-20 -mt-16">
+    <section className="py-8 md:py-12 px-4 md:px-8 relative z-20 -mt-16">
       <div className="container mx-auto">
         <div className="bg-white/80 backdrop-blur-md rounded-[3rem] shadow-xl p-8 md:p-10 border border-primary/10 max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:flex md:justify-around md:items-center gap-8 md:gap-0 md:divide-x md:divide-primary/10">

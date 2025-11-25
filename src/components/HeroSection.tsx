@@ -10,7 +10,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="relative bg-hero py-12 px-4 md:px-8 overflow-hidden">
+    <section className="relative bg-hero py-8 md:py-12 px-4 md:px-8 overflow-hidden">
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Text Content */}
