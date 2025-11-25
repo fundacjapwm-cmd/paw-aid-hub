@@ -137,6 +137,7 @@ const AnimalProfile = () => {
   const handleAddToCart = (item: any) => {
     if (!item.product_id) return;
     const quantity = quantities[item.product_id] || 1;
+    const neededQuantity = item.quantity || 1;
     addToCart(
       {
         productId: item.product_id,
@@ -144,6 +145,7 @@ const AnimalProfile = () => {
         price: item.price,
         animalId: id,
         animalName: animal.name,
+        maxQuantity: neededQuantity,
       },
       quantity
     );
