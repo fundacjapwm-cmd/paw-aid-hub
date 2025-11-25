@@ -38,7 +38,6 @@ const leadFormSchema = z.object({
 type LeadFormData = z.infer<typeof leadFormSchema>;
 
 const LeadGenSection = () => {
-  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const {
@@ -78,19 +77,12 @@ const LeadGenSection = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Zgłoszenie przyjęte! 🎉",
-        description: "Dziękujemy! Skontaktujemy się z Tobą wkrótce.",
-      });
+      toast.success("Zgłoszenie przyjęte! Dziękujemy! Skontaktujemy się z Tobą wkrótce.");
       
       reset();
     } catch (error) {
       console.error('Error saving lead:', error);
-      toast({
-        title: "Wystąpił błąd",
-        description: "Nie udało się wysłać zgłoszenia. Spróbuj ponownie.",
-        variant: "destructive"
-      });
+      toast.error("Nie udało się wysłać zgłoszenia. Spróbuj ponownie.");
     } finally {
       setIsSubmitting(false);
     }
