@@ -251,14 +251,14 @@ export default function OrganizationPublicProfile() {
                 <Card className="bg-gradient-to-br from-white/80 to-white/60 border-white/50 shadow-md">
                   <div className="p-6 space-y-4">
                     <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-primary" />
+                      <MapPin className="h-6 w-6 text-primary" />
                       Dane organizacji
                     </h3>
                     
                     <div className="space-y-3 text-sm">
                       {organization.city && (
                         <div className="flex items-start gap-3">
-                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                          <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                           <div>
                             <p className="font-medium">Lokalizacja</p>
                             <p className="text-muted-foreground">
@@ -270,7 +270,7 @@ export default function OrganizationPublicProfile() {
                       )}
                       
                       <div className="flex items-start gap-3">
-                        <PawPrint className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <PawPrint className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <p className="font-medium">Podopieczni</p>
                           <p className="text-muted-foreground">{animals.length} zwierzaków</p>
@@ -278,7 +278,7 @@ export default function OrganizationPublicProfile() {
                       </div>
                       
                       <div className="flex items-start gap-3">
-                        <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <Calendar className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <p className="font-medium">Z nami od</p>
                           <p className="text-muted-foreground">2024</p>
@@ -290,7 +290,7 @@ export default function OrganizationPublicProfile() {
                         <>
                           {organization.contact_phone && (
                             <div className="flex items-start gap-3">
-                              <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                              <Phone className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                               <div>
                                 <p className="font-medium">Telefon</p>
                                 <a 
@@ -304,7 +304,7 @@ export default function OrganizationPublicProfile() {
                           )}
 
                           <div className="flex items-start gap-3">
-                            <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                            <Mail className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                             <div>
                               <p className="font-medium">Email</p>
                               <a 
@@ -345,10 +345,10 @@ export default function OrganizationPublicProfile() {
                   </Card>
                 ) : (
                   <Card className="bg-white/80 border-white/50 shadow-md">
-                      <div className="p-6 flex flex-col">
-                        <div className="space-y-3">
+                      <div className="p-6 flex flex-col max-h-[400px]">
+                        <div className="space-y-3 overflow-y-auto pr-2">
                           <TooltipProvider>
-                            {orgWishlist.slice(0, 4).map((item: any) => {
+                            {orgWishlist.map((item: any) => {
                               const quantity = selectedQuantities[item.product_id] || 1;
                               const itemInCart = isInCart(item.product_id);
                               const cartQuantity = getCartQuantity(item.product_id);
@@ -375,12 +375,6 @@ export default function OrganizationPublicProfile() {
                               );
                             })}
                           </TooltipProvider>
-                          
-                          {orgWishlist.length > 4 && (
-                            <p className="text-sm text-muted-foreground text-center pt-2">
-                              +{orgWishlist.length - 4} więcej produktów
-                            </p>
-                          )}
                         </div>
 
                         {/* Footer - only show when items in cart */}
