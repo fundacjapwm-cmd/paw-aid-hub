@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { Shield, Mail, Lock, Eye, Database, UserCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Shield, Mail, Lock, Eye, Database, UserCheck, Cookie, Settings } from "lucide-react";
+import { CookieSettingsManager } from "@/components/CookieSettingsManager";
 
 export default function PolitykaPrywatnosci() {
   return (
@@ -259,13 +261,22 @@ export default function PolitykaPrywatnosci() {
 
           {/* Sekcja 8 */}
           <section className="space-y-4">
-            <h2 className="text-2xl font-bold text-foreground mb-3">
-              8. Pliki cookies
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Nasza strona wykorzystuje pliki cookies w celu zapewnienia prawidłowego funkcjonowania, personalizacji treści oraz analizy ruchu. 
-              Możesz zarządzać ustawieniami cookies w swojej przeglądarce. Szczegółowe informacje o używanych plikach cookies znajdują się w naszej Polityce Cookies.
-            </p>
+            <div className="flex items-start gap-4">
+              <div className="shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Cookie className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-foreground mb-3">
+                  8. Pliki cookies
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Nasza strona wykorzystuje pliki cookies w celu zapewnienia prawidłowego funkcjonowania, personalizacji treści oraz analizy ruchu. 
+                  Możesz zarządzać ustawieniami cookies poniżej lub w swojej przeglądarce.
+                </p>
+                
+                <CookieSettingsManager />
+              </div>
+            </div>
           </section>
 
           {/* Sekcja 9 */}
