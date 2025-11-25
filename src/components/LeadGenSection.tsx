@@ -193,7 +193,7 @@ const LeadGenSection = () => {
             <Button 
               type="submit" 
               size="lg" 
-              className="w-full rounded-xl font-bold"
+              className="w-full font-bold"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

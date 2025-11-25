@@ -149,7 +149,7 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
               </h1>
               {orgSlug && (
                 <Link to={`/organizacje/${orgSlug}`} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="rounded-2xl gap-2">
+                  <Button variant="outline" className="gap-2">
                     <ExternalLink className="h-4 w-4" />
                     Podgląd profilu publicznego
                   </Button>
