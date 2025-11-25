@@ -824,10 +824,13 @@ export default function OrgDashboard() {
                   <div className="space-y-4">
                     <Label>Zdjęcie główne</Label>
                     {imagePreview && (
-                      <Avatar className="h-48 w-48 mx-auto">
-                        <AvatarImage src={imagePreview} alt="Podgląd" />
-                        <AvatarFallback>Zdjęcie</AvatarFallback>
-                      </Avatar>
+                      <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden bg-muted">
+                        <img 
+                          src={imagePreview} 
+                          alt="Podgląd" 
+                          className="w-full h-full object-cover object-center"
+                        />
+                      </div>
                     )}
                     <div className="flex items-center gap-2">
                       <Input
@@ -990,10 +993,13 @@ export default function OrgDashboard() {
                   <div className="space-y-4">
                     <Label>Zdjęcie główne</Label>
                     {imagePreview && (
-                      <Avatar className="h-48 w-48 mx-auto">
-                        <AvatarImage src={imagePreview} alt="Podgląd" />
-                        <AvatarFallback>Zdjęcie</AvatarFallback>
-                      </Avatar>
+                      <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden bg-muted">
+                        <img 
+                          src={imagePreview} 
+                          alt="Podgląd" 
+                          className="w-full h-full object-cover object-center"
+                        />
+                      </div>
                     )}
                     <div className="flex items-center gap-2">
                       <Input
@@ -1010,10 +1016,13 @@ export default function OrgDashboard() {
                         <div className="grid grid-cols-3 gap-2 mt-2">
                           {galleryPreviews.map((preview, idx) => (
                             <div key={idx} className="relative group">
-                              <Avatar className="h-16 w-16">
-                                <AvatarImage src={preview} alt={`Galeria ${idx + 1}`} />
-                                <AvatarFallback>{idx + 1}</AvatarFallback>
-                              </Avatar>
+                              <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted">
+                                <img 
+                                  src={preview} 
+                                  alt={`Galeria ${idx + 1}`} 
+                                  className="w-full h-full object-cover object-center"
+                                />
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => handleRemoveGalleryImage(idx)}
