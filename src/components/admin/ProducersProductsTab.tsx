@@ -14,7 +14,7 @@ import { Plus, Edit, Trash2, ArrowLeft, Image, Upload, X, Check, ChevronsUpDown,
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { producerSchema } from '@/lib/validations/producer';
-import { validateImageFile } from '@/lib/validations/imageFile';
+import { validateAndCompressImage } from '@/lib/validations/imageFile';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
 import ProductEditDialog from './ProductEditDialog';
@@ -78,21 +78,17 @@ function ProducerLogoWithHover({
   const handleUpload = async (file: File) => {
     if (!file) return;
     
-    // Validate file
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      return;
-    }
-    
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      // Validate and compress image
+      const processedFile = await validateAndCompressImage(file);
+      
+      const fileExt = processedFile.name.split('.').pop();
       const fileName = `logo-${producer.id}-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('product-images')
-        .upload(fileName, file);
+        .upload(fileName, processedFile);
 
       if (uploadError) throw uploadError;
 
@@ -104,7 +100,8 @@ function ProducerLogoWithHover({
       toast.success('Logo zostało zaktualizowane');
     } catch (error) {
       console.error('Error uploading logo:', error);
-      toast.error('Błąd podczas przesyłania logo');
+      const message = error instanceof Error ? error.message : 'Błąd podczas przesyłania logo';
+      toast.error(message);
     } finally {
       setUploading(false);
     }
@@ -221,33 +218,29 @@ export default function ProducersProductsTab({
   const handleImageUpload = async (file: File): Promise<string | null> => {
     if (!file) return null;
     
-    // Validate file
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      return null;
-    }
-    
     setUploadingImage(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      // Validate and compress image
+      const processedFile = await validateAndCompressImage(file);
+      
+      const fileExt = processedFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${fileName}`;
 
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('product-images')
-        .upload(filePath, file);
+        .upload(fileName, processedFile);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Błąd podczas przesyłania zdjęcia');
+      const message = error instanceof Error ? error.message : 'Błąd podczas przesyłania zdjęcia';
+      toast.error(message);
       return null;
     } finally {
       setUploadingImage(false);
@@ -1079,34 +1072,30 @@ function ProducerCard({
   const handleLogoUpload = async (file: File) => {
     if (!file) return;
     
-    // Validate file
-    const fileValidation = validateImageFile(file);
-    if (!fileValidation.valid) {
-      toast.error(fileValidation.error);
-      return;
-    }
-    
     setUploadingLogo(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      // Validate and compress image
+      const processedFile = await validateAndCompressImage(file);
+      
+      const fileExt = processedFile.name.split('.').pop();
       const fileName = `logo-${producer.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('product-images')
-        .upload(filePath, file);
+        .upload(fileName, processedFile);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       setEditData({ ...editData, logo_url: publicUrl });
       toast.success('Logo zostało przesłane');
     } catch (error) {
       console.error('Error uploading logo:', error);
-      toast.error('Błąd podczas przesyłania logo');
+      const message = error instanceof Error ? error.message : 'Błąd podczas przesyłania logo';
+      toast.error(message);
     } finally {
       setUploadingLogo(false);
     }
@@ -1157,35 +1146,31 @@ function ProducerCard({
   const handleQuickLogoUpload = async (file: File) => {
     if (!file) return;
     
-    // Validate file
-    const fileValidation = validateImageFile(file);
-    if (!fileValidation.valid) {
-      toast.error(fileValidation.error);
-      return;
-    }
-    
     setUploadingLogo(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      // Validate and compress image
+      const processedFile = await validateAndCompressImage(file);
+      
+      const fileExt = processedFile.name.split('.').pop();
       const fileName = `logo-${producer.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('product-images')
-        .upload(filePath, file);
+        .upload(fileName, processedFile);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       await onUpdate({ ...producer, logo_url: publicUrl });
       setEditData({ ...editData, logo_url: publicUrl });
       toast.success('Logo zostało zaktualizowane');
     } catch (error) {
       console.error('Error uploading logo:', error);
-      toast.error('Błąd podczas przesyłania logo');
+      const message = error instanceof Error ? error.message : 'Błąd podczas przesyłania logo';
+      toast.error(message);
     } finally {
       setUploadingLogo(false);
     }

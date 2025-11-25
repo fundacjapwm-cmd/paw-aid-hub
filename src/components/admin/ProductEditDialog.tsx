@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { validateImageFile } from '@/lib/validations/imageFile';
+import { validateAndCompressImage } from '@/lib/validations/imageFile';
 
 interface Product {
   id: string;
@@ -48,33 +48,29 @@ export default function ProductEditDialog({ product, productCategories, onClose,
   const handleImageUpload = async (file: File): Promise<string | null> => {
     if (!file) return null;
     
-    // Validate file
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      return null;
-    }
-    
     setUploadingImage(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      // Validate and compress image
+      const processedFile = await validateAndCompressImage(file);
+      
+      const fileExt = processedFile.name.split('.').pop();
       const fileName = `product-${editData.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('product-images')
-        .upload(filePath, file);
+        .upload(fileName, processedFile);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Błąd podczas przesyłania zdjęcia');
+      const message = error instanceof Error ? error.message : 'Błąd podczas przesyłania zdjęcia';
+      toast.error(message);
       return null;
     } finally {
       setUploadingImage(false);
