@@ -108,7 +108,7 @@ const LeadGenSection = () => {
           </p>
         </div>
 
-        <Card className="max-w-2xl mx-auto p-8 rounded-3xl shadow-card border-0">
+        <Card className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl shadow-card border-0">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
