@@ -62,6 +62,34 @@ interface Props {
   onDeleteProduct: (id: string) => Promise<void>;
 }
 
+// File validation constants
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png'];
+
+// Validate file before upload
+function validateImageFile(file: File): { valid: boolean; error?: string } {
+  if (!file) return { valid: false, error: 'Nie wybrano pliku' };
+  
+  // Check file size
+  if (file.size > MAX_FILE_SIZE) {
+    return { valid: false, error: 'Plik jest za duży. Maksymalny rozmiar to 2MB' };
+  }
+  
+  // Check file type
+  if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+    return { valid: false, error: 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG' };
+  }
+  
+  // Check file extension
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+    return { valid: false, error: 'Nieprawidłowe rozszerzenie pliku. Dozwolone: .jpg, .jpeg, .png' };
+  }
+  
+  return { valid: true };
+}
+
 // Reusable component for logo with hover upload/remove
 function ProducerLogoWithHover({ 
   producer, 
@@ -75,6 +103,13 @@ function ProducerLogoWithHover({
 
   const handleUpload = async (file: File) => {
     if (!file) return;
+    
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
     
     setUploading(true);
     try {
@@ -116,7 +151,7 @@ function ProducerLogoWithHover({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -1063,6 +1098,13 @@ function ProducerCard({
   const handleLogoUpload = async (file: File) => {
     if (!file) return;
     
+    // Validate file
+    const fileValidation = validateImageFile(file);
+    if (!fileValidation.valid) {
+      toast.error(fileValidation.error);
+      return;
+    }
+    
     setUploadingLogo(true);
     try {
       const fileExt = file.name.split('.').pop();
@@ -1133,6 +1175,13 @@ function ProducerCard({
 
   const handleQuickLogoUpload = async (file: File) => {
     if (!file) return;
+    
+    // Validate file
+    const fileValidation = validateImageFile(file);
+    if (!fileValidation.valid) {
+      toast.error(fileValidation.error);
+      return;
+    }
     
     setUploadingLogo(true);
     try {
@@ -1245,7 +1294,7 @@ function ProducerCard({
                 <div className="relative group inline-block">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                     className="hidden"
                     id="edit-logo-upload"
                     onChange={(e) => {
