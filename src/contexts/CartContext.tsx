@@ -188,6 +188,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const itemsToRemove = cart.filter(item => item.animalId === animalId);
     if (itemsToRemove.length === 0) return;
     
+    const totalQuantity = itemsToRemove.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = itemsToRemove.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
     setCart((prevCart) => prevCart.filter((item) => item.animalId !== animalId));
     setAddedAnimals(prev => {
       const newSet = new Set(prev);
@@ -197,21 +200,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
     toast({
       title: `Usunięto produkty dla: ${animalName}`,
-      description: `Usunięto ${itemsToRemove.length} produktów z koszyka`,
+      description: `Usunięto ${totalQuantity} produktów (${totalPrice.toFixed(2)} zł) z koszyka`,
       variant: "destructive",
     });
   };
 
   const removeAllForOrganization = (organizationName: string) => {
-    const orgLabel = `Organizacja: ${organizationName}`;
     const itemsToRemove = cart.filter(item => !item.animalId && item.animalName?.includes(organizationName));
     if (itemsToRemove.length === 0) return;
+    
+    const totalQuantity = itemsToRemove.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = itemsToRemove.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
     setCart((prevCart) => prevCart.filter((item) => !(item.animalId === undefined && item.animalName?.includes(organizationName))));
     
     toast({
       title: `Usunięto produkty dla: ${organizationName}`,
-      description: `Usunięto ${itemsToRemove.length} produktów z koszyka`,
+      description: `Usunięto ${totalQuantity} produktów (${totalPrice.toFixed(2)} zł) z koszyka`,
       variant: "destructive",
     });
   };
