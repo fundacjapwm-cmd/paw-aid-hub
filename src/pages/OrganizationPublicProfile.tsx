@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Heart, Phone, Mail, ShieldCheck, PawPrint, Calendar, Bone, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import OrganizationProfileSkeleton from "@/components/OrganizationProfileSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -39,6 +39,7 @@ export default function OrganizationPublicProfile() {
   const [loading, setLoading] = useState(true);
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
   const { addToCart, cart, removeFromCart } = useCart();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (slug) {
@@ -165,7 +166,7 @@ export default function OrganizationPublicProfile() {
     });
     
     if (addedCount > 0) {
-      toast.success(`Dodano do koszyka ${addedCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${organization?.name}`);
+      toast({ title: `Dodano do koszyka ${addedCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${organization?.name}` });
     }
   };
 
