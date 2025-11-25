@@ -365,7 +365,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
               <Badge
                 key={filter.id}
                 variant={selectedCategory === filter.id ? "default" : "outline"}
-                className="cursor-pointer hover:scale-105 transition-transform"
+                className="cursor-pointer md:hover:scale-105 transition-transform"
                 onClick={() => setSelectedCategory(filter.id)}
               >
                 {filter.label}

@@ -9,19 +9,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
+        default: "bg-primary text-primary-foreground md:hover:shadow-bubbly md:hover:scale-105 transition-bubbly",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground md:hover:bg-destructive/90",
         outline:
-          "border-2 border-primary bg-background text-primary hover:bg-primary hover:text-primary-foreground transform hover:scale-105 transition-bubbly",
+          "border-2 border-primary bg-background text-primary md:hover:bg-primary md:hover:text-primary-foreground md:hover:scale-105 transition-bubbly",
         secondary:
-          "bg-secondary text-secondary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
-        ghost: "hover:bg-accent hover:text-accent-foreground rounded-2xl",
-        link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-hero text-primary-foreground hover:shadow-bubbly transform hover:scale-105 transition-bubbly text-lg font-semibold",
-        bubbly: "bg-primary text-primary-foreground hover:bg-accent hover:shadow-bubbly transform hover:scale-105 hover:-translate-y-1 transition-bubbly rounded-3xl",
-        light: "bg-primary-light text-primary-foreground hover:bg-primary hover:text-primary-foreground transform hover:scale-105 transition-bubbly",
-        success: "bg-green-500 text-white hover:bg-green-600 hover:shadow-bubbly transform hover:scale-105 transition-bubbly",
+          "bg-secondary text-secondary-foreground md:hover:shadow-bubbly md:hover:scale-105 transition-bubbly",
+        ghost: "md:hover:bg-accent md:hover:text-accent-foreground rounded-2xl",
+        link: "text-primary underline-offset-4 md:hover:underline",
+        hero: "bg-hero text-primary-foreground md:hover:shadow-bubbly md:hover:scale-105 transition-bubbly text-lg font-semibold",
+        bubbly: "bg-primary text-primary-foreground md:hover:bg-accent md:hover:shadow-bubbly md:hover:scale-105 md:hover:-translate-y-1 transition-bubbly rounded-3xl",
+        light: "bg-primary-light text-primary-foreground md:hover:bg-primary md:hover:text-primary-foreground md:hover:scale-105 transition-bubbly",
+        success: "bg-green-500 text-white md:hover:bg-green-600 md:hover:shadow-bubbly md:hover:scale-105 transition-bubbly",
       },
       size: {
         default: "h-12 px-6 py-3",

@@ -464,7 +464,7 @@ export default function OrgDashboard() {
               </div>
               <Button 
                 onClick={() => routerNavigate('/organizacja/zwierzeta')}
-                className="rounded-2xl shadow-soft hover:scale-105 transition-transform whitespace-nowrap"
+                className="rounded-2xl shadow-soft md:hover:scale-105 transition-transform whitespace-nowrap"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Dodaj
@@ -504,7 +504,7 @@ export default function OrgDashboard() {
               {animals.map((animal) => (
                 <Card
                   key={animal.id}
-                  className="group overflow-hidden hover:shadow-bubbly transition-all duration-300 hover:-translate-y-1 rounded-3xl border-0 shadow-card cursor-pointer"
+                  className="group overflow-hidden transition-all duration-300 rounded-3xl border-0 shadow-card cursor-pointer md:hover:shadow-bubbly md:hover:-translate-y-1"
                   onClick={() => routerNavigate(`/zwierze/${animal.id}`)}
                 >
                   <CardContent className="p-4 flex items-center gap-4">
@@ -512,7 +512,7 @@ export default function OrgDashboard() {
                       <img
                         src={animal.image_url || '/placeholder.svg'}
                         alt={animal.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover md:group-hover:scale-110 transition-transform duration-500"
                       />
                       <div className="absolute top-2 right-2">
                         <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-xs">

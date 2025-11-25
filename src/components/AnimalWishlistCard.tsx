@@ -190,7 +190,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                 
                 {/* Kup wszystkie brakujące */}
                 <Button
-                  className="w-full rounded-3xl md:rounded-xl font-semibold shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
+                  className="w-full rounded-3xl md:rounded-xl font-semibold shadow-sm md:hover:shadow-md md:hover:scale-[1.02] transition-all"
                   size="lg"
                   onClick={handleBuyAllMissing}
                   disabled={missingTotal === 0}

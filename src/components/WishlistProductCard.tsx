@@ -43,7 +43,7 @@ export const WishlistProductCard = ({
   return (
     <>
       {/* MOBILE VIEW: Soft Pop Design */}
-      <div className="flex md:hidden flex-col gap-4 p-4 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-orange-50/30 transition-all duration-300">
+      <div className="flex md:hidden flex-col gap-4 p-4 bg-white rounded-3xl border border-gray-100 shadow-sm transition-all duration-300">
         {/* Top Row: Image + Price */}
         <div className="flex items-start justify-between gap-3">
           {/* Image */}
@@ -100,7 +100,7 @@ export const WishlistProductCard = ({
             {/* Counter Pill */}
             <div className="flex items-center gap-2 bg-gray-50 rounded-full px-1 py-1 border border-gray-100 shadow-inner">
               <button 
-                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 hover:text-primary hover:scale-110 transition-all disabled:opacity-30"
+                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 transition-all disabled:opacity-30"
                 onClick={() => onQuantityChange(productId, -1)}
                 disabled={quantity <= 1}
               >
@@ -110,7 +110,7 @@ export const WishlistProductCard = ({
                 {quantity}
               </span>
               <button 
-                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 hover:text-primary hover:scale-110 transition-all disabled:opacity-30"
+                className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 transition-all disabled:opacity-30"
                 onClick={() => onQuantityChange(productId, 1)}
                 disabled={maxQuantity ? quantity >= maxQuantity : false}
               >
@@ -124,13 +124,13 @@ export const WishlistProductCard = ({
               {isInCart && onRemoveFromCart && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      className="h-10 w-10 rounded-full bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all shadow-bubbly hover:scale-105"
-                      onClick={() => onRemoveFromCart(productId)}
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
+                  <Button
+                    size="icon"
+                    className="h-10 w-10 rounded-full bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all shadow-bubbly"
+                    onClick={() => onRemoveFromCart(productId)}
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-xs">Usuń z koszyka</p>
@@ -144,7 +144,7 @@ export const WishlistProductCard = ({
                   <div className="relative">
                     <Button 
                       size="icon" 
-                      className={`h-10 w-10 rounded-full shadow-bubbly hover:scale-105 transition-all ${
+                      className={`h-10 w-10 rounded-full shadow-bubbly transition-all ${
                         isInCart 
                           ? 'bg-green-500 hover:bg-green-600' 
                           : 'bg-primary hover:bg-primary/90'
@@ -187,7 +187,7 @@ export const WishlistProductCard = ({
       <div className={`hidden md:flex gap-3 p-3 rounded-xl transition-all ${
         product.bought 
           ? 'bg-green-50 border border-green-200' 
-          : 'bg-white border border-gray-100 shadow-sm hover:border-primary/20'
+          : 'bg-white border border-gray-100 shadow-sm md:hover:border-primary/20'
       }`}>
         {/* Image */}
         <div className="shrink-0">
