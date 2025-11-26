@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Package, CheckCircle, AlertCircle, Calendar, Truck, Archive } from "lucide-react";
+import { Package, CheckCircle, AlertCircle, Calendar, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -370,24 +370,11 @@ export default function OrgOrdersToConfirm() {
       <div className="px-4 md:px-8 py-8 md:py-12 max-w-6xl mx-auto">
         <div className="mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
-            Zamówienia do potwierdzenia
+            Do potwierdzenia
           </h2>
           <p className="text-base md:text-lg text-muted-foreground">
             Potwierdź odbiór wysłanych zamówień
           </p>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex gap-2 mb-6">
-          <Button variant="default" className="rounded-2xl">
-            Do potwierdzenia ({orders.length})
-          </Button>
-          <Button variant="outline" className="rounded-2xl" asChild>
-            <Link to="/organizacja/zamowienia/archiwum">
-              <Archive className="h-4 w-4 mr-2" />
-              Archiwum
-            </Link>
-          </Button>
         </div>
 
         {orders.length === 0 ? (

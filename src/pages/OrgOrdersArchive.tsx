@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import OrgLayout from "@/components/organization/OrgLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, CheckCircle, Calendar, Truck, Archive } from "lucide-react";
+import { CheckCircle, Calendar, Truck, Archive } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 
@@ -139,45 +138,6 @@ export default function OrgOrdersArchive() {
     enabled: !!user && profile?.role === "ORG",
   });
 
-  const { data: pendingCount = 0 } = useQuery({
-    queryKey: ["organization-orders-pending-count", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return 0;
-
-      const { data: orgUser } = await supabase
-        .from("organization_users")
-        .select("organization_id")
-        .eq("user_id", user.id)
-        .single();
-
-      const orgId = orgUser?.organization_id;
-      if (!orgId) return 0;
-
-      const { data: animals } = await supabase
-        .from("animals")
-        .select("id")
-        .eq("organization_id", orgId);
-
-      const animalIds = animals?.map((a) => a.id) || [];
-      if (animalIds.length === 0) return 0;
-
-      const { data: orderItems } = await supabase
-        .from("order_items")
-        .select("order_id, orders(payment_status)")
-        .in("animal_id", animalIds)
-        .in("fulfillment_status", ["shipped", "ordered"]);
-
-      // Count unique orders that are paid
-      const uniqueOrderIds = new Set(
-        orderItems
-          ?.filter((item: any) => item.orders?.payment_status === 'completed')
-          .map((item: any) => item.order_id) || []
-      );
-
-      return uniqueOrderIds.size;
-    },
-    enabled: !!user && profile?.role === "ORG",
-  });
 
   const renderOrder = (order: Order) => {
     // Group items by animal
@@ -307,19 +267,6 @@ export default function OrgOrdersArchive() {
           </p>
         </div>
 
-        {/* Navigation */}
-        <div className="flex gap-2 mb-6">
-          <Button variant="outline" className="rounded-2xl" asChild>
-            <Link to="/organizacja/zamowienia">
-              <Package className="h-4 w-4 mr-2" />
-              Do potwierdzenia ({pendingCount})
-            </Link>
-          </Button>
-          <Button variant="default" className="rounded-2xl">
-            <Archive className="h-4 w-4 mr-2" />
-            Archiwum ({orders.length})
-          </Button>
-        </div>
 
         {orders.length === 0 ? (
           <Card className="rounded-3xl p-12 text-center shadow-card">
