@@ -273,19 +273,12 @@ export default function ProducersTab() {
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">
-                        {order.totalValue.toFixed(2)} zł
-                      </div>
-                      <div className="flex gap-2 mt-1 justify-end">
-                        <Badge variant="secondary" className="text-xs">
-                          {order.products.length} {order.products.length === 1 ? 'produkt' : 'produktów'}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {order.totalQuantity} szt.
-                        </Badge>
-                      </div>
-                    </div>
+                    <Badge variant="secondary" className="text-sm">
+                      {order.products.length} {order.products.length === 1 ? 'produkt' : 'produktów'}
+                    </Badge>
+                    <Badge variant="outline" className="text-sm font-semibold">
+                      {order.totalQuantity} szt.
+                    </Badge>
                   </div>
                 </button>
               </CollapsibleTrigger>

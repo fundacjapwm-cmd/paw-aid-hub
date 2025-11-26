@@ -175,7 +175,7 @@ export default function OrganizationsTab() {
           </table>
 
           <div class="total">
-            Łącznie: ${delivery.totalItems} produktów | Wartość: ${delivery.totalValue.toFixed(2)} zł
+            Łącznie: ${delivery.totalItems} produktów
           </div>
 
           <script>window.onload = function() { window.print(); }</script>
@@ -244,9 +244,6 @@ export default function OrganizationsTab() {
                     <Badge variant="secondary" className="rounded-full">
                       <Package className="h-3 w-3 mr-1" />
                       {delivery.totalItems} szt.
-                    </Badge>
-                    <Badge variant="outline" className="rounded-full text-primary border-primary/30">
-                      {delivery.totalValue.toFixed(2)} zł
                     </Badge>
                     <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   </div>
