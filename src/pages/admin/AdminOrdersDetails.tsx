@@ -63,6 +63,8 @@ export default function AdminOrdersDetails() {
             animals(id, name, species, organization_id, organizations(name))
           )
         `)
+        // Only show orders that initiated payment (have payment_method set)
+        .not("payment_method", "is", null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
