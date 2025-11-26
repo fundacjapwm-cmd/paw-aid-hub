@@ -48,7 +48,7 @@ interface Order {
 export default function AdminOrdersDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("paid");
 
   const { data: allTransactions } = useQuery({
     queryKey: ["admin-all-transactions"],
