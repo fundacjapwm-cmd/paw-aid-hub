@@ -879,6 +879,10 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      user_can_view_order: {
+        Args: { _order_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       adoption_status: "Dostępny" | "Zarezerwowany" | "Adoptowany"
