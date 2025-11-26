@@ -42,7 +42,14 @@ const menuStructure = [
     ]
   },
   { title: "Zgłoszenia Produktów", url: "/admin/zgloszenia-produktow", icon: Package },
-  { title: "Zamówienia", url: "/admin/zamowienia", icon: ShoppingCart },
+  {
+    title: "Zamówienia",
+    icon: ShoppingCart,
+    items: [
+      { title: "Kompletowane", url: "/admin/zamowienia/kompletowane" },
+      { title: "Szczegóły zamówień", url: "/admin/zamowienia/szczegoly" },
+    ]
+  },
   {
     label: "Baza Danych",
     items: [
@@ -244,7 +251,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (path === "/admin/zgloszenia") return "Nowe Zgłoszenia";
     if (path === "/admin/zgloszenia/archiwum") return "Archiwum Zgłoszeń";
     if (path === "/admin/zgloszenia-produktow") return "Zgłoszenia Produktów";
-    if (path === "/admin/zamowienia") return "Zamówienia";
+    if (path === "/admin/zamowienia/kompletowane") return "Zamówienia Kompletowane";
+    if (path === "/admin/zamowienia/szczegoly") return "Szczegóły Zamówień";
     if (path === "/admin/zwierzeta") return "Zwierzęta";
     if (path === "/admin/organizacje") return "Organizacje";
     if (path === "/admin/producenci") return "Producenci i Produkty";

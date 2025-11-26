@@ -4,13 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Package, CheckCircle, Clock, Truck, Building2, PawPrint, Receipt, User, Search } from "lucide-react";
+import { Package, Clock, Building2, PawPrint } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -33,10 +30,6 @@ interface OrderItem {
     id: string;
     name: string;
     species: string;
-    organization_id?: string;
-    organizations?: {
-      name: string;
-    };
   };
 }
 
@@ -44,13 +37,8 @@ interface Order {
   id: string;
   created_at: string;
   total_amount: number;
-  user_id: string | null;
-  payment_status: string | null;
-  status: string | null;
+  user_id: string;
   order_items: OrderItem[];
-  profiles?: {
-    display_name: string | null;
-  } | null;
 }
 
 interface BatchOrder {
@@ -69,18 +57,14 @@ interface BatchOrder {
   orders?: Order[];
 }
 
-export default function AdminOrders() {
+export default function AdminOrdersCollecting() {
   const [selectedBatch, setSelectedBatch] = useState<BatchOrder | null>(null);
-  const [showTrackingDialog, setShowTrackingDialog] = useState(false);
   const [showProcessDialog, setShowProcessDialog] = useState(false);
-  const [trackingNumber, setTrackingNumber] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch batch orders for "Kompletowane" tab
   const { data: batchOrders, refetch } = useQuery({
-    queryKey: ["admin-batch-orders"],
+    queryKey: ["admin-batch-orders-collecting"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("organization_batch_orders")
@@ -120,60 +104,6 @@ export default function AdminOrders() {
     },
   });
 
-  // Fetch all transactions for "Szczegóły zamówień" tab
-  const { data: allTransactions } = useQuery({
-    queryKey: ["admin-all-transactions"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select(`
-          *,
-          order_items(
-            *,
-            products(id, name, image_url),
-            animals(id, name, species, organization_id, organizations(name))
-          )
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      // Fetch profiles for each unique user_id
-      const userIds = [...new Set((data || []).map(o => o.user_id).filter(Boolean))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .in("id", userIds);
-
-      const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
-
-      return (data || []).map(order => ({
-        ...order,
-        profiles: order.user_id ? { display_name: profileMap.get(order.user_id) || null } : null
-      })) as Order[];
-    },
-  });
-
-  const filteredTransactions = allTransactions?.filter((order) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    const buyerName = order.profiles?.display_name?.toLowerCase() || "";
-    const orderId = order.id.toLowerCase();
-    const orgNames = order.order_items
-      .map((item) => item.animals?.organizations?.name?.toLowerCase() || "")
-      .join(" ");
-    const productNames = order.order_items
-      .map((item) => item.products?.name?.toLowerCase() || "")
-      .join(" ");
-    
-    return (
-      buyerName.includes(query) ||
-      orderId.includes(query) ||
-      orgNames.includes(query) ||
-      productNames.includes(query)
-    );
-  });
-
   const collectingOrders = batchOrders || [];
 
   const handleStartProcessing = (batch: BatchOrder) => {
@@ -201,42 +131,6 @@ export default function AdminOrders() {
       setShowProcessDialog(false);
       setSelectedBatch(null);
       setNotes("");
-      refetch();
-    } catch (error: any) {
-      toast.error("Błąd: " + error.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleAddTracking = (batch: BatchOrder) => {
-    setSelectedBatch(batch);
-    setTrackingNumber(batch.tracking_number || "");
-    setShowTrackingDialog(true);
-  };
-
-  const handleSaveTracking = async () => {
-    if (!selectedBatch || !trackingNumber.trim()) {
-      toast.error("Podaj numer przesyłki");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from("organization_batch_orders")
-        .update({
-          tracking_number: trackingNumber,
-          status: "fulfilled",
-        })
-        .eq("id", selectedBatch.id);
-
-      if (error) throw error;
-
-      toast.success("Numer przesyłki zapisany, zamówienie zrealizowane");
-      setShowTrackingDialog(false);
-      setSelectedBatch(null);
-      setTrackingNumber("");
       refetch();
     } catch (error: any) {
       toast.error("Błąd: " + error.message);
@@ -277,19 +171,6 @@ export default function AdminOrders() {
     });
 
     return Array.from(producerOrder.values());
-  };
-
-  const getPaymentStatusBadge = (status: string | null) => {
-    switch (status) {
-      case "completed":
-        return <Badge variant="default" className="bg-green-500">Opłacone</Badge>;
-      case "pending":
-        return <Badge variant="secondary">Oczekuje</Badge>;
-      case "failed":
-        return <Badge variant="destructive">Nieudane</Badge>;
-      default:
-        return <Badge variant="outline">{status || "Brak"}</Badge>;
-    }
   };
 
   const renderBatchOrder = (batch: BatchOrder) => {
@@ -463,120 +344,25 @@ export default function AdminOrders() {
   return (
     <div className="md:px-8 px-4 space-y-6">
       <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
-        <h2 className="text-xl font-semibold text-foreground mb-2">Zamówienia</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-2">Kompletowane</h2>
         <p className="text-muted-foreground">
-          Zarządzaj zamówieniami organizacji i przeglądaj transakcje darczyńców
+          Otwarte zamówienia oczekujące na skompletowanie wg organizacji
         </p>
       </div>
 
-      <Tabs defaultValue="collecting" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="collecting">
-            Kompletowane ({collectingOrders.length})
-          </TabsTrigger>
-          <TabsTrigger value="transactions">
-            Szczegóły zamówień
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="collecting" className="mt-6">
-          {collectingOrders.length === 0 ? (
-            <Card className="rounded-3xl p-12 text-center shadow-card">
-              <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Brak zamówień w kompletowaniu</h3>
-              <p className="text-muted-foreground">
-                Zamówienia od darczyńców pojawią się tutaj
-              </p>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {collectingOrders.map((batch) => renderBatchOrder(batch))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="transactions" className="mt-6 space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Szukaj po nazwie kupującego, organizacji, produktu lub nr zamówienia..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 rounded-2xl"
-            />
-          </div>
-
-          {/* Transactions Table */}
-          <Card className="rounded-3xl shadow-card overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Nr zamówienia</TableHead>
-                  <TableHead>Kupujący</TableHead>
-                  <TableHead>Produkty</TableHead>
-                  <TableHead>Dla kogo</TableHead>
-                  <TableHead>Organizacja</TableHead>
-                  <TableHead>Kwota</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTransactions?.map((order) => {
-                  const orgName = order.order_items[0]?.animals?.organizations?.name || "—";
-                  const recipients = [...new Set(order.order_items.map((item) => 
-                    item.animals?.name || "Fundacja"
-                  ))].join(", ");
-                  const products = order.order_items.map((item) => 
-                    `${item.products?.name} (${item.quantity} szt.)`
-                  ).join(", ");
-
-                  return (
-                    <TableRow key={order.id}>
-                      <TableCell className="whitespace-nowrap">
-                        {format(new Date(order.created_at), "dd.MM.yyyy HH:mm", { locale: pl })}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {order.id.slice(0, 8)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          {order.profiles?.display_name || "Gość"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate" title={products}>
-                        {products}
-                      </TableCell>
-                      <TableCell>
-                        {recipients}
-                      </TableCell>
-                      <TableCell>
-                        {orgName}
-                      </TableCell>
-                      <TableCell className="font-semibold">
-                        {order.total_amount.toFixed(2)} zł
-                      </TableCell>
-                      <TableCell>
-                        {getPaymentStatusBadge(order.payment_status)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {(!filteredTransactions || filteredTransactions.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-12">
-                      <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground">Brak transakcji do wyświetlenia</p>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {collectingOrders.length === 0 ? (
+        <Card className="rounded-3xl p-12 text-center shadow-card">
+          <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-xl font-semibold mb-2">Brak zamówień w kompletowaniu</h3>
+          <p className="text-muted-foreground">
+            Zamówienia od darczyńców pojawią się tutaj
+          </p>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {collectingOrders.map((batch) => renderBatchOrder(batch))}
+        </div>
+      )}
 
       {/* Process Order Dialog */}
       <Dialog open={showProcessDialog} onOpenChange={setShowProcessDialog}>
@@ -627,48 +413,6 @@ export default function AdminOrders() {
               className="rounded-2xl"
             >
               {submitting ? "Przetwarzanie..." : "Rozpocznij realizację"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Tracking Number Dialog */}
-      <Dialog open={showTrackingDialog} onOpenChange={setShowTrackingDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Dodaj numer przesyłki</DialogTitle>
-            <DialogDescription>
-              Wprowadź numer śledzenia przesyłki. Zamówienie zostanie oznaczone jako zrealizowane.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="tracking">Numer przesyłki</Label>
-              <Input
-                id="tracking"
-                value={trackingNumber}
-                onChange={(e) => setTrackingNumber(e.target.value)}
-                placeholder="np. 123456789"
-                className="rounded-2xl"
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowTrackingDialog(false)}
-              className="rounded-2xl"
-            >
-              Anuluj
-            </Button>
-            <Button
-              onClick={handleSaveTracking}
-              disabled={submitting || !trackingNumber.trim()}
-              className="rounded-2xl"
-            >
-              {submitting ? "Zapisywanie..." : "Zapisz i zakończ"}
             </Button>
           </DialogFooter>
         </DialogContent>
