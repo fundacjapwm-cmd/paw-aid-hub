@@ -37,7 +37,13 @@ function OrgSidebarContent() {
   const { signOut } = useAuth();
   const { open } = useSidebar();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    // For orders, check if current path starts with the orders path
+    if (path === "/organizacja/zamowienia") {
+      return location.pathname.startsWith("/organizacja/zamowienia");
+    }
+    return location.pathname === path;
+  };
 
   return (
     <SidebarContent>
