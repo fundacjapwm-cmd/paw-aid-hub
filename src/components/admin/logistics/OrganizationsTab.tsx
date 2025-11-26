@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Printer, Package, MapPin, PawPrint, Truck } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Printer, Package, MapPin, PawPrint, Truck, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface OrganizationDelivery {
   organizationId: string;
@@ -23,10 +24,11 @@ interface OrganizationDelivery {
 }
 
 export default function OrganizationsTab() {
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+
   const { data: deliveries, isLoading } = useQuery({
     queryKey: ["logistics-organization-deliveries"],
     queryFn: async () => {
-      // First get paid orders
       const { data: paidOrders, error: ordersError } = await supabase
         .from('orders')
         .select('id')
@@ -37,7 +39,6 @@ export default function OrganizationsTab() {
 
       const orderIds = paidOrders.map(o => o.id);
 
-      // Then get pending items from those orders
       const { data, error } = await supabase
         .from('order_items')
         .select(`
@@ -67,7 +68,6 @@ export default function OrganizationsTab() {
 
       if (error) throw error;
 
-      // Group by organization
       const grouped = new Map<string, OrganizationDelivery>();
 
       data?.forEach((item: any) => {
@@ -106,6 +106,18 @@ export default function OrganizationsTab() {
       return Array.from(grouped.values());
     },
   });
+
+  const toggleItem = (id: string) => {
+    setOpenItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const printPackingSlip = (delivery: OrganizationDelivery) => {
     const printWindow = window.open('', '_blank');
@@ -177,18 +189,9 @@ export default function OrganizationsTab() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-3">
         {[1, 2, 3].map(i => (
-          <Card key={i} className="rounded-3xl shadow-card">
-            <CardHeader>
-              <Skeleton className="h-12 w-12 rounded-2xl" />
-              <Skeleton className="h-5 w-40 mt-2" />
-              <Skeleton className="h-4 w-32" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-32 w-full rounded-2xl" />
-            </CardContent>
-          </Card>
+          <Skeleton key={i} className="h-16 w-full rounded-xl" />
         ))}
       </div>
     );
@@ -196,80 +199,96 @@ export default function OrganizationsTab() {
 
   if (!deliveries || deliveries.length === 0) {
     return (
-      <Card className="rounded-3xl shadow-card border-border/50">
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
-            <Truck className="h-10 w-10 text-green-600" />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">
-            Wszystko wysłane! 🎉
-          </h3>
-          <p className="text-muted-foreground text-center max-w-md">
-            Nie ma nowych dostaw oczekujących dla organizacji. Gdy pojawią się nowe opłacone zamówienia, zobaczysz je tutaj.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+          <Truck className="h-8 w-8 text-green-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground mb-2">
+          Wszystko wysłane!
+        </h3>
+        <p className="text-muted-foreground max-w-md">
+          Nie ma nowych dostaw oczekujących dla organizacji.
+        </p>
+      </div>
     );
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {deliveries.map((delivery) => (
-        <Card key={delivery.organizationId} className="rounded-3xl shadow-card border-border/50 overflow-hidden">
-          <CardHeader className="pb-3">
-            <div className="flex items-start gap-3">
-              <div className="h-12 w-12 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
-                <MapPin className="h-6 w-6 text-accent" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg truncate">{delivery.organizationName}</CardTitle>
-                <CardDescription className="mt-1 text-sm">
-                  {delivery.address && <span>{delivery.address}<br /></span>}
-                  {delivery.postalCode} {delivery.city}
-                </CardDescription>
-              </div>
-            </div>
-            
-            <div className="flex gap-2 mt-3">
-              <Badge variant="secondary" className="rounded-full">
-                <Package className="h-3 w-3 mr-1" />
-                {delivery.totalItems} szt.
-              </Badge>
-              <Badge variant="outline" className="rounded-full text-primary border-primary/30">
-                {delivery.totalValue.toFixed(2)} zł
-              </Badge>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <div className="rounded-2xl border border-border bg-muted/30 divide-y divide-border">
-              {delivery.items.map((item, idx) => (
-                <div key={idx} className="p-3 flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{item.productName}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <PawPrint className="h-3 w-3" />
-                      {item.animalName}
-                    </p>
+    <div className="space-y-3">
+      {deliveries.map((delivery) => {
+        const isOpen = openItems.has(delivery.organizationId);
+        
+        return (
+          <Collapsible
+            key={delivery.organizationId}
+            open={isOpen}
+            onOpenChange={() => toggleItem(delivery.organizationId)}
+          >
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                      <MapPin className="h-5 w-5 text-accent" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-semibold">{delivery.organizationName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {delivery.address && `${delivery.address}, `}
+                        {delivery.postalCode} {delivery.city}
+                      </p>
+                    </div>
                   </div>
-                  <Badge variant="outline" className="ml-2 shrink-0">
-                    {item.quantity} szt
-                  </Badge>
+                  
+                  <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="rounded-full">
+                      <Package className="h-3 w-3 mr-1" />
+                      {delivery.totalItems} szt.
+                    </Badge>
+                    <Badge variant="outline" className="rounded-full text-primary border-primary/30">
+                      {delivery.totalValue.toFixed(2)} zł
+                    </Badge>
+                    <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  </div>
                 </div>
-              ))}
-            </div>
+              </CollapsibleTrigger>
 
-            <Button
-              onClick={() => printPackingSlip(delivery)}
-              className="w-full rounded-2xl"
-              variant="outline"
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              Drukuj Listę Przewozową
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
+              <CollapsibleContent>
+                <div className="border-t border-border px-4 pb-4">
+                  <div className="divide-y divide-border">
+                    {delivery.items.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between py-3">
+                        <div>
+                          <p className="font-medium text-sm">{item.productName}</p>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <PawPrint className="h-3 w-3" />
+                            {item.animalName}
+                          </p>
+                        </div>
+                        <Badge variant="outline">
+                          {item.quantity} szt
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      printPackingSlip(delivery);
+                    }}
+                    className="w-full mt-4 rounded-xl"
+                    variant="outline"
+                  >
+                    <Printer className="h-4 w-4 mr-2" />
+                    Drukuj Listę Przewozową
+                  </Button>
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        );
+      })}
     </div>
   );
 }
