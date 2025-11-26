@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail, Package, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail, Package, ShoppingCart, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
@@ -47,6 +47,7 @@ const menuStructure = [
     label: "Baza Danych",
     items: [
       { title: "Organizacje", url: "/admin/organizacje", icon: Building2 },
+      { title: "Zwierzęta", url: "/admin/zwierzeta", icon: Heart },
       { title: "Producenci i Produkty", url: "/admin/producenci", icon: Factory },
       { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
     ]
@@ -244,6 +245,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (path === "/admin/zgloszenia/archiwum") return "Archiwum Zgłoszeń";
     if (path === "/admin/zgloszenia-produktow") return "Zgłoszenia Produktów";
     if (path === "/admin/zamowienia") return "Zamówienia";
+    if (path === "/admin/zwierzeta") return "Zwierzęta";
     if (path === "/admin/organizacje") return "Organizacje";
     if (path === "/admin/producenci") return "Producenci i Produkty";
     if (path === "/admin/uzytkownicy") return "Użytkownicy";

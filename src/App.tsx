@@ -31,6 +31,7 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminLeadsArchive from "./pages/admin/AdminLeadsArchive";
 import AdminProductRequests from "./pages/admin/AdminProductRequests";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminAnimals from "./pages/admin/AdminAnimals";
 import OrgDashboard from "./pages/OrgDashboard";
 
 import OrgProfile from "./pages/OrgProfile";
@@ -77,6 +78,7 @@ function AppContent() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminStats />} />
             <Route path="organizacje" element={<AdminOrganizations />} />
+            <Route path="zwierzeta" element={<AdminAnimals />} />
             <Route path="zgloszenia" element={<AdminLeads />} />
             <Route path="zgloszenia/archiwum" element={<AdminLeadsArchive />} />
             <Route path="zgloszenia-produktow" element={<AdminProductRequests />} />

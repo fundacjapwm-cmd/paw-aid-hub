@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Building2, Heart, Factory, Users, Package, ShoppingCart } from 'lucide-react';
+import { Building2, Heart, Factory, Users, ShoppingCart } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 
@@ -14,7 +14,6 @@ export default function AdminStats() {
     organizations: 0,
     animals: 0,
     producers: 0,
-    products: 0,
     users: 0,
     orders: 0,
   });
@@ -47,11 +46,10 @@ export default function AdminStats() {
 
   const fetchStats = async () => {
     try {
-      const [orgsRes, animalsRes, producersRes, productsRes, usersRes, ordersRes] = await Promise.all([
+      const [orgsRes, animalsRes, producersRes, usersRes, ordersRes] = await Promise.all([
         supabase.from('organizations').select('id', { count: 'exact', head: true }),
         supabase.from('animals').select('id', { count: 'exact', head: true }),
         supabase.from('producers').select('id', { count: 'exact', head: true }),
-        supabase.from('products').select('id', { count: 'exact', head: true }),
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('orders').select('id', { count: 'exact', head: true }),
       ]);
@@ -60,7 +58,6 @@ export default function AdminStats() {
         organizations: orgsRes.count || 0,
         animals: animalsRes.count || 0,
         producers: producersRes.count || 0,
-        products: productsRes.count || 0,
         users: usersRes.count || 0,
         orders: ordersRes.count || 0,
       });
@@ -132,37 +129,36 @@ export default function AdminStats() {
       title: "Organizacje",
       value: stats.organizations,
       icon: Building2,
-      description: "Zarejestrowanych organizacji"
+      description: "Zarejestrowanych organizacji",
+      link: "/admin/organizacje"
     },
     {
       title: "Zwierzęta",
       value: stats.animals,
       icon: Heart,
-      description: "Zwierząt w systemie"
+      description: "Zwierząt w systemie",
+      link: "/admin/zwierzeta"
     },
     {
       title: "Producenci",
       value: stats.producers,
       icon: Factory,
-      description: "Producentów w bazie"
-    },
-    {
-      title: "Produkty",
-      value: stats.products,
-      icon: Package,
-      description: "Dostępnych produktów"
+      description: "Producentów w bazie",
+      link: "/admin/producenci"
     },
     {
       title: "Użytkownicy",
       value: stats.users,
       icon: Users,
-      description: "Zarejestrowanych użytkowników"
+      description: "Zarejestrowanych użytkowników",
+      link: "/admin/uzytkownicy"
     },
     {
       title: "Zamówienia",
       value: stats.orders,
       icon: ShoppingCart,
-      description: "Złożonych zamówień"
+      description: "Złożonych zamówień",
+      link: "/admin/zamowienia"
     },
   ];
 
@@ -185,20 +181,22 @@ export default function AdminStats() {
     <div className="md:px-8 px-4 space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {statCards.map((stat) => (
-          <Card key={stat.title} className="rounded-3xl shadow-bubbly hover:shadow-bubbly-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className="h-5 w-5 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stat.description}
-              </p>
-            </CardContent>
-          </Card>
+          <Link key={stat.title} to={stat.link}>
+            <Card className="rounded-3xl shadow-bubbly hover:shadow-bubbly-lg transition-shadow cursor-pointer h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+                <stat.icon className="h-5 w-5 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stat.description}
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
