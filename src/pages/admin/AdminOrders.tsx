@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Package, CheckCircle, Clock, Truck, Building2, PawPrint } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Package, CheckCircle, Clock, Truck, Building2, PawPrint, Receipt, User, Search } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -32,6 +33,10 @@ interface OrderItem {
     id: string;
     name: string;
     species: string;
+    organization_id?: string;
+    organizations?: {
+      name: string;
+    };
   };
 }
 
@@ -39,8 +44,13 @@ interface Order {
   id: string;
   created_at: string;
   total_amount: number;
-  user_id: string;
+  user_id: string | null;
+  payment_status: string | null;
+  status: string | null;
   order_items: OrderItem[];
+  profiles?: {
+    display_name: string | null;
+  } | null;
 }
 
 interface BatchOrder {
@@ -66,7 +76,9 @@ export default function AdminOrders() {
   const [trackingNumber, setTrackingNumber] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // Fetch batch orders for "Kompletowane" tab
   const { data: batchOrders, refetch } = useQuery({
     queryKey: ["admin-batch-orders"],
     queryFn: async () => {
@@ -76,11 +88,11 @@ export default function AdminOrders() {
           *,
           organizations(name, logo_url)
         `)
+        .eq("status", "collecting")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      // For each batch, get the orders
       const batchesWithOrders = await Promise.all(
         (data || []).map(async (batch) => {
           const { data: orders } = await supabase
@@ -108,9 +120,61 @@ export default function AdminOrders() {
     },
   });
 
-  const collectingOrders = batchOrders?.filter((b) => b.status === "collecting") || [];
-  const processingOrders = batchOrders?.filter((b) => b.status === "processing") || [];
-  const fulfilledOrders = batchOrders?.filter((b) => b.status === "fulfilled") || [];
+  // Fetch all transactions for "Szczegóły zamówień" tab
+  const { data: allTransactions } = useQuery({
+    queryKey: ["admin-all-transactions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select(`
+          *,
+          order_items(
+            *,
+            products(id, name, image_url),
+            animals(id, name, species, organization_id, organizations(name))
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Fetch profiles for each unique user_id
+      const userIds = [...new Set((data || []).map(o => o.user_id).filter(Boolean))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", userIds);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
+
+      return (data || []).map(order => ({
+        ...order,
+        profiles: order.user_id ? { display_name: profileMap.get(order.user_id) || null } : null
+      })) as Order[];
+    },
+  });
+
+  const filteredTransactions = allTransactions?.filter((order) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    const buyerName = order.profiles?.display_name?.toLowerCase() || "";
+    const orderId = order.id.toLowerCase();
+    const orgNames = order.order_items
+      .map((item) => item.animals?.organizations?.name?.toLowerCase() || "")
+      .join(" ");
+    const productNames = order.order_items
+      .map((item) => item.products?.name?.toLowerCase() || "")
+      .join(" ");
+    
+    return (
+      buyerName.includes(query) ||
+      orderId.includes(query) ||
+      orgNames.includes(query) ||
+      productNames.includes(query)
+    );
+  });
+
+  const collectingOrders = batchOrders || [];
 
   const handleStartProcessing = (batch: BatchOrder) => {
     setSelectedBatch(batch);
@@ -182,7 +246,6 @@ export default function AdminOrders() {
   };
 
   const generateProducerOrder = (batch: BatchOrder) => {
-    // Collect all items from all orders in this batch
     const allItems: OrderItem[] = [];
     batch.orders?.forEach((order) => {
       order.order_items.forEach((item) => {
@@ -190,7 +253,6 @@ export default function AdminOrders() {
       });
     });
 
-    // Group by product and sum quantities
     const producerOrder = new Map<string, {
       product: OrderItem["products"];
       totalQuantity: number;
@@ -217,8 +279,20 @@ export default function AdminOrders() {
     return Array.from(producerOrder.values());
   };
 
+  const getPaymentStatusBadge = (status: string | null) => {
+    switch (status) {
+      case "completed":
+        return <Badge variant="default" className="bg-green-500">Opłacone</Badge>;
+      case "pending":
+        return <Badge variant="secondary">Oczekuje</Badge>;
+      case "failed":
+        return <Badge variant="destructive">Nieudane</Badge>;
+      default:
+        return <Badge variant="outline">{status || "Brak"}</Badge>;
+    }
+  };
+
   const renderBatchOrder = (batch: BatchOrder) => {
-    // Group items by animal and organization
     const itemsByTarget = new Map<string, OrderItem[]>();
     const orgItems: OrderItem[] = [];
 
@@ -268,19 +342,7 @@ export default function AdminOrders() {
                 </div>
               </div>
             </div>
-            <Badge
-              variant={
-                batch.status === "collecting"
-                  ? "secondary"
-                  : batch.status === "processing"
-                  ? "default"
-                  : "outline"
-              }
-            >
-              {batch.status === "collecting" && "Kompletowanie"}
-              {batch.status === "processing" && "W realizacji"}
-              {batch.status === "fulfilled" && "Zrealizowane"}
-            </Badge>
+            <Badge variant="secondary">Kompletowanie</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -351,68 +413,47 @@ export default function AdminOrders() {
             );
           })}
 
-          {/* Producer Order Summary for processing */}
-          {batch.status === "collecting" && (
-            <div className="border-t pt-4">
-              <h4 className="font-semibold text-sm mb-3">Zamówienie zbiorcze do producenta:</h4>
-              <div className="space-y-2 bg-muted/20 p-4 rounded-2xl">
-                {generateProducerOrder(batch).map((item) => (
-                  <div key={item.product?.id} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      {item.product?.image_url && (
-                        <img
-                          src={item.product.image_url}
-                          alt={item.product.name}
-                          className="w-8 h-8 object-cover rounded"
-                        />
-                      )}
-                      <div>
-                        <p className="font-medium">{item.product?.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.product?.producers?.name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{item.totalQuantity} szt.</p>
+          {/* Producer Order Summary */}
+          <div className="border-t pt-4">
+            <h4 className="font-semibold text-sm mb-3">Zamówienie zbiorcze do producenta:</h4>
+            <div className="space-y-2 bg-muted/20 p-4 rounded-2xl">
+              {generateProducerOrder(batch).map((item) => (
+                <div key={item.product?.id} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    {item.product?.image_url && (
+                      <img
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        className="w-8 h-8 object-cover rounded"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium">{item.product?.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {item.totalValue.toFixed(2)} zł
+                        {item.product?.producers?.name}
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-right">
+                    <p className="font-semibold">{item.totalQuantity} szt.</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.totalValue.toFixed(2)} zł
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-
-          {/* Tracking Number */}
-          {batch.tracking_number && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-4">
-              <Truck className="h-4 w-4" />
-              <span>Numer przesyłki: <strong>{batch.tracking_number}</strong></span>
-            </div>
-          )}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t">
-            {batch.status === "collecting" && (
-              <Button
-                onClick={() => handleStartProcessing(batch)}
-                className="flex-1 rounded-2xl"
-              >
-                <Package className="h-4 w-4 mr-2" />
-                Realizacja
-              </Button>
-            )}
-            {batch.status === "processing" && (
-              <Button
-                onClick={() => handleAddTracking(batch)}
-                className="flex-1 rounded-2xl"
-              >
-                <Truck className="h-4 w-4 mr-2" />
-                Dodaj numer przesyłki
-              </Button>
-            )}
+            <Button
+              onClick={() => handleStartProcessing(batch)}
+              className="flex-1 rounded-2xl"
+            >
+              <Package className="h-4 w-4 mr-2" />
+              Realizacja
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -424,20 +465,17 @@ export default function AdminOrders() {
       <div>
         <h1 className="text-3xl font-bold mb-2">Zamówienia</h1>
         <p className="text-muted-foreground">
-          Zarządzaj zamówieniami organizacji
+          Zarządzaj zamówieniami organizacji i przeglądaj transakcje
         </p>
       </div>
 
       <Tabs defaultValue="collecting" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="collecting">
-            Kompletowanie ({collectingOrders.length})
+            Kompletowane ({collectingOrders.length})
           </TabsTrigger>
-          <TabsTrigger value="processing">
-            W trakcie realizacji ({processingOrders.length})
-          </TabsTrigger>
-          <TabsTrigger value="fulfilled">
-            Zrealizowane ({fulfilledOrders.length})
+          <TabsTrigger value="transactions">
+            Szczegóły zamówień
           </TabsTrigger>
         </TabsList>
 
@@ -457,36 +495,86 @@ export default function AdminOrders() {
           )}
         </TabsContent>
 
-        <TabsContent value="processing" className="mt-6">
-          {processingOrders.length === 0 ? (
-            <Card className="rounded-3xl p-12 text-center shadow-card">
-              <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Brak zamówień w realizacji</h3>
-              <p className="text-muted-foreground">
-                Zamówienia w trakcie realizacji pojawią się tutaj
-              </p>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {processingOrders.map((batch) => renderBatchOrder(batch))}
-            </div>
-          )}
-        </TabsContent>
+        <TabsContent value="transactions" className="mt-6 space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Szukaj po nazwie kupującego, organizacji, produktu lub nr zamówienia..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 rounded-2xl"
+            />
+          </div>
 
-        <TabsContent value="fulfilled" className="mt-6">
-          {fulfilledOrders.length === 0 ? (
-            <Card className="rounded-3xl p-12 text-center shadow-card">
-              <CheckCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Brak zrealizowanych zamówień</h3>
-              <p className="text-muted-foreground">
-                Zrealizowane zamówienia pojawią się tutaj
-              </p>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {fulfilledOrders.map((batch) => renderBatchOrder(batch))}
-            </div>
-          )}
+          {/* Transactions Table */}
+          <Card className="rounded-3xl shadow-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Nr zamówienia</TableHead>
+                  <TableHead>Kupujący</TableHead>
+                  <TableHead>Produkty</TableHead>
+                  <TableHead>Dla kogo</TableHead>
+                  <TableHead>Organizacja</TableHead>
+                  <TableHead>Kwota</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTransactions?.map((order) => {
+                  const orgName = order.order_items[0]?.animals?.organizations?.name || "—";
+                  const recipients = [...new Set(order.order_items.map((item) => 
+                    item.animals?.name || "Fundacja"
+                  ))].join(", ");
+                  const products = order.order_items.map((item) => 
+                    `${item.products?.name} (${item.quantity} szt.)`
+                  ).join(", ");
+
+                  return (
+                    <TableRow key={order.id}>
+                      <TableCell className="whitespace-nowrap">
+                        {format(new Date(order.created_at), "dd.MM.yyyy HH:mm", { locale: pl })}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {order.id.slice(0, 8)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          {order.profiles?.display_name || "Gość"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate" title={products}>
+                        {products}
+                      </TableCell>
+                      <TableCell>
+                        {recipients}
+                      </TableCell>
+                      <TableCell>
+                        {orgName}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {order.total_amount.toFixed(2)} zł
+                      </TableCell>
+                      <TableCell>
+                        {getPaymentStatusBadge(order.payment_status)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {(!filteredTransactions || filteredTransactions.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-12">
+                      <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground">Brak transakcji do wyświetlenia</p>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
         </TabsContent>
       </Tabs>
 
@@ -496,40 +584,48 @@ export default function AdminOrders() {
           <DialogHeader>
             <DialogTitle>Rozpocznij realizację zamówienia</DialogTitle>
             <DialogDescription>
-              Zamówienie zostanie przesunięte do realizacji. Poniżej znajduje się podsumowanie
-              zamówienia zbiorczego do producenta.
+              Zamówienie zostanie przekazane do realizacji. Wygeneruj zamówienie do producenta.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            {selectedBatch && (
-              <>
-                <div className="space-y-2 bg-muted/30 p-4 rounded-2xl">
-                  <h4 className="font-semibold">Zamówienie zbiorcze:</h4>
-                  {generateProducerOrder(selectedBatch).map((item) => (
-                    <div key={item.product?.id} className="flex justify-between text-sm">
-                      <span>{item.product?.name}</span>
-                      <span className="font-semibold">{item.totalQuantity} szt.</span>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <Label htmlFor="notes">Notatki (opcjonalnie)</Label>
-                  <Textarea
-                    id="notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Dodaj notatki do zamówienia..."
-                    className="mt-2"
-                  />
-                </div>
-              </>
-            )}
-          </div>
+
+          {selectedBatch && (
+            <div className="space-y-4">
+              <div className="bg-muted/30 p-4 rounded-2xl">
+                <h4 className="font-semibold mb-3">Zamówienie zbiorcze:</h4>
+                {generateProducerOrder(selectedBatch).map((item) => (
+                  <div key={item.product?.id} className="flex justify-between text-sm py-1">
+                    <span>{item.product?.name}</span>
+                    <span className="font-semibold">{item.totalQuantity} szt.</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notatki (opcjonalnie)</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Dodatkowe informacje..."
+                  className="rounded-2xl"
+                />
+              </div>
+            </div>
+          )}
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowProcessDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowProcessDialog(false)}
+              className="rounded-2xl"
+            >
               Anuluj
             </Button>
-            <Button onClick={handleProcessOrder} disabled={submitting}>
+            <Button
+              onClick={handleProcessOrder}
+              disabled={submitting}
+              className="rounded-2xl"
+            >
               {submitting ? "Przetwarzanie..." : "Rozpocznij realizację"}
             </Button>
           </DialogFooter>
@@ -542,35 +638,37 @@ export default function AdminOrders() {
           <DialogHeader>
             <DialogTitle>Dodaj numer przesyłki</DialogTitle>
             <DialogDescription>
-              Wprowadź numer przesyłki. Zamówienie zostanie automatycznie oznaczone jako
-              zrealizowane.
+              Wprowadź numer śledzenia przesyłki. Zamówienie zostanie oznaczone jako zrealizowane.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="tracking">Numer przesyłki *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="tracking">Numer przesyłki</Label>
               <Input
                 id="tracking"
                 value={trackingNumber}
                 onChange={(e) => setTrackingNumber(e.target.value)}
-                placeholder="np. 1234567890"
-                className="mt-2"
+                placeholder="np. 123456789"
+                className="rounded-2xl"
               />
             </div>
           </div>
+
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setShowTrackingDialog(false)}
-              disabled={submitting}
+              className="rounded-2xl"
             >
               Anuluj
             </Button>
             <Button
               onClick={handleSaveTracking}
               disabled={submitting || !trackingNumber.trim()}
+              className="rounded-2xl"
             >
-              {submitting ? "Zapisywanie..." : "Zapisz"}
+              {submitting ? "Zapisywanie..." : "Zapisz i zakończ"}
             </Button>
           </DialogFooter>
         </DialogContent>
