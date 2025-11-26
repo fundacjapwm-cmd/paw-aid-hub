@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, Package, CheckCircle2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Download, Package, CheckCircle2, ChevronDown, ChevronRight, Factory, MapPin, PawPrint, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface ProducerOrder {
@@ -13,6 +14,7 @@ interface ProducerOrder {
   producerName: string;
   producerEmail: string;
   totalValue: number;
+  totalQuantity: number;
   products: {
     productId: string;
     productName: string;
@@ -30,16 +32,25 @@ interface ProducerOrder {
 }
 
 export default function ProducersTab() {
-  const [orders, setOrders] = useState<ProducerOrder[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [expandedProducers, setExpandedProducers] = useState<Set<string>>(new Set());
+  const [processingProducer, setProcessingProducer] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchPendingOrders();
-  }, []);
+  const { data: orders, isLoading } = useQuery({
+    queryKey: ["logistics-producer-orders"],
+    queryFn: async () => {
+      // First get paid orders
+      const { data: paidOrders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .in('payment_status', ['completed', 'paid']);
 
-  const fetchPendingOrders = async () => {
-    try {
-      setLoading(true);
+      if (ordersError) throw ordersError;
+      if (!paidOrders || paidOrders.length === 0) return [];
+
+      const orderIds = paidOrders.map(o => o.id);
+
+      // Then get pending items from those orders
       const { data, error } = await supabase
         .from('order_items')
         .select(`
@@ -50,7 +61,6 @@ export default function ProducersTab() {
           products!inner (
             id,
             name,
-            unit,
             producer_id,
             producers (
               id,
@@ -71,6 +81,7 @@ export default function ProducersTab() {
             )
           )
         `)
+        .in('order_id', orderIds)
         .eq('fulfillment_status', 'pending');
 
       if (error) throw error;
@@ -79,10 +90,10 @@ export default function ProducersTab() {
       const grouped = new Map<string, ProducerOrder>();
 
       data?.forEach((item: any) => {
-        const producer = item.products.producers;
+        const producer = item.products?.producers;
         const product = item.products;
         const animal = item.animals;
-        const org = animal.organizations;
+        const org = animal?.organizations;
 
         if (!producer || !product || !animal || !org) return;
 
@@ -94,12 +105,14 @@ export default function ProducersTab() {
             producerName: producer.name,
             producerEmail: producer.contact_email || '',
             totalValue: 0,
+            totalQuantity: 0,
             products: []
           });
         }
 
         const producerOrder = grouped.get(producerId)!;
         producerOrder.totalValue += item.unit_price * item.quantity;
+        producerOrder.totalQuantity += item.quantity;
 
         let productEntry = producerOrder.products.find(p => p.productId === product.id);
         if (!productEntry) {
@@ -125,21 +138,25 @@ export default function ProducersTab() {
         });
       });
 
-      setOrders(Array.from(grouped.values()));
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać zamówień",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+      return Array.from(grouped.values());
+    },
+  });
+
+  const toggleExpanded = (producerId: string) => {
+    setExpandedProducers(prev => {
+      const next = new Set(prev);
+      if (next.has(producerId)) {
+        next.delete(producerId);
+      } else {
+        next.add(producerId);
+      }
+      return next;
+    });
   };
 
   const markAsOrdered = async (producerOrder: ProducerOrder) => {
     try {
+      setProcessingProducer(producerOrder.producerId);
       const itemIds = producerOrder.products.flatMap(p => p.itemIds);
       
       const { error } = await supabase
@@ -154,7 +171,8 @@ export default function ProducersTab() {
         description: `Zamówienie dla ${producerOrder.producerName} zostało oznaczone jako zamówione`,
       });
 
-      fetchPendingOrders();
+      queryClient.invalidateQueries({ queryKey: ["logistics-producer-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["logistics-organization-deliveries"] });
     } catch (error) {
       console.error('Error updating order:', error);
       toast({
@@ -162,11 +180,13 @@ export default function ProducersTab() {
         description: "Nie udało się zaktualizować zamówienia",
         variant: "destructive"
       });
+    } finally {
+      setProcessingProducer(null);
     }
   };
 
   const exportToCSV = (producerOrder: ProducerOrder) => {
-    let csv = `Producent: ${producerOrder.producerName}\nEmail: ${producerOrder.producerEmail}\n\n`;
+    let csv = `Producent: ${producerOrder.producerName}\nEmail: ${producerOrder.producerEmail}\nData: ${new Date().toLocaleDateString('pl-PL')}\n\n`;
     csv += "Produkt,Ilość,Odbiorca,Adres dostawy,Dla zwierzaka\n";
 
     producerOrder.products.forEach(product => {
@@ -183,24 +203,39 @@ export default function ProducersTab() {
     link.click();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="space-y-4">
+        {[1, 2].map(i => (
+          <Card key={i} className="rounded-3xl shadow-card">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-14 w-14 rounded-2xl" />
+                <div className="flex-1">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-4 w-32 mt-2" />
+                </div>
+                <Skeleton className="h-10 w-24" />
+              </div>
+            </CardHeader>
+          </Card>
+        ))}
       </div>
     );
   }
 
-  if (orders.length === 0) {
+  if (!orders || orders.length === 0) {
     return (
       <Card className="rounded-3xl shadow-card border-border/50">
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Package className="h-16 w-16 text-muted-foreground mb-4" />
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
+            <Factory className="h-10 w-10 text-green-600" />
+          </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
             Wszystko zamówione! 🎉
           </h3>
-          <p className="text-muted-foreground text-center">
-            Nie ma nowych zamówień oczekujących na realizację.
+          <p className="text-muted-foreground text-center max-w-md">
+            Nie ma nowych zamówień oczekujących na realizację u producentów. Gdy pojawią się nowe opłacone zamówienia, zobaczysz je tutaj.
           </p>
         </CardContent>
       </Card>
@@ -209,84 +244,89 @@ export default function ProducersTab() {
 
   return (
     <div className="space-y-4">
-      <Accordion type="single" collapsible className="space-y-4">
-        {orders.map((order) => (
-          <AccordionItem
-            key={order.producerId}
-            value={order.producerId}
-            className="border-none"
-          >
+      {orders.map((order) => {
+        const isExpanded = expandedProducers.has(order.producerId);
+        const isProcessing = processingProducer === order.producerId;
+
+        return (
+          <Collapsible key={order.producerId} open={isExpanded} onOpenChange={() => toggleExpanded(order.producerId)}>
             <Card className="rounded-3xl shadow-card border-border/50 overflow-hidden">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/50">
-                <CardHeader className="p-0 w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <Package className="h-6 w-6 text-primary" />
+              <CollapsibleTrigger asChild>
+                <button className="w-full p-6 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left">
+                  <div className="flex-shrink-0">
+                    {isExpanded ? (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  
+                  <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Factory className="h-7 w-7 text-primary" />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg">{order.producerName}</CardTitle>
+                    <CardDescription className="text-sm truncate">
+                      {order.producerEmail || 'Brak email'}
+                    </CardDescription>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-primary">
+                        {order.totalValue.toFixed(2)} zł
                       </div>
-                      <div className="text-left">
-                        <CardTitle className="text-lg">{order.producerName}</CardTitle>
-                        <CardDescription className="text-sm">
-                          {order.producerEmail}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary">
-                          {order.totalValue.toFixed(2)} zł
-                        </div>
-                        <Badge variant="secondary" className="mt-1">
-                          {order.products.length} produktów
+                      <div className="flex gap-2 mt-1 justify-end">
+                        <Badge variant="secondary" className="text-xs">
+                          {order.products.length} {order.products.length === 1 ? 'produkt' : 'produktów'}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {order.totalQuantity} szt.
                         </Badge>
                       </div>
                     </div>
                   </div>
-                </CardHeader>
-              </AccordionTrigger>
+                </button>
+              </CollapsibleTrigger>
 
-              <AccordionContent>
-                <CardContent className="pt-4 space-y-4">
-                  <div className="rounded-2xl border border-border overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Produkt</TableHead>
-                          <TableHead className="text-center">Łączna ilość</TableHead>
-                          <TableHead>Odbiorcy</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {order.products.map((product) => (
-                          <TableRow key={product.productId}>
-                            <TableCell className="font-medium">
-                              {product.productName}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="outline">
-                                {product.totalQuantity} szt
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="space-y-1">
-                                {product.recipients.map((recipient, idx) => (
-                                  <div key={idx} className="text-sm">
-                                    <span className="font-medium">{recipient.organizationName}</span>
-                                    {' - '}
-                                    <span className="text-muted-foreground">
-                                      {recipient.quantity} szt dla {recipient.animalName}
-                                    </span>
-                                  </div>
-                                ))}
+              <CollapsibleContent>
+                <CardContent className="pt-0 pb-6 px-6 space-y-4 border-t border-border">
+                  <div className="pt-4 space-y-3">
+                    {order.products.map((product) => (
+                      <div key={product.productId} className="rounded-2xl border border-border bg-muted/20 p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Package className="h-4 w-4 text-primary" />
+                            <span className="font-semibold">{product.productName}</span>
+                          </div>
+                          <Badge className="bg-primary/10 text-primary border-0">
+                            Łącznie: {product.totalQuantity} szt
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          {product.recipients.map((recipient, idx) => (
+                            <div key={idx} className="flex items-start gap-3 p-3 bg-background rounded-xl border border-border/50">
+                              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm">{recipient.organizationName}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {recipient.organizationAddress}, {recipient.organizationPostalCode} {recipient.organizationCity}
+                                </p>
+                                <p className="text-xs text-primary flex items-center gap-1 mt-1">
+                                  <PawPrint className="h-3 w-3" />
+                                  {recipient.quantity} szt dla {recipient.animalName}
+                                </p>
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 justify-end pt-2">
                     <Button
                       variant="outline"
                       onClick={() => exportToCSV(order)}
@@ -298,17 +338,22 @@ export default function ProducersTab() {
                     <Button
                       onClick={() => markAsOrdered(order)}
                       className="rounded-2xl"
+                      disabled={isProcessing}
                     >
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      {isProcessing ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                      )}
                       Oznacz jako Zamówione
                     </Button>
                   </div>
                 </CardContent>
-              </AccordionContent>
+              </CollapsibleContent>
             </Card>
-          </AccordionItem>
-        ))}
-      </Accordion>
+          </Collapsible>
+        );
+      })}
     </div>
   );
 }
