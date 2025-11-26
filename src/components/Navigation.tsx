@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Settings, Shield, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import CartDrawer from "@/components/CartDrawer";
 import MobileMenu from "@/components/MobileMenu";
 import { Logo } from "@/components/Logo";
@@ -20,14 +20,14 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Logo className="h-10 w-auto sm:h-12 md:h-14" />
-          </a>
+          </Link>
 
           {/* Navigation Menu */}
           <div className="hidden lg:flex items-center space-x-8">
-            <a 
-              href="/" 
+            <Link 
+              to="/" 
               className={`relative text-foreground hover:text-primary transition-colors font-medium ${
                 isActive('/') ? 'text-primary' : ''
               }`}
@@ -36,9 +36,9 @@ const Navigation = () => {
               {isActive('/') && (
                 <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
               )}
-            </a>
-            <a 
-              href="/o-nas" 
+            </Link>
+            <Link 
+              to="/o-nas" 
               className={`relative text-foreground hover:text-primary transition-colors font-medium ${
                 isActive('/o-nas') ? 'text-primary' : ''
               }`}
@@ -47,9 +47,9 @@ const Navigation = () => {
               {isActive('/o-nas') && (
                 <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
               )}
-            </a>
-            <a 
-              href="/organizacje" 
+            </Link>
+            <Link 
+              to="/organizacje" 
               className={`relative text-foreground hover:text-primary transition-colors font-medium ${
                 isActive('/organizacje') ? 'text-primary' : ''
               }`}
@@ -58,9 +58,9 @@ const Navigation = () => {
               {isActive('/organizacje') && (
                 <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
               )}
-            </a>
-            <a 
-              href="/zwierzeta" 
+            </Link>
+            <Link 
+              to="/zwierzeta" 
               className={`relative text-foreground hover:text-primary transition-colors font-medium ${
                 isActive('/zwierzeta') ? 'text-primary' : ''
               }`}
@@ -69,9 +69,9 @@ const Navigation = () => {
               {isActive('/zwierzeta') && (
                 <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
               )}
-            </a>
-            <a 
-              href="/kontakt" 
+            </Link>
+            <Link 
+              to="/kontakt" 
               className={`relative text-foreground hover:text-primary transition-colors font-medium ${
                 isActive('/kontakt') ? 'text-primary' : ''
               }`}
@@ -80,7 +80,7 @@ const Navigation = () => {
               {isActive('/kontakt') && (
                 <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary animate-scale-in" />
               )}
-            </a>
+            </Link>
           </div>
 
           {/* Cart and Actions */}
