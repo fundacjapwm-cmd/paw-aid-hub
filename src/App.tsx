@@ -30,7 +30,8 @@ import AdminLogisticsArchive from "./pages/admin/AdminLogisticsArchive";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminLeadsArchive from "./pages/admin/AdminLeadsArchive";
 import AdminProductRequests from "./pages/admin/AdminProductRequests";
-import AdminOrders from "./pages/admin/AdminOrders";
+import AdminOrdersCollecting from "./pages/admin/AdminOrdersCollecting";
+import AdminOrdersDetails from "./pages/admin/AdminOrdersDetails";
 import AdminAnimals from "./pages/admin/AdminAnimals";
 import OrgDashboard from "./pages/OrgDashboard";
 
@@ -86,7 +87,8 @@ function AppContent() {
             <Route path="uzytkownicy" element={<AdminUsers />} />
             <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
             <Route path="finanse" element={<AdminFinances />} />
-            <Route path="zamowienia" element={<AdminOrders />} />
+            <Route path="zamowienia/kompletowane" element={<AdminOrdersCollecting />} />
+            <Route path="zamowienia/szczegoly" element={<AdminOrdersDetails />} />
             <Route path="logistyka/oczekujace" element={<AdminLogistics />} />
             <Route path="logistyka/archiwum" element={<AdminLogisticsArchive />} />
             <Route path="logi" element={<AdminLogs />} />
