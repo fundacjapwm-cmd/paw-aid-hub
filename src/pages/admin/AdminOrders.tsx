@@ -462,10 +462,10 @@ export default function AdminOrders() {
 
   return (
     <div className="md:px-8 px-4 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Zamówienia</h1>
+      <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
+        <h2 className="text-xl font-semibold text-foreground mb-2">Zamówienia</h2>
         <p className="text-muted-foreground">
-          Zarządzaj zamówieniami organizacji i przeglądaj transakcje
+          Zarządzaj zamówieniami organizacji i przeglądaj transakcje darczyńców
         </p>
       </div>
 
