@@ -62,6 +62,7 @@ export default function AdminOrdersDetails() {
             animals(id, name, species, organization_id, organizations(name))
           )
         `)
+        .eq("payment_status", "completed")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -102,17 +103,8 @@ export default function AdminOrdersDetails() {
     );
   });
 
-  const getPaymentStatusBadge = (status: string | null) => {
-    switch (status) {
-      case "completed":
-        return <Badge variant="default" className="bg-green-500">Opłacone</Badge>;
-      case "pending":
-        return <Badge variant="secondary">Oczekuje</Badge>;
-      case "failed":
-        return <Badge variant="destructive">Nieudane</Badge>;
-      default:
-        return <Badge variant="outline">{status || "Brak"}</Badge>;
-    }
+  const getPaymentStatusBadge = () => {
+    return <Badge variant="default" className="bg-green-500">Opłacone</Badge>;
   };
 
   const toggleExpanded = (orderId: string) => {
@@ -199,7 +191,7 @@ export default function AdminOrdersDetails() {
                       </div>
                       
                       <div className="text-sm flex items-center gap-2">
-                        {getPaymentStatusBadge(order.payment_status)}
+                        {getPaymentStatusBadge()}
                         <Badge variant="outline" className="text-xs">
                           {itemCount} szt.
                         </Badge>
