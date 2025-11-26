@@ -13,7 +13,7 @@ interface ArchiveItem {
   id: string;
   quantity: number;
   fulfillmentStatus: string;
-  updatedAt: string;
+  createdAt: string;
   productName: string;
   organizationName: string;
   animalName: string;
@@ -61,7 +61,7 @@ export default function ArchiveTab() {
           id,
           quantity,
           fulfillment_status,
-          updated_at,
+          created_at,
           products!inner (
             id,
             name
@@ -76,7 +76,7 @@ export default function ArchiveTab() {
           )
         `)
         .in('fulfillment_status', ['ordered', 'shipped', 'delivered'])
-        .order('updated_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -84,7 +84,7 @@ export default function ArchiveTab() {
         id: item.id,
         quantity: item.quantity,
         fulfillmentStatus: item.fulfillment_status,
-        updatedAt: item.updated_at,
+        createdAt: item.created_at,
         productName: item.products?.name || 'N/A',
         organizationName: item.animals?.organizations?.name || 'N/A',
         animalName: item.animals?.name || 'N/A'
@@ -184,7 +184,7 @@ export default function ArchiveTab() {
                 {filteredItems.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">
-                      {new Date(item.updatedAt).toLocaleDateString('pl-PL', {
+                      {new Date(item.createdAt).toLocaleDateString('pl-PL', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric'
