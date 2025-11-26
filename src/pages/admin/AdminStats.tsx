@@ -4,7 +4,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Building2, Heart, Factory, Users, ShoppingCart } from 'lucide-react';
+import { Building2, Heart, Factory, Users, ShoppingCart, Package } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 
@@ -15,7 +15,8 @@ export default function AdminStats() {
     animals: 0,
     producers: 0,
     users: 0,
-    orders: 0,
+    ordersToday: 0,
+    collectingOrders: 0,
   });
   const [chartData, setChartData] = useState<Array<{
     date: string;
@@ -46,12 +47,25 @@ export default function AdminStats() {
 
   const fetchStats = async () => {
     try {
-      const [orgsRes, animalsRes, producersRes, usersRes, ordersRes] = await Promise.all([
+      // Get today's date range
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+
+      const [orgsRes, animalsRes, producersRes, usersRes, ordersTodayRes, collectingOrdersRes] = await Promise.all([
         supabase.from('organizations').select('id', { count: 'exact', head: true }),
         supabase.from('animals').select('id', { count: 'exact', head: true }),
         supabase.from('producers').select('id', { count: 'exact', head: true }),
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('orders').select('id', { count: 'exact', head: true }),
+        supabase.from('orders')
+          .select('id', { count: 'exact', head: true })
+          .in('payment_status', ['completed', 'paid'])
+          .gte('created_at', todayStart.toISOString())
+          .lte('created_at', todayEnd.toISOString()),
+        supabase.from('organization_batch_orders')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'collecting'),
       ]);
 
       setStats({
@@ -59,7 +73,8 @@ export default function AdminStats() {
         animals: animalsRes.count || 0,
         producers: producersRes.count || 0,
         users: usersRes.count || 0,
-        orders: ordersRes.count || 0,
+        ordersToday: ordersTodayRes.count || 0,
+        collectingOrders: collectingOrdersRes.count || 0,
       });
 
       // Fetch trend data for the last 30 days
@@ -154,14 +169,20 @@ export default function AdminStats() {
       link: "/admin/uzytkownicy"
     },
     {
-      title: "Zamówienia",
-      value: stats.orders,
+      title: "Zamówienia dziś",
+      value: stats.ordersToday,
       icon: ShoppingCart,
-      description: "Złożonych zamówień",
-      link: "/admin/zamowienia"
+      description: "Transakcji od darczyńców",
+      link: "/admin/zamowienia/szczegoly"
+    },
+    {
+      title: "Kompletowane",
+      value: stats.collectingOrders,
+      icon: Package,
+      description: "Zamówień do realizacji",
+      link: "/admin/zamowienia/kompletowane"
     },
   ];
-
   const chartConfig = {
     users: {
       label: "Użytkownicy",
