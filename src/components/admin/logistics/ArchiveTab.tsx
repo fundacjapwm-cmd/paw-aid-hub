@@ -17,6 +17,7 @@ interface ArchiveItem {
   productName: string;
   organizationName: string;
   animalName: string;
+  trackingNumber: string | null;
 }
 
 export default function ArchiveTab() {
@@ -75,7 +76,7 @@ export default function ArchiveTab() {
             )
           )
         `)
-        .in('fulfillment_status', ['ordered', 'shipped', 'delivered'])
+        .in('fulfillment_status', ['shipped', 'delivered'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -87,7 +88,8 @@ export default function ArchiveTab() {
         createdAt: item.created_at,
         productName: item.products?.name || 'N/A',
         organizationName: item.animals?.organizations?.name || 'N/A',
-        animalName: item.animals?.name || 'N/A'
+        animalName: item.animals?.name || 'N/A',
+        trackingNumber: null
       })) || [];
 
       setItems(mapped);
@@ -106,12 +108,10 @@ export default function ArchiveTab() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'ordered':
-        return <Badge variant="secondary">Zamówione</Badge>;
       case 'shipped':
         return <Badge className="bg-blue-500 text-white">Wysłane</Badge>;
       case 'delivered':
-        return <Badge className="bg-green-500 text-white">Dostarczone</Badge>;
+        return <Badge className="bg-green-500 text-white">Potwierdzone</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -145,7 +145,6 @@ export default function ArchiveTab() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Wszystkie statusy</SelectItem>
-            <SelectItem value="ordered">Zamówione</SelectItem>
             <SelectItem value="shipped">Wysłane</SelectItem>
             <SelectItem value="delivered">Dostarczone</SelectItem>
           </SelectContent>

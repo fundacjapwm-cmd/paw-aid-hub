@@ -145,11 +145,15 @@ export default function OrgOrders() {
       const allOrders = Array.from(ordersMap.values());
 
       // Split orders by fulfillment status
+      // In progress = shipped (waiting for org confirmation)
+      // Completed = delivered (confirmed by org)
       const inProgress = allOrders.filter(
-        (order) => order.order_items.some((item) => item.fulfillment_status !== "fulfilled")
+        (order) => order.order_items.some((item) => 
+          item.fulfillment_status === 'shipped' || item.fulfillment_status === 'ordered'
+        )
       );
       const completed = allOrders.filter(
-        (order) => order.order_items.every((item) => item.fulfillment_status === "fulfilled")
+        (order) => order.order_items.every((item) => item.fulfillment_status === "delivered")
       );
 
       return { inProgress, completed };
@@ -157,7 +161,7 @@ export default function OrgOrders() {
     enabled: !!user && profile?.role === "ORG",
   });
 
-  const handleMarkAsCompleted = async (orderId: string) => {
+  const handleConfirmDelivery = async (orderId: string) => {
     try {
       // Get all order items for this order
       const order = [...(ordersData?.inProgress || []), ...(ordersData?.completed || [])].find(
@@ -166,18 +170,18 @@ export default function OrgOrders() {
 
       if (!order) return;
 
-      // Update all order items to fulfilled
+      // Update all order items to delivered
       const { error } = await supabase
         .from("order_items")
-        .update({ fulfillment_status: "fulfilled" })
+        .update({ fulfillment_status: "delivered" })
         .in("id", order.order_items.map((item) => item.id));
 
       if (error) throw error;
 
-      toast.success("Zamówienie oznaczone jako zrealizowane");
+      toast.success("Odbiór zamówienia został potwierdzony");
       refetch();
     } catch (error: any) {
-      toast.error("Błąd podczas aktualizacji: " + error.message);
+      toast.error("Błąd podczas potwierdzania: " + error.message);
     }
   };
 
@@ -232,7 +236,10 @@ export default function OrgOrders() {
       }
     });
 
-    const isCompleted = order.order_items.every((item) => item.fulfillment_status === "fulfilled");
+    const isDelivered = order.order_items.every((item) => item.fulfillment_status === "delivered");
+    const isShipped = order.order_items.some((item) => item.fulfillment_status === "shipped");
+    const isOrdered = order.order_items.some((item) => item.fulfillment_status === "ordered");
+    const canConfirm = isShipped && !isDelivered;
 
     return (
       <Card key={order.id} className="rounded-3xl shadow-card">
@@ -255,8 +262,8 @@ export default function OrgOrders() {
                 )}
               </div>
             </div>
-            <Badge variant={isCompleted ? "default" : "secondary"}>
-              {isCompleted ? "Zrealizowane" : "W trakcie"}
+            <Badge variant={isDelivered ? "default" : isShipped ? "secondary" : "outline"}>
+              {isDelivered ? "Potwierdzone" : isShipped ? "Wysłane" : isOrdered ? "Zamówione" : "W trakcie"}
             </Badge>
           </div>
         </CardHeader>
@@ -324,16 +331,16 @@ export default function OrgOrders() {
             );
           })}
 
-          {/* Action Buttons */}
-          {!isCompleted && (
+          {/* Action Buttons - only show when shipped and can confirm */}
+          {canConfirm && (
             <div className="flex gap-2 pt-4 border-t">
               <Button
-                onClick={() => handleMarkAsCompleted(order.id)}
+                onClick={() => handleConfirmDelivery(order.id)}
                 className="flex-1 rounded-2xl"
                 variant="default"
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Oznacz jako zrealizowane
+                Potwierdź odbiór
               </Button>
               <Button
                 onClick={() => handleReportProblem(order)}
@@ -343,6 +350,16 @@ export default function OrgOrders() {
                 <AlertCircle className="h-4 w-4 mr-2" />
                 Zgłoś problem
               </Button>
+            </div>
+          )}
+
+          {/* Status info for orders not yet shipped */}
+          {isOrdered && !isShipped && (
+            <div className="pt-4 border-t">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Zamówienie w trakcie realizacji - oczekuje na wysyłkę
+              </p>
             </div>
           )}
         </CardContent>
@@ -372,10 +389,10 @@ export default function OrgOrders() {
         <Tabs defaultValue="in-progress" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4 md:mb-8">
             <TabsTrigger value="in-progress">
-              W trakcie realizacji ({inProgressOrders.length})
+              Do potwierdzenia ({inProgressOrders.length})
             </TabsTrigger>
             <TabsTrigger value="completed">
-              Zrealizowane ({completedOrders.length})
+              Potwierdzone ({completedOrders.length})
             </TabsTrigger>
           </TabsList>
 
@@ -388,10 +405,10 @@ export default function OrgOrders() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">
-                      Brak zamówień w trakcie realizacji
+                      Brak zamówień do potwierdzenia
                     </h3>
                     <p className="text-muted-foreground">
-                      Zamówienia od darczyńców pojawią się tutaj
+                      Wysłane zamówienia pojawią się tutaj do potwierdzenia odbioru
                     </p>
                   </div>
                 </div>
@@ -412,10 +429,10 @@ export default function OrgOrders() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">
-                      Brak zrealizowanych zamówień
+                      Brak potwierdzonych zamówień
                     </h3>
                     <p className="text-muted-foreground">
-                      Zrealizowane zamówienia pojawią się tutaj
+                      Potwierdzone zamówienia pojawią się tutaj
                     </p>
                   </div>
                 </div>
