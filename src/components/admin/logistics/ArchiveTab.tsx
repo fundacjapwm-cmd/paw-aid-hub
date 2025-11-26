@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Package, Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ArchiveItem {
   id: string;
@@ -23,25 +24,33 @@ export default function ArchiveTab() {
   const [filteredItems, setFilteredItems] = useState<ArchiveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchArchiveItems();
   }, []);
 
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredItems(items);
-    } else {
+    let filtered = items;
+    
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(item => item.fulfillmentStatus === statusFilter);
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
-      const filtered = items.filter(
+      filtered = filtered.filter(
         item =>
           item.productName.toLowerCase().includes(query) ||
           item.organizationName.toLowerCase().includes(query) ||
           item.animalName.toLowerCase().includes(query)
       );
-      setFilteredItems(filtered);
     }
-  }, [searchQuery, items]);
+    
+    setFilteredItems(filtered);
+  }, [searchQuery, statusFilter, items]);
 
   const fetchArchiveItems = async () => {
     try {
@@ -120,14 +129,27 @@ export default function ArchiveTab() {
 
   return (
     <div className="space-y-6">
-      <div className="relative w-full md:w-80">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Szukaj po produkcie lub organizacji..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 rounded-2xl"
-        />
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Szukaj po produkcie lub organizacji..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 rounded-2xl"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full md:w-48 rounded-2xl">
+            <SelectValue placeholder="Wszystkie statusy" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Wszystkie statusy</SelectItem>
+            <SelectItem value="ordered">Zamówione</SelectItem>
+            <SelectItem value="shipped">Wysłane</SelectItem>
+            <SelectItem value="delivered">Dostarczone</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {filteredItems.length === 0 ? (
