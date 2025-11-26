@@ -25,6 +25,7 @@ interface OrderedBatchOrder {
   organizationPostalCode: string;
   createdAt: string;
   trackingNumber: string | null;
+  status: 'ordered' | 'shipped';
   items: BatchOrderItem[];
   totalItems: number;
   orderNumber: number;
@@ -55,7 +56,7 @@ export default function AdminLogisticsOrdered() {
             postal_code
           )
         `)
-        .eq('status', 'ordered')
+        .in('status', ['ordered', 'shipped'])
         .order('created_at', { ascending: true });
 
       if (batchError) throw batchError;
@@ -87,7 +88,7 @@ export default function AdminLogisticsOrdered() {
             animals (name)
           `)
           .in('order_id', orderIds)
-          .eq('fulfillment_status', 'ordered');
+          .in('fulfillment_status', ['ordered', 'shipped']);
 
         if (!items || items.length === 0) continue;
 
@@ -106,6 +107,7 @@ export default function AdminLogisticsOrdered() {
           organizationPostalCode: org?.postal_code || '',
           createdAt: batch.created_at,
           trackingNumber: batch.tracking_number,
+          status: batch.status as 'ordered' | 'shipped',
           items: batchItems,
           totalItems: batchItems.reduce((sum, item) => sum + item.quantity, 0),
           orderNumber: i + 1
@@ -280,7 +282,11 @@ export default function AdminLogisticsOrdered() {
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge className="bg-blue-500 text-white">{order.totalItems} produktów</Badge>
-                            <Badge variant="secondary">Zamówione u producenta</Badge>
+                            {order.status === 'shipped' ? (
+                              <Badge className="bg-green-500 text-white">Wysłane - oczekuje na potwierdzenie</Badge>
+                            ) : (
+                              <Badge variant="secondary">Zamówione u producenta</Badge>
+                            )}
                           </div>
                         </div>
                         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -324,40 +330,58 @@ export default function AdminLogisticsOrdered() {
                           ))}
                         </div>
 
-                        {/* Tracking number input */}
-                        <div className="flex flex-col sm:flex-row gap-3 mt-6 p-4 bg-muted/30 rounded-2xl">
-                          <div className="flex-1">
-                            <label className="text-sm font-medium text-foreground mb-2 block">
-                              Numer listu przewozowego
-                            </label>
-                            <Input
-                              placeholder="Wprowadź numer listu przewozowego..."
-                              value={currentTracking}
-                              onChange={(e) => handleTrackingChange(order.id, e.target.value)}
-                              className="rounded-xl"
-                              onClick={(e) => e.stopPropagation()}
-                            />
+                        {/* Tracking number section */}
+                        {order.status === 'ordered' ? (
+                          <div className="flex flex-col sm:flex-row gap-3 mt-6 p-4 bg-muted/30 rounded-2xl">
+                            <div className="flex-1">
+                              <label className="text-sm font-medium text-foreground mb-2 block">
+                                Numer listu przewozowego
+                              </label>
+                              <Input
+                                placeholder="Wprowadź numer listu przewozowego..."
+                                value={currentTracking}
+                                onChange={(e) => handleTrackingChange(order.id, e.target.value)}
+                                className="rounded-xl"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="flex items-end">
+                              <Button
+                                onClick={(e) => { e.stopPropagation(); saveTrackingNumber(order); }}
+                                className="rounded-2xl w-full sm:w-auto"
+                                disabled={isSaving}
+                              >
+                                {isSaving ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Save className="h-4 w-4 mr-2" />
+                                )}
+                                Zapisz i oznacz jako wysłane
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex items-end">
-                            <Button
-                              onClick={(e) => { e.stopPropagation(); saveTrackingNumber(order); }}
-                              className="rounded-2xl w-full sm:w-auto"
-                              disabled={isSaving}
-                            >
-                              {isSaving ? (
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              ) : (
-                                <Save className="h-4 w-4 mr-2" />
-                              )}
-                              Zapisz i oznacz jako wysłane
-                            </Button>
+                        ) : (
+                          <div className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl">
+                            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                              <Truck className="h-5 w-5" />
+                              <span className="font-medium">Wysłane</span>
+                            </div>
+                            {order.trackingNumber && (
+                              <p className="text-sm mt-2">
+                                <span className="text-muted-foreground">Numer listu przewozowego: </span>
+                                <span className="font-medium">{order.trackingNumber}</span>
+                              </p>
+                            )}
                           </div>
-                        </div>
+                        )}
 
                         {/* Status info */}
                         <div className="text-sm text-muted-foreground mt-4">
                           <Package className="h-4 w-4 inline mr-2" />
-                          Oczekuje na potwierdzenie odbioru przez organizację
+                          {order.status === 'shipped' 
+                            ? 'Oczekuje na potwierdzenie odbioru przez organizację'
+                            : 'Dodaj numer listu przewozowego i oznacz jako wysłane'
+                          }
                         </div>
                       </div>
                     </CollapsibleContent>
