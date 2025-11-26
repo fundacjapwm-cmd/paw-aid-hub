@@ -5,9 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Receipt, User, Search, ChevronDown, ChevronRight, Package, PawPrint, Building2 } from "lucide-react";
+import { Receipt, User, Search, ChevronDown, ChevronRight, Package, PawPrint, Building2, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 
@@ -48,6 +48,7 @@ interface Order {
 export default function AdminOrdersDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const { data: allTransactions } = useQuery({
     queryKey: ["admin-all-transactions"],
@@ -62,7 +63,6 @@ export default function AdminOrdersDetails() {
             animals(id, name, species, organization_id, organizations(name))
           )
         `)
-        .eq("payment_status", "completed")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -84,6 +84,20 @@ export default function AdminOrdersDetails() {
   });
 
   const filteredTransactions = allTransactions?.filter((order) => {
+    // Status filter
+    if (statusFilter !== "all") {
+      if (statusFilter === "paid" && order.payment_status !== "completed" && order.payment_status !== "paid") {
+        return false;
+      }
+      if (statusFilter === "pending" && order.payment_status !== "pending") {
+        return false;
+      }
+      if (statusFilter === "failed" && order.payment_status !== "failed") {
+        return false;
+      }
+    }
+    
+    // Search filter
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     const buyerName = order.profiles?.display_name?.toLowerCase() || "";
@@ -103,8 +117,18 @@ export default function AdminOrdersDetails() {
     );
   });
 
-  const getPaymentStatusBadge = () => {
-    return <Badge variant="default" className="bg-green-500">Opłacone</Badge>;
+  const getPaymentStatusBadge = (status: string | null) => {
+    switch (status) {
+      case "completed":
+      case "paid":
+        return <Badge variant="default" className="bg-green-500">Opłacone</Badge>;
+      case "pending":
+        return <Badge variant="secondary">Oczekuje</Badge>;
+      case "failed":
+        return <Badge variant="destructive">Nieudane</Badge>;
+      default:
+        return <Badge variant="outline">{status || "Brak"}</Badge>;
+    }
   };
 
   const toggleExpanded = (orderId: string) => {
@@ -128,15 +152,29 @@ export default function AdminOrdersDetails() {
         </p>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Szukaj po nazwie kupującego, organizacji, produktu lub nr zamówienia..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 rounded-2xl"
-        />
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Szukaj po nazwie kupującego, organizacji, produktu lub nr zamówienia..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 rounded-2xl"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full md:w-[200px] rounded-2xl">
+            <Filter className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Status płatności" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Wszystkie</SelectItem>
+            <SelectItem value="paid">Opłacone</SelectItem>
+            <SelectItem value="pending">Oczekujące</SelectItem>
+            <SelectItem value="failed">Nieudane</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Transactions List */}
@@ -191,7 +229,7 @@ export default function AdminOrdersDetails() {
                       </div>
                       
                       <div className="text-sm flex items-center gap-2">
-                        {getPaymentStatusBadge()}
+                        {getPaymentStatusBadge(order.payment_status)}
                         <Badge variant="outline" className="text-xs">
                           {itemCount} szt.
                         </Badge>
