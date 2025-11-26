@@ -178,6 +178,25 @@ export default function OrgOrders() {
 
       if (error) throw error;
 
+      // Get the order to find the batch_order_id
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("batch_order_id")
+        .eq("id", orderId)
+        .single();
+
+      if (orderData?.batch_order_id) {
+        // Update the batch order status to fulfilled
+        const { error: batchError } = await supabase
+          .from("organization_batch_orders")
+          .update({ status: "fulfilled" })
+          .eq("id", orderData.batch_order_id);
+
+        if (batchError) {
+          console.error("Error updating batch order status:", batchError);
+        }
+      }
+
       toast.success("Odbiór zamówienia został potwierdzony");
       refetch();
     } catch (error: any) {
