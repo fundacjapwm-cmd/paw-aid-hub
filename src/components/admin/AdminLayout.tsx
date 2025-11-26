@@ -64,6 +64,7 @@ const menuStructure = [
     icon: Truck,
     items: [
       { title: "Oczekujące", url: "/admin/logistyka/oczekujace" },
+      { title: "Zamówione", url: "/admin/logistyka/zamowione" },
       { title: "Archiwum", url: "/admin/logistyka/archiwum" },
     ]
   },
@@ -260,8 +261,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (path === "/admin/finanse") return "Wyniki Finansowe";
     if (path === "/admin/statystyki-organizacji") return "Statystyki Organizacji";
     if (path === "/admin/logi") return "Logi Systemowe";
-    if (path === "/admin/logistyka/oczekujace") return "Zamówienia Oczekujące";
-    if (path === "/admin/logistyka/archiwum") return "Archiwum Logistyki";
+    if (path === "/admin/logistyka/oczekujace") return "Oczekujące na zamówienie";
+    if (path === "/admin/logistyka/zamowione") return "Zamówione u producenta";
+    if (path === "/admin/logistyka/archiwum") return "Archiwum zamówień";
     return "Panel Administratora";
   };
 

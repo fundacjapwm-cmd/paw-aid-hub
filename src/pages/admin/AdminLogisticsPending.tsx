@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Truck, CheckCircle2, Package, Building2, Loader2 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { FileText, Truck, CheckCircle2, Package, Building2, Loader2, ChevronDown, PawPrint } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface BatchOrderItem {
@@ -27,14 +28,14 @@ interface BatchOrder {
   orderNumber: number;
 }
 
-export default function PendingOrdersTab() {
+export default function AdminLogisticsPending() {
   const [processingOrder, setProcessingOrder] = useState<string | null>(null);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
 
   const { data: batchOrders, isLoading } = useQuery({
     queryKey: ["logistics-pending-batch-orders"],
     queryFn: async () => {
-      // Get batch orders with status 'collecting' that have been moved to realization
       const { data: batches, error: batchError } = await supabase
         .from('organization_batch_orders')
         .select(`
@@ -56,14 +57,12 @@ export default function PendingOrdersTab() {
       if (batchError) throw batchError;
       if (!batches || batches.length === 0) return [];
 
-      // Get order items for each batch
       const result: BatchOrder[] = [];
       
       for (let i = 0; i < batches.length; i++) {
         const batch = batches[i];
         const org = batch.organizations as any;
         
-        // Get orders linked to this batch
         const { data: orders } = await supabase
           .from('orders')
           .select('id')
@@ -74,7 +73,6 @@ export default function PendingOrdersTab() {
 
         const orderIds = orders.map(o => o.id);
 
-        // Get pending order items
         const { data: items } = await supabase
           .from('order_items')
           .select(`
@@ -113,8 +111,19 @@ export default function PendingOrdersTab() {
     },
   });
 
+  const toggleExpanded = (orderId: string) => {
+    setExpandedOrders(prev => {
+      const next = new Set(prev);
+      if (next.has(orderId)) {
+        next.delete(orderId);
+      } else {
+        next.add(orderId);
+      }
+      return next;
+    });
+  };
+
   const generateProducerOrderPDF = (order: BatchOrder) => {
-    // Group items by product for consolidated order
     const productTotals = new Map<string, number>();
     order.items.forEach(item => {
       const current = productTotals.get(item.productName) || 0;
@@ -194,7 +203,6 @@ export default function PendingOrdersTab() {
   };
 
   const generateOrganizationListPDF = (order: BatchOrder) => {
-    // Group items by animal
     const itemsByAnimal = new Map<string, BatchOrderItem[]>();
     const generalItems: BatchOrderItem[] = [];
 
@@ -317,7 +325,6 @@ export default function PendingOrdersTab() {
     try {
       setProcessingOrder(order.id);
 
-      // Get all orders for this batch
       const { data: orders } = await supabase
         .from('orders')
         .select('id')
@@ -327,7 +334,6 @@ export default function PendingOrdersTab() {
 
       const orderIds = orders.map(o => o.id);
 
-      // Update all pending order items to ordered
       const { error: itemsError } = await supabase
         .from('order_items')
         .update({ fulfillment_status: 'ordered' })
@@ -336,7 +342,6 @@ export default function PendingOrdersTab() {
 
       if (itemsError) throw itemsError;
 
-      // Update batch order status
       const { error: batchError } = await supabase
         .from('organization_batch_orders')
         .update({ status: 'ordered' })
@@ -365,96 +370,163 @@ export default function PendingOrdersTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        {[1, 2].map(i => (
-          <Skeleton key={i} className="h-40 w-full rounded-3xl" />
-        ))}
+      <div className="md:px-8 px-4 space-y-6">
+        <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
+          <h2 className="text-xl font-semibold text-foreground mb-2">Oczekujące na zamówienie</h2>
+          <p className="text-muted-foreground">Zamówienia do realizacji u producenta</p>
+        </div>
+        <div className="space-y-4">
+          {[1, 2].map(i => (
+            <Skeleton key={i} className="h-40 w-full rounded-3xl" />
+          ))}
+        </div>
       </div>
     );
   }
 
-  if (!batchOrders || batchOrders.length === 0) {
-    return (
-      <Card className="rounded-3xl shadow-card border-border/50">
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
-            <Package className="h-10 w-10 text-green-600" />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">
-            Brak oczekujących zamówień
-          </h3>
-          <p className="text-muted-foreground text-center max-w-md">
-            Zamówienia przeniesione do realizacji pojawią się tutaj. Możesz je zamówić u producenta i wygenerować dokumenty.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <div className="space-y-4">
-      {batchOrders.map((order) => {
-        const isProcessing = processingOrder === order.id;
+    <div className="md:px-8 px-4 space-y-6">
+      <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
+        <h2 className="text-xl font-semibold text-foreground mb-2">Oczekujące na zamówienie</h2>
+        <p className="text-muted-foreground">Zamówienia do realizacji u producenta</p>
+      </div>
 
-        return (
-          <Card key={order.id} className="rounded-3xl shadow-card border-border/50 overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row md:items-center gap-4">
-                {/* Order info */}
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Building2 className="h-7 w-7 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-lg">
-                      ZAMÓWIENIE {order.organizationName.toUpperCase()} NR {order.orderNumber}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {order.organizationAddress}, {order.organizationPostalCode} {order.organizationCity}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary">{order.totalItems} produktów</Badge>
-                      <Badge variant="outline">{order.items.length} pozycji</Badge>
-                    </div>
-                  </div>
-                </div>
+      {!batchOrders || batchOrders.length === 0 ? (
+        <Card className="rounded-3xl shadow-card border-border/50">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
+              <Package className="h-10 w-10 text-green-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              Brak oczekujących zamówień
+            </h3>
+            <p className="text-muted-foreground text-center max-w-md">
+              Zamówienia przeniesione do realizacji pojawią się tutaj.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {batchOrders.map((order) => {
+            const isProcessing = processingOrder === order.id;
+            const isExpanded = expandedOrders.has(order.id);
 
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => generateProducerOrderPDF(order)}
-                    className="rounded-2xl"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Zamówienie dla producenta
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => generateOrganizationListPDF(order)}
-                    className="rounded-2xl"
-                  >
-                    <Truck className="h-4 w-4 mr-2" />
-                    Lista dla organizacji
-                  </Button>
-                  <Button
-                    onClick={() => markAsOrdered(order)}
-                    className="rounded-2xl"
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                    )}
-                    Zaznacz jako zamówione
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+            // Group items by animal for display
+            const itemsByAnimal = new Map<string, BatchOrderItem[]>();
+            const generalItems: BatchOrderItem[] = [];
+            order.items.forEach(item => {
+              if (item.animalName) {
+                const existing = itemsByAnimal.get(item.animalName) || [];
+                existing.push(item);
+                itemsByAnimal.set(item.animalName, existing);
+              } else {
+                generalItems.push(item);
+              }
+            });
+
+            return (
+              <Collapsible key={order.id} open={isExpanded} onOpenChange={() => toggleExpanded(order.id)}>
+                <Card className="rounded-3xl shadow-card border-border/50 overflow-hidden">
+                  <CardContent className="p-0">
+                    {/* Header - always visible */}
+                    <CollapsibleTrigger asChild>
+                      <button className="w-full p-6 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left">
+                        <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <Building2 className="h-7 w-7 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-lg">
+                            ZAMÓWIENIE {order.organizationName.toUpperCase()} NR {order.orderNumber}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {order.organizationAddress}, {order.organizationPostalCode} {order.organizationCity}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary">{order.totalItems} produktów</Badge>
+                            <Badge variant="outline">{order.items.length} pozycji</Badge>
+                          </div>
+                        </div>
+                        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      </button>
+                    </CollapsibleTrigger>
+
+                    {/* Expandable content */}
+                    <CollapsibleContent>
+                      <div className="px-6 pb-6 border-t border-border">
+                        {/* Product list */}
+                        <div className="pt-4 space-y-4">
+                          {generalItems.length > 0 && (
+                            <div className="space-y-2">
+                              <h4 className="font-semibold text-sm text-muted-foreground">Dla organizacji:</h4>
+                              <div className="grid gap-2">
+                                {generalItems.map((item, idx) => (
+                                  <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
+                                    <span className="font-medium">{item.productName}</span>
+                                    <Badge variant="outline">{item.quantity} szt</Badge>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {Array.from(itemsByAnimal.entries()).map(([animalName, items]) => (
+                            <div key={animalName} className="space-y-2">
+                              <h4 className="font-semibold text-sm text-primary flex items-center gap-2">
+                                <PawPrint className="h-4 w-4" />
+                                {animalName}
+                              </h4>
+                              <div className="grid gap-2">
+                                {items.map((item, idx) => (
+                                  <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
+                                    <span className="font-medium">{item.productName}</span>
+                                    <Badge variant="outline">{item.quantity} szt</Badge>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col sm:flex-row gap-2 mt-6 pt-4 border-t border-border">
+                          <Button
+                            variant="outline"
+                            onClick={(e) => { e.stopPropagation(); generateProducerOrderPDF(order); }}
+                            className="rounded-2xl flex-1"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Zamówienie dla producenta
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={(e) => { e.stopPropagation(); generateOrganizationListPDF(order); }}
+                            className="rounded-2xl flex-1"
+                          >
+                            <Truck className="h-4 w-4 mr-2" />
+                            Lista dla organizacji
+                          </Button>
+                          <Button
+                            onClick={(e) => { e.stopPropagation(); markAsOrdered(order); }}
+                            className="rounded-2xl flex-1"
+                            disabled={isProcessing}
+                          >
+                            {isProcessing ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="h-4 w-4 mr-2" />
+                            )}
+                            Zaznacz jako zamówione
+                          </Button>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </CardContent>
+                </Card>
+              </Collapsible>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
