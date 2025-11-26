@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProducersTab from "@/components/admin/logistics/ProducersTab";
 import OrganizationsTab from "@/components/admin/logistics/OrganizationsTab";
+import ArchiveTab from "@/components/admin/logistics/ArchiveTab";
 
 export default function AdminLogistics() {
   return (
@@ -15,9 +16,10 @@ export default function AdminLogistics() {
       </div>
 
       <Tabs defaultValue="producers" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-lg grid-cols-3">
           <TabsTrigger value="producers">Wg Producenta</TabsTrigger>
           <TabsTrigger value="organizations">Wg Organizacji</TabsTrigger>
+          <TabsTrigger value="archive">Archiwum</TabsTrigger>
         </TabsList>
         
         <TabsContent value="producers" className="mt-6">
@@ -26,6 +28,10 @@ export default function AdminLogistics() {
         
         <TabsContent value="organizations" className="mt-6">
           <OrganizationsTab />
+        </TabsContent>
+
+        <TabsContent value="archive" className="mt-6">
+          <ArchiveTab />
         </TabsContent>
       </Tabs>
     </div>
