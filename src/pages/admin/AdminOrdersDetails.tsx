@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Receipt, User, Search } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Receipt, User, Search, ChevronDown, ChevronRight, Package, PawPrint, Building2 } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 
@@ -45,6 +47,7 @@ interface Order {
 
 export default function AdminOrdersDetails() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
   const { data: allTransactions } = useQuery({
     queryKey: ["admin-all-transactions"],
@@ -65,12 +68,12 @@ export default function AdminOrdersDetails() {
 
       // Fetch profiles for each unique user_id
       const userIds = [...new Set((data || []).map(o => o.user_id).filter(Boolean))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .in("id", userIds);
+      const { data: profiles } = userIds.length > 0 
+        ? await supabase.from("profiles").select("id, display_name").in("id", userIds)
+        : { data: [] };
 
-      const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
+      const profileMap = new Map<string, string | null>();
+      profiles?.forEach(p => profileMap.set(p.id, p.display_name));
 
       return (data || []).map(order => ({
         ...order,
@@ -112,12 +115,24 @@ export default function AdminOrdersDetails() {
     }
   };
 
+  const toggleExpanded = (orderId: string) => {
+    setExpandedOrders(prev => {
+      const next = new Set(prev);
+      if (next.has(orderId)) {
+        next.delete(orderId);
+      } else {
+        next.add(orderId);
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="md:px-8 px-4 space-y-6">
       <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
         <h2 className="text-xl font-semibold text-foreground mb-2">Szczegóły Zamówień</h2>
         <p className="text-muted-foreground">
-          Wszystkie transakcje darczyńców - kto, co, kiedy i dla kogo kupił
+          Wszystkie transakcje darczyńców - kliknij wiersz aby zobaczyć szczegóły
         </p>
       </div>
 
@@ -132,74 +147,145 @@ export default function AdminOrdersDetails() {
         />
       </div>
 
-      {/* Transactions Table */}
-      <Card className="rounded-3xl shadow-card overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Nr zamówienia</TableHead>
-              <TableHead>Kupujący</TableHead>
-              <TableHead>Produkty</TableHead>
-              <TableHead>Dla kogo</TableHead>
-              <TableHead>Organizacja</TableHead>
-              <TableHead>Kwota</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredTransactions?.map((order) => {
-              const orgName = order.order_items[0]?.animals?.organizations?.name || "—";
-              const recipients = [...new Set(order.order_items.map((item) => 
-                item.animals?.name || "Fundacja"
-              ))].join(", ");
-              const products = order.order_items.map((item) => 
-                `${item.products?.name} (${item.quantity} szt.)`
-              ).join(", ");
+      {/* Transactions List */}
+      <div className="space-y-3">
+        {filteredTransactions?.map((order) => {
+          const isExpanded = expandedOrders.has(order.id);
+          const orgName = order.order_items[0]?.animals?.organizations?.name || "—";
+          const itemCount = order.order_items.reduce((sum, item) => sum + item.quantity, 0);
 
-              return (
-                <TableRow key={order.id}>
-                  <TableCell className="whitespace-nowrap">
-                    {format(new Date(order.created_at), "dd.MM.yyyy HH:mm", { locale: pl })}
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">
-                    {order.id.slice(0, 8)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      {order.profiles?.display_name || "Gość"}
+          return (
+            <Collapsible key={order.id} open={isExpanded} onOpenChange={() => toggleExpanded(order.id)}>
+              <Card className="rounded-2xl shadow-card overflow-hidden">
+                <CollapsibleTrigger asChild>
+                  <button className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left">
+                    <div className="flex-shrink-0">
+                      {isExpanded ? (
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                      )}
                     </div>
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate" title={products}>
-                    {products}
-                  </TableCell>
-                  <TableCell>
-                    {recipients}
-                  </TableCell>
-                  <TableCell>
-                    {orgName}
-                  </TableCell>
-                  <TableCell className="font-semibold">
-                    {order.total_amount.toFixed(2)} zł
-                  </TableCell>
-                  <TableCell>
-                    {getPaymentStatusBadge(order.payment_status)}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {(!filteredTransactions || filteredTransactions.length === 0) && (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-12">
-                  <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">Brak transakcji do wyświetlenia</p>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+                    
+                    <div className="flex-1 grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4 items-center">
+                      <div className="text-sm">
+                        <p className="text-muted-foreground text-xs">Data</p>
+                        <p className="font-medium">
+                          {format(new Date(order.created_at), "dd.MM.yyyy HH:mm", { locale: pl })}
+                        </p>
+                      </div>
+                      
+                      <div className="text-sm">
+                        <p className="text-muted-foreground text-xs">Nr zamówienia</p>
+                        <p className="font-mono text-xs">{order.id.slice(0, 8)}</p>
+                      </div>
+                      
+                      <div className="text-sm">
+                        <p className="text-muted-foreground text-xs">Kupujący</p>
+                        <p className="flex items-center gap-1">
+                          <User className="h-3 w-3 text-muted-foreground" />
+                          {order.profiles?.display_name || "Gość"}
+                        </p>
+                      </div>
+                      
+                      <div className="text-sm">
+                        <p className="text-muted-foreground text-xs">Organizacja</p>
+                        <p>{orgName}</p>
+                      </div>
+                      
+                      <div className="text-sm">
+                        <p className="text-muted-foreground text-xs">Kwota</p>
+                        <p className="font-semibold text-primary">{order.total_amount.toFixed(2)} zł</p>
+                      </div>
+                      
+                      <div className="text-sm flex items-center gap-2">
+                        {getPaymentStatusBadge(order.payment_status)}
+                        <Badge variant="outline" className="text-xs">
+                          {itemCount} szt.
+                        </Badge>
+                      </div>
+                    </div>
+                  </button>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent>
+                  <div className="border-t border-border p-4 bg-muted/20">
+                    <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      Lista produktów w zamówieniu:
+                    </h4>
+                    
+                    <div className="space-y-2">
+                      {order.order_items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/50"
+                        >
+                          {item.products?.image_url ? (
+                            <img
+                              src={item.products.image_url}
+                              alt={item.products.name}
+                              className="w-12 h-12 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                              <Package className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{item.products?.name || "Produkt"}</p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              {item.animals ? (
+                                <>
+                                  <PawPrint className="h-3 w-3" />
+                                  <span>Dla: {item.animals.name} ({item.animals.species})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Building2 className="h-3 w-3" />
+                                  <span>Dla fundacji</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="text-right">
+                            <p className="font-semibold text-sm">{item.quantity} szt.</p>
+                            <p className="text-xs text-muted-foreground">
+                              {item.unit_price.toFixed(2)} zł / szt.
+                            </p>
+                          </div>
+                          
+                          <div className="text-right font-semibold text-primary">
+                            {(item.quantity * item.unit_price).toFixed(2)} zł
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-border flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">
+                        Łącznie {order.order_items.reduce((sum, item) => sum + item.quantity, 0)} produktów
+                      </span>
+                      <span className="font-bold text-lg text-primary">
+                        Suma: {order.total_amount.toFixed(2)} zł
+                      </span>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          );
+        })}
+        
+        {(!filteredTransactions || filteredTransactions.length === 0) && (
+          <Card className="rounded-3xl p-12 text-center shadow-card">
+            <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">Brak transakcji do wyświetlenia</p>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
