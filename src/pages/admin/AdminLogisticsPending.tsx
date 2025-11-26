@@ -51,7 +51,7 @@ export default function AdminLogisticsPending() {
             postal_code
           )
         `)
-        .eq('status', 'collecting')
+        .in('status', ['collecting', 'processing'])
         .order('created_at', { ascending: true });
 
       if (batchError) throw batchError;
