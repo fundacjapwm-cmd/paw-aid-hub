@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, ChevronDown, Mail, Package, ShoppingCart, Heart } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, Inbox, ShoppingCart, Boxes, Dog } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
@@ -15,14 +15,10 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
   SidebarProvider,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -34,38 +30,26 @@ interface AdminLayoutProps {
 const menuStructure = [
   { title: "Pulpit", url: "/admin", icon: LayoutDashboard },
   {
-    title: "Zgłoszenia",
-    icon: Mail,
+    label: "Sprzedaż",
     items: [
-      { title: "Nowe Zgłoszenia", url: "/admin/zgloszenia", showBadge: true },
-      { title: "Archiwum Zgłoszeń", url: "/admin/zgloszenia/archiwum" },
+      { title: "Zamówienia", url: "/admin/zamowienia", icon: ShoppingCart },
     ]
   },
-  { title: "Zgłoszenia Produktów", url: "/admin/zgloszenia-produktow", icon: Package },
   {
-    title: "Zamówienia",
-    icon: ShoppingCart,
+    label: "Logistyka",
     items: [
-      { title: "Kompletowane", url: "/admin/zamowienia/kompletowane" },
-      { title: "Szczegóły zamówień", url: "/admin/zamowienia/szczegoly" },
+      { title: "Centrum Zamówień", url: "/admin/logistyka/matrix", icon: Boxes },
+      { title: "Dostawy", url: "/admin/logistyka/dostawy", icon: Truck },
     ]
   },
   {
     label: "Baza Danych",
     items: [
       { title: "Organizacje", url: "/admin/organizacje", icon: Building2 },
-      { title: "Zwierzęta", url: "/admin/zwierzeta", icon: Heart },
-      { title: "Producenci i Produkty", url: "/admin/producenci", icon: Factory },
+      { title: "Zgłoszenia", url: "/admin/zgloszenia", icon: Inbox, showBadge: true },
+      { title: "Zwierzęta", url: "/admin/zwierzeta", icon: Dog },
+      { title: "Producenci", url: "/admin/producenci", icon: Factory },
       { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
-    ]
-  },
-  {
-    title: "Logistyka",
-    icon: Truck,
-    items: [
-      { title: "Oczekujące", url: "/admin/logistyka/oczekujace" },
-      { title: "Zamówione", url: "/admin/logistyka/zamowione" },
-      { title: "Archiwum", url: "/admin/logistyka/archiwum" },
     ]
   },
   {
@@ -128,8 +112,8 @@ function AdminSidebarContent() {
               );
             }
 
-            // Group with label (like "Baza Danych")
-            if ('label' in section) {
+            // Group with label (like "Baza Danych", "Sprzedaż", "Logistyka")
+            if ('label' in section && section.items) {
               return (
                 <SidebarGroup key={idx}>
                   <SidebarGroupLabel className="text-xs uppercase text-muted-foreground">
@@ -145,63 +129,23 @@ function AdminSidebarContent() {
                           >
                             <Link to={item.url} className="flex items-center gap-3">
                               <item.icon className="h-5 w-5" />
-                              {open && <span>{item.title}</span>}
+                              {open && (
+                                <>
+                                  <span>{item.title}</span>
+                                  {item.showBadge && newLeadsCount && newLeadsCount > 0 && (
+                                    <Badge 
+                                      variant="destructive" 
+                                      className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
+                                    >
+                                      {newLeadsCount}
+                                    </Badge>
+                                  )}
+                                </>
+                              )}
                             </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              );
-            }
-
-            // Collapsible group (like "Logistyka" or "Zgłoszenia")
-            if ('items' in section && 'icon' in section) {
-              return (
-                <SidebarGroup key={idx}>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      <Collapsible
-                        defaultOpen={isGroupActive(section.items)}
-                        className="group/collapsible"
-                      >
-                        <SidebarMenuItem>
-                          <CollapsibleTrigger asChild>
-                            <SidebarMenuButton>
-                              <section.icon className="h-5 w-5" />
-                              {open && <span>{section.title}</span>}
-                              {open && (
-                                <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                              )}
-                            </SidebarMenuButton>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <SidebarMenuSub>
-                              {section.items.map((subItem) => (
-                                <SidebarMenuSubItem key={subItem.url}>
-                                  <SidebarMenuSubButton
-                                    asChild
-                                    isActive={isActive(subItem.url)}
-                                  >
-                                    <Link to={subItem.url} className="flex items-center gap-2">
-                                      {subItem.title}
-                                      {subItem.showBadge && newLeadsCount && newLeadsCount > 0 && (
-                                        <Badge 
-                                          variant="destructive" 
-                                          className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
-                                        >
-                                          {newLeadsCount}
-                                        </Badge>
-                                      )}
-                                    </Link>
-                                  </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                              ))}
-                            </SidebarMenuSub>
-                          </CollapsibleContent>
-                        </SidebarMenuItem>
-                      </Collapsible>
                     </SidebarMenu>
                   </SidebarGroupContent>
                 </SidebarGroup>
@@ -249,21 +193,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === "/admin") return "Pulpit";
-    if (path === "/admin/zgloszenia") return "Nowe Zgłoszenia";
-    if (path === "/admin/zgloszenia/archiwum") return "Archiwum Zgłoszeń";
-    if (path === "/admin/zgloszenia-produktow") return "Zgłoszenia Produktów";
-    if (path === "/admin/zamowienia/kompletowane") return "Zamówienia Kompletowane";
-    if (path === "/admin/zamowienia/szczegoly") return "Szczegóły Zamówień";
+    if (path === "/admin/zamowienia") return "Zamówienia";
+    if (path === "/admin/zgloszenia") return "Zgłoszenia";
     if (path === "/admin/zwierzeta") return "Zwierzęta";
     if (path === "/admin/organizacje") return "Organizacje";
-    if (path === "/admin/producenci") return "Producenci i Produkty";
+    if (path === "/admin/producenci") return "Producenci";
     if (path === "/admin/uzytkownicy") return "Użytkownicy";
     if (path === "/admin/finanse") return "Wyniki Finansowe";
     if (path === "/admin/statystyki-organizacji") return "Statystyki Organizacji";
     if (path === "/admin/logi") return "Logi Systemowe";
-    if (path === "/admin/logistyka/oczekujace") return "Oczekujące na zamówienie";
-    if (path === "/admin/logistyka/zamowione") return "Zamówione u producenta";
-    if (path === "/admin/logistyka/archiwum") return "Archiwum zamówień";
+    if (path === "/admin/logistyka/matrix") return "Centrum Zamówień";
+    if (path === "/admin/logistyka/dostawy") return "Dostawy";
     return "Panel Administratora";
   };
 
@@ -313,7 +253,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         );
                       }
 
-                      if ('label' in section) {
+                      if ('label' in section && section.items) {
                         return (
                           <div key={idx} className="mt-6 first:mt-0">
                             <p className="text-xs uppercase text-muted-foreground font-semibold mb-2 px-3">
@@ -331,43 +271,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                               >
                                 <item.icon className="h-5 w-5" />
                                 <span>{item.title}</span>
+                                {item.showBadge && newLeadsCount && newLeadsCount > 0 && (
+                                  <Badge 
+                                    variant="destructive" 
+                                    className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
+                                  >
+                                    {newLeadsCount}
+                                  </Badge>
+                                )}
                               </Link>
                             ))}
-                          </div>
-                        );
-                      }
-
-                      if ('items' in section && 'icon' in section) {
-                        const isGroupActive = section.items.some(item => isActive(item.url));
-                        return (
-                          <div key={idx} className="mt-4 first:mt-0">
-                            <div className="flex items-center gap-3 px-3 py-2 text-foreground font-medium">
-                              <section.icon className="h-5 w-5" />
-                              <span>{section.title}</span>
-                            </div>
-                            <div className="ml-6">
-                              {section.items.map((subItem) => (
-                                <Link
-                                  key={subItem.url}
-                                  to={subItem.url}
-                                  className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                                    isActive(subItem.url)
-                                      ? 'bg-primary/10 text-primary font-medium'
-                                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                  }`}
-                                >
-                                  <span>{subItem.title}</span>
-                                  {subItem.showBadge && newLeadsCount && newLeadsCount > 0 && (
-                                    <Badge 
-                                      variant="destructive" 
-                                      className="ml-auto h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs"
-                                    >
-                                      {newLeadsCount}
-                                    </Badge>
-                                  )}
-                                </Link>
-                              ))}
-                            </div>
                           </div>
                         );
                       }

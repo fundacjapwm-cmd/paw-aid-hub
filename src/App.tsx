@@ -25,19 +25,14 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminFinances from "./pages/admin/AdminFinances";
 import AdminOrganizationStats from "./pages/admin/AdminOrganizationStats";
-import AdminLogisticsPending from "./pages/admin/AdminLogisticsPending";
-import AdminLogisticsOrdered from "./pages/admin/AdminLogisticsOrdered";
-import AdminLogisticsArchive from "./pages/admin/AdminLogisticsArchive";
 import AdminLeads from "./pages/admin/AdminLeads";
-import AdminLeadsArchive from "./pages/admin/AdminLeadsArchive";
-import AdminProductRequests from "./pages/admin/AdminProductRequests";
-import AdminOrdersCollecting from "./pages/admin/AdminOrdersCollecting";
-import AdminOrdersDetails from "./pages/admin/AdminOrdersDetails";
 import AdminAnimals from "./pages/admin/AdminAnimals";
+import AdminOrders from "./pages/admin/AdminOrders";
+import LogisticsMatrix from "./pages/admin/LogisticsMatrix";
+import AdminDeliveries from "./pages/admin/AdminDeliveries";
 import OrgDashboard from "./pages/OrgDashboard";
 
 import OrgProfile from "./pages/OrgProfile";
-import OrgRequests from "./pages/OrgRequests";
 import OrgWishlist from "./pages/OrgWishlist";
 import OrgOrdersToConfirm from "./pages/OrgOrdersToConfirm";
 import OrgOrdersArchive from "./pages/OrgOrdersArchive";
@@ -81,20 +76,16 @@ function AppContent() {
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminStats />} />
+            <Route path="zamowienia" element={<AdminOrders />} />
+            <Route path="logistyka/matrix" element={<LogisticsMatrix />} />
+            <Route path="logistyka/dostawy" element={<AdminDeliveries />} />
             <Route path="organizacje" element={<AdminOrganizations />} />
-            <Route path="zwierzeta" element={<AdminAnimals />} />
             <Route path="zgloszenia" element={<AdminLeads />} />
-            <Route path="zgloszenia/archiwum" element={<AdminLeadsArchive />} />
-            <Route path="zgloszenia-produktow" element={<AdminProductRequests />} />
+            <Route path="zwierzeta" element={<AdminAnimals />} />
             <Route path="producenci" element={<AdminProducers />} />
             <Route path="uzytkownicy" element={<AdminUsers />} />
             <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
             <Route path="finanse" element={<AdminFinances />} />
-            <Route path="zamowienia/kompletowane" element={<AdminOrdersCollecting />} />
-            <Route path="zamowienia/szczegoly" element={<AdminOrdersDetails />} />
-            <Route path="logistyka/oczekujace" element={<AdminLogisticsPending />} />
-            <Route path="logistyka/zamowione" element={<AdminLogisticsOrdered />} />
-            <Route path="logistyka/archiwum" element={<AdminLogisticsArchive />} />
             <Route path="logi" element={<AdminLogs />} />
           </Route>
           
