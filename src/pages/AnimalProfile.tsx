@@ -21,6 +21,9 @@ const AnimalProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const fromOrganization = location.state?.fromOrganization || false;
+  const fromOrganizationProfile = location.state?.fromOrganizationProfile || false;
+  const organizationName = location.state?.organizationName;
+  const organizationSlug = location.state?.organizationSlug;
 
   const {
     animal,
@@ -90,6 +93,21 @@ const AnimalProfile = () => {
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
                       <Link to="/organizacja">Panel organizacji</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                </>
+              ) : fromOrganizationProfile && organizationSlug ? (
+                <>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to="/organizacje">Organizacje</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to={`/organizacje/${organizationSlug}`}>{organizationName}</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />

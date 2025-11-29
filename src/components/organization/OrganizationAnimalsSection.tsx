@@ -56,6 +56,7 @@ export function OrganizationAnimalsSection({ animals, organization }: Organizati
                     image_url: w.products?.image_url,
                   })),
                 }}
+                fromOrganizationProfile={true}
               />
             </div>
           ))}

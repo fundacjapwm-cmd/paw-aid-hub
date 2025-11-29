@@ -49,9 +49,10 @@ interface Animal {
 
 interface AnimalCardProps {
   animal: Animal;
+  fromOrganizationProfile?: boolean;
 }
 
-const AnimalCard = ({ animal }: AnimalCardProps) => {
+const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps) => {
   const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -196,7 +197,13 @@ const AnimalCard = ({ animal }: AnimalCardProps) => {
       )}
       <Card
       className="group overflow-hidden bg-card transition-all duration-300 rounded-[50px] md:rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in md:hover:shadow-bubbly md:hover:-translate-y-3"
-      onClick={() => navigate(`/zwierze/${animal.id}`)}
+      onClick={() => navigate(`/zwierze/${animal.id}`, { 
+        state: fromOrganizationProfile ? { 
+          fromOrganizationProfile: true, 
+          organizationName: animal.organization,
+          organizationSlug: animal.organizationSlug 
+        } : undefined 
+      })}
     >
       {/* Decorative bubbly elements */}
       <div className="absolute top-2 left-2 w-4 h-4 bg-primary/20 rounded-full animate-bounce-gentle z-10"></div>
