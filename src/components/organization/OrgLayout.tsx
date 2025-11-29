@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, ClipboardList, Settings, LogOut, ExternalLink, Package, ChevronDown } from "lucide-react";
+import { Home, ClipboardList, Settings, LogOut, ExternalLink, Package, ChevronDown, Truck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -33,6 +33,7 @@ interface OrgLayoutProps {
 const menuStructure = [
   { title: "Pulpit", url: "/organizacja", icon: Home },
   { title: "Lista potrzeb", url: "/organizacja/lista-potrzeb", icon: ClipboardList },
+  { title: "Dostawy", url: "/organizacja/dostawy", icon: Truck },
   {
     title: "Zamówienia",
     icon: Package,
@@ -169,6 +170,7 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
     const path = location.pathname;
     if (path === "/organizacja") return "Pulpit";
     if (path === "/organizacja/lista-potrzeb") return "Lista potrzeb";
+    if (path === "/organizacja/dostawy") return "Dostawy";
     if (path === "/organizacja/zamowienia") return "Zamówienia - Do potwierdzenia";
     if (path === "/organizacja/zamowienia/archiwum") return "Zamówienia - Archiwum";
     if (path === "/organizacja/profil") return "Ustawienia";

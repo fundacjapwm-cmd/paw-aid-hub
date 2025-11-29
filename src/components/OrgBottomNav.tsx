@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ClipboardList, Package, Settings } from "lucide-react";
+import { Home, ClipboardList, Package, Settings, Truck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const menuItems = [
   { title: "Pulpit", url: "/organizacja", icon: Home },
   { title: "Lista potrzeb", url: "/organizacja/lista-potrzeb", icon: ClipboardList },
+  { title: "Dostawy", url: "/organizacja/dostawy", icon: Truck },
   { title: "Zamówienia", url: "/organizacja/zamowienia", icon: Package },
   { title: "Ustawienia", url: "/organizacja/profil", icon: Settings },
 ];
