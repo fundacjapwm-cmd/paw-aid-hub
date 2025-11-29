@@ -220,6 +220,7 @@ export type Database = {
           order_id: string | null
           product_id: string | null
           quantity: number
+          shipment_id: string | null
           unit_price: number
         }
         Insert: {
@@ -230,6 +231,7 @@ export type Database = {
           order_id?: string | null
           product_id?: string | null
           quantity: number
+          shipment_id?: string | null
           unit_price: number
         }
         Update: {
@@ -240,6 +242,7 @@ export type Database = {
           order_id?: string | null
           product_id?: string | null
           quantity?: number
+          shipment_id?: string | null
           unit_price?: number
         }
         Relationships: [
@@ -262,6 +265,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
             referencedColumns: ["id"]
           },
         ]
@@ -784,6 +794,54 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      shipments: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          id: string
+          organization_id: string
+          producer_id: string | null
+          shipped_at: string
+          status: string
+          tracking_number: string | null
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          organization_id: string
+          producer_id?: string | null
+          shipped_at?: string
+          status?: string
+          tracking_number?: string | null
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string
+          producer_id?: string | null
+          shipped_at?: string
+          status?: string
+          tracking_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_carts: {
         Row: {

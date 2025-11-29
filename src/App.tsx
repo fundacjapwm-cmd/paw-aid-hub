@@ -41,6 +41,7 @@ import OrgRequests from "./pages/OrgRequests";
 import OrgWishlist from "./pages/OrgWishlist";
 import OrgOrdersToConfirm from "./pages/OrgOrdersToConfirm";
 import OrgOrdersArchive from "./pages/OrgOrdersArchive";
+import OrgDeliveries from "./pages/OrgDeliveries";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
@@ -101,6 +102,7 @@ function AppContent() {
           <Route path="/organizacja" element={<OrgDashboard />} />
           
           <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
+          <Route path="/organizacja/dostawy" element={<OrgDeliveries />} />
           <Route path="/organizacja/zamowienia" element={<OrgOrdersToConfirm />} />
           <Route path="/organizacja/zamowienia/archiwum" element={<OrgOrdersArchive />} />
           <Route path="/organizacja/profil" element={<OrgProfile />} />

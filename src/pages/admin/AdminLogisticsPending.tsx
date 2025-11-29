@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { FileText, Truck, CheckCircle2, Package, Building2, Loader2, ChevronDown, PawPrint } from "lucide-react";
+import { FileText, Truck, CheckCircle2, Package, Building2, Loader2, ChevronDown, PawPrint, FileDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface BatchOrderItem {
+  id: string;
   productName: string;
   quantity: number;
   animalName: string | null;
@@ -22,6 +23,7 @@ interface BatchOrder {
   organizationAddress: string;
   organizationCity: string;
   organizationPostalCode: string;
+  organizationPhone: string;
   createdAt: string;
   items: BatchOrderItem[];
   totalItems: number;
@@ -48,7 +50,8 @@ export default function AdminLogisticsPending() {
             name,
             address,
             city,
-            postal_code
+            postal_code,
+            contact_phone
           )
         `)
         .in('status', ['collecting', 'processing'])
@@ -88,6 +91,7 @@ export default function AdminLogisticsPending() {
         if (!items || items.length === 0) continue;
 
         const batchItems: BatchOrderItem[] = items.map((item: any) => ({
+          id: item.id,
           productName: item.products?.name || 'N/A',
           quantity: item.quantity,
           animalName: item.animals?.name || null
@@ -100,6 +104,7 @@ export default function AdminLogisticsPending() {
           organizationAddress: org?.address || '',
           organizationCity: org?.city || '',
           organizationPostalCode: org?.postal_code || '',
+          organizationPhone: org?.contact_phone || '',
           createdAt: batch.created_at,
           items: batchItems,
           totalItems: batchItems.reduce((sum, item) => sum + item.quantity, 0),
@@ -321,10 +326,67 @@ export default function AdminLogisticsPending() {
     printWindow.document.close();
   };
 
+  const generateCSV = (order: BatchOrder) => {
+    // Create CSV content for producer/warehouse
+    const productTotals = new Map<string, number>();
+    order.items.forEach(item => {
+      const current = productTotals.get(item.productName) || 0;
+      productTotals.set(item.productName, current + item.quantity);
+    });
+
+    const headers = ['Nazwa Organizacji', 'Ulica', 'Miasto', 'Kod pocztowy', 'Telefon', 'Produkt', 'Ilość'];
+    const rows: string[][] = [];
+
+    Array.from(productTotals.entries()).forEach(([productName, qty]) => {
+      rows.push([
+        order.organizationName,
+        order.organizationAddress,
+        order.organizationCity,
+        order.organizationPostalCode,
+        order.organizationPhone,
+        productName,
+        String(qty)
+      ]);
+    });
+
+    const csvContent = [
+      headers.join(';'),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(';'))
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `zamowienie_${order.organizationName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "CSV wygenerowany",
+      description: "Plik CSV został pobrany",
+    });
+  };
+
   const markAsOrdered = async (order: BatchOrder) => {
     try {
       setProcessingOrder(order.id);
 
+      // 1. Create shipment record
+      const { data: shipment, error: shipmentError } = await supabase
+        .from('shipments')
+        .insert({
+          organization_id: order.organizationId,
+          status: 'shipped',
+          shipped_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (shipmentError) throw shipmentError;
+
+      // 2. Get order IDs for this batch
       const { data: orders } = await supabase
         .from('orders')
         .select('id')
@@ -334,14 +396,21 @@ export default function AdminLogisticsPending() {
 
       const orderIds = orders.map(o => o.id);
 
+      // 3. Get order item IDs
+      const itemIds = order.items.map(item => item.id);
+
+      // 4. Update order items - set fulfillment_status and shipment_id
       const { error: itemsError } = await supabase
         .from('order_items')
-        .update({ fulfillment_status: 'ordered' })
-        .in('order_id', orderIds)
-        .eq('fulfillment_status', 'pending');
+        .update({ 
+          fulfillment_status: 'ordered',
+          shipment_id: shipment.id 
+        })
+        .in('id', itemIds);
 
       if (itemsError) throw itemsError;
 
+      // 5. Update batch order status
       const { error: batchError } = await supabase
         .from('organization_batch_orders')
         .update({ status: 'ordered' })
@@ -349,9 +418,12 @@ export default function AdminLogisticsPending() {
 
       if (batchError) throw batchError;
 
+      // 6. Generate CSV automatically
+      generateCSV(order);
+
       toast({
         title: "Sukces",
-        description: `Zamówienie dla ${order.organizationName} zostało oznaczone jako zamówione`,
+        description: `Zamówienie dla ${order.organizationName} zostało złożone. Dostawa została utworzona.`,
       });
 
       queryClient.invalidateQueries({ queryKey: ["logistics-pending-batch-orders"] });
@@ -360,7 +432,7 @@ export default function AdminLogisticsPending() {
       console.error('Error marking as ordered:', error);
       toast({
         title: "Błąd",
-        description: "Nie udało się zaktualizować zamówienia",
+        description: "Nie udało się złożyć zamówienia",
         variant: "destructive"
       });
     } finally {
@@ -505,6 +577,16 @@ export default function AdminLogisticsPending() {
                             <Truck className="h-4 w-4 mr-2" />
                             Lista dla organizacji
                           </Button>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                          <Button
+                            variant="outline"
+                            onClick={(e) => { e.stopPropagation(); generateCSV(order); }}
+                            className="rounded-2xl flex-1"
+                          >
+                            <FileDown className="h-4 w-4 mr-2" />
+                            Eksportuj CSV
+                          </Button>
                           <Button
                             onClick={(e) => { e.stopPropagation(); markAsOrdered(order); }}
                             className="rounded-2xl flex-1"
@@ -515,7 +597,7 @@ export default function AdminLogisticsPending() {
                             ) : (
                               <CheckCircle2 className="h-4 w-4 mr-2" />
                             )}
-                            Zaznacz jako zamówione
+                            Złóż zamówienie
                           </Button>
                         </div>
                       </div>
