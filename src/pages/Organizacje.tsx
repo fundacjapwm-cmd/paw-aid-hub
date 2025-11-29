@@ -2,15 +2,23 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Heart, MapPin, Users, Phone, Mail, Filter, Search, X } from "lucide-react";
+import { Heart, MapPin, Users, Phone, Mail, Filter, Search, X, Home } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import OrganizationCardSkeleton from "@/components/OrganizationCardSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 interface Organization {
   id: string;
@@ -119,13 +127,33 @@ const Organizacje = () => {
       <main>
         {/* Header Section */}
         <section className="py-12 md:py-20 bg-background">
-          <div className="md:container md:mx-auto md:px-8 px-4 text-center">
-            <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-              Nasi partnerzy
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
-              Poznaj organizacje, które codziennie pomagają zwierzętom w potrzebie. Wspieraj ich działania!
-            </p>
+          <div className="md:container md:mx-auto md:px-8 px-4">
+            {/* Breadcrumbs */}
+            <Breadcrumb className="mb-6">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/" className="flex items-center gap-1">
+                      <Home className="h-4 w-4" />
+                      <span className="hidden sm:inline">Strona główna</span>
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Organizacje</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="text-center">
+              <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+                Nasi partnerzy
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+                Poznaj organizacje, które codziennie pomagają zwierzętom w potrzebie. Wspieraj ich działania!
+              </p>
+            </div>
           </div>
         </section>
 
