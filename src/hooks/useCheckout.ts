@@ -28,6 +28,72 @@ export function useCheckout() {
     setNewsletter(checked);
   };
 
+  const handleTestCheckout = async () => {
+    if (cart.length === 0) {
+      toast({
+        title: "Pusty koszyk",
+        description: "Dodaj produkty do koszyka przed płatnością",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Create order directly in database with completed status
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id || null,
+          total_amount: cartTotal,
+          payment_status: 'completed',
+          payment_method: 'test',
+          status: 'completed',
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cart.map(item => ({
+        order_id: orderData.id,
+        product_id: item.productId,
+        animal_id: item.animalId || null,
+        quantity: item.quantity,
+        unit_price: item.price,
+        fulfillment_status: 'pending',
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      clearCart();
+      
+      toast({
+        title: "Test: Płatność zakończona",
+        description: "Zamówienie testowe utworzone pomyślnie",
+      });
+
+      // Redirect to success page with order ID
+      window.location.href = `/payment-success?extOrderId=${orderData.id}`;
+
+    } catch (error: any) {
+      console.error('Test checkout error:', error);
+      toast({
+        title: "Błąd testowej płatności",
+        description: error.message || "Nie udało się utworzyć zamówienia testowego",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -118,5 +184,6 @@ export function useCheckout() {
     allConsentsChecked,
     handleSelectAll,
     handleCheckout,
+    handleTestCheckout,
   };
 }
