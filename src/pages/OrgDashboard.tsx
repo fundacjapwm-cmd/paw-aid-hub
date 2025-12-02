@@ -9,6 +9,7 @@ import DashboardHeader from "@/components/organization/DashboardHeader";
 import DashboardAnimalList from "@/components/organization/DashboardAnimalList";
 import AnimalFormDialog, { AnimalFormData } from "@/components/organization/AnimalFormDialog";
 import AnimalDeleteDialog from "@/components/organization/AnimalDeleteDialog";
+import WishlistBuilder from "@/components/organization/WishlistBuilder";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -24,6 +25,8 @@ export default function OrgDashboard() {
   const [editAnimalDialogOpen, setEditAnimalDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [logoCropDialogOpen, setLogoCropDialogOpen] = useState(false);
+  const [wishlistDialogOpen, setWishlistDialogOpen] = useState(false);
+  const [selectedAnimal, setSelectedAnimal] = useState<AnimalWithStats | null>(null);
   
   // Animal management states
   const [searchQuery, setSearchQuery] = useState("");
@@ -325,7 +328,11 @@ export default function OrgDashboard() {
   };
 
   const handleAnimalClick = (animalId: string) => {
-    navigate(`/zwierzeta/${animalId}`, { state: { fromOrganization: true } });
+    const animal = animals.find(a => a.id === animalId);
+    if (animal) {
+      setSelectedAnimal(animal);
+      setWishlistDialogOpen(true);
+    }
   };
 
   if (!user || profile?.role !== "ORG") {
@@ -433,6 +440,36 @@ export default function OrgDashboard() {
           onCropComplete={handleLogoCropComplete}
         />
       )}
+
+      {/* Wishlist Builder Dialog */}
+      <Dialog 
+        open={wishlistDialogOpen} 
+        onOpenChange={(open) => {
+          setWishlistDialogOpen(open);
+          if (!open) {
+            // Refetch dashboard data when closing to update progress bars
+            refetch();
+          }
+        }}
+      >
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              Koszyk potrzeb: {selectedAnimal?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Dodaj produkty do listy potrzeb dla {selectedAnimal?.name}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAnimal && (
+            <WishlistBuilder
+              entityId={selectedAnimal.id}
+              entityName={selectedAnimal.name}
+              entityType="animal"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </OrgLayout>
   );
 }
