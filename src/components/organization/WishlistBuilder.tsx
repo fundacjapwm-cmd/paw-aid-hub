@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Plus, ShoppingCart, Minus } from "lucide-react";
+import { Search, Plus, ShoppingCart, Minus, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,8 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showRequestDialog, setShowRequestDialog] = useState(false);
+  // Track pending quantities for products not yet added to wishlist
+  const [pendingQuantities, setPendingQuantities] = useState<Record<string, number>>({});
 
   useEffect(() => {
     fetchProducts();
@@ -125,11 +127,13 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
   };
 
   const handleAddToWishlist = async (productId: string) => {
+    const quantity = pendingQuantities[productId] || 1;
+    
     if (entityType === "animal") {
       const { error } = await supabase.from("animal_wishlists").insert({
         animal_id: entityId,
         product_id: productId,
-        quantity: 1,
+        quantity: quantity,
         priority: 0,
       });
 
@@ -145,7 +149,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
       const { error } = await supabase.from("organization_wishlists").insert({
         organization_id: entityId,
         product_id: productId,
-        quantity: 1,
+        quantity: quantity,
         priority: 0,
       });
 
@@ -158,6 +162,13 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
         return;
       }
     }
+
+    // Clear pending quantity for this product
+    setPendingQuantities(prev => {
+      const updated = { ...prev };
+      delete updated[productId];
+      return updated;
+    });
 
     toast({
       title: "Sukces",
@@ -385,6 +396,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
             <TooltipProvider>
               {filteredProducts.map((product) => {
                 const wishlistItem = getWishlistItem(product.id);
+                const currentQuantity = wishlistItem?.quantity || pendingQuantities[product.id] || 1;
                 
                 return (
                   <WishlistProductCard
@@ -395,10 +407,10 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
                       name: product.name,
                       price: product.price,
                       image_url: product.image_url,
-                      quantity: wishlistItem?.quantity || 1,
+                      quantity: currentQuantity,
                       bought: false,
                     }}
-                    quantity={wishlistItem?.quantity || 1}
+                    quantity={currentQuantity}
                     isInCart={!!wishlistItem}
                     cartQuantity={wishlistItem?.quantity || 0}
                     onQuantityChange={(productId, change) => {
@@ -409,6 +421,10 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
                         } else {
                           handleUpdateQuantity(wishlistItem.id, productId, newQty);
                         }
+                      } else {
+                        // Update pending quantity for products not yet in wishlist
+                        const newQty = Math.max(1, currentQuantity + change);
+                        setPendingQuantities(prev => ({ ...prev, [productId]: newQty }));
                       }
                     }}
                     onAddToCart={() => handleAddToWishlist(product.id)}
