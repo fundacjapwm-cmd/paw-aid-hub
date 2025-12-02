@@ -52,7 +52,7 @@ export default function DashboardAnimalList({
         </div>
       </div>
 
-      {/* Animals Grid */}
+      {/* Animals List */}
       {filteredAnimals.length === 0 ? (
         <div className="text-center py-12">
           <PawPrint className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
@@ -63,7 +63,7 @@ export default function DashboardAnimalList({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
           {filteredAnimals.map((animal) => (
             <DashboardAnimalCard
               key={animal.id}
