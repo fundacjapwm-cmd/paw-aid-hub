@@ -41,11 +41,15 @@ export function useCheckout() {
     setLoading(true);
 
     try {
+      // Get current session to ensure proper user_id
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || null;
+
       // Create order directly in database with completed status
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: user?.id || null,
+          user_id: userId,
           total_amount: cartTotal,
           payment_status: 'completed',
           payment_method: 'test',
