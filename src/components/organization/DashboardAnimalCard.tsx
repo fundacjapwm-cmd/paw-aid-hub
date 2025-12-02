@@ -25,7 +25,7 @@ export default function DashboardAnimalCard({
 
   const handleViewProfile = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/zwierzeta/${animal.id}`);
+    navigate(`/zwierze/${animal.id}`);
   };
 
   return (
