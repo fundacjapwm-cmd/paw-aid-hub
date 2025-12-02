@@ -28,6 +28,7 @@ interface CheckoutPaymentFormProps {
   allConsentsChecked: boolean;
   onSelectAll: (checked: boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
+  onTestSubmit?: () => void;
 }
 
 export function CheckoutPaymentForm({
@@ -51,6 +52,7 @@ export function CheckoutPaymentForm({
   allConsentsChecked,
   onSelectAll,
   onSubmit,
+  onTestSubmit,
 }: CheckoutPaymentFormProps) {
   return (
     <Card className="md:sticky md:top-24">
@@ -227,6 +229,19 @@ export function CheckoutPaymentForm({
               </>
             )}
           </Button>
+
+          {onTestSubmit && (
+            <Button 
+              type="button"
+              onClick={onTestSubmit}
+              variant="outline"
+              className="w-full" 
+              size="lg"
+              disabled={loading}
+            >
+              🧪 Zapłać Test (Symulacja)
+            </Button>
+          )}
 
           <p className="text-xs text-center text-muted-foreground mt-4">
             * Pola wymagane
