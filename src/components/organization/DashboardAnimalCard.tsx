@@ -2,8 +2,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Pencil, Trash2, PawPrint, ShoppingCart, CheckCircle } from "lucide-react";
+import { Pencil, Trash2, PawPrint, ShoppingCart, CheckCircle, ExternalLink } from "lucide-react";
 import { AnimalWithStats } from "@/hooks/useOrgDashboard";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardAnimalCardProps {
   animal: AnimalWithStats;
@@ -18,8 +19,14 @@ export default function DashboardAnimalCard({
   onDelete,
   onClick,
 }: DashboardAnimalCardProps) {
+  const navigate = useNavigate();
   const { totalNeeded, fulfilled, progress } = animal.wishlistStats;
   const isComplete = progress >= 100;
+
+  const handleViewProfile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/zwierzeta/${animal.id}`);
+  };
 
   return (
     <Card
@@ -52,7 +59,17 @@ export default function DashboardAnimalCard({
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
+                  onClick={handleViewProfile}
+                  title="Zobacz profil publiczny"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
                   onClick={(e) => onEdit(animal, e)}
+                  title="Edytuj"
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -61,6 +78,7 @@ export default function DashboardAnimalCard({
                   size="icon"
                   className="h-8 w-8 text-destructive hover:text-destructive"
                   onClick={(e) => onDelete(animal, e)}
+                  title="Usuń"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
