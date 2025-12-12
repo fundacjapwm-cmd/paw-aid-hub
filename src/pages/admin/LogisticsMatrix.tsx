@@ -25,6 +25,8 @@ interface OrganizationOrder {
     quantity: number;
     animalName: string | null;
     unitPrice: number;
+    producerName: string | null;
+    producerId: string | null;
   }[];
 }
 
@@ -75,14 +77,14 @@ export default function LogisticsMatrix() {
 
         const orderIds = orders.map(o => o.id);
 
-        // Get order items
+        // Get order items with producer info
         const { data: items } = await supabase
           .from('order_items')
           .select(`
             id,
             quantity,
             unit_price,
-            products (name),
+            products (name, producer_id, producers (name)),
             animals (name)
           `)
           .in('order_id', orderIds)
@@ -109,7 +111,9 @@ export default function LogisticsMatrix() {
             productName: item.products?.name || 'N/A',
             quantity: item.quantity,
             animalName: item.animals?.name || null,
-            unitPrice: item.unit_price
+            unitPrice: item.unit_price,
+            producerName: item.products?.producers?.name || null,
+            producerId: item.products?.producer_id || null,
           }))
         });
       }
@@ -385,21 +389,35 @@ export default function LogisticsMatrix() {
                     </div>
                   </div>
 
-                  {/* Items preview */}
+                  {/* Items preview grouped by producer */}
                   <div className="mt-4 pl-16">
-                    <p className="text-sm text-muted-foreground mb-2">Produkty:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {order.items.slice(0, 5).map((item, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {item.productName} x{item.quantity}
-                        </Badge>
-                      ))}
-                      {order.items.length > 5 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{order.items.length - 5} więcej
-                        </Badge>
-                      )}
-                    </div>
+                    {/* Group items by producer */}
+                    {(() => {
+                      const groupedByProducer = order.items.reduce((acc, item) => {
+                        const producer = item.producerName || 'Nieznany producent';
+                        if (!acc[producer]) acc[producer] = [];
+                        acc[producer].push(item);
+                        return acc;
+                      }, {} as Record<string, typeof order.items>);
+
+                      return Object.entries(groupedByProducer).map(([producer, items]) => (
+                        <div key={producer} className="mb-3">
+                          <p className="text-sm font-medium text-primary mb-1">{producer}:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {items.slice(0, 5).map((item, idx) => (
+                              <Badge key={idx} variant="outline" className="text-xs">
+                                {item.productName} x{item.quantity}
+                              </Badge>
+                            ))}
+                            {items.length > 5 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{items.length - 5} więcej
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 </CardContent>
               </Card>
