@@ -41,9 +41,18 @@ export function useCheckout() {
     setLoading(true);
 
     try {
-      // Get current session to ensure proper user_id
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id || null;
+      // Get current session - must match what auth.uid() returns in RLS
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+      }
+      
+      // For RLS policy: if user is logged in, user_id must equal auth.uid()
+      // If user is NOT logged in, both auth.uid() and user_id must be NULL
+      const userId = session?.user?.id ?? null;
+      
+      console.log('Test checkout - session user:', session?.user?.id, 'userId:', userId);
 
       // Create order directly in database with completed status
       const { data: orderData, error: orderError } = await supabase
@@ -58,7 +67,10 @@ export function useCheckout() {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order insert error:', orderError, 'userId was:', userId);
+        throw orderError;
+      }
 
       // Create order items
       const orderItems = cart.map(item => ({
