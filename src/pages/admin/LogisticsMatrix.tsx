@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Building2, Package, FileDown, Truck, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Building2, Package, Truck, AlertCircle, CheckCircle2, Factory } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-interface OrganizationOrder {
-  id: string;
+interface ProducerOrganizationOrder {
+  id: string; // composite key: producerId-organizationId
+  producerId: string;
+  producerName: string;
   organizationId: string;
   organizationName: string;
   organizationAddress: string;
@@ -25,20 +27,20 @@ interface OrganizationOrder {
     quantity: number;
     animalName: string | null;
     unitPrice: number;
-    producerName: string | null;
-    producerId: string | null;
+    orderId: string;
   }[];
+  batchOrderIds: string[]; // batch orders involved
 }
 
 export default function LogisticsMatrix() {
-  const [selectedOrgs, setSelectedOrgs] = useState<Set<string>>(new Set());
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [processing, setProcessing] = useState(false);
   const queryClient = useQueryClient();
 
   const MINIMUM_ORDER_VALUE = 500; // PLN
 
-  const { data: organizationOrders = [], isLoading } = useQuery({
-    queryKey: ["logistics-matrix-orders"],
+  const { data: producerOrgOrders = [], isLoading } = useQuery({
+    queryKey: ["logistics-matrix-producer-org"],
     queryFn: async () => {
       // Get all batch orders in collecting/processing status
       const { data: batches, error: batchError } = await supabase
@@ -61,10 +63,12 @@ export default function LogisticsMatrix() {
       if (batchError) throw batchError;
       if (!batches || batches.length === 0) return [];
 
-      const result: OrganizationOrder[] = [];
+      // Map to store producer-org combinations
+      const producerOrgMap = new Map<string, ProducerOrganizationOrder>();
 
       for (const batch of batches) {
         const org = batch.organizations as any;
+        if (!org) continue;
 
         // Get orders for this batch
         const { data: orders } = await supabase
@@ -82,9 +86,10 @@ export default function LogisticsMatrix() {
           .from('order_items')
           .select(`
             id,
+            order_id,
             quantity,
             unit_price,
-            products (name, producer_id, producers (name)),
+            products (name, producer_id, producers (id, name)),
             animals (name)
           `)
           .in('order_id', orderIds)
@@ -92,44 +97,64 @@ export default function LogisticsMatrix() {
 
         if (!items || items.length === 0) continue;
 
-        const totalValue = items.reduce((sum: number, item: any) => 
-          sum + (item.quantity * item.unit_price), 0
-        );
+        // Group items by producer
+        for (const item of items) {
+          const product = item.products as any;
+          const producer = product?.producers as any;
+          
+          if (!producer?.id) continue;
 
-        result.push({
-          id: batch.id,
-          organizationId: org?.id || '',
-          organizationName: org?.name || 'N/A',
-          organizationAddress: org?.address || '',
-          organizationCity: org?.city || '',
-          organizationPostalCode: org?.postal_code || '',
-          organizationPhone: org?.contact_phone || '',
-          totalValue,
-          itemCount: items.reduce((sum: number, item: any) => sum + item.quantity, 0),
-          items: items.map((item: any) => ({
+          const key = `${producer.id}-${org.id}`;
+          
+          if (!producerOrgMap.has(key)) {
+            producerOrgMap.set(key, {
+              id: key,
+              producerId: producer.id,
+              producerName: producer.name || 'Nieznany producent',
+              organizationId: org.id,
+              organizationName: org.name,
+              organizationAddress: org.address || '',
+              organizationCity: org.city || '',
+              organizationPostalCode: org.postal_code || '',
+              organizationPhone: org.contact_phone || '',
+              totalValue: 0,
+              itemCount: 0,
+              items: [],
+              batchOrderIds: [],
+            });
+          }
+
+          const entry = producerOrgMap.get(key)!;
+          entry.totalValue += item.quantity * item.unit_price;
+          entry.itemCount += item.quantity;
+          entry.items.push({
             id: item.id,
-            productName: item.products?.name || 'N/A',
+            productName: product?.name || 'N/A',
             quantity: item.quantity,
-            animalName: item.animals?.name || null,
+            animalName: (item.animals as any)?.name || null,
             unitPrice: item.unit_price,
-            producerName: item.products?.producers?.name || null,
-            producerId: item.products?.producer_id || null,
-          }))
-        });
+            orderId: item.order_id,
+          });
+
+          if (!entry.batchOrderIds.includes(batch.id)) {
+            entry.batchOrderIds.push(batch.id);
+          }
+        }
       }
 
-      return result.sort((a, b) => b.totalValue - a.totalValue);
+      return Array.from(producerOrgMap.values()).sort((a, b) => b.totalValue - a.totalValue);
     },
   });
 
-  const totalSelectedValue = organizationOrders
-    .filter(o => selectedOrgs.has(o.id))
+  const totalSelectedValue = producerOrgOrders
+    .filter(o => selectedOrders.has(o.id))
     .reduce((sum, o) => sum + o.totalValue, 0);
 
-  const canPlaceOrder = totalSelectedValue >= MINIMUM_ORDER_VALUE;
+  const selectedReadyOrders = producerOrgOrders
+    .filter(o => selectedOrders.has(o.id) && o.totalValue >= MINIMUM_ORDER_VALUE);
 
-  const toggleOrganization = (id: string) => {
-    setSelectedOrgs(prev => {
+  const toggleOrder = (id: string) => {
+    setSelectedOrders(prev => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -140,28 +165,30 @@ export default function LogisticsMatrix() {
     });
   };
 
-  const selectAll = () => {
-    setSelectedOrgs(new Set(organizationOrders.map(o => o.id)));
+  const selectAllReady = () => {
+    const readyIds = producerOrgOrders
+      .filter(o => o.totalValue >= MINIMUM_ORDER_VALUE)
+      .map(o => o.id);
+    setSelectedOrders(new Set(readyIds));
   };
 
   const deselectAll = () => {
-    setSelectedOrgs(new Set());
+    setSelectedOrders(new Set());
   };
 
   const handlePlaceOrder = async () => {
-    if (!canPlaceOrder || selectedOrgs.size === 0) return;
+    if (selectedReadyOrders.length === 0) return;
 
     try {
       setProcessing(true);
 
-      const selectedBatches = organizationOrders.filter(o => selectedOrgs.has(o.id));
-
-      for (const batch of selectedBatches) {
-        // Create shipment record
+      for (const order of selectedReadyOrders) {
+        // Create shipment record for this producer-organization combination
         const { data: shipment, error: shipmentError } = await supabase
           .from('shipments')
           .insert({
-            organization_id: batch.organizationId,
+            organization_id: order.organizationId,
+            producer_id: order.producerId,
             status: 'shipped',
             shipped_at: new Date().toISOString(),
           })
@@ -171,7 +198,7 @@ export default function LogisticsMatrix() {
         if (shipmentError) throw shipmentError;
 
         // Update order items with shipment_id
-        const itemIds = batch.items.map(item => item.id);
+        const itemIds = order.items.map(item => item.id);
         
         const { error: itemsError } = await supabase
           .from('order_items')
@@ -182,26 +209,18 @@ export default function LogisticsMatrix() {
           .in('id', itemIds);
 
         if (itemsError) throw itemsError;
-
-        // Update batch order status
-        const { error: batchError } = await supabase
-          .from('organization_batch_orders')
-          .update({ status: 'ordered' })
-          .eq('id', batch.id);
-
-        if (batchError) throw batchError;
       }
 
-      // Generate combined CSV
-      generateCombinedCSV(selectedBatches);
+      // Generate combined CSV for producer
+      generateProducerCSV(selectedReadyOrders);
 
       toast({
-        title: "Zamówienie złożone",
-        description: `Złożono zamówienie dla ${selectedBatches.length} organizacji na kwotę ${totalSelectedValue.toFixed(2)} zł`,
+        title: "Zamówienia złożone",
+        description: `Złożono ${selectedReadyOrders.length} zamówień na kwotę ${totalSelectedValue.toFixed(2)} zł`,
       });
 
-      setSelectedOrgs(new Set());
-      queryClient.invalidateQueries({ queryKey: ["logistics-matrix-orders"] });
+      setSelectedOrders(new Set());
+      queryClient.invalidateQueries({ queryKey: ["logistics-matrix-producer-org"] });
       queryClient.invalidateQueries({ queryKey: ["admin-deliveries"] });
     } catch (error) {
       console.error('Error placing order:', error);
@@ -215,21 +234,21 @@ export default function LogisticsMatrix() {
     }
   };
 
-  const generateCombinedCSV = (batches: OrganizationOrder[]) => {
-    const headers = ['Organizacja', 'Ulica', 'Miasto', 'Kod pocztowy', 'Telefon', 'Produkt', 'Ilość', 'Wartość'];
+  const generateProducerCSV = (orders: ProducerOrganizationOrder[]) => {
+    const headers = ['Producent', 'Organizacja', 'Ulica', 'Miasto', 'Kod pocztowy', 'Telefon', 'Produkt', 'Ilość'];
     const rows: string[][] = [];
 
-    batches.forEach(batch => {
-      batch.items.forEach(item => {
+    orders.forEach(order => {
+      order.items.forEach(item => {
         rows.push([
-          batch.organizationName,
-          batch.organizationAddress,
-          batch.organizationCity,
-          batch.organizationPostalCode,
-          batch.organizationPhone,
+          order.producerName,
+          order.organizationName,
+          order.organizationAddress,
+          order.organizationCity,
+          order.organizationPostalCode,
+          order.organizationPhone,
           item.productName,
           String(item.quantity),
-          (item.quantity * item.unitPrice).toFixed(2)
         ]);
       });
     });
@@ -242,7 +261,7 @@ export default function LogisticsMatrix() {
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `zamowienie_zbiorcze_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `zamowienie_producenci_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -264,41 +283,79 @@ export default function LogisticsMatrix() {
     );
   }
 
+  // Group orders by producer for summary
+  const producerSummary = producerOrgOrders.reduce((acc, order) => {
+    if (!acc[order.producerName]) {
+      acc[order.producerName] = { total: 0, ready: 0, count: 0 };
+    }
+    acc[order.producerName].total += order.totalValue;
+    acc[order.producerName].count += 1;
+    if (order.totalValue >= MINIMUM_ORDER_VALUE) {
+      acc[order.producerName].ready += 1;
+    }
+    return acc;
+  }, {} as Record<string, { total: number; ready: number; count: number }>);
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
         <h2 className="text-xl font-semibold text-foreground mb-2">Centrum Zamówień</h2>
-        <p className="text-muted-foreground">Wybierz organizacje do zbiorczego zamówienia (min. {MINIMUM_ORDER_VALUE} zł)</p>
+        <p className="text-muted-foreground">
+          Zamówienia grupowane według producenta i organizacji. Minimum {MINIMUM_ORDER_VALUE} zł na kombinację producent + organizacja.
+        </p>
       </div>
+
+      {/* Producer summary cards */}
+      {Object.keys(producerSummary).length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(producerSummary).map(([producer, stats]) => (
+            <Card key={producer} className="rounded-2xl border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
+                    <Factory className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{producer}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {stats.ready}/{stats.count} gotowych • {stats.total.toFixed(0)} zł łącznie
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Summary bar */}
       <Card className="rounded-3xl shadow-card border-border/50">
         <CardContent className="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{selectedOrgs.size}</p>
-              <p className="text-xs text-muted-foreground">Wybrano</p>
+              <p className="text-2xl font-bold text-primary">{selectedReadyOrders.length}</p>
+              <p className="text-xs text-muted-foreground">Gotowe do zamówienia</p>
             </div>
             <div className="h-10 w-px bg-border hidden md:block" />
             <div className="text-center">
-              <p className={`text-2xl font-bold ${canPlaceOrder ? 'text-green-600' : 'text-amber-500'}`}>
+              <p className="text-2xl font-bold text-green-600">
                 {totalSelectedValue.toFixed(2)} zł
               </p>
-              <p className="text-xs text-muted-foreground">Wartość zamówienia</p>
+              <p className="text-xs text-muted-foreground">Wartość wybranych</p>
             </div>
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={selectAll} className="rounded-2xl">
-              Zaznacz wszystko
+            <Button variant="outline" size="sm" onClick={selectAllReady} className="rounded-2xl">
+              Zaznacz gotowe
             </Button>
             <Button variant="outline" size="sm" onClick={deselectAll} className="rounded-2xl">
               Odznacz
             </Button>
             <Button
               onClick={handlePlaceOrder}
-              disabled={!canPlaceOrder || processing || selectedOrgs.size === 0}
+              disabled={selectedReadyOrders.length === 0 || processing}
               className="rounded-2xl"
             >
               {processing ? (
@@ -306,7 +363,7 @@ export default function LogisticsMatrix() {
               ) : (
                 <>
                   <Truck className="h-4 w-4 mr-2" />
-                  Złóż zamówienie
+                  Złóż zamówienia ({selectedReadyOrders.length})
                 </>
               )}
             </Button>
@@ -314,16 +371,8 @@ export default function LogisticsMatrix() {
         </CardContent>
       </Card>
 
-      {/* Minimum threshold warning */}
-      {selectedOrgs.size > 0 && !canPlaceOrder && (
-        <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-700">
-          <AlertCircle className="h-5 w-5" />
-          <span>Minimalna wartość zamówienia to {MINIMUM_ORDER_VALUE} zł. Brakuje: {(MINIMUM_ORDER_VALUE - totalSelectedValue).toFixed(2)} zł</span>
-        </div>
-      )}
-
-      {/* Organizations list */}
-      {organizationOrders.length === 0 ? (
+      {/* Orders list */}
+      {producerOrgOrders.length === 0 ? (
         <Card className="rounded-3xl shadow-card border-border/50">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
@@ -339,45 +388,69 @@ export default function LogisticsMatrix() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {organizationOrders.map((order) => {
-            const isSelected = selectedOrgs.has(order.id);
+          {producerOrgOrders.map((order) => {
+            const isSelected = selectedOrders.has(order.id);
             const meetsThreshold = order.totalValue >= MINIMUM_ORDER_VALUE;
+            const missingAmount = MINIMUM_ORDER_VALUE - order.totalValue;
 
             return (
               <Card 
                 key={order.id} 
                 className={`rounded-3xl shadow-card border-2 transition-all cursor-pointer ${
-                  isSelected 
+                  isSelected && meetsThreshold
                     ? 'border-primary bg-primary/5' 
-                    : 'border-border/50 hover:border-border'
+                    : meetsThreshold
+                    ? 'border-green-300 hover:border-green-400'
+                    : 'border-border/50 hover:border-border opacity-75'
                 }`}
-                onClick={() => toggleOrganization(order.id)}
+                onClick={() => meetsThreshold && toggleOrder(order.id)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={() => toggleOrganization(order.id)}
-                      className="mt-1"
-                    />
+                    {meetsThreshold && (
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleOrder(order.id)}
+                        className="mt-1"
+                      />
+                    )}
                     
-                    <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <Building2 className="h-6 w-6 text-primary" />
-                    </div>
-
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-lg">{order.organizationName}</h3>
-                        {meetsThreshold && (
-                          <Badge variant="secondary" className="bg-green-100 text-green-700">
-                            Gotowe do zamówienia
-                          </Badge>
-                        )}
+                      {/* Producer & Organization header */}
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center">
+                            <Factory className="h-4 w-4 text-accent" />
+                          </div>
+                          <span className="font-bold text-lg">{order.producerName}</span>
+                        </div>
+                        <span className="text-muted-foreground">→</span>
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Building2 className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="font-medium">{order.organizationName}</span>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">
+
+                      {/* Address */}
+                      <p className="text-sm text-muted-foreground mb-3">
                         {order.organizationAddress}, {order.organizationPostalCode} {order.organizationCity}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+
+                      {/* Status badges */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {meetsThreshold ? (
+                          <Badge className="bg-green-100 text-green-700 border-green-200">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Gotowe do zamówienia
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-amber-200">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Brakuje {missingAmount.toFixed(2)} zł
+                          </Badge>
+                        )}
                         <Badge variant="outline">
                           <Package className="h-3 w-3 mr-1" />
                           {order.itemCount} produktów
@@ -386,38 +459,21 @@ export default function LogisticsMatrix() {
                           {order.totalValue.toFixed(2)} zł
                         </Badge>
                       </div>
+
+                      {/* Products list */}
+                      <div className="flex flex-wrap gap-1">
+                        {order.items.slice(0, 6).map((item, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {item.productName} x{item.quantity}
+                          </Badge>
+                        ))}
+                        {order.items.length > 6 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{order.items.length - 6} więcej
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Items preview grouped by producer */}
-                  <div className="mt-4 pl-16">
-                    {/* Group items by producer */}
-                    {(() => {
-                      const groupedByProducer = order.items.reduce((acc, item) => {
-                        const producer = item.producerName || 'Nieznany producent';
-                        if (!acc[producer]) acc[producer] = [];
-                        acc[producer].push(item);
-                        return acc;
-                      }, {} as Record<string, typeof order.items>);
-
-                      return Object.entries(groupedByProducer).map(([producer, items]) => (
-                        <div key={producer} className="mb-3">
-                          <p className="text-sm font-medium text-primary mb-1">{producer}:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {items.slice(0, 5).map((item, idx) => (
-                              <Badge key={idx} variant="outline" className="text-xs">
-                                {item.productName} x{item.quantity}
-                              </Badge>
-                            ))}
-                            {items.length > 5 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{items.length - 5} więcej
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      ));
-                    })()}
                   </div>
                 </CardContent>
               </Card>
