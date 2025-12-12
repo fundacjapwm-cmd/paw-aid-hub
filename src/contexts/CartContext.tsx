@@ -254,7 +254,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    items.forEach(item => addToCart(item, item.maxQuantity || 1, true));
+    setCart((prevCart) => {
+      const newCart = [...prevCart];
+      
+      items.forEach(item => {
+        const targetQuantity = item.maxQuantity || 1;
+        const existingIndex = newCart.findIndex(cartItem => cartItem.productId === item.productId);
+        
+        if (existingIndex >= 0) {
+          // Update existing item to max quantity
+          newCart[existingIndex] = { ...newCart[existingIndex], quantity: targetQuantity };
+        } else {
+          // Add new item with full quantity
+          newCart.push({ ...item, quantity: targetQuantity });
+        }
+      });
+      
+      return newCart;
+    });
   };
 
   const isAnimalFullyAdded = (animalId: string) => {
