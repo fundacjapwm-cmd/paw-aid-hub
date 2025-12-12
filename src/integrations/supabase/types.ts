@@ -800,30 +800,36 @@ export type Database = {
           confirmed_at: string | null
           created_at: string
           id: string
+          ordered_at: string | null
           organization_id: string
           producer_id: string | null
           shipped_at: string
           status: string
+          total_value: number | null
           tracking_number: string | null
         }
         Insert: {
           confirmed_at?: string | null
           created_at?: string
           id?: string
+          ordered_at?: string | null
           organization_id: string
           producer_id?: string | null
           shipped_at?: string
           status?: string
+          total_value?: number | null
           tracking_number?: string | null
         }
         Update: {
           confirmed_at?: string | null
           created_at?: string
           id?: string
+          ordered_at?: string | null
           organization_id?: string
           producer_id?: string | null
           shipped_at?: string
           status?: string
+          total_value?: number | null
           tracking_number?: string | null
         }
         Relationships: [

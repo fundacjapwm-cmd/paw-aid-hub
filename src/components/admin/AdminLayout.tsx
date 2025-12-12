@@ -39,7 +39,9 @@ const menuStructure = [
     label: "Logistyka",
     items: [
       { title: "Centrum Zamówień", url: "/admin/logistyka/matrix", icon: Boxes },
+      { title: "W Realizacji", url: "/admin/logistyka/w-realizacji", icon: Truck },
       { title: "Dostawy", url: "/admin/logistyka/dostawy", icon: Truck },
+      { title: "Zakończone", url: "/admin/logistyka/zakonczone", icon: Truck },
     ]
   },
   {
@@ -203,7 +205,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (path === "/admin/statystyki-organizacji") return "Statystyki Organizacji";
     if (path === "/admin/logi") return "Logi Systemowe";
     if (path === "/admin/logistyka/matrix") return "Centrum Zamówień";
+    if (path === "/admin/logistyka/w-realizacji") return "W Realizacji";
     if (path === "/admin/logistyka/dostawy") return "Dostawy";
+    if (path === "/admin/logistyka/zakonczone") return "Zakończone";
     return "Panel Administratora";
   };
 

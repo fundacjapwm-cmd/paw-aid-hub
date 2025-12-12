@@ -30,6 +30,9 @@ import AdminAnimals from "./pages/admin/AdminAnimals";
 import AdminOrders from "./pages/admin/AdminOrders";
 import LogisticsMatrix from "./pages/admin/LogisticsMatrix";
 import AdminDeliveries from "./pages/admin/AdminDeliveries";
+import AdminLogisticsInProgress from "./pages/admin/AdminLogisticsInProgress";
+import AdminLogisticsCompleted from "./pages/admin/AdminLogisticsCompleted";
+import OrgOrders from "./pages/OrgOrders";
 import OrgDashboard from "./pages/OrgDashboard";
 
 import OrgProfile from "./pages/OrgProfile";
@@ -78,7 +81,9 @@ function AppContent() {
             <Route index element={<AdminStats />} />
             <Route path="zamowienia" element={<AdminOrders />} />
             <Route path="logistyka/matrix" element={<LogisticsMatrix />} />
+            <Route path="logistyka/w-realizacji" element={<AdminLogisticsInProgress />} />
             <Route path="logistyka/dostawy" element={<AdminDeliveries />} />
+            <Route path="logistyka/zakonczone" element={<AdminLogisticsCompleted />} />
             <Route path="organizacje" element={<AdminOrganizations />} />
             <Route path="zgloszenia" element={<AdminLeads />} />
             <Route path="zwierzeta" element={<AdminAnimals />} />
@@ -94,8 +99,7 @@ function AppContent() {
           
           <Route path="/organizacja/lista-potrzeb" element={<OrgWishlist />} />
           <Route path="/organizacja/dostawy" element={<OrgDeliveries />} />
-          <Route path="/organizacja/zamowienia" element={<OrgOrdersToConfirm />} />
-          <Route path="/organizacja/zamowienia/archiwum" element={<OrgOrdersArchive />} />
+          <Route path="/organizacja/zamowienia" element={<OrgOrders />} />
           <Route path="/organizacja/profil" element={<OrgProfile />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
