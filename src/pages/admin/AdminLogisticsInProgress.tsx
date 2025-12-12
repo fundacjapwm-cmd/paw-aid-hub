@@ -20,6 +20,7 @@ import {
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
+import { jsPDF } from "jspdf";
 
 interface ShipmentWithItems {
   id: string;
@@ -190,6 +191,8 @@ export default function AdminLogisticsInProgress() {
   };
 
   const generateOrganizationPDF = (shipment: ShipmentWithItems) => {
+    const doc = new jsPDF();
+    
     // Group items by animal
     const itemsByAnimal = shipment.items.reduce((acc, item) => {
       const key = item.animalName || 'Dla organizacji';
@@ -198,36 +201,57 @@ export default function AdminLogisticsInProgress() {
       return acc;
     }, {} as Record<string, typeof shipment.items>);
 
-    let content = `LISTA DLA ORGANIZACJI\n`;
-    content += `${'='.repeat(50)}\n\n`;
-    content += `Organizacja: ${shipment.organizationName}\n`;
-    content += `Adres: ${shipment.organizationAddress}, ${shipment.organizationPostalCode} ${shipment.organizationCity}\n`;
-    content += `Telefon: ${shipment.organizationPhone}\n`;
-    content += `Data zamówienia: ${shipment.orderedAt ? format(new Date(shipment.orderedAt), "dd.MM.yyyy", { locale: pl }) : 'N/A'}\n\n`;
-    content += `${'='.repeat(50)}\n\n`;
-    content += `PRODUKTY:\n\n`;
-
+    // Header
+    doc.setFontSize(18);
+    doc.text('LISTA DLA ORGANIZACJI', 20, 20);
+    
+    doc.setFontSize(12);
+    doc.text(`Organizacja: ${shipment.organizationName}`, 20, 35);
+    doc.text(`Adres: ${shipment.organizationAddress}`, 20, 42);
+    doc.text(`${shipment.organizationPostalCode} ${shipment.organizationCity}`, 20, 49);
+    doc.text(`Telefon: ${shipment.organizationPhone}`, 20, 56);
+    doc.text(`Data zamowienia: ${shipment.orderedAt ? format(new Date(shipment.orderedAt), "dd.MM.yyyy", { locale: pl }) : 'N/A'}`, 20, 63);
+    
+    doc.line(20, 70, 190, 70);
+    
+    let yPos = 80;
+    doc.setFontSize(14);
+    doc.text('PRODUKTY:', 20, yPos);
+    yPos += 10;
+    
+    doc.setFontSize(11);
     Object.entries(itemsByAnimal).forEach(([animalName, items]) => {
-      content += `► ${animalName}:\n`;
+      if (yPos > 260) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFont(undefined, 'bold');
+      doc.text(`${animalName}:`, 20, yPos);
+      doc.setFont(undefined, 'normal');
+      yPos += 7;
+      
       items.forEach(item => {
-        content += `  - ${item.productName} x${item.quantity}\n`;
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(`  - ${item.productName} x${item.quantity}`, 25, yPos);
+        yPos += 6;
       });
-      content += `\n`;
+      yPos += 5;
     });
 
-    content += `${'='.repeat(50)}\n`;
-    content += `Łączna ilość produktów: ${shipment.items.reduce((sum, i) => sum + i.quantity, 0)}\n`;
+    doc.line(20, yPos, 190, yPos);
+    yPos += 10;
+    doc.setFont(undefined, 'bold');
+    doc.text(`Laczna ilosc produktow: ${shipment.items.reduce((sum, i) => sum + i.quantity, 0)}`, 20, yPos);
 
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `lista_${shipment.organizationName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    doc.save(`lista_${shipment.organizationName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const generateProducerPDF = (shipment: ShipmentWithItems) => {
+    const doc = new jsPDF();
+    
     // Aggregate products by name
     const productQuantities = shipment.items.reduce((acc, item) => {
       if (!acc[item.productName]) acc[item.productName] = 0;
@@ -235,32 +259,44 @@ export default function AdminLogisticsInProgress() {
       return acc;
     }, {} as Record<string, number>);
 
-    let content = `ZAMÓWIENIE DLA PRODUCENTA\n`;
-    content += `${'='.repeat(50)}\n\n`;
-    content += `Producent: ${shipment.producerName || 'N/A'}\n`;
-    content += `Data zamówienia: ${shipment.orderedAt ? format(new Date(shipment.orderedAt), "dd.MM.yyyy", { locale: pl }) : 'N/A'}\n\n`;
-    content += `ADRES WYSYŁKI:\n`;
-    content += `${shipment.organizationName}\n`;
-    content += `${shipment.organizationAddress}\n`;
-    content += `${shipment.organizationPostalCode} ${shipment.organizationCity}\n`;
-    content += `Tel: ${shipment.organizationPhone}\n\n`;
-    content += `${'='.repeat(50)}\n\n`;
-    content += `PRODUKTY DO WYSYŁKI:\n\n`;
-
+    // Header
+    doc.setFontSize(18);
+    doc.text('ZAMOWIENIE DLA PRODUCENTA', 20, 20);
+    
+    doc.setFontSize(12);
+    doc.text(`Producent: ${shipment.producerName || 'N/A'}`, 20, 35);
+    doc.text(`Data zamowienia: ${shipment.orderedAt ? format(new Date(shipment.orderedAt), "dd.MM.yyyy", { locale: pl }) : 'N/A'}`, 20, 42);
+    
+    doc.setFontSize(14);
+    doc.text('ADRES WYSYLKI:', 20, 55);
+    doc.setFontSize(12);
+    doc.text(shipment.organizationName, 20, 65);
+    doc.text(shipment.organizationAddress, 20, 72);
+    doc.text(`${shipment.organizationPostalCode} ${shipment.organizationCity}`, 20, 79);
+    doc.text(`Tel: ${shipment.organizationPhone}`, 20, 86);
+    
+    doc.line(20, 95, 190, 95);
+    
+    doc.setFontSize(14);
+    doc.text('PRODUKTY DO WYSYLKI:', 20, 105);
+    
+    let yPos = 115;
+    doc.setFontSize(11);
     Object.entries(productQuantities).forEach(([name, qty]) => {
-      content += `${name}: ${qty} szt.\n`;
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(`${name}: ${qty} szt.`, 20, yPos);
+      yPos += 7;
     });
 
-    content += `\n${'='.repeat(50)}\n`;
-    content += `RAZEM: ${Object.values(productQuantities).reduce((a, b) => a + b, 0)} produktów\n`;
+    doc.line(20, yPos + 5, 190, yPos + 5);
+    yPos += 15;
+    doc.setFont(undefined, 'bold');
+    doc.text(`RAZEM: ${Object.values(productQuantities).reduce((a, b) => a + b, 0)} produktow`, 20, yPos);
 
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `zamowienie_${shipment.producerName?.replace(/\s+/g, '_') || 'producent'}_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    doc.save(`zamowienie_${shipment.producerName?.replace(/\s+/g, '_') || 'producent'}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   if (isLoading) {
