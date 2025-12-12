@@ -183,21 +183,22 @@ export default function LogisticsMatrix() {
       setProcessing(true);
 
       for (const order of selectedReadyOrders) {
-        // Create shipment record for this producer-organization combination
+        // Create shipment record with status 'ordered' (not 'shipped')
         const { data: shipment, error: shipmentError } = await supabase
           .from('shipments')
           .insert({
             organization_id: order.organizationId,
             producer_id: order.producerId,
-            status: 'shipped',
-            shipped_at: new Date().toISOString(),
+            status: 'ordered',
+            ordered_at: new Date().toISOString(),
+            total_value: order.totalValue,
           })
           .select()
           .single();
 
         if (shipmentError) throw shipmentError;
 
-        // Update order items with shipment_id
+        // Update order items with shipment_id and status 'ordered'
         const itemIds = order.items.map(item => item.id);
         
         const { error: itemsError } = await supabase
@@ -211,17 +212,14 @@ export default function LogisticsMatrix() {
         if (itemsError) throw itemsError;
       }
 
-      // Generate combined CSV for producer
-      generateProducerCSV(selectedReadyOrders);
-
       toast({
         title: "Zamówienia złożone",
-        description: `Złożono ${selectedReadyOrders.length} zamówień na kwotę ${totalSelectedValue.toFixed(2)} zł`,
+        description: `Złożono ${selectedReadyOrders.length} zamówień. Przejdź do sekcji "W Realizacji" aby dodać numery przesyłek.`,
       });
 
       setSelectedOrders(new Set());
       queryClient.invalidateQueries({ queryKey: ["logistics-matrix-producer-org"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-deliveries"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-logistics-in-progress"] });
     } catch (error) {
       console.error('Error placing order:', error);
       toast({
