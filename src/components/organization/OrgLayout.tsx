@@ -33,15 +33,7 @@ interface OrgLayoutProps {
 const menuStructure = [
   { title: "Pulpit", url: "/organizacja", icon: Home },
   { title: "Lista potrzeb", url: "/organizacja/lista-potrzeb", icon: ClipboardList },
-  { title: "Dostawy", url: "/organizacja/dostawy", icon: Truck },
-  {
-    title: "Zamówienia",
-    icon: Package,
-    items: [
-      { title: "Do potwierdzenia", url: "/organizacja/zamowienia" },
-      { title: "Archiwum", url: "/organizacja/zamowienia/archiwum" },
-    ]
-  },
+  { title: "Zamówienia", url: "/organizacja/zamowienia", icon: Package },
   { title: "Ustawienia", url: "/organizacja/profil", icon: Settings },
 ];
 
@@ -51,7 +43,6 @@ function OrgSidebarContent() {
   const { open } = useSidebar();
 
   const isActive = (path: string) => location.pathname === path;
-  const isGroupActive = (items: any[]) => items.some(item => isActive(item.url));
 
   return (
     <SidebarContent>
@@ -61,66 +52,20 @@ function OrgSidebarContent() {
         </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            {menuStructure.map((item, idx) => {
-              // Simple link
-              if ('url' in item && !('items' in item)) {
-                return (
-                  <SidebarMenuItem key={idx}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive(item.url)}
-                      className={isActive(item.url) ? "bg-primary/10 text-primary font-medium" : ""}
-                    >
-                      <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
-                        <item.icon className="h-5 w-5" />
-                        {open && <span>{item.title}</span>}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              }
-
-              // Collapsible group
-              if ('items' in item && 'icon' in item) {
-                return (
-                  <Collapsible
-                    key={idx}
-                    defaultOpen={isGroupActive(item.items)}
-                    className="group/collapsible"
-                  >
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className={isGroupActive(item.items) ? "bg-primary/10 text-primary font-medium" : ""}>
-                          <item.icon className="h-5 w-5" />
-                          {open && <span>{item.title}</span>}
-                          {open && (
-                            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                          )}
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.items.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.url}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={isActive(subItem.url)}
-                              >
-                                <Link to={subItem.url} className="flex items-center gap-2">
-                                  {subItem.title}
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
-                );
-              }
-
-              return null;
-            })}
+            {menuStructure.map((item, idx) => (
+              <SidebarMenuItem key={idx}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive(item.url)}
+                  className={isActive(item.url) ? "bg-primary/10 text-primary font-medium" : ""}
+                >
+                  <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
+                    <item.icon className="h-5 w-5" />
+                    {open && <span>{item.title}</span>}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -203,52 +148,20 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
                   </div>
                   
                   <div className="flex-1 overflow-y-auto p-4">
-                    {menuStructure.map((item, idx) => {
-                      if ('url' in item && !('items' in item)) {
-                        return (
-                          <Link
-                            key={idx}
-                            to={item.url}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                              isActive(item.url)
-                                ? 'bg-primary/10 text-primary font-medium'
-                                : 'text-foreground hover:bg-muted'
-                            }`}
-                          >
-                            <item.icon className="h-5 w-5" />
-                            <span>{item.title}</span>
-                          </Link>
-                        );
-                      }
-
-                      if ('items' in item && 'icon' in item) {
-                        return (
-                          <div key={idx} className="mt-4 first:mt-0">
-                            <div className="flex items-center gap-3 px-3 py-2 text-foreground font-medium">
-                              <item.icon className="h-5 w-5" />
-                              <span>{item.title}</span>
-                            </div>
-                            <div className="ml-6">
-                              {item.items.map((subItem) => (
-                                <Link
-                                  key={subItem.url}
-                                  to={subItem.url}
-                                  className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-1 transition-colors ${
-                                    isActive(subItem.url)
-                                      ? 'bg-primary/10 text-primary font-medium'
-                                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                  }`}
-                                >
-                                  <span>{subItem.title}</span>
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      }
-
-                      return null;
-                    })}
+                    {menuStructure.map((item, idx) => (
+                      <Link
+                        key={idx}
+                        to={item.url}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                          isActive(item.url)
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'text-foreground hover:bg-muted'
+                        }`}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.title}</span>
+                      </Link>
+                    ))}
                   </div>
 
                   {orgSlug && (
