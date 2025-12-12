@@ -54,6 +54,59 @@ export function useCheckout() {
       
       console.log('Test checkout - session user:', session?.user?.id, 'userId:', userId);
 
+      // Find organization IDs from cart items (need to look up animals)
+      const animalIds = cart.filter(item => item.animalId).map(item => item.animalId);
+      let organizationId: string | null = null;
+
+      if (animalIds.length > 0) {
+        const { data: animals } = await supabase
+          .from('animals')
+          .select('organization_id')
+          .in('id', animalIds)
+          .limit(1);
+        
+        if (animals && animals.length > 0) {
+          organizationId = animals[0].organization_id;
+        }
+      }
+
+      console.log('Organization ID found:', organizationId);
+
+      // Find or create batch order for this organization
+      let batchOrderId: string | null = null;
+
+      if (organizationId) {
+        // Check if there's an active collecting batch order
+        const { data: activeBatch } = await supabase
+          .from('organization_batch_orders')
+          .select('id')
+          .eq('organization_id', organizationId)
+          .eq('status', 'collecting')
+          .maybeSingle();
+
+        if (activeBatch) {
+          batchOrderId = activeBatch.id;
+          console.log('Using existing batch order:', batchOrderId);
+        } else {
+          // Create new batch order
+          const { data: newBatch, error: batchError } = await supabase
+            .from('organization_batch_orders')
+            .insert({
+              organization_id: organizationId,
+              status: 'collecting'
+            })
+            .select()
+            .single();
+
+          if (batchError) {
+            console.error('Batch order creation error:', batchError);
+          } else if (newBatch) {
+            batchOrderId = newBatch.id;
+            console.log('Created new batch order:', batchOrderId);
+          }
+        }
+      }
+
       // Create order directly in database with completed status
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
@@ -62,7 +115,8 @@ export function useCheckout() {
           total_amount: cartTotal,
           payment_status: 'completed',
           payment_method: 'test',
-          status: 'completed',
+          status: 'confirmed',
+          batch_order_id: batchOrderId,
         })
         .select()
         .single();
@@ -71,6 +125,8 @@ export function useCheckout() {
         console.error('Order insert error:', orderError, 'userId was:', userId);
         throw orderError;
       }
+
+      console.log('Order created with batch_order_id:', batchOrderId);
 
       // Create order items
       const orderItems = cart.map(item => ({
