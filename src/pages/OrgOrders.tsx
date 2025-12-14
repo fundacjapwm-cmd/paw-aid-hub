@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,7 +19,8 @@ import {
   CheckCircle2, 
   AlertTriangle,
   Factory,
-  ChevronDown
+  ChevronDown,
+  Printer
 } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -36,6 +37,7 @@ interface OrgShipment {
   items: {
     id: string;
     productName: string;
+    productImage: string | null;
     quantity: number;
     animalName: string | null;
     unitPrice: number;
@@ -95,7 +97,7 @@ export default function OrgOrders() {
             id,
             quantity,
             unit_price,
-            products (name),
+            products (name, image_url),
             animals (name)
           `)
           .eq('shipment_id', shipment.id);
@@ -111,6 +113,7 @@ export default function OrgOrders() {
           items: (items || []).map((item: any) => ({
             id: item.id,
             productName: item.products?.name || 'N/A',
+            productImage: item.products?.image_url || null,
             quantity: item.quantity,
             animalName: item.animals?.name || null,
             unitPrice: item.unit_price || 0,
@@ -278,6 +281,59 @@ export default function OrgOrders() {
     }, {} as Record<string, typeof items>);
   };
 
+  const handlePrintShipment = (shipment: OrgShipment) => {
+    const itemsByAnimal = groupItemsByAnimal(shipment.items);
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Lista zamówienia</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { color: #333; margin-bottom: 20px; }
+          .info { margin-bottom: 20px; color: #666; }
+          .animal-section { margin-bottom: 24px; border: 1px solid #ddd; border-radius: 8px; padding: 16px; }
+          .animal-name { font-size: 18px; font-weight: bold; color: #f97316; margin-bottom: 12px; }
+          .product-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .product-row:last-child { border-bottom: none; }
+          .product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; background: #f5f5f5; }
+          .product-name { flex: 1; }
+          .product-qty { font-weight: bold; background: #f5f5f5; padding: 4px 12px; border-radius: 12px; }
+          @media print { body { padding: 0; } }
+        </style>
+      </head>
+      <body>
+        <h1>Lista zamówienia</h1>
+        <div class="info">
+          ${shipment.orderedAt ? `<p>Data zamówienia: ${format(new Date(shipment.orderedAt), "dd.MM.yyyy", { locale: pl })}</p>` : ''}
+          ${shipment.trackingNumber ? `<p>Numer przesyłki: ${shipment.trackingNumber}</p>` : ''}
+        </div>
+        ${Object.entries(itemsByAnimal).map(([animalName, items]) => `
+          <div class="animal-section">
+            <div class="animal-name">🐾 ${animalName}</div>
+            ${items.map(item => `
+              <div class="product-row">
+                ${item.productImage ? `<img src="${item.productImage}" class="product-image" />` : '<div class="product-image"></div>'}
+                <span class="product-name">${item.productName}</span>
+                <span class="product-qty">x${item.quantity}</span>
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+    }
+  };
+
   const renderShipmentCard = (shipment: OrgShipment) => {
     const statusDisplay = getStatusDisplay(shipment.status);
     const canConfirm = shipment.status === 'shipped';
@@ -342,8 +398,19 @@ export default function OrgOrders() {
 
           <CollapsibleContent>
             <div className="px-6 pb-6 border-t border-border/50 pt-4">
-              {/* Detailed items list grouped by animal */}
-              <h4 className="font-semibold mb-3">Szczegóły zamówienia:</h4>
+              {/* Header with print button */}
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold">Szczegóły zamówienia:</h4>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={(e) => { e.stopPropagation(); handlePrintShipment(shipment); }}
+                  className="rounded-xl gap-2"
+                >
+                  <Printer className="h-4 w-4" />
+                  Drukuj listę
+                </Button>
+              </div>
               
               <div className="space-y-4">
                 {Object.entries(itemsByAnimal).map(([animalName, items]) => (
@@ -353,8 +420,19 @@ export default function OrgOrders() {
                     </h5>
                     <div className="grid gap-2">
                       {items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between text-sm py-1">
-                          <span>{item.productName}</span>
+                        <div key={item.id} className="flex items-center gap-3 text-sm py-2">
+                          {item.productImage ? (
+                            <img 
+                              src={item.productImage} 
+                              alt={item.productName}
+                              className="w-10 h-10 rounded-lg object-cover shrink-0"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                              <Package className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <span className="flex-1">{item.productName}</span>
                           <Badge variant="outline" className="text-xs">
                             x{item.quantity}
                           </Badge>
