@@ -373,44 +373,43 @@ export default function AdminLogisticsPending() {
     try {
       setProcessingOrder(order.id);
 
-      // 1. Create shipment record
+      // 1. Create shipment record with status 'ordered' (not shipped yet)
       const { data: shipment, error: shipmentError } = await supabase
         .from('shipments')
         .insert({
           organization_id: order.organizationId,
-          status: 'shipped',
-          shipped_at: new Date().toISOString(),
+          status: 'ordered',
+          ordered_at: new Date().toISOString(),
         })
         .select()
         .single();
 
-      if (shipmentError) throw shipmentError;
+      if (shipmentError) {
+        console.error('Shipment creation error:', shipmentError);
+        throw shipmentError;
+      }
 
-      // 2. Get order IDs for this batch
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('id')
-        .eq('batch_order_id', order.id);
-
-      if (!orders || orders.length === 0) throw new Error('No orders found');
-
-      const orderIds = orders.map(o => o.id);
-
-      // 3. Get order item IDs
+      // 2. Get order item IDs
       const itemIds = order.items.map(item => item.id);
+      console.log('Updating order_items:', itemIds, 'with shipment_id:', shipment.id);
 
-      // 4. Update order items - set fulfillment_status and shipment_id
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .update({ 
-          fulfillment_status: 'ordered',
-          shipment_id: shipment.id 
-        })
-        .in('id', itemIds);
+      // 3. Update order items - set fulfillment_status and shipment_id
+      // Use individual updates to ensure each item gets updated
+      for (const itemId of itemIds) {
+        const { error: itemError } = await supabase
+          .from('order_items')
+          .update({ 
+            fulfillment_status: 'ordered',
+            shipment_id: shipment.id 
+          })
+          .eq('id', itemId);
 
-      if (itemsError) throw itemsError;
+        if (itemError) {
+          console.error('Error updating item', itemId, itemError);
+        }
+      }
 
-      // 5. Update batch order status
+      // 4. Update batch order status
       const { error: batchError } = await supabase
         .from('organization_batch_orders')
         .update({ status: 'ordered' })
@@ -418,7 +417,7 @@ export default function AdminLogisticsPending() {
 
       if (batchError) throw batchError;
 
-      // 6. Generate CSV automatically
+      // 5. Generate CSV automatically
       generateCSV(order);
 
       toast({
