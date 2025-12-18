@@ -82,6 +82,37 @@ const StatsSection = () => {
 
   useEffect(() => {
     fetchStats();
+
+    // Set up realtime subscription for orders changes
+    const channel = supabase
+      .channel('stats-orders-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders'
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'order_items'
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchStats = async () => {
@@ -89,20 +120,23 @@ const StatsSection = () => {
       // Fetch total amount from completed orders
       const { data: orders } = await supabase
         .from('orders')
-        .select('total_amount, status')
+        .select('total_amount')
         .eq('payment_status', 'completed');
 
       const totalAmount = orders?.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
 
-      // Fetch count of unique animals that have items in orders
+      // Fetch order items for completed orders to count animals and products
       const { data: orderItems } = await supabase
         .from('order_items')
-        .select('animal_id, orders!inner(payment_status)')
-        .not('animal_id', 'is', null)
+        .select('animal_id, quantity, orders!inner(payment_status)')
         .eq('orders.payment_status', 'completed');
 
-      const uniqueAnimals = new Set(orderItems?.map(item => item.animal_id) || []);
+      // Count unique animals helped
+      const uniqueAnimals = new Set(orderItems?.filter(item => item.animal_id).map(item => item.animal_id) || []);
       const animalsHelped = uniqueAnimals.size;
+
+      // Count total products delivered (sum of quantities)
+      const totalProducts = orderItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
 
       // Fetch count of active organizations
       const { count: orgCount } = await supabase
@@ -110,18 +144,11 @@ const StatsSection = () => {
         .select('*', { count: 'exact', head: true })
         .eq('active', true);
 
-      // Fetch count of delivered orders (completed status)
-      const { count: deliveredCount } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'completed')
-        .eq('payment_status', 'completed');
-
       setStats({
         totalAmount: Math.round(totalAmount),
         animalsHelped,
         organizations: orgCount || 0,
-        deliveredOrders: deliveredCount || 0
+        deliveredOrders: totalProducts
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -154,7 +181,7 @@ const StatsSection = () => {
             
             <StatItem
               value={stats.deliveredOrders}
-              label="Dostarczonych darów"
+              label="Dostarczonych produktów"
               icon={<Package className="w-6 h-6" />}
             />
           </div>
