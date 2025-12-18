@@ -6,6 +6,12 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, Loader2, Package, ArrowRight } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { Separator } from '@/components/ui/separator';
+import { WishlistCelebration } from '@/components/WishlistCelebration';
+
+interface CompletedAnimal {
+  id: string;
+  name: string;
+}
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -13,6 +19,9 @@ const PaymentSuccess = () => {
   const [loading, setLoading] = useState(true);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [completedAnimals, setCompletedAnimals] = useState<CompletedAnimal[]>([]);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [currentCelebrationIndex, setCurrentCelebrationIndex] = useState(0);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -35,6 +44,22 @@ const PaymentSuccess = () => {
         if (data.error) throw new Error(data.error);
 
         setOrderDetails(data.order);
+        
+        // Check which animals had their wishlists completed by this purchase
+        if (data.order?.order_items) {
+          const animalIds = [...new Set(data.order.order_items
+            .filter((item: any) => item.animal_id)
+            .map((item: any) => item.animal_id)
+          )] as string[];
+          
+          if (animalIds.length > 0) {
+            const completed = await checkCompletedWishlists(animalIds);
+            if (completed.length > 0) {
+              setCompletedAnimals(completed);
+              setShowCelebration(true);
+            }
+          }
+        }
       } catch (err: any) {
         console.error('Error fetching order:', err);
         setError('Nie udało się pobrać szczegółów zamówienia');
@@ -45,6 +70,64 @@ const PaymentSuccess = () => {
 
     fetchOrderDetails();
   }, [searchParams]);
+
+  // Check if any animal's wishlist is now 100% complete
+  const checkCompletedWishlists = async (animalIds: string[]): Promise<CompletedAnimal[]> => {
+    const completed: CompletedAnimal[] = [];
+    
+    for (const animalId of animalIds) {
+      // Get animal name
+      const { data: animal } = await supabase
+        .from('animals')
+        .select('id, name')
+        .eq('id', animalId)
+        .single();
+      
+      if (!animal) continue;
+      
+      // Get wishlist items for this animal
+      const { data: wishlistItems } = await supabase
+        .from('animal_wishlists')
+        .select('id, quantity, product_id')
+        .eq('animal_id', animalId);
+      
+      if (!wishlistItems || wishlistItems.length === 0) continue;
+      
+      // Get purchased quantities for each wishlist item
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('product_id, quantity')
+        .eq('animal_id', animalId);
+      
+      // Calculate if wishlist is 100% complete
+      const purchasedByProduct: Record<string, number> = {};
+      orderItems?.forEach(item => {
+        if (item.product_id) {
+          purchasedByProduct[item.product_id] = (purchasedByProduct[item.product_id] || 0) + item.quantity;
+        }
+      });
+      
+      const allComplete = wishlistItems.every(item => {
+        const needed = item.quantity || 1;
+        const bought = purchasedByProduct[item.product_id!] || 0;
+        return bought >= needed;
+      });
+      
+      if (allComplete) {
+        completed.push({ id: animal.id, name: animal.name });
+      }
+    }
+    
+    return completed;
+  };
+
+  const handleCelebrationComplete = () => {
+    if (currentCelebrationIndex < completedAnimals.length - 1) {
+      setCurrentCelebrationIndex(prev => prev + 1);
+    } else {
+      setShowCelebration(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -85,6 +168,12 @@ const PaymentSuccess = () => {
 
   return (
     <>
+      {showCelebration && completedAnimals.length > 0 && (
+        <WishlistCelebration 
+          animalName={completedAnimals[currentCelebrationIndex].name}
+          onComplete={handleCelebrationComplete}
+        />
+      )}
       <div className="min-h-screen bg-gradient-to-b from-background via-secondary/20 to-background pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Success Header */}
