@@ -685,18 +685,6 @@ export default function ProducersProductsTab({
               />
             </div>
 
-            {/* Notatka wewnętrzna */}
-            <div>
-              <Label htmlFor="producer-notes">Notatka wewnętrzna</Label>
-              <Textarea 
-                id="producer-notes"
-                value={newProducer.notes} 
-                onChange={(e) => setNewProducer({ ...newProducer, notes: e.target.value })} 
-                placeholder="Notatki dla administratorów..."
-                rows={1}
-                className="mt-1 resize-none"
-              />
-            </div>
 
             {/* Widoczność - kompaktowo */}
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
@@ -1372,28 +1360,6 @@ function ProducerCard({
               )}
             </div>
 
-            {/* Notes */}
-            <div>
-              <Label>Notatki wewnętrzne</Label>
-              <Textarea
-                value={editData.notes || ''}
-                onChange={(e) => {
-                  setEditData({ ...editData, notes: e.target.value });
-                  if (validationErrors.notes) {
-                    setValidationErrors({ ...validationErrors, notes: '' });
-                  }
-                }}
-                placeholder="Opiekun: Jan Kowalski, Rabat: 10%, Uwagi..."
-                rows={4}
-                className={validationErrors.notes ? 'border-destructive' : ''}
-              />
-              {validationErrors.notes && (
-                <p className="text-sm text-destructive mt-1">{validationErrors.notes}</p>
-              )}
-              <p className="text-xs text-muted-foreground mt-1">
-                Informacje widoczne tylko dla administratorów (opiekun, rabaty, uwagi)
-              </p>
-            </div>
 
             {/* Visibility Status */}
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
