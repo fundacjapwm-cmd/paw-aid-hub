@@ -35,11 +35,16 @@ export default function Regulamin() {
                   </li>
                   <li>
                     Administratorem Platformy jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą w Polsce 
-                    (dalej: "Administrator" lub "Fundacja").
+                    (dalej: "Administrator", "Fundacja" lub "Pośrednik").
                   </li>
                   <li>
-                    Platforma umożliwia użytkownikom wspieranie organizacji i zwierząt znajdujących się pod opieką poprzez 
-                    zakup produktów z ich list potrzeb.
+                    <strong>Fundacja pełni rolę pośrednika</strong> między osobami chcącymi wspierać zwierzęta (Użytkownikami) 
+                    a organizacjami opiekującymi się zwierzętami (Organizacjami). Fundacja nie jest stroną umowy darowizny - 
+                    świadczy usługę pośrednictwa w zakupie i dostawie produktów.
+                  </li>
+                  <li>
+                    Platforma umożliwia Użytkownikom zlecenie Fundacji zakupu produktów z list potrzeb zwierząt 
+                    i ich dostarczenia do wskazanych Organizacji.
                   </li>
                   <li>
                     Korzystanie z Platformy oznacza akceptację niniejszego Regulaminu.
@@ -68,14 +73,22 @@ export default function Regulamin() {
                     <h3 className="font-semibold text-foreground mb-2">Użytkownik</h3>
                     <p className="text-sm text-muted-foreground">
                       Osoba fizyczna, prawna lub jednostka organizacyjna nieposiadająca osobowości prawnej, 
-                      korzystająca z Platformy.
+                      korzystająca z Platformy w celu zlecenia zakupu produktów dla zwierząt.
                     </p>
                   </div>
                   <div className="bg-muted/30 rounded-xl p-4">
                     <h3 className="font-semibold text-foreground mb-2">Organizacja</h3>
                     <p className="text-sm text-muted-foreground">
                       Fundacja, stowarzyszenie lub schronisko, które zostało zweryfikowane i dodane do Platformy 
-                      przez Administratora.
+                      przez Administratora, będące beneficjentem zakupionych produktów.
+                    </p>
+                  </div>
+                  <div className="bg-muted/30 rounded-xl p-4">
+                    <h3 className="font-semibold text-foreground mb-2">Usługa Pośrednictwa</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Usługa świadczona przez Fundację, polegająca na zakupie produktów wybranych przez Użytkownika 
+                      od dostawców oraz ich dostarczeniu do wskazanej Organizacji. Fundacja działa jako pośrednik 
+                      między Użytkownikiem a Organizacją.
                     </p>
                   </div>
                   <div className="bg-muted/30 rounded-xl p-4">
@@ -87,7 +100,7 @@ export default function Regulamin() {
                   <div className="bg-muted/30 rounded-xl p-4">
                     <h3 className="font-semibold text-foreground mb-3">Wishlist (Lista potrzeb)</h3>
                     <p className="text-sm text-muted-foreground">
-                      Lista produktów potrzebnych dla danego zwierzęcia lub organizacji.
+                      Lista produktów potrzebnych dla danego zwierzęcia lub organizacji, tworzona przez Organizację.
                     </p>
                   </div>
                 </div>
@@ -143,37 +156,47 @@ export default function Regulamin() {
               </div>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-foreground mb-3">
-                  § 4. Zasady zakupów i realizacji wsparcia
+                  § 4. Charakter usługi i zasady realizacji
                 </h2>
+                <div className="bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-4">
+                  <p className="text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">WAŻNE:</strong> Fundacja Pączki w Maśle świadczy <strong>usługę pośrednictwa</strong>. 
+                    Użytkownik zleca Fundacji zakup wybranych produktów i ich dostarczenie do Organizacji. 
+                    Fundacja nie jest stroną umowy darowizny między Użytkownikiem a Organizacją - 
+                    jest pośrednikiem realizującym zakup w imieniu Użytkownika.
+                  </p>
+                </div>
                 <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
                   <li>
-                    Produkty dostępne na Platformie pochodzą od zweryfikowanych dostawców i są przeznaczone 
-                    wyłącznie dla organizacji i zwierząt znajdujących się na Platformie.
+                    Fundacja nabywa produkty od zweryfikowanych dostawców i dostarcza je do Organizacji 
+                    wskazanych przez Użytkownika.
                   </li>
                   <li>
-                    Ceny produktów zawierają podatek VAT i są podane w złotych polskich (PLN).
+                    Ceny produktów zawierają podatek VAT i są podane w złotych polskich (PLN). 
+                    Cena obejmuje koszt produktu oraz usługę pośrednictwa i dostawy.
                   </li>
                   <li>
-                    Proces zakupu:
+                    Proces zlecenia:
                     <ul className="mt-2 ml-6 space-y-1">
                       <li>• Wybór produktów z listy potrzeb zwierzęcia lub organizacji</li>
                       <li>• Dodanie do koszyka i określenie ilości</li>
                       <li>• Wypełnienie danych niezbędnych do realizacji</li>
-                      <li>• Dokonanie płatności</li>
-                      <li>• Otrzymanie potwierdzenia zamówienia na email</li>
+                      <li>• Dokonanie płatności za usługę pośrednictwa</li>
+                      <li>• Otrzymanie potwierdzenia zlecenia na email</li>
                     </ul>
                   </li>
                   <li>
-                    Zakupione produkty są dostarczane bezpośrednio do organizacji, która opiekuje się danym zwierzęciem.
+                    <strong>Użytkownik nie otrzymuje fizycznie produktów</strong> - są one dostarczane bezpośrednio 
+                    do Organizacji opiekującej się danym zwierzęciem.
                   </li>
                   <li>
-                    Użytkownik nie otrzymuje fizycznie zakupionych produktów - stanowią one wsparcie dla organizacji.
+                    Fundacja zbiera zlecenia i realizuje je zbiorczo w celu optymalizacji kosztów zakupu i dostawy.
                   </li>
                   <li>
-                    Administrator zbiera zamówienia i realizuje je zbiorczo w celu optymalizacji kosztów i procesu.
+                    Czas realizacji zlecenia wynosi standardowo 7-14 dni roboczych od momentu zamknięcia zbiorczego zamówienia.
                   </li>
                   <li>
-                    Czas realizacji zamówienia wynosi standardowo 7-14 dni roboczych od momentu zamknięcia zbiorczego zamówienia.
+                    Fundacja potwierdza dostarczenie produktów do Organizacji i informuje o tym Użytkownika.
                   </li>
                 </ol>
               </div>
@@ -203,10 +226,11 @@ export default function Regulamin() {
                     </ul>
                   </li>
                   <li>
-                    Płatność powinna zostać dokonana niezwłocznie po złożeniu zamówienia.
+                    Płatność stanowi wynagrodzenie za usługę pośrednictwa i powinna zostać dokonana 
+                    niezwłocznie po złożeniu zlecenia.
                   </li>
                   <li>
-                    Zamówienie jest przetwarzane po otrzymaniu potwierdzenia płatności.
+                    Zlecenie jest przetwarzane po otrzymaniu potwierdzenia płatności.
                   </li>
                   <li>
                     W przypadku problemów z płatnością, należy skontaktować się z Administratorem.
@@ -228,12 +252,14 @@ export default function Regulamin() {
                 </h2>
                 <div className="bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-6">
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    <strong className="text-foreground">WAŻNE:</strong> Ze względu na specyfikę usługi (wsparcie organizacji charytatywnych), 
-                    Użytkownik nie może odstąpić od umowy po dokonaniu płatności, zgodnie z art. 38 pkt 12 ustawy o prawach konsumenta.
+                    <strong className="text-foreground">WAŻNE:</strong> Ze względu na specyfikę usługi pośrednictwa 
+                    (natychmiastowe rozpoczęcie realizacji zlecenia zakupu), Użytkownik nie może odstąpić od umowy 
+                    po dokonaniu płatności, zgodnie z art. 38 pkt 1 ustawy o prawach konsumenta.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    Przed dokonaniem płatności, Użytkownik wyraża zgodę na natychmiastowe rozpoczęcie realizacji świadczenia 
-                    i przyjmuje do wiadomości, że traci prawo do odstąpienia od umowy.
+                    Przed dokonaniem płatności, Użytkownik wyraża zgodę na natychmiastowe rozpoczęcie realizacji usługi 
+                    pośrednictwa i przyjmuje do wiadomości, że traci prawo do odstąpienia od umowy z chwilą rozpoczęcia 
+                    realizacji zlecenia przez Fundację.
                   </p>
                 </div>
               </div>
