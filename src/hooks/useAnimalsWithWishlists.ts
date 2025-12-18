@@ -160,7 +160,24 @@ export const useAnimalsWithWishlists = () => {
         };
       }) || [];
 
-      setAnimals(transformedAnimals);
+      // Sort animals: newest first, but those with 100% wishlist completion go to the end
+      const sortedAnimals = transformedAnimals.sort((a, b) => {
+        const aHasWishlist = a.wishlist.length > 0;
+        const bHasWishlist = b.wishlist.length > 0;
+        
+        // Check if wishlist is 100% complete (all items bought)
+        const aFullyBought = aHasWishlist && a.wishlist.every(item => item.bought);
+        const bFullyBought = bHasWishlist && b.wishlist.every(item => item.bought);
+        
+        // If one is fully bought and other is not, put fully bought at the end
+        if (aFullyBought && !bFullyBought) return 1;
+        if (!aFullyBought && bFullyBought) return -1;
+        
+        // Otherwise sort by created_at descending (newest first)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setAnimals(sortedAnimals);
       setError(null);
     } catch (err) {
       console.error('Error fetching animals:', err);
