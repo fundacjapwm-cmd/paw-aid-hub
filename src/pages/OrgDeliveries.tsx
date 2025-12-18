@@ -12,7 +12,7 @@ import { Package, PackageCheck, Truck, Calendar, CheckCircle2 } from "lucide-rea
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import confetti from "canvas-confetti";
+
 
 interface ShipmentItem {
   id: string;
@@ -152,13 +152,6 @@ export default function OrgDeliveries() {
         .update({ fulfillment_status: "delivered" })
         .eq("shipment_id", shipment.id);
 
-      // Celebration!
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ["#f97316", "#ea580c", "#22c55e", "#3b82f6"],
-      });
 
       toast.success("Dziękujemy! Odbiór paczki został potwierdzony.");
 
