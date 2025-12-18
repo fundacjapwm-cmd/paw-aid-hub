@@ -1,7 +1,6 @@
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
-import { WishlistCelebration } from "@/components/WishlistCelebration";
 import AnimalProfileSkeleton from "@/components/AnimalProfileSkeleton";
 import { useAnimalProfile } from "@/hooks/useAnimalProfile";
 import { AnimalInfoCard } from "@/components/animal/AnimalInfoCard";
@@ -32,11 +31,9 @@ const AnimalProfile = () => {
     quantities,
     lightboxOpen,
     lightboxIndex,
-    showCelebration,
     cartTotalForAnimal,
     totalWishlistCost,
     allItemsInCart,
-    setShowCelebration,
     setLightboxOpen,
     openLightbox,
     handlePrevImage,
@@ -68,12 +65,6 @@ const AnimalProfile = () => {
 
   return (
     <>
-      {showCelebration && animal && (
-        <WishlistCelebration 
-          animalName={animal.name} 
-          onComplete={() => setShowCelebration(false)}
-        />
-      )}
       <div className="min-h-screen bg-background">
         <main className="md:container md:mx-auto md:max-w-7xl md:px-8 py-8 px-4">
           {/* Breadcrumbs */}

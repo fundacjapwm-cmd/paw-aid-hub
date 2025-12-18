@@ -4,8 +4,6 @@ import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { useToast } from "@/hooks/use-toast";
 
 export function useAnimalProfile(id: string | undefined) {
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationShown, setCelebrationShown] = useState(false);
   const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const { animals, loading } = useAnimalsWithWishlists();
   const { toast } = useToast();
@@ -14,16 +12,6 @@ export function useAnimalProfile(id: string | undefined) {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const animal = animals.find(a => a.id === id);
-
-  // Check if wishlist is 100% complete
-  const allItemsBought = animal?.wishlist?.length > 0 && animal.wishlist.every((item: any) => item.bought);
-  
-  useEffect(() => {
-    if (allItemsBought && !celebrationShown) {
-      setShowCelebration(true);
-      setCelebrationShown(true);
-    }
-  }, [allItemsBought, celebrationShown]);
 
   // Initialize quantities when animal loads
   useEffect(() => {
@@ -159,11 +147,9 @@ export function useAnimalProfile(id: string | undefined) {
     quantities,
     lightboxOpen,
     lightboxIndex,
-    showCelebration,
     cartTotalForAnimal,
     totalWishlistCost,
     allItemsInCart,
-    setShowCelebration,
     setLightboxOpen,
     openLightbox,
     handlePrevImage,
