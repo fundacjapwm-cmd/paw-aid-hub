@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
-import { WishlistCelebration } from "@/components/WishlistCelebration";
 import { useState, useEffect } from "react";
 import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
@@ -56,8 +55,6 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
   const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationShown, setCelebrationShown] = useState(false);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   
   const wishlistItems = animal.wishlist || [];
@@ -76,18 +73,8 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
     }
   }, [wishlistItems]);
   
-  // Check if wishlist is 100% complete
-  const allItemsBought = wishlistItems.length > 0 && wishlistItems.every(item => item.bought);
-  
   // Check if "Add All" was already used
   const fullyAdded = isAnimalFullyAdded(String(animal.id));
-  
-  useEffect(() => {
-    if (allItemsBought && !celebrationShown) {
-      setShowCelebration(true);
-      setCelebrationShown(true);
-    }
-  }, [allItemsBought, celebrationShown]);
 
   const isInCart = (productId: string) => {
     return globalCart.some(item => item.productId === productId);
@@ -189,12 +176,6 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
 
   return (
     <>
-      {showCelebration && (
-        <WishlistCelebration 
-          animalName={animal.name} 
-          onComplete={() => setShowCelebration(false)}
-        />
-      )}
       <Card
       className="group overflow-hidden bg-card transition-all duration-300 rounded-[50px] md:rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in md:hover:shadow-bubbly md:hover:-translate-y-3"
       onClick={() => navigate(`/zwierze/${animal.id}`, { 
