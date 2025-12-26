@@ -341,7 +341,7 @@ export default function OrgDashboard() {
 
   return (
     <OrgLayout organizationName={organization?.name || ""}>
-      <div className="px-4 md:px-8 py-8 md:py-12 max-w-6xl mx-auto space-y-8 md:space-y-12">
+      <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 md:space-y-12">
         {/* Organization Header */}
         <DashboardHeader
           organization={organization}
