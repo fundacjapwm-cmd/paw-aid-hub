@@ -165,6 +165,10 @@ export const useAnimalsWithWishlists = () => {
         };
       }) || [];
 
+      // Debug: log purchased items for Zosia
+      console.log('Purchased items:', purchasedItems);
+      console.log('PurchasedSet:', Array.from(purchasedSet));
+
       // Sort animals: newest first, but those with 100% wishlist completion go to the end
       const sortedAnimals = transformedAnimals.sort((a, b) => {
         const aHasWishlist = a.wishlist.length > 0;
@@ -174,6 +178,9 @@ export const useAnimalsWithWishlists = () => {
         const aFullyBought = aHasWishlist && a.wishlist.every(item => item.bought);
         const bFullyBought = bHasWishlist && b.wishlist.every(item => item.bought);
         
+        // Debug: log animal sorting details
+        console.log(`Animal ${a.name}: wishlist=${a.wishlist.length}, bought=${a.wishlist.filter(i => i.bought).length}, fullyBought=${aFullyBought}`);
+        
         // If one is fully bought and other is not, put fully bought at the end
         if (aFullyBought && !bFullyBought) return 1;
         if (!aFullyBought && bFullyBought) return -1;
@@ -181,6 +188,8 @@ export const useAnimalsWithWishlists = () => {
         // Otherwise sort by created_at descending (newest first)
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
+      
+      console.log('Sorted animals order:', sortedAnimals.map(a => `${a.name} (fullyBought: ${a.wishlist.length > 0 && a.wishlist.every(i => i.bought)})`));
 
       setAnimals(sortedAnimals);
       setError(null);
