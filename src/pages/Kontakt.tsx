@@ -1,4 +1,3 @@
-import { Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,51 +10,43 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import Footer from "@/components/Footer";
-
 const contactSchema = z.object({
-  name: z.string()
-    .trim()
-    .min(1, "Imię jest wymagane")
-    .max(100, "Imię jest za długie"),
-  email: z.string()
-    .trim()
-    .email("Nieprawidłowy adres email")
-    .max(255, "Email jest za długi"),
-  message: z.string()
-    .trim()
-    .min(1, "Wiadomość jest wymagana")
-    .max(2000, "Wiadomość jest za długa"),
-  acceptsPrivacyPolicy: z.boolean()
-    .refine(val => val === true, "Musisz zaakceptować politykę prywatności"),
+  name: z.string().trim().min(1, "Imię jest wymagane").max(100, "Imię jest za długie"),
+  email: z.string().trim().email("Nieprawidłowy adres email").max(255, "Email jest za długi"),
+  message: z.string().trim().min(1, "Wiadomość jest wymagana").max(2000, "Wiadomość jest za długa"),
+  acceptsPrivacyPolicy: z.boolean().refine(val => val === true, "Musisz zaakceptować politykę prywatności")
 });
-
 type ContactFormData = z.infer<typeof contactSchema>;
-
 const Kontakt = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
     message: "",
-    acceptsPrivacyPolicy: false,
+    acceptsPrivacyPolicy: false
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
-
   const handleChange = (field: keyof ContactFormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
     // Clear error for this field when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors(prev => ({
+        ...prev,
+        [field]: undefined
+      }));
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
     const result = contactSchema.safeParse(formData);
-    
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof ContactFormData, string>> = {};
       result.error.errors.forEach(err => {
@@ -67,23 +58,21 @@ const Kontakt = () => {
       toast({
         title: "Błąd walidacji",
         description: "Sprawdź poprawność wprowadzonych danych",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsSubmitting(true);
-
     try {
-      const { error } = await supabase.functions.invoke("send-contact-form", {
-        body: result.data,
+      const {
+        error
+      } = await supabase.functions.invoke("send-contact-form", {
+        body: result.data
       });
-
       if (error) throw error;
-
       toast({
         title: "Wiadomość wysłana!",
-        description: "Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.",
+        description: "Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe."
       });
 
       // Reset form
@@ -91,7 +80,7 @@ const Kontakt = () => {
         name: "",
         email: "",
         message: "",
-        acceptsPrivacyPolicy: false,
+        acceptsPrivacyPolicy: false
       });
       setErrors({});
     } catch (error: any) {
@@ -99,15 +88,13 @@ const Kontakt = () => {
       toast({
         title: "Błąd wysyłania",
         description: error.message || "Nie udało się wysłać wiadomości. Spróbuj ponownie później.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <main>
         {/* Header Section */}
         <section className="py-12 md:py-20 bg-background">
@@ -115,9 +102,7 @@ const Kontakt = () => {
             <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
               Kontakt
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
-              Masz pytania lub chcesz nawiązać współpracę? Skontaktuj się z nami! 💌
-            </p>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">Masz pytania lub chcesz nawiązać współpracę? Skontaktuj się z nami!</p>
           </div>
         </section>
 
@@ -131,98 +116,45 @@ const Kontakt = () => {
                   <h2 className="text-2xl font-bold text-foreground mb-6">
                     Napisz do nas
                   </h2>
-                  <p className="text-muted-foreground mb-8">
-                    Jesteśmy tu aby odpowiedzieć na wszystkie Twoje pytania i pomysły.
-                  </p>
+                  
 
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="name">Imię*</Label>
-                      <Input 
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => handleChange("name", e.target.value)}
-                        placeholder="Twoje imię" 
-                        className="rounded-xl border-2 focus:border-primary"
-                        disabled={isSubmitting}
-                      />
-                      {errors.name && (
-                        <p className="text-sm text-destructive">{errors.name}</p>
-                      )}
+                      <Input id="name" value={formData.name} onChange={e => handleChange("name", e.target.value)} placeholder="Twoje imię" className="rounded-xl border-2 focus:border-primary" disabled={isSubmitting} />
+                      {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="email">E-mail*</Label>
-                      <Input 
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleChange("email", e.target.value)}
-                        placeholder="twoj@email.pl" 
-                        className="rounded-xl border-2 focus:border-primary"
-                        disabled={isSubmitting}
-                      />
-                      {errors.email && (
-                        <p className="text-sm text-destructive">{errors.email}</p>
-                      )}
+                      <Input id="email" type="email" value={formData.email} onChange={e => handleChange("email", e.target.value)} placeholder="twoj@email.pl" className="rounded-xl border-2 focus:border-primary" disabled={isSubmitting} />
+                      {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="message">Zacznij pisać wiadomość...*</Label>
-                      <Textarea 
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) => handleChange("message", e.target.value)}
-                        placeholder="Opisz swoją sprawę, pytanie lub pomysł..."
-                        rows={6}
-                        className="rounded-xl border-2 focus:border-primary resize-none"
-                        disabled={isSubmitting}
-                      />
-                      {errors.message && (
-                        <p className="text-sm text-destructive">{errors.message}</p>
-                      )}
+                      <Textarea id="message" value={formData.message} onChange={e => handleChange("message", e.target.value)} placeholder="Opisz swoją sprawę, pytanie lub pomysł..." rows={6} className="rounded-xl border-2 focus:border-primary resize-none" disabled={isSubmitting} />
+                      {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
                     </div>
 
                     <div className="flex items-start space-x-3">
-                      <Checkbox 
-                        id="privacy"
-                        checked={formData.acceptsPrivacyPolicy}
-                        onCheckedChange={(checked) => 
-                          handleChange("acceptsPrivacyPolicy", checked === true)
-                        }
-                        disabled={isSubmitting}
-                        className="mt-1"
-                      />
+                      <Checkbox id="privacy" checked={formData.acceptsPrivacyPolicy} onCheckedChange={checked => handleChange("acceptsPrivacyPolicy", checked === true)} disabled={isSubmitting} className="mt-1" />
                       <div className="flex-1">
-                        <Label 
-                          htmlFor="privacy" 
-                          className="text-sm font-normal cursor-pointer leading-relaxed"
-                        >
+                        <Label htmlFor="privacy" className="text-sm font-normal cursor-pointer leading-relaxed">
                           Akceptuję{" "}
-                          <Link 
-                            to="/prywatnosc" 
-                            target="_blank"
-                            className="text-primary hover:underline font-medium"
-                          >
+                          <Link to="/prywatnosc" target="_blank" className="text-primary hover:underline font-medium">
                             politykę prywatności
                           </Link>{" "}
                           i wyrażam zgodę na przetwarzanie moich danych osobowych*
                         </Label>
-                        {errors.acceptsPrivacyPolicy && (
-                          <p className="text-sm text-destructive mt-1">
+                        {errors.acceptsPrivacyPolicy && <p className="text-sm text-destructive mt-1">
                             {errors.acceptsPrivacyPolicy}
-                          </p>
-                        )}
+                          </p>}
                       </div>
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      className="w-full font-bold" 
-                      size="lg"
-                      disabled={isSubmitting || !formData.acceptsPrivacyPolicy}
-                    >
-                      <Send className="h-5 w-5 mr-2" />
+                    <Button type="submit" className="w-full font-bold" size="lg" disabled={isSubmitting || !formData.acceptsPrivacyPolicy}>
+                      
                       {isSubmitting ? "Wysyłanie..." : "Wyślij"}
                     </Button>
                   </form>
@@ -234,11 +166,7 @@ const Kontakt = () => {
                 {/* Happy Dog Image */}
                 <div className="bg-white rounded-3xl p-8 shadow-card text-center">
                   <div className="mb-6 relative overflow-hidden rounded-3xl">
-                    <img 
-                      src={contactDog} 
-                      alt="Szczęśliwy pies"
-                      className="w-full h-auto object-cover"
-                    />
+                    <img src={contactDog} alt="Szczęśliwy pies" className="w-full h-auto object-cover" />
                   </div>
                   <h3 className="text-lg font-bold text-foreground mb-2">
                     Czekamy na Twój kontakt! 🐾
@@ -254,8 +182,6 @@ const Kontakt = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Kontakt;
