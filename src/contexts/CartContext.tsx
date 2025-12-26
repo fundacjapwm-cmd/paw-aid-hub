@@ -20,11 +20,11 @@ interface CartContextType {
   cartTotal: number;
   cartCount: number;
   addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number, silent?: boolean) => void;
-  removeFromCart: (productId: string) => void;
+  removeFromCart: (productId: string, animalId?: string) => void;
   removeAllForAnimal: (animalId: string, animalName: string) => void;
   removeAllForOrganization: (organizationName: string) => void;
   clearCart: () => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  updateQuantity: (productId: string, quantity: number, animalId?: string) => void;
   addAllForAnimal: (items: Omit<CartItem, 'quantity'>[], animalName: string) => void;
   completePurchase: () => Promise<{ success: boolean; orderId?: string }>;
   isAnimalFullyAdded: (animalId: string) => boolean;
@@ -142,10 +142,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       // Delete all existing cart items for user
-      await supabase
+      const { error: deleteError } = await supabase
         .from('user_carts')
         .delete()
         .eq('user_id', userId);
+
+      if (deleteError) {
+        console.error('Error deleting cart items:', deleteError);
+        // Continue anyway - maybe cart was empty
+      }
 
       // Insert new cart items
       if (cartItems.length > 0) {
@@ -164,9 +169,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           .from('user_carts')
           .insert(dbItems);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error inserting cart items:', error);
+        }
       }
     } catch (error) {
+      // Network errors - don't throw, just log
       console.error('Error syncing cart to database:', error);
     } finally {
       setIsSyncing(false);
@@ -192,7 +200,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1, silent: boolean = false) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((cartItem) => cartItem.productId === item.productId);
+      // Find by productId AND animalId to allow same product for different animals
+      const existingItem = prevCart.find((cartItem) => 
+        cartItem.productId === item.productId && cartItem.animalId === item.animalId
+      );
       
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
@@ -216,7 +227,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           });
         }
         return prevCart.map((cartItem) =>
-          cartItem.productId === item.productId
+          cartItem.productId === item.productId && cartItem.animalId === item.animalId
             ? { ...cartItem, quantity: newQuantity }
             : cartItem
         );
@@ -349,8 +360,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.productId !== productId));
+  const removeFromCart = (productId: string, animalId?: string) => {
+    setCart((prevCart) => prevCart.filter((item) => 
+      !(item.productId === productId && item.animalId === animalId)
+    ));
     toast({
       title: "Usunięto z koszyka",
       description: "Produkt został usunięty",
@@ -395,14 +408,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number, animalId?: string) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, animalId);
       return;
     }
     setCart((prevCart) =>
       prevCart.map((item) => {
-        if (item.productId === productId) {
+        if (item.productId === productId && item.animalId === animalId) {
           const maxQty = item.maxQuantity;
           if (maxQty && quantity > maxQty) {
             toast({

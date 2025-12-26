@@ -86,7 +86,7 @@ const CartDrawer = () => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1, item.animalId)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -95,7 +95,7 @@ const CartDrawer = () => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1, item.animalId)}
                             disabled={item.maxQuantity ? item.quantity >= item.maxQuantity : false}
                           >
                             <Plus className="h-3 w-3" />
@@ -107,7 +107,7 @@ const CartDrawer = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => removeFromCart(item.productId)}
+                          onClick={() => removeFromCart(item.productId, item.animalId)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>

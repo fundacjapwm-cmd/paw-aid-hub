@@ -94,7 +94,7 @@ export default function DashboardAnimalCard({
                   ) : (
                     <ShoppingCart className="h-3 w-3" />
                   )}
-                  <span className="hidden xs:inline">Lista potrzeb</span>
+                  <span className="hidden sm:inline">Lista potrzeb</span>
                 </span>
                 <span className="font-medium">
                   {fulfilled}/{totalNeeded} ({Math.round(progress)}%)

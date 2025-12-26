@@ -198,7 +198,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                       showSmartFill={missing > 1}
                       onSmartFill={(_, qty) => handleSmartFill(product.id, qty)}
                       onAddToCart={() => handleAddProduct(product)}
-                      onRemoveFromCart={() => removeFromCart(product.id)}
+                      onRemoveFromCart={() => removeFromCart(product.id, String(animal.id))}
                     />
                   );
                 })}
