@@ -175,6 +175,13 @@ export const useAnimalsWithWishlists = () => {
         };
       }) || [];
 
+      // Debug: log purchasedSet and animal wishlists
+      console.log('PurchasedSet entries:', Array.from(purchasedSet));
+      transformedAnimals.forEach(a => {
+        const boughtCount = a.wishlist.filter(item => item.bought).length;
+        console.log(`Animal ${a.name}: wishlist=${a.wishlist.length}, bought=${boughtCount}, completion=${a.wishlist.length > 0 ? Math.round(boughtCount/a.wishlist.length*100) : 100}%`);
+      });
+
       // Sort animals: most needy first (lowest completion %), then by date, 100% complete at end
       const sortedAnimals = transformedAnimals.sort((a, b) => {
         const aHasWishlist = a.wishlist.length > 0;
@@ -201,6 +208,8 @@ export const useAnimalsWithWishlists = () => {
         // Same completion % - sort by created_at descending (newest first)
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
+
+      console.log('Sorted order:', sortedAnimals.map(a => a.name));
 
       setAnimals(sortedAnimals);
       setError(null);
