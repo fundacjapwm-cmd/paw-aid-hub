@@ -23,7 +23,7 @@ const Zwierzeta = () => {
     organization: "",
     species: "wszystkie",
     city: "",
-    sortBy: "najnowsze"
+    sortBy: "najmniej_najedzone"
   });
   const [visibleCount, setVisibleCount] = useState(8);
 
@@ -46,8 +46,29 @@ const Zwierzeta = () => {
       return matchesOrganization && matchesSpecies && matchesCity;
     });
 
+    // Calculate progress for sorting
+    const calculateProgress = (animal: any) => {
+      if (!animal.wishlist || animal.wishlist.length === 0) return 100;
+      const boughtCount = animal.wishlist.filter((item: any) => item.bought).length;
+      return (boughtCount / animal.wishlist.length) * 100;
+    };
+
     // Sort animals
-    if (filters.sortBy === "najnowsze") {
+    if (filters.sortBy === "najmniej_najedzone") {
+      filtered = filtered.sort((a, b) => {
+        const aProgress = calculateProgress(a);
+        const bProgress = calculateProgress(b);
+        // 100% complete goes to the end
+        if (aProgress === 100 && bProgress < 100) return 1;
+        if (bProgress === 100 && aProgress < 100) return -1;
+        // Sort by progress ascending (most needy first)
+        if (aProgress !== bProgress) return aProgress - bProgress;
+        // Same progress - sort by date descending
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      });
+    } else if (filters.sortBy === "najbardziej_najedzone") {
+      filtered = filtered.sort((a, b) => calculateProgress(b) - calculateProgress(a));
+    } else if (filters.sortBy === "najnowsze") {
       filtered = filtered.sort((a, b) => 
         new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
       );
