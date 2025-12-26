@@ -480,7 +480,7 @@ export default function OrgOrders() {
             <TabsTrigger value="active" className="rounded-lg sm:rounded-xl text-xs sm:text-sm">
               Aktywne ({activeShipments.length})
             </TabsTrigger>
-            <TabsTrigger value="completed" className="rounded-xl">
+            <TabsTrigger value="completed" className="rounded-lg sm:rounded-xl text-xs sm:text-sm">
               Zrealizowane ({completedShipments.length})
             </TabsTrigger>
           </TabsList>

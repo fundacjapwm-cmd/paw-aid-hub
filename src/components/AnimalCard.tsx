@@ -129,7 +129,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
 
   const handleRemoveFromCart = (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
-    removeFromCart(productId);
+    removeFromCart(productId, String(animal.id));
   };
 
   const handleBuyAll = (e: React.MouseEvent) => {
@@ -259,7 +259,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
                         showSmartFill={neededQuantity > 1 && !isFullyBought}
                         onSmartFill={(_, qty) => setQuantities(prev => ({ ...prev, [productId]: qty }))}
                         onAddToCart={() => handleAddToCart({ stopPropagation: () => {} } as any, item)}
-                        onRemoveFromCart={() => removeFromCart(productId)}
+                        onRemoveFromCart={() => removeFromCart(productId, String(animal.id))}
                       />
                     </div>
                   );
