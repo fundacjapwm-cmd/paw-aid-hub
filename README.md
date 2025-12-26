@@ -59,6 +59,20 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Vitest (testing)
+
+## Running tests
+
+```sh
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
 
 ## How can I deploy this project?
 
