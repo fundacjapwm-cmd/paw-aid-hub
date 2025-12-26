@@ -19,7 +19,7 @@ const Index = () => {
     organization: "",
     species: "wszystkie",
     city: "",
-    sortBy: "najnowsze"
+    sortBy: "najmniej_najedzone"
   });
   const [visibleCount, setVisibleCount] = useState(4);
 
