@@ -91,11 +91,16 @@ export const useAnimalsWithWishlists = () => {
 
       if (wishlistsError) throw wishlistsError;
 
-      // Fetch all purchased items to mark as bought
+      // Fetch all purchased items to mark as bought (only from completed orders)
       const { data: purchasedItems, error: purchasedError } = await supabase
         .from('order_items')
-        .select('animal_id, product_id')
-        .in('animal_id', animalIds);
+        .select(`
+          animal_id, 
+          product_id,
+          orders!inner(payment_status)
+        `)
+        .in('animal_id', animalIds)
+        .eq('orders.payment_status', 'completed');
 
       if (purchasedError) throw purchasedError;
 
