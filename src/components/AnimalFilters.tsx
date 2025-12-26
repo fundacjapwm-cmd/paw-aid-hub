@@ -29,7 +29,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
   const [organizationName, setOrganizationName] = useState("");
   const [species, setSpecies] = useState("wszystkie");
   const [city, setCity] = useState("");
-  const [sortBy, setSortBy] = useState("najnowsze");
+  const [sortBy, setSortBy] = useState("najmniej_najedzone");
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [isOrgOpen, setIsOrgOpen] = useState(false);
@@ -102,8 +102,12 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
       setSortBy(value);
     }
     
+    // Get current organization ID for the filter
+    const currentOrgId = key === 'organization' ? value : 
+      organizations.find(org => org.name.toLowerCase() === organizationName.toLowerCase())?.id || "";
+    
     const newFilters = {
-      organization: key === 'organization' ? value : "",
+      organization: currentOrgId,
       species: key === 'species' ? value : species,
       city: key === 'city' ? value : city,
       sortBy: key === 'sortBy' ? value : sortBy,
@@ -116,12 +120,12 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
     setOrganizationName("");
     setSpecies("wszystkie");
     setCity("");
-    setSortBy("najnowsze");
+    setSortBy("najmniej_najedzone");
     onFilterChange?.({
       organization: "",
       species: "wszystkie",
       city: "",
-      sortBy: "najnowsze"
+      sortBy: "najmniej_najedzone"
     });
   };
 
