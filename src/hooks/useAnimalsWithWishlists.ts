@@ -175,31 +175,32 @@ export const useAnimalsWithWishlists = () => {
         };
       }) || [];
 
-      // Debug: log purchased items for Zosia
-      console.log('Purchased items:', purchasedItems);
-      console.log('PurchasedSet:', Array.from(purchasedSet));
-
-      // Sort animals: newest first, but those with 100% wishlist completion go to the end
+      // Sort animals: most needy first (lowest completion %), then by date, 100% complete at end
       const sortedAnimals = transformedAnimals.sort((a, b) => {
         const aHasWishlist = a.wishlist.length > 0;
         const bHasWishlist = b.wishlist.length > 0;
         
-        // Check if wishlist is 100% complete (all items bought)
-        const aFullyBought = aHasWishlist && a.wishlist.every(item => item.bought);
-        const bFullyBought = bHasWishlist && b.wishlist.every(item => item.bought);
+        // Calculate completion percentage
+        const aBoughtCount = a.wishlist.filter(item => item.bought).length;
+        const bBoughtCount = b.wishlist.filter(item => item.bought).length;
+        const aCompletionPct = aHasWishlist ? aBoughtCount / a.wishlist.length : 1;
+        const bCompletionPct = bHasWishlist ? bBoughtCount / b.wishlist.length : 1;
         
-        // Debug: log animal sorting details
-        console.log(`Animal ${a.name}: wishlist=${a.wishlist.length}, bought=${a.wishlist.filter(i => i.bought).length}, fullyBought=${aFullyBought}`);
+        // 100% complete goes to the end
+        const aFullyBought = aHasWishlist && aCompletionPct === 1;
+        const bFullyBought = bHasWishlist && bCompletionPct === 1;
         
-        // If one is fully bought and other is not, put fully bought at the end
         if (aFullyBought && !bFullyBought) return 1;
         if (!aFullyBought && bFullyBought) return -1;
         
-        // Otherwise sort by created_at descending (newest first)
+        // Both fully bought or both not - sort by completion percentage (lowest first = most needy)
+        if (aCompletionPct !== bCompletionPct) {
+          return aCompletionPct - bCompletionPct;
+        }
+        
+        // Same completion % - sort by created_at descending (newest first)
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
-      
-      console.log('Sorted animals order:', sortedAnimals.map(a => `${a.name} (fullyBought: ${a.wishlist.length > 0 && a.wishlist.every(i => i.bought)})`));
 
       setAnimals(sortedAnimals);
       setError(null);
