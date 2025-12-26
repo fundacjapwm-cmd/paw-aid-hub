@@ -246,65 +246,65 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
     }, 0);
 
     return (
-      <Card className="flex flex-col h-full lg:sticky lg:top-6 max-h-[70vh]">
-        <CardHeader className="flex-shrink-0 space-y-4">
-            <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
-              <ShoppingCart className="h-5 w-5 text-primary" />
-              Koszyk Potrzeb - {entityName}
-            </CardTitle>
+      <Card className="flex flex-col h-full lg:sticky lg:top-6 max-h-[70vh] overflow-hidden">
+        <CardHeader className="flex-shrink-0 space-y-4 pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl truncate">
+            <ShoppingCart className="h-5 w-5 text-primary flex-shrink-0" />
+            <span className="truncate">Koszyk - {entityName}</span>
+          </CardTitle>
           {wishlist.length > 0 && (
             <div className="pt-2 border-t">
               <p className="text-sm text-muted-foreground">Całkowita wartość</p>
-              <p className="text-2xl font-bold text-primary">{totalValue.toFixed(2)} zł</p>
+              <p className="text-xl md:text-2xl font-bold text-primary">{totalValue.toFixed(2)} zł</p>
             </div>
           )}
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto pt-4">
+        <CardContent className="flex-1 overflow-y-auto pt-0 px-3 md:px-6">
           {wishlist.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>Brak produktów w koszyku</p>
               <p className="text-sm mt-2">Dodaj produkty z katalogu ←</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {wishlist.map((item) => (
                 <Card
                   key={item.id}
-                  className="p-3 bg-muted/50 hover:bg-muted transition-colors"
+                  className="p-3 bg-muted/50 hover:bg-muted transition-colors overflow-hidden"
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2 md:gap-3">
                     {item.products?.image_url && (
                       <img
                         src={item.products.image_url}
                         alt={item.products.name}
-                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                        className="w-12 h-12 md:w-14 md:h-14 object-cover rounded-lg flex-shrink-0"
                       />
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium mb-1">{item.products?.name}</p>
-                      <p className="text-sm text-muted-foreground mb-2">
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <p className="font-medium text-sm md:text-base truncate">{item.products?.name}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">
                         {item.products?.price.toFixed(2)} zł
                       </p>
-                      <p className="text-sm font-semibold text-primary">
+                      <p className="text-xs md:text-sm font-semibold text-primary">
                         Razem: {((item.products?.price || 0) * item.quantity).toFixed(2)} zł
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t gap-2">
+                    <div className="flex items-center gap-1">
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-7 w-7 md:h-8 md:w-8 flex-shrink-0"
                         onClick={() => handleUpdateQuantity(
                           item.id,
                           item.product_id || '',
                           item.quantity - 1
                         )}
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                       <Input
                         type="number"
@@ -321,27 +321,27 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
                             }
                           }
                         }}
-                        className="text-center w-16 h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="text-center w-10 md:w-14 h-7 md:h-8 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-7 w-7 md:h-8 md:w-8 flex-shrink-0"
                         onClick={() => handleUpdateQuantity(
                           item.id,
                           item.product_id || '',
                           item.quantity + 1
                         )}
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveFromWishlist(item.id)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 px-2 text-xs md:text-sm flex-shrink-0"
                     >
                       Usuń
                     </Button>
