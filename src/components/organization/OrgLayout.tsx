@@ -126,48 +126,48 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
     return (
       <div className="min-h-screen bg-muted/30">
         <header className="sticky top-0 z-50 bg-background border-b border-border shadow-md">
-          <div className="flex items-center gap-3 p-4">
+          <div className="flex items-center gap-3 px-3 py-3">
             <Sheet>
               <SheetTrigger asChild>
                 <Button 
                   variant="outline" 
                   size="icon"
-                  className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 border-primary"
+                  className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 border-primary h-9 w-9"
                 >
-                  <Home className="h-5 w-5" />
+                  <Home className="h-4 w-4" />
                   <span className="sr-only">Otwórz menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0">
+              <SheetContent side="left" className="w-[280px] max-w-[85vw] p-0">
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-border flex items-center gap-2">
-                    <Logo className="h-8 w-auto" />
-                    <h2 className="text-lg font-semibold text-primary">
+                    <Logo className="h-7 w-auto" />
+                    <h2 className="text-base font-semibold text-primary">
                       Panel Organizacji
                     </h2>
                   </div>
                   
-                  <div className="flex-1 overflow-y-auto p-4">
+                  <div className="flex-1 overflow-y-auto p-3">
                     {menuStructure.map((item, idx) => (
                       <Link
                         key={idx}
                         to={item.url}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors text-sm ${
                           isActive(item.url)
                             ? 'bg-primary/10 text-primary font-medium'
                             : 'text-foreground hover:bg-muted'
                         }`}
                       >
-                        <item.icon className="h-5 w-5" />
+                        <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </Link>
                     ))}
                   </div>
 
                   {orgSlug && (
-                    <div className="p-4 border-t border-border">
+                    <div className="p-3 border-t border-border">
                       <Link to={`/organizacje/${orgSlug}`} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" className="w-full gap-2">
+                        <Button variant="outline" className="w-full gap-2 text-sm h-9">
                           <ExternalLink className="h-4 w-4" />
                           Podgląd profilu
                         </Button>
@@ -175,23 +175,23 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
                     </div>
                   )}
 
-                  <div className="p-4 border-t border-border">
+                  <div className="p-3 border-t border-border">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 text-sm h-9"
                       onClick={signOut}
                     >
-                      <LogOut className="h-5 w-5" />
+                      <LogOut className="h-4 w-4" />
                       <span>Wyloguj</span>
                     </Button>
                   </div>
                 </div>
               </SheetContent>
             </Sheet>
-            <h1 className="font-semibold text-lg text-foreground">{getPageTitle()}</h1>
+            <h1 className="font-semibold text-base text-foreground truncate">{getPageTitle()}</h1>
           </div>
         </header>
-        <main className="md:p-4">{children}</main>
+        <main className="p-3 sm:p-4">{children}</main>
       </div>
     );
   }
@@ -206,23 +206,23 @@ export default function OrgLayout({ children, organizationName }: OrgLayoutProps
           <OrgSidebarContent />
         </Sidebar>
 
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto min-w-0">
           <header className="sticky top-0 z-40 bg-white border-b border-border shadow-soft">
-            <div className="flex items-center justify-between p-6">
-              <h1 className="text-2xl font-bold text-foreground">
+            <div className="flex items-center justify-between gap-4 px-4 py-4 lg:px-6">
+              <h1 className="text-xl lg:text-2xl font-bold text-foreground truncate">
                 {organizationName || "Panel Organizacji"}
               </h1>
               {orgSlug && (
-                <Link to={`/organizacje/${orgSlug}`} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="gap-2">
+                <Link to={`/organizacje/${orgSlug}`} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                  <Button variant="outline" className="gap-2 text-sm">
                     <ExternalLink className="h-4 w-4" />
-                    Podgląd profilu publicznego
+                    <span className="hidden sm:inline">Podgląd profilu</span>
                   </Button>
                 </Link>
               )}
             </div>
           </header>
-          <div className="md:p-6">{children}</div>
+          <div className="p-4 lg:p-6">{children}</div>
         </main>
       </div>
     </SidebarProvider>

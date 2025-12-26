@@ -472,12 +472,12 @@ export default function OrgOrders() {
 
   return (
     <OrgLayout>
-      <div className="space-y-6 p-4">
-        <h1 className="text-2xl font-bold">Zamówienia</h1>
+      <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto">
+        <h1 className="text-xl sm:text-2xl font-bold">Zamówienia</h1>
 
         <Tabs defaultValue="active">
-          <TabsList className="grid w-full grid-cols-2 rounded-2xl">
-            <TabsTrigger value="active" className="rounded-xl">
+          <TabsList className="grid w-full grid-cols-2 rounded-xl sm:rounded-2xl h-9 sm:h-10">
+            <TabsTrigger value="active" className="rounded-lg sm:rounded-xl text-xs sm:text-sm">
               Aktywne ({activeShipments.length})
             </TabsTrigger>
             <TabsTrigger value="completed" className="rounded-xl">

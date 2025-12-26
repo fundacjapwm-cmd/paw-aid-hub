@@ -30,77 +30,77 @@ export default function DashboardAnimalCard({
 
   return (
     <Card
-      className="overflow-hidden rounded-3xl cursor-pointer shadow-card transition-all"
+      className="overflow-hidden rounded-2xl sm:rounded-3xl cursor-pointer shadow-card transition-all"
       onClick={onClick}
     >
       <CardContent className="p-0">
-        <div className="flex gap-4 p-4">
+        <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
           {/* Avatar */}
-          <Avatar className="h-20 w-20 rounded-2xl flex-shrink-0">
+          <Avatar className="h-14 w-14 sm:h-20 sm:w-20 rounded-xl sm:rounded-2xl flex-shrink-0">
             <AvatarImage
               src={animal.image_url || ""}
               alt={animal.name}
               className="object-cover"
             />
-            <AvatarFallback className="rounded-2xl bg-primary/10 text-primary text-xl">
-              <PawPrint className="h-8 w-8" />
+            <AvatarFallback className="rounded-xl sm:rounded-2xl bg-primary/10 text-primary text-lg sm:text-xl">
+              <PawPrint className="h-6 w-6 sm:h-8 sm:w-8" />
             </AvatarFallback>
           </Avatar>
 
           {/* Content */}
-          <div className="flex-1 min-w-0 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="font-semibold text-lg truncate">{animal.name}</h3>
-                <p className="text-sm text-muted-foreground">{animal.species}</p>
+          <div className="flex-1 min-w-0 space-y-1.5 sm:space-y-2">
+            <div className="flex items-start justify-between gap-1 sm:gap-2">
+              <div className="min-w-0">
+                <h3 className="font-semibold text-base sm:text-lg truncate">{animal.name}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{animal.species}</p>
               </div>
-              <div className="flex gap-1 flex-shrink-0">
+              <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-7 w-7 sm:h-8 sm:w-8"
                   onClick={handleViewProfile}
                   title="Zobacz profil publiczny"
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-7 w-7 sm:h-8 sm:w-8"
                   onClick={(e) => onEdit(animal, e)}
                   title="Edytuj"
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-destructive hover:text-destructive"
+                  className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive"
                   onClick={(e) => onDelete(animal, e)}
                   title="Usuń"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
 
             {/* Wishlist Progress */}
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-[10px] sm:text-xs">
                 <span className="text-muted-foreground flex items-center gap-1">
                   {isComplete ? (
                     <CheckCircle className="h-3 w-3 text-green-500" />
                   ) : (
                     <ShoppingCart className="h-3 w-3" />
                   )}
-                  Lista potrzeb
+                  <span className="hidden xs:inline">Lista potrzeb</span>
                 </span>
                 <span className="font-medium">
                   {fulfilled}/{totalNeeded} ({Math.round(progress)}%)
                 </span>
               </div>
-              <Progress value={progress} className="h-2" />
+              <Progress value={progress} className="h-1.5 sm:h-2" />
             </div>
           </div>
         </div>

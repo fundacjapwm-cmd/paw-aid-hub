@@ -46,12 +46,12 @@ export default function OrgProfile() {
 
   return (
     <OrgLayout organizationName={organizationName}>
-      <div className="px-4 md:px-8 py-8 md:py-12 max-w-6xl mx-auto">
-        <div className="mb-8 md:mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6 sm:mb-8 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-3 md:mb-4">
             Profil Organizacji
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
             Zarządzaj danymi swojej organizacji
           </p>
         </div>
