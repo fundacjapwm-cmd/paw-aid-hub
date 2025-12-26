@@ -92,17 +92,27 @@ export const useAnimalsWithWishlists = () => {
       if (wishlistsError) throw wishlistsError;
 
       // Fetch all purchased items to mark as bought (only from completed orders)
-      const { data: purchasedItems, error: purchasedError } = await supabase
-        .from('order_items')
-        .select(`
-          animal_id, 
-          product_id,
-          orders!inner(payment_status)
-        `)
-        .in('animal_id', animalIds)
-        .eq('orders.payment_status', 'completed');
+      // First get completed order IDs, then get order_items for those orders
+      const { data: completedOrders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('payment_status', 'completed');
 
-      if (purchasedError) throw purchasedError;
+      if (ordersError) throw ordersError;
+
+      const completedOrderIds = completedOrders?.map(o => o.id) || [];
+      
+      let purchasedItems: { animal_id: string; product_id: string }[] = [];
+      if (completedOrderIds.length > 0) {
+        const { data: items, error: purchasedError } = await supabase
+          .from('order_items')
+          .select('animal_id, product_id')
+          .in('animal_id', animalIds)
+          .in('order_id', completedOrderIds);
+
+        if (purchasedError) throw purchasedError;
+        purchasedItems = items || [];
+      }
 
       // Fetch gallery images for all animals
       const { data: galleryData, error: galleryError } = await supabase
