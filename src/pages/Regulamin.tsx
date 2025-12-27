@@ -38,13 +38,13 @@ export default function Regulamin() {
                     (dalej: "Administrator", "Fundacja" lub "Pośrednik").
                   </li>
                   <li>
-                    <strong>Fundacja jest organizacją non-profit</strong>, która pełni rolę pośrednika między osobami chcącymi wspierać zwierzęta (Użytkownikami) 
+                    Fundacja pełni rolę pośrednika między osobami chcącymi wspierać zwierzęta (Użytkownikami) 
                     a organizacjami opiekującymi się zwierzętami (Organizacjami). Fundacja nie jest stroną umowy darowizny - 
                     świadczy usługę pośrednictwa w zakupie i dostawie produktów.
                   </li>
                   <li>
-                    <strong>Fundacja nie pobiera prowizji ani opłat za pośrednictwo.</strong> 100% środków wpłaconych przez Użytkowników 
-                    przeznaczane jest na zakup produktów dla zwierząt oraz pokrycie kosztów ich dostawy do Organizacji.
+                    Środki wpłacone przez Użytkowników przeznaczane są na zakup produktów dla zwierząt 
+                    oraz pokrycie kosztów ich dostawy do Organizacji.
                   </li>
                   <li>
                     Platforma umożliwia Użytkownikom zlecenie Fundacji zakupu produktów z list potrzeb zwierząt 
@@ -163,16 +163,11 @@ export default function Regulamin() {
                   § 4. Charakter usługi i zasady realizacji
                 </h2>
                 <div className="bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-4">
-                  <p className="text-muted-foreground leading-relaxed mb-3">
+                  <p className="text-muted-foreground leading-relaxed">
                     <strong className="text-foreground">WAŻNE:</strong> Fundacja Pączki w Maśle świadczy <strong>usługę pośrednictwa</strong>. 
                     Użytkownik zleca Fundacji zakup wybranych produktów i ich dostarczenie do Organizacji. 
                     Fundacja nie jest stroną umowy darowizny między Użytkownikiem a Organizacją - 
                     jest pośrednikiem realizującym zakup w imieniu Użytkownika.
-                  </p>
-                  <p className="text-muted-foreground leading-relaxed">
-                    <strong className="text-foreground">Fundacja nie pobiera prowizji.</strong> Jako organizacja non-profit, 
-                    Fundacja nie nalicza żadnych opłat za pośrednictwo. Cała kwota wpłacona przez Użytkownika przeznaczana jest 
-                    na zakup produktów oraz pokrycie kosztów logistycznych (dostawa do Organizacji).
                   </p>
                 </div>
                 <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
@@ -182,8 +177,7 @@ export default function Regulamin() {
                   </li>
                   <li>
                     Ceny produktów zawierają podatek VAT i są podane w złotych polskich (PLN). 
-                    Cena obejmuje koszt produktu oraz koszty dostawy. <strong>Fundacja nie dolicza żadnej prowizji ani marży</strong> - 
-                    działa jako organizacja non-profit wspierająca zwierzęta.
+                    Cena obejmuje koszt produktu oraz koszty dostawy.
                   </li>
                   <li>
                     Proces zlecenia:
@@ -269,7 +263,6 @@ export default function Regulamin() {
                       <li>• Rzetelna prezentacja profilu Organizacji i jej podopiecznych</li>
                       <li>• Terminowa realizacja i dostawa zamówień</li>
                       <li>• Transparentne informowanie o statusie zamówień</li>
-                      <li>• Nieodpłatne świadczenie usług pośrednictwa (brak prowizji)</li>
                     </ul>
                   </li>
                   <li>
