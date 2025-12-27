@@ -213,6 +213,106 @@ export default function Regulamin() {
             </div>
           </section>
 
+          {/* Sekcja 4a - Umowa z Organizacjami */}
+          <section className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Scale className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-foreground mb-3">
+                  § 4a. Umowa pośrednictwa z Organizacjami
+                </h2>
+                <div className="bg-green-50 dark:bg-green-950/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-6 mb-4">
+                  <p className="text-muted-foreground leading-relaxed mb-3">
+                    <strong className="text-foreground">WAŻNE:</strong> Każda Organizacja, która zgłasza się do współpracy lub zakłada konto 
+                    na Platformie, zawiera z Fundacją <strong>umowę pośrednictwa</strong> i akceptuje niniejszy Regulamin jako integralną część tej umowy.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Rejestracja konta lub przesłanie formularza zgłoszeniowego jest równoznaczne z zawarciem umowy pośrednictwa 
+                    na warunkach określonych w niniejszym Regulaminie.
+                  </p>
+                </div>
+                <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
+                  <li>
+                    <strong>Zawarcie umowy:</strong> Umowa pośrednictwa pomiędzy Fundacją a Organizacją zostaje zawarta z chwilą:
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Aktywacji konta Organizacji na Platformie, lub</li>
+                      <li>• Pozytywnej weryfikacji zgłoszenia Organizacji i jej dodania do Platformy</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Przedmiot umowy:</strong> Fundacja zobowiązuje się do pośrednictwa w pozyskiwaniu wsparcia rzeczowego 
+                    dla zwierząt znajdujących się pod opieką Organizacji, poprzez:
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Udostępnienie profilu Organizacji i jej podopiecznych na Platformie</li>
+                      <li>• Przyjmowanie i realizację zamówień od Użytkowników</li>
+                      <li>• Organizację zakupu i dostawy produktów do Organizacji</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Obowiązki Organizacji:</strong>
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Podawanie prawdziwych i aktualnych informacji o sobie, swoich podopiecznych i ich potrzebach</li>
+                      <li>• Prowadzenie aktualnych list potrzeb (wishlist) dla swoich podopiecznych</li>
+                      <li>• Przyjmowanie dostaw produktów zamówionych przez Użytkowników w uzgodnionych terminach</li>
+                      <li>• Wykorzystywanie otrzymanych produktów wyłącznie na cele statutowe związane z opieką nad zwierzętami</li>
+                      <li>• Niezwłoczne informowanie Fundacji o zmianach w statusie zwierząt (adopcja, śmierć, itp.)</li>
+                      <li>• Współpraca z Fundacją w zakresie dokumentowania otrzymanego wsparcia</li>
+                      <li>• Przestrzeganie postanowień niniejszego Regulaminu</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Obowiązki Fundacji wobec Organizacji:</strong>
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Zapewnienie funkcjonowania Platformy i jej dostępności</li>
+                      <li>• Rzetelna prezentacja profilu Organizacji i jej podopiecznych</li>
+                      <li>• Terminowa realizacja i dostawa zamówień</li>
+                      <li>• Transparentne informowanie o statusie zamówień</li>
+                      <li>• Nieodpłatne świadczenie usług pośrednictwa (brak prowizji)</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Oświadczenia Organizacji:</strong> Przystępując do współpracy, Organizacja oświadcza, że:
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Jest podmiotem legalnie działającym na terytorium Rzeczypospolitej Polskiej</li>
+                      <li>• Posiada status fundacji, stowarzyszenia, schroniska lub innej organizacji zajmującej się opieką nad zwierzętami</li>
+                      <li>• Osoba zakładająca konto jest upoważniona do reprezentowania Organizacji</li>
+                      <li>• Wszystkie podane informacje są prawdziwe i aktualne</li>
+                      <li>• Zapoznała się z Regulaminem i akceptuje jego postanowienia w całości</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Odpowiedzialność Organizacji:</strong>
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Organizacja ponosi pełną odpowiedzialność za prawdziwość podanych informacji</li>
+                      <li>• Organizacja odpowiada za prawidłowe wykorzystanie otrzymanych produktów</li>
+                      <li>• W przypadku podania nieprawdziwych informacji, Fundacja zastrzega sobie prawo do natychmiastowego 
+                          rozwiązania umowy i usunięcia Organizacji z Platformy</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Rozwiązanie umowy:</strong> Umowa pośrednictwa może zostać rozwiązana:
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Przez każdą ze stron z zachowaniem 14-dniowego okresu wypowiedzenia</li>
+                      <li>• Ze skutkiem natychmiastowym przez Fundację w przypadku naruszenia Regulaminu przez Organizację</li>
+                      <li>• Ze skutkiem natychmiastowym przez Fundację w przypadku podania nieprawdziwych danych</li>
+                      <li>• Wskutek likwidacji Organizacji lub zakończenia jej działalności statutowej</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Skutki rozwiązania umowy:</strong>
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>• Dezaktywacja konta i profilu Organizacji na Platformie</li>
+                      <li>• Realizacja zamówień złożonych przed rozwiązaniem umowy (o ile to możliwe)</li>
+                      <li>• Brak wpływu na zamówienia już zrealizowane i dostarczone</li>
+                    </ul>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </section>
+
           {/* Sekcja 5 */}
           <section className="space-y-4">
             <div className="flex items-start gap-4">
