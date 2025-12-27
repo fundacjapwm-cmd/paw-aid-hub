@@ -10,6 +10,8 @@ export interface Organization {
   contact_email: string;
   logo_url?: string;
   created_at: string;
+  terms_accepted_at?: string | null;
+  terms_accepted_by?: string | null;
 }
 
 export function useAdminOrganizations() {
