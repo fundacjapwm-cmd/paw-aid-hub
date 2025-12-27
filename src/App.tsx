@@ -33,6 +33,7 @@ import LogisticsMatrix from "./pages/admin/LogisticsMatrix";
 import AdminDeliveries from "./pages/admin/AdminDeliveries";
 import AdminLogisticsInProgress from "./pages/admin/AdminLogisticsInProgress";
 import AdminLogisticsCompleted from "./pages/admin/AdminLogisticsCompleted";
+import AdminPartners from "./pages/admin/AdminPartners";
 import OrgOrders from "./pages/OrgOrders";
 import OrgDashboard from "./pages/OrgDashboard";
 
@@ -89,6 +90,7 @@ function AppContent() {
             <Route path="zgloszenia" element={<AdminLeads />} />
             <Route path="zwierzeta" element={<AdminAnimals />} />
             <Route path="producenci" element={<AdminProducers />} />
+            <Route path="partnerzy" element={<AdminPartners />} />
             <Route path="uzytkownicy" element={<AdminUsers />} />
             <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
             <Route path="finanse" element={<AdminFinances />} />
