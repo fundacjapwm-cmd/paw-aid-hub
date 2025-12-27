@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Plus, Trash2, GripVertical, ExternalLink } from "lucide-react";
+import { Plus, Trash2, GripVertical, ExternalLink, Upload, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -37,8 +37,12 @@ interface Partner {
 
 export default function AdminPartners() {
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [deletePartnerId, setDeletePartnerId] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     logo_url: "",
@@ -58,15 +62,41 @@ export default function AdminPartners() {
     },
   });
 
+  const uploadLogo = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from("partner-logos")
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("partner-logos")
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
   const addPartnerMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
+    mutationFn: async (data: { name: string; logo_url: string; website_url: string; file?: File }) => {
+      setIsUploading(true);
+      
+      let logoUrl = data.logo_url;
+      
+      // Upload file if provided
+      if (data.file) {
+        logoUrl = await uploadLogo(data.file);
+      }
+
       const maxOrder = partners.length > 0 
         ? Math.max(...partners.map(p => p.display_order)) + 1 
         : 0;
 
       const { error } = await supabase.from("partners").insert({
         name: data.name,
-        logo_url: data.logo_url || null,
+        logo_url: logoUrl || null,
         website_url: data.website_url || null,
         display_order: maxOrder,
       });
@@ -77,11 +107,13 @@ export default function AdminPartners() {
       queryClient.invalidateQueries({ queryKey: ["admin-partners"] });
       queryClient.invalidateQueries({ queryKey: ["partners"] });
       toast.success("Partner dodany");
-      setIsDialogOpen(false);
-      setFormData({ name: "", logo_url: "", website_url: "" });
+      handleCloseDialog();
     },
     onError: () => {
       toast.error("Błąd podczas dodawania partnera");
+    },
+    onSettled: () => {
+      setIsUploading(false);
     },
   });
 
@@ -116,13 +148,50 @@ export default function AdminPartners() {
     },
   });
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error("Wybierz plik obrazu");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Plik jest za duży (max 5MB)");
+        return;
+      }
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setFormData({ ...formData, logo_url: "" });
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setFormData({ name: "", logo_url: "", website_url: "" });
+    handleRemoveFile();
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
       toast.error("Nazwa jest wymagana");
       return;
     }
-    addPartnerMutation.mutate(formData);
+    addPartnerMutation.mutate({
+      ...formData,
+      file: selectedFile || undefined,
+    });
   };
 
   if (isLoading) {
@@ -139,7 +208,7 @@ export default function AdminPartners() {
           </p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => open ? setIsDialogOpen(true) : handleCloseDialog()}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
@@ -160,15 +229,71 @@ export default function AdminPartners() {
                   placeholder="Nazwa partnera"
                 />
               </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="logo_url">URL logo</Label>
-                <Input
-                  id="logo_url"
-                  value={formData.logo_url}
-                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                  placeholder="https://example.com/logo.png"
-                />
+                <Label>Logo</Label>
+                
+                {/* File upload area */}
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
+                  {previewUrl ? (
+                    <div className="flex items-center justify-center gap-4">
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="h-16 w-auto object-contain"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleRemoveFile}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                      <div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          Wybierz plik
+                        </Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, SVG do 5MB</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Or URL input */}
+                {!selectedFile && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex-1 h-px bg-border" />
+                      <span>lub wklej URL</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+                    <Input
+                      id="logo_url"
+                      value={formData.logo_url}
+                      onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </div>
+                )}
               </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="website_url">URL strony partnera</Label>
                 <Input
@@ -179,11 +304,11 @@ export default function AdminPartners() {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={handleCloseDialog}>
                   Anuluj
                 </Button>
-                <Button type="submit" disabled={addPartnerMutation.isPending}>
-                  {addPartnerMutation.isPending ? "Dodawanie..." : "Dodaj"}
+                <Button type="submit" disabled={addPartnerMutation.isPending || isUploading}>
+                  {isUploading ? "Przesyłanie..." : addPartnerMutation.isPending ? "Dodawanie..." : "Dodaj"}
                 </Button>
               </div>
             </form>
