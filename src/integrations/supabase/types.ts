@@ -946,6 +946,34 @@ export type Database = {
           total_orders: number
         }[]
       }
+      get_public_organization: {
+        Args: { org_slug: string }
+        Returns: {
+          active: boolean
+          city: string
+          description: string
+          id: string
+          logo_url: string
+          name: string
+          province: string
+          slug: string
+          website: string
+        }[]
+      }
+      get_public_organizations: {
+        Args: never
+        Returns: {
+          active: boolean
+          city: string
+          description: string
+          id: string
+          logo_url: string
+          name: string
+          province: string
+          slug: string
+          website: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
