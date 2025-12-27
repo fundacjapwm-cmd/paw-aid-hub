@@ -32,6 +32,7 @@ export default function OrgProfile() {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isSigningOutAll, setIsSigningOutAll] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     newPassword: '',
     confirmPassword: ''
@@ -166,6 +167,39 @@ export default function OrgProfile() {
     }
   };
 
+  const handleSignOutAllDevices = async () => {
+    setIsSigningOutAll(true);
+    
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      if (error) {
+        toast({
+          title: "Błąd",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Wylogowano ze wszystkich urządzeń",
+        description: "Wszystkie sesje zostały zakończone"
+      });
+      
+      navigate('/auth');
+    } catch (error) {
+      console.error('Error signing out all devices:', error);
+      toast({
+        title: "Błąd",
+        description: "Wystąpił błąd podczas wylogowywania",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSigningOutAll(false);
+    }
+  };
+
   if (!user || profile?.role !== "ORG") {
     return null;
   }
@@ -260,6 +294,41 @@ export default function OrgProfile() {
               <Button variant="destructive" onClick={signOut}>
                 Wyloguj się
               </Button>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Wyloguj ze wszystkich urządzeń</h4>
+                <p className="text-sm text-muted-foreground">
+                  Zakończ wszystkie aktywne sesje na wszystkich urządzeniach
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">
+                    Wyloguj wszędzie
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Wylogować ze wszystkich urządzeń?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Zostaniesz wylogowany ze wszystkich urządzeń, w tym z tego. Będziesz musiał zalogować się ponownie.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleSignOutAllDevices}
+                      disabled={isSigningOutAll}
+                    >
+                      {isSigningOutAll ? 'Wylogowywanie...' : 'Tak, wyloguj wszędzie'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             <Separator />
