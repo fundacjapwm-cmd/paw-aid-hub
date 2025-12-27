@@ -525,6 +525,8 @@ export type Database = {
           postal_code: string | null
           province: string | null
           slug: string
+          terms_accepted_at: string | null
+          terms_accepted_by: string | null
           updated_at: string | null
           website: string | null
         }
@@ -543,6 +545,8 @@ export type Database = {
           postal_code?: string | null
           province?: string | null
           slug: string
+          terms_accepted_at?: string | null
+          terms_accepted_by?: string | null
           updated_at?: string | null
           website?: string | null
         }
@@ -561,6 +565,8 @@ export type Database = {
           postal_code?: string | null
           province?: string | null
           slug?: string
+          terms_accepted_at?: string | null
+          terms_accepted_by?: string | null
           updated_at?: string | null
           website?: string | null
         }

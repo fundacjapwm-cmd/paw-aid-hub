@@ -10,6 +10,7 @@ import DashboardAnimalList from "@/components/organization/DashboardAnimalList";
 import AnimalFormDialog, { AnimalFormData } from "@/components/organization/AnimalFormDialog";
 import AnimalDeleteDialog from "@/components/organization/AnimalDeleteDialog";
 import WishlistBuilder from "@/components/organization/WishlistBuilder";
+import TermsAcceptanceDialog from "@/components/organization/TermsAcceptanceDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -27,7 +28,7 @@ export default function OrgDashboard() {
   const [logoCropDialogOpen, setLogoCropDialogOpen] = useState(false);
   const [wishlistDialogOpen, setWishlistDialogOpen] = useState(false);
   const [selectedAnimal, setSelectedAnimal] = useState<AnimalWithStats | null>(null);
-  
+  const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
   // Animal management states
   const [searchQuery, setSearchQuery] = useState("");
   const [animalToDelete, setAnimalToDelete] = useState<AnimalWithStats | null>(null);
@@ -61,6 +62,13 @@ export default function OrgDashboard() {
       navigate("/");
     }
   }, [user, profile, navigate]);
+
+  // Check if terms are accepted
+  useEffect(() => {
+    if (organization) {
+      setTermsAccepted(!!organization.terms_accepted_at);
+    }
+  }, [organization]);
 
   // Logo handling
   const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,6 +344,24 @@ export default function OrgDashboard() {
   };
 
   if (!user || profile?.role !== "ORG") {
+    return null;
+  }
+
+  // Show terms acceptance dialog if terms not accepted
+  if (termsAccepted === false && orgId) {
+    return (
+      <TermsAcceptanceDialog
+        organizationId={orgId}
+        onAccepted={() => {
+          setTermsAccepted(true);
+          refetch();
+        }}
+      />
+    );
+  }
+
+  // Loading state while checking terms
+  if (termsAccepted === null && organization) {
     return null;
   }
 
