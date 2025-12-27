@@ -83,9 +83,9 @@ const StatsSection = () => {
   useEffect(() => {
     fetchStats();
 
-    // Set up realtime subscription for orders changes
+    // Set up realtime subscription for orders, order_items, and organizations changes
     const channel = supabase
-      .channel('stats-orders-changes')
+      .channel('stats-realtime-changes')
       .on(
         'postgres_changes',
         {
@@ -103,6 +103,17 @@ const StatsSection = () => {
           event: '*',
           schema: 'public',
           table: 'order_items'
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'organizations'
         },
         () => {
           fetchStats();
