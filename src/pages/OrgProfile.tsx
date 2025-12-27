@@ -9,8 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Shield } from "lucide-react";
+import { Eye, EyeOff, Shield, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function OrgProfile() {
   const { user, profile, signOut, updateProfile } = useAuth();
@@ -20,6 +31,7 @@ export default function OrgProfile() {
   const [isOwner, setIsOwner] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     newPassword: '',
     confirmPassword: ''
@@ -104,6 +116,54 @@ export default function OrgProfile() {
     }
     
     setIsLoading(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Błąd",
+          description: "Musisz być zalogowany",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const response = await supabase.functions.invoke('delete-user-account', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (response.error || response.data?.error) {
+        toast({
+          title: "Błąd",
+          description: response.data?.error || "Nie udało się usunąć konta",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Konto usunięte",
+        description: "Twoje konto zostało pomyślnie usunięte"
+      });
+      
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Błąd",
+        description: "Wystąpił błąd podczas usuwania konta",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeletingAccount(false);
+    }
   };
 
   if (!user || profile?.role !== "ORG") {
@@ -200,6 +260,43 @@ export default function OrgProfile() {
               <Button variant="destructive" onClick={signOut}>
                 Wyloguj się
               </Button>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-destructive">Usuń konto</h4>
+                <p className="text-sm text-muted-foreground">
+                  Trwale usuń swoje konto i wszystkie dane
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Usuń konto
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Czy na pewno chcesz usunąć konto?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Ta akcja jest nieodwracalna. Twoje konto i wszystkie powiązane dane zostaną trwale usunięte.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      disabled={isDeletingAccount}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {isDeletingAccount ? 'Usuwanie...' : 'Tak, usuń konto'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </CardContent>
         </Card>

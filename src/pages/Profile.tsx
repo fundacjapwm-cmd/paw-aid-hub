@@ -9,9 +9,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { User, Settings, ShoppingBag, Building2, Shield, Eye, EyeOff } from 'lucide-react';
+import { User, Settings, ShoppingBag, Building2, Shield, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface Order {
   id: string;
@@ -32,7 +43,9 @@ interface Organization {
 
 export default function Profile() {
   const { user, profile, loading, updateProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -173,6 +186,54 @@ export default function Profile() {
     }
     
     setIsLoading(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Błąd",
+          description: "Musisz być zalogowany",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const response = await supabase.functions.invoke('delete-user-account', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (response.error || response.data?.error) {
+        toast({
+          title: "Błąd",
+          description: response.data?.error || "Nie udało się usunąć konta",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Konto usunięte",
+        description: "Twoje konto zostało pomyślnie usunięte"
+      });
+      
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Błąd",
+        description: "Wystąpił błąd podczas usuwania konta",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeletingAccount(false);
+    }
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -496,6 +557,43 @@ export default function Profile() {
                 <Button variant="destructive" onClick={signOut}>
                   Wyloguj się
                 </Button>
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-destructive">Usuń konto</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Trwale usuń swoje konto i wszystkie dane
+                  </p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Usuń konto
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Czy na pewno chcesz usunąć konto?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Ta akcja jest nieodwracalna. Twoje konto i wszystkie powiązane dane zostaną trwale usunięte.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteAccount}
+                        disabled={isDeletingAccount}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {isDeletingAccount ? 'Usuwanie...' : 'Tak, usuń konto'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>
