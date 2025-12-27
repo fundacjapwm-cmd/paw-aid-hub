@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface Organization {
   id: string;
@@ -13,12 +14,13 @@ export interface Organization {
   address?: string;
   postal_code?: string;
   website?: string;
-  contact_email: string;
+  contact_email?: string;
   contact_phone?: string;
   nip?: string;
 }
 
 export function useOrganizationProfile(slug: string | undefined) {
+  const { user } = useAuth();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [animals, setAnimals] = useState<any[]>([]);
   const [orgWishlist, setOrgWishlist] = useState<any[]>([]);
@@ -30,18 +32,32 @@ export function useOrganizationProfile(slug: string | undefined) {
     if (slug) {
       fetchOrganization();
     }
-  }, [slug]);
+  }, [slug, user]);
 
   const fetchOrganization = async () => {
     try {
-      const { data: org, error: orgError } = await supabase
-        .from("organizations")
-        .select("*")
-        .eq("slug", slug)
-        .eq("active", true)
-        .maybeSingle();
+      let org: Organization | null = null;
 
-      if (orgError) throw orgError;
+      if (user) {
+        // Authenticated users can see full data via RLS
+        const { data, error } = await supabase
+          .from("organizations")
+          .select("*")
+          .eq("slug", slug)
+          .eq("active", true)
+          .maybeSingle();
+
+        if (error) throw error;
+        org = data;
+      } else {
+        // Public users use secure RPC function (no sensitive data)
+        const { data, error } = await supabase
+          .rpc("get_public_organization", { org_slug: slug });
+
+        if (error) throw error;
+        org = data?.[0] || null;
+      }
+
       if (!org) {
         setLoading(false);
         return;

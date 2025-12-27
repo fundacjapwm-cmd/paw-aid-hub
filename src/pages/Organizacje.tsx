@@ -30,8 +30,10 @@ interface Organization {
   address?: string;
   postal_code?: string;
   contact_phone?: string;
-  contact_email: string;
+  contact_email?: string;
   logo_url?: string;
+  website?: string;
+  active?: boolean;
   animalsCount?: number;
 }
 
@@ -48,20 +50,33 @@ const Organizacje = () => {
 
   useEffect(() => {
     fetchOrganizations();
-  }, []);
+  }, [user]);
 
   const fetchOrganizations = async () => {
     try {
-      const { data: orgsData, error } = await supabase
-        .from("organizations")
-        .select("*")
-        .eq("active", true);
+      let orgsData: Organization[] = [];
 
-      if (error) throw error;
+      if (user) {
+        // Authenticated users can see full data via RLS
+        const { data, error } = await supabase
+          .from("organizations")
+          .select("*")
+          .eq("active", true);
+
+        if (error) throw error;
+        orgsData = data || [];
+      } else {
+        // Public users use secure RPC function (no sensitive data)
+        const { data, error } = await supabase
+          .rpc("get_public_organizations");
+
+        if (error) throw error;
+        orgsData = (data || []) as Organization[];
+      }
 
       // Count animals for each organization
       const orgsWithCounts = await Promise.all(
-        (orgsData || []).map(async (org) => {
+        orgsData.map(async (org) => {
           const { count } = await supabase
             .from("animals")
             .select("*", { count: "exact", head: true })

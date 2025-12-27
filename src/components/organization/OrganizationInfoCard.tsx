@@ -64,18 +64,20 @@ export function OrganizationInfoCard({ organization, animalsCount, isLoggedIn }:
                 </div>
               )}
 
-              <div className="flex items-start gap-3">
-                <Mail className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium">Email</p>
-                  <a 
-                    href={`mailto:${organization.contact_email}`}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {organization.contact_email}
-                  </a>
+              {organization.contact_email && (
+                <div className="flex items-start gap-3">
+                  <Mail className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium">Email</p>
+                    <a 
+                      href={`mailto:${organization.contact_email}`}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {organization.contact_email}
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
         </div>
