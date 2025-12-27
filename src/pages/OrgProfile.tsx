@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Shield, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { LoginHistory } from "@/components/LoginHistory";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -369,6 +370,9 @@ export default function OrgProfile() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Login History */}
+        <LoginHistory />
       </div>
     </OrgLayout>
   );

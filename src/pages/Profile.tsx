@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { User, Settings, ShoppingBag, Building2, Shield, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { User, Settings, ShoppingBag, Building2, Shield, Eye, EyeOff, Trash2, Clock } from 'lucide-react';
+import { LoginHistory } from '@/components/LoginHistory';
 import { toast } from '@/hooks/use-toast';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
@@ -402,6 +403,10 @@ export default function Profile() {
               Organizacje
             </TabsTrigger>
           )}
+          <TabsTrigger value="security" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Historia
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Ustawienia
@@ -520,6 +525,10 @@ export default function Profile() {
             </Card>
           </TabsContent>
         )}
+
+        <TabsContent value="security">
+          <LoginHistory />
+        </TabsContent>
 
         <TabsContent value="settings">
           <Card>

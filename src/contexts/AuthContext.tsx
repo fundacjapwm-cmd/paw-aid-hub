@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     
     // Fetch profile to check must_change_password
-    if (data.user) {
+    if (data.user && data.session) {
       const [profileResult, roleResult] = await Promise.all([
         supabase
           .from('profiles')
@@ -176,6 +176,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: roleResult.data?.role || 'USER'
         });
       }
+      
+      // Record login history (fire and forget)
+      supabase.functions.invoke('record-login', {
+        headers: {
+          Authorization: `Bearer ${data.session.access_token}`
+        }
+      }).catch(err => console.error('Failed to record login:', err));
     }
     
     return { error };
