@@ -10,6 +10,7 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
+import PartnersCarousel from "@/components/PartnersCarousel";
 import { Link, useLocation } from "react-router-dom";
 
 const Index = () => {
@@ -177,6 +178,9 @@ const Index = () => {
 
         {/* Lead Generation Section */}
         <LeadGenSection />
+
+        {/* Partners Carousel */}
+        <PartnersCarousel />
       </main>
 
       <Footer />

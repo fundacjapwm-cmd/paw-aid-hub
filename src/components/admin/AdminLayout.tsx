@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, Inbox, ShoppingCart, Boxes, Dog } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, Inbox, ShoppingCart, Boxes, Dog, Handshake } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
@@ -51,6 +51,7 @@ const menuStructure = [
       { title: "Zgłoszenia", url: "/admin/zgloszenia", icon: Inbox, showBadge: true },
       { title: "Zwierzęta", url: "/admin/zwierzeta", icon: Dog },
       { title: "Producenci", url: "/admin/producenci", icon: Factory },
+      { title: "Partnerzy", url: "/admin/partnerzy", icon: Handshake },
       { title: "Użytkownicy", url: "/admin/uzytkownicy", icon: Users },
     ]
   },
@@ -200,6 +201,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (path === "/admin/zwierzeta") return "Zwierzęta";
     if (path === "/admin/organizacje") return "Organizacje";
     if (path === "/admin/producenci") return "Producenci";
+    if (path === "/admin/partnerzy") return "Partnerzy";
     if (path === "/admin/uzytkownicy") return "Użytkownicy";
     if (path === "/admin/finanse") return "Wyniki Finansowe";
     if (path === "/admin/statystyki-organizacji") return "Statystyki Organizacji";
