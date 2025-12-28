@@ -1,5 +1,5 @@
-// ALL MOCKS MUST BE DECLARED BEFORE ANY IMPORTS
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import React from 'react';
 
 // Create mock function for useAuth that can be changed per test
 const mockSignOut = vi.fn();
@@ -12,6 +12,7 @@ const mockUseAuth = vi.fn(() => ({
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
@@ -20,9 +21,22 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock AuthContext BEFORE any component imports
+// Mock AuthContext
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => mockUseAuth(),
+}));
+
+// Mock CartContext to avoid AuthContext dependency
+vi.mock('@/contexts/CartContext', () => ({
+  useCart: () => ({
+    cart: [],
+    cartTotal: 0,
+    cartCount: 0,
+    addToCart: vi.fn(),
+    removeFromCart: vi.fn(),
+    clearCart: vi.fn(),
+    isLoading: false,
+  }),
 }));
 
 // Mock CartDrawer and MobileMenu
@@ -35,7 +49,6 @@ vi.mock('@/components/MobileMenu', () => ({
 }));
 
 // NOW import everything else - after all mocks are declared
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Navigation from './Navigation';
@@ -62,8 +75,6 @@ describe('Navigation', () => {
   describe('Logo', () => {
     it('should render logo', () => {
       renderNavigation();
-      
-      // Find the logo link by href since it may not have accessible text
       const allLinks = screen.getAllByRole('link');
       const logoLink = allLinks.find(link => link.getAttribute('href') === '/');
       expect(logoLink).toBeTruthy();
@@ -73,7 +84,6 @@ describe('Navigation', () => {
   describe('Navigation Links', () => {
     it('should render all main navigation links', () => {
       renderNavigation();
-      
       expect(screen.getByRole('link', { name: 'Strona główna' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'O nas' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Organizacje' })).toBeInTheDocument();
@@ -83,7 +93,6 @@ describe('Navigation', () => {
 
     it('should have correct hrefs for navigation links', () => {
       renderNavigation();
-      
       expect(screen.getByRole('link', { name: 'Strona główna' })).toHaveAttribute('href', '/');
       expect(screen.getByRole('link', { name: 'O nas' })).toHaveAttribute('href', '/o-nas');
       expect(screen.getByRole('link', { name: 'Organizacje' })).toHaveAttribute('href', '/organizacje');
@@ -93,14 +102,12 @@ describe('Navigation', () => {
 
     it('should highlight active link on homepage', () => {
       renderNavigation('/');
-      
       const homeLink = screen.getByRole('link', { name: 'Strona główna' });
       expect(homeLink).toHaveClass('text-primary');
     });
 
     it('should highlight active link on about page', () => {
       renderNavigation('/o-nas');
-      
       const aboutLink = screen.getByRole('link', { name: 'O nas' });
       expect(aboutLink).toHaveClass('text-primary');
     });
@@ -109,7 +116,6 @@ describe('Navigation', () => {
   describe('Cart', () => {
     it('should render cart drawer', () => {
       renderNavigation();
-      
       expect(screen.getAllByTestId('cart-drawer').length).toBeGreaterThan(0);
     });
   });
@@ -117,7 +123,6 @@ describe('Navigation', () => {
   describe('Mobile Menu', () => {
     it('should render mobile menu component', () => {
       renderNavigation();
-      
       expect(screen.getByTestId('mobile-menu')).toBeInTheDocument();
     });
   });
@@ -125,16 +130,13 @@ describe('Navigation', () => {
   describe('Unauthenticated User', () => {
     it('should show login button when user is not logged in', () => {
       renderNavigation();
-      
       expect(screen.getByRole('button', { name: 'Zaloguj się' })).toBeInTheDocument();
     });
 
     it('should navigate to auth page on login button click', () => {
       renderNavigation();
-      
       const loginButton = screen.getByRole('button', { name: 'Zaloguj się' });
       fireEvent.click(loginButton);
-      
       expect(mockNavigate).toHaveBeenCalledWith('/auth');
     });
   });
@@ -151,16 +153,12 @@ describe('Navigation', () => {
 
     it('should show user avatar when logged in', () => {
       renderNavigation();
-      
-      // Should have more buttons than just login when authenticated
-      // Avatar dropdown trigger is one of them
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
     });
 
     it('should not show login button when logged in', () => {
       renderNavigation();
-      
       expect(screen.queryByRole('button', { name: 'Zaloguj się' })).not.toBeInTheDocument();
     });
   });
@@ -177,8 +175,6 @@ describe('Navigation', () => {
 
     it('should show user menu for ORG user', () => {
       renderNavigation();
-      
-      // Avatar button should be visible
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
     });
@@ -196,7 +192,6 @@ describe('Navigation', () => {
 
     it('should show user menu for ADMIN user', () => {
       renderNavigation();
-      
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
     });
@@ -210,10 +205,7 @@ describe('Navigation', () => {
         signOut: mockSignOut,
         loading: true,
       });
-      
       renderNavigation();
-      
-      // Should show animated pulse div
       const loadingElement = document.querySelector('.animate-pulse');
       expect(loadingElement).toBeInTheDocument();
     });
@@ -222,13 +214,11 @@ describe('Navigation', () => {
   describe('Accessibility', () => {
     it('should have proper navigation landmark', () => {
       renderNavigation();
-      
       expect(screen.getByRole('navigation')).toBeInTheDocument();
     });
 
     it('should have accessible links', () => {
       renderNavigation();
-      
       const links = screen.getAllByRole('link');
       links.forEach(link => {
         expect(link).toHaveAttribute('href');
@@ -239,7 +229,6 @@ describe('Navigation', () => {
   describe('Styling', () => {
     it('should have sticky positioning', () => {
       renderNavigation();
-      
       const nav = screen.getByRole('navigation');
       expect(nav).toHaveClass('sticky');
       expect(nav).toHaveClass('top-0');
@@ -247,7 +236,6 @@ describe('Navigation', () => {
 
     it('should have proper z-index for overlay', () => {
       renderNavigation();
-      
       const nav = screen.getByRole('navigation');
       expect(nav).toHaveClass('z-50');
     });

@@ -1,47 +1,9 @@
-// ALL MOCKS MUST BE DECLARED BEFORE ANY IMPORTS
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import React from 'react';
 
-// Create mock functions that will be used
-const mockUseAuth = vi.fn(() => ({
-  user: { id: 'test-user', email: 'test@example.com' },
-  profile: { id: 'test-user', display_name: 'Test User', role: 'USER' as const, avatar_url: null, must_change_password: false },
-  session: null,
-  loading: false,
-  signUp: vi.fn(),
-  signIn: vi.fn(),
-  signOut: vi.fn(),
-  updateProfile: vi.fn(),
-  isAdmin: false,
-  isOrg: false,
-  isUser: true,
-}));
-
-// Mock AuthContext BEFORE any component imports
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => mockUseAuth(),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-// Mock Supabase client
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-      delete: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ data: null, error: null })),
-      })),
-      insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
-    })),
-    auth: {
-      getUser: vi.fn(() => Promise.resolve({ data: { user: null }, error: null })),
-    },
-  },
-}));
-
-// Mock useNavigate
+// Mock all external dependencies FIRST
 const mockNavigate = vi.fn();
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
@@ -50,20 +12,60 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock useToast
-vi.mock('@/hooks/use-toast', () => ({
-  useToast: () => ({
-    toast: vi.fn(),
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user', email: 'test@example.com' },
+    profile: { id: 'test-user', display_name: 'Test User', role: 'USER', avatar_url: null },
+    loading: false,
+    signOut: vi.fn(),
+    isAdmin: false,
+    isOrg: false,
+    isUser: true,
   }),
+}));
+
+// Mock CartContext to avoid AuthContext dependency chain
+const mockAddToCart = vi.fn();
+const mockAddAllForAnimal = vi.fn();
+const mockMarkAnimalAsAdded = vi.fn();
+
+vi.mock('@/contexts/CartContext', () => ({
+  useCart: () => ({
+    cart: [],
+    cartTotal: 0,
+    cartCount: 0,
+    addToCart: mockAddToCart,
+    removeFromCart: vi.fn(),
+    removeAllForAnimal: vi.fn(),
+    removeAllForOrganization: vi.fn(),
+    clearCart: vi.fn(),
+    updateQuantity: vi.fn(),
+    addAllForAnimal: mockAddAllForAnimal,
+    completePurchase: vi.fn(),
+    isAnimalFullyAdded: () => false,
+    markAnimalAsAdded: mockMarkAnimalAsAdded,
+    isLoading: false,
+  }),
+  CartProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({ toast: vi.fn() }),
   toast: vi.fn(),
 }));
 
-// NOW import everything else - after all mocks are declared
-import React from 'react';
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({ eq: vi.fn(() => Promise.resolve({ data: [], error: null })) })),
+    })),
+  },
+}));
+
+// NOW import components after all mocks
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
-import { CartProvider } from '@/contexts/CartContext';
 
 const mockAnimal = {
   id: '1',
@@ -76,39 +78,18 @@ const mockAnimal = {
   description: 'Przyjazny pies szukający domu',
   image: '/images/dog-1.jpg',
   wishlist: [
-    {
-      id: '101',
-      name: 'Karma dla psa',
-      price: 49.99,
-      quantity: 2,
-      product_id: 'prod-101',
-    },
-    {
-      id: '102',
-      name: 'Zabawka',
-      price: 19.99,
-      quantity: 1,
-      product_id: 'prod-102',
-    },
+    { id: '101', name: 'Karma dla psa', price: 49.99, quantity: 2, product_id: 'prod-101' },
+    { id: '102', name: 'Zabawka', price: 19.99, quantity: 1, product_id: 'prod-102' },
   ],
 };
 
-const mockAnimalWithBirthDate = {
-  ...mockAnimal,
-  birth_date: '2021-06-15',
-};
-
-const mockAnimalNoWishlist = {
-  ...mockAnimal,
-  wishlist: [],
-};
+const mockAnimalWithBirthDate = { ...mockAnimal, birth_date: '2021-06-15' };
+const mockAnimalNoWishlist = { ...mockAnimal, wishlist: [] };
 
 const renderAnimalCard = (animal = mockAnimal, fromOrganizationProfile = false) => {
   return render(
     <BrowserRouter>
-      <CartProvider>
-        <AnimalCard animal={animal} fromOrganizationProfile={fromOrganizationProfile} />
-      </CartProvider>
+      <AnimalCard animal={animal} fromOrganizationProfile={fromOrganizationProfile} />
     </BrowserRouter>
   );
 };
@@ -160,8 +141,6 @@ describe('AnimalCard', () => {
 
     it('should calculate age from birth_date if provided', () => {
       renderAnimalCard(mockAnimalWithBirthDate);
-      // Age display should be calculated from birth_date
-      // The exact text depends on calculateAnimalAge implementation
       const ageElement = screen.queryByText(/lat|miesi/i);
       expect(ageElement).toBeInTheDocument();
     });
@@ -170,7 +149,6 @@ describe('AnimalCard', () => {
   describe('Interactions', () => {
     it('should navigate to animal profile on card click', () => {
       renderAnimalCard();
-      
       const card = screen.getByText('Burek').closest('.group');
       if (card) {
         fireEvent.click(card);
@@ -180,7 +158,6 @@ describe('AnimalCard', () => {
 
     it('should navigate with organization context when fromOrganizationProfile is true', () => {
       renderAnimalCard(mockAnimal, true);
-      
       const card = screen.getByText('Burek').closest('.group');
       if (card) {
         fireEvent.click(card);
@@ -196,17 +173,13 @@ describe('AnimalCard', () => {
 
     it('should navigate to organization page on organization click', () => {
       renderAnimalCard();
-      
       const orgButton = screen.getByRole('button', { name: 'Schronisko Warszawa' });
       fireEvent.click(orgButton);
-      
       expect(mockNavigate).toHaveBeenCalledWith('/organizacje/schronisko-warszawa');
     });
 
     it('should render buy all button with total price', () => {
       renderAnimalCard();
-      
-      // Total: 49.99 * 2 + 19.99 * 1 = 119.97
       const buyAllButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
       expect(buyAllButton).toBeInTheDocument();
       expect(buyAllButton).toHaveTextContent('119.97');
@@ -216,10 +189,6 @@ describe('AnimalCard', () => {
   describe('Wishlist calculations', () => {
     it('should calculate correct total wishlist cost', () => {
       renderAnimalCard();
-      
-      // Karma: 49.99 * 2 = 99.98
-      // Zabawka: 19.99 * 1 = 19.99
-      // Total: 119.97
       expect(screen.getByText(/119\.97/)).toBeInTheDocument();
     });
   });
@@ -227,7 +196,6 @@ describe('AnimalCard', () => {
   describe('Accessibility', () => {
     it('should have accessible image alt text', () => {
       renderAnimalCard();
-      
       const img = screen.getByRole('img');
       expect(img).toHaveAttribute('alt');
       expect(img.getAttribute('alt')).not.toBe('');
@@ -235,7 +203,6 @@ describe('AnimalCard', () => {
 
     it('should have clickable organization button', () => {
       renderAnimalCard();
-      
       const orgButton = screen.getByRole('button', { name: 'Schronisko Warszawa' });
       expect(orgButton).toBeEnabled();
     });
@@ -248,34 +215,18 @@ describe('AnimalCard - Edge cases', () => {
   });
 
   it('should handle animal without organizationSlug', () => {
-    const animalWithoutSlug = {
-      ...mockAnimal,
-      organizationSlug: undefined,
-    };
-    
+    const animalWithoutSlug = { ...mockAnimal, organizationSlug: undefined };
     renderAnimalCard(animalWithoutSlug);
-    
     const orgButton = screen.getByRole('button', { name: 'Schronisko Warszawa' });
     fireEvent.click(orgButton);
-    
-    // Should generate slug from organization name
     expect(mockNavigate).toHaveBeenCalledWith('/organizacje/schronisko-warszawa');
   });
 
   it('should handle wishlist items with product_id same as id', () => {
     const animalWithIdOnlyWishlist = {
       ...mockAnimal,
-      wishlist: [
-        {
-          id: '201',
-          name: 'Produkt z product_id',
-          price: 29.99,
-          quantity: 1,
-          product_id: '201',
-        },
-      ],
+      wishlist: [{ id: '201', name: 'Produkt z product_id', price: 29.99, quantity: 1, product_id: '201' }],
     };
-    
     renderAnimalCard(animalWithIdOnlyWishlist);
     expect(screen.getByText('Produkt z product_id')).toBeInTheDocument();
   });
@@ -284,28 +235,11 @@ describe('AnimalCard - Edge cases', () => {
     const animalWithBoughtItems = {
       ...mockAnimal,
       wishlist: [
-        {
-          id: '301',
-          name: 'Kupiony produkt',
-          price: 39.99,
-          quantity: 1,
-          product_id: 'prod-301',
-          bought: true,
-        },
-        {
-          id: '302',
-          name: 'Dostępny produkt',
-          price: 29.99,
-          quantity: 1,
-          product_id: 'prod-302',
-          bought: false,
-        },
+        { id: '301', name: 'Kupiony produkt', price: 39.99, quantity: 1, product_id: 'prod-301', bought: true },
+        { id: '302', name: 'Dostępny produkt', price: 29.99, quantity: 1, product_id: 'prod-302', bought: false },
       ],
     };
-    
     renderAnimalCard(animalWithBoughtItems);
-    
-    // Both should be rendered, but bought should be marked
     expect(screen.getByText('Kupiony produkt')).toBeInTheDocument();
     expect(screen.getByText('Dostępny produkt')).toBeInTheDocument();
   });
@@ -314,27 +248,11 @@ describe('AnimalCard - Edge cases', () => {
     const animalAllBought = {
       ...mockAnimal,
       wishlist: [
-        {
-          id: '401',
-          name: 'Kupiony 1',
-          price: 19.99,
-          quantity: 1,
-          product_id: 'prod-401',
-          bought: true,
-        },
-        {
-          id: '402',
-          name: 'Kupiony 2',
-          price: 29.99,
-          quantity: 1,
-          product_id: 'prod-402',
-          bought: true,
-        },
+        { id: '401', name: 'Kupiony 1', price: 19.99, quantity: 1, product_id: 'prod-401', bought: true },
+        { id: '402', name: 'Kupiony 2', price: 29.99, quantity: 1, product_id: 'prod-402', bought: true },
       ],
     };
-    
     renderAnimalCard(animalAllBought);
-    
     expect(screen.getByText('Wszystko kupione!')).toBeInTheDocument();
   });
 });
