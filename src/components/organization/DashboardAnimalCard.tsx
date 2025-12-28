@@ -102,7 +102,7 @@ export default function DashboardAnimalCard({
               </div>
               <Progress 
                 value={progress} 
-                className={`h-1.5 sm:h-2 ${progress === 0 ? '[&>div]:bg-muted-foreground/30' : ''}`}
+                className={`h-1.5 sm:h-2 ${progress === 0 ? 'bg-muted-foreground/30' : ''}`}
               />
             </div>
           </div>
