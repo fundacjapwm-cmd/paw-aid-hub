@@ -1,9 +1,43 @@
+// Mock useAuth - MUST be before any imports that use it
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    profile: null,
+    session: null,
+    loading: false,
+    signUp: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    updateProfile: vi.fn(),
+    isAdmin: false,
+    isOrg: false,
+    isUser: false,
+  }),
+}));
+
+// Mock Supabase client
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
+      })),
+      delete: vi.fn(() => ({
+        eq: vi.fn(() => Promise.resolve({ data: null, error: null })),
+      })),
+      insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    })),
+    auth: {
+      getUser: vi.fn(() => Promise.resolve({ data: { user: null }, error: null })),
+    },
+  },
+}));
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
 import { CartProvider } from '@/contexts/CartContext';
-import { MockAuthProvider } from '@/test/mocks/AuthContext';
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
@@ -20,16 +54,7 @@ vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({
     toast: vi.fn(),
   }),
-}));
-
-// Mock AuthContext to use our mock provider
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: null,
-    profile: null,
-    signOut: vi.fn(),
-    loading: false,
-  }),
+  toast: vi.fn(),
 }));
 
 const mockAnimal = {
@@ -210,6 +235,10 @@ describe('AnimalCard', () => {
 });
 
 describe('AnimalCard - Edge cases', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should handle animal without organizationSlug', () => {
     const animalWithoutSlug = {
       ...mockAnimal,
