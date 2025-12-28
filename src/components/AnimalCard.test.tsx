@@ -3,23 +3,26 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
-// Mock useAuth - must be before CartProvider import
-const mockUseAuth = vi.fn(() => ({
-  user: { id: 'test-user', email: 'test@example.com' },
-  profile: { id: 'test-user', display_name: 'Test User', role: 'USER' as const, avatar_url: null, must_change_password: false },
-  session: null,
-  loading: false,
-  signUp: vi.fn(),
-  signIn: vi.fn(),
-  signOut: vi.fn(),
-  updateProfile: vi.fn(),
-  isAdmin: false,
-  isOrg: false,
-  isUser: true,
+// Use vi.hoisted to ensure mocks are hoisted before any imports
+const { mockUseAuth } = vi.hoisted(() => ({
+  mockUseAuth: vi.fn(() => ({
+    user: { id: 'test-user', email: 'test@example.com' },
+    profile: { id: 'test-user', display_name: 'Test User', role: 'USER' as const, avatar_url: null, must_change_password: false },
+    session: null,
+    loading: false,
+    signUp: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    updateProfile: vi.fn(),
+    isAdmin: false,
+    isOrg: false,
+    isUser: true,
+  })),
 }));
 
+// Mock AuthContext - must be before any imports that use it
 vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => mockUseAuth(),
+  useAuth: mockUseAuth,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
