@@ -146,6 +146,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
     
+    // Send custom welcome email (fire and forget - don't block signup)
+    if (!error) {
+      supabase.functions.invoke('send-welcome-email', {
+        body: { email, displayName }
+      }).catch(err => console.error('Failed to send welcome email:', err));
+    }
+    
     return { error };
   };
 
