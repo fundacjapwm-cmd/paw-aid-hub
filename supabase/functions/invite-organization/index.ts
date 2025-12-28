@@ -1,8 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { Resend } from "npm:resend@2.0.0";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const resendApiKey = Deno.env.get("RESEND_API_KEY")!;
+
+const resend = new Resend(resendApiKey);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,6 +19,82 @@ interface InviteRequest {
   organizationName: string;
   organizationId: string;
 }
+
+const generateWelcomeEmail = (organizationName: string, resetLink: string) => `
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witamy w Paczki w Maśle!</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <!-- Header -->
+    <tr>
+      <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); border-radius: 0 0 30px 30px;">
+        <img src="https://paczkiwmasle.lovable.app/logo.svg" alt="Paczki w Maśle" width="180" style="display: block; margin: 0 auto 20px;" />
+        <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          🎉 Witamy w rodzinie!
+        </h1>
+      </td>
+    </tr>
+    
+    <!-- Content -->
+    <tr>
+      <td style="padding: 40px;">
+        <p style="font-size: 18px; color: #1e293b; margin: 0 0 20px; line-height: 1.6;">
+          Cześć <strong>${organizationName}</strong>! 👋
+        </p>
+        
+        <p style="font-size: 16px; color: #475569; margin: 0 0 25px; line-height: 1.7;">
+          Twoje zgłoszenie zostało <strong style="color: #16a34a;">zatwierdzone</strong>! Jesteśmy niesamowicie szczęśliwi, że dołączasz do naszej platformy. Razem pomożemy jeszcze większej liczbie zwierzaków znaleźć kochające domy.
+        </p>
+        
+        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; padding: 25px; margin: 30px 0;">
+          <h2 style="color: #92400e; font-size: 16px; font-weight: 600; margin: 0 0 15px; text-transform: uppercase; letter-spacing: 0.5px;">
+            🔐 Ostatni krok
+          </h2>
+          <p style="font-size: 15px; color: #78350f; margin: 0 0 20px; line-height: 1.6;">
+            Aby aktywować swoje konto, ustaw hasło klikając poniższy przycisk:
+          </p>
+          <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);">
+            Ustaw hasło i zaloguj się →
+          </a>
+        </div>
+        
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px;">
+          <h3 style="color: #1e293b; font-size: 16px; font-weight: 600; margin: 0 0 15px;">
+            ✨ Co możesz zrobić w panelu?
+          </h3>
+          <ul style="padding-left: 20px; margin: 0; color: #475569; line-height: 2;">
+            <li>Dodawaj profile swoich podopiecznych</li>
+            <li>Twórz listy życzeń z potrzebnymi produktami</li>
+            <li>Śledź zamówienia i darowizny</li>
+            <li>Zarządzaj dostawami</li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+    
+    <!-- Footer -->
+    <tr>
+      <td style="padding: 30px 40px; background-color: #f1f5f9; text-align: center; border-radius: 30px 30px 0 0;">
+        <p style="font-size: 14px; color: #64748b; margin: 0 0 10px;">
+          Masz pytania? Napisz do nas!
+        </p>
+        <a href="mailto:kontakt@paczkiwmasle.pl" style="color: #f97316; text-decoration: none; font-weight: 600;">
+          kontakt@paczkiwmasle.pl
+        </a>
+        <p style="font-size: 12px; color: #94a3b8; margin: 20px 0 0;">
+          © ${new Date().getFullYear()} Paczki w Maśle. Wszystkie prawa zastrzeżone.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -149,25 +229,49 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Organization user record already exists");
     }
 
-    // Trigger password reset email via Supabase
+    // Generate password reset link
     const origin = req.headers.get("origin") || "https://paczkiwmasle.lovable.app";
-    console.log("Sending password reset email to:", email);
+    console.log("Generating password reset link for:", email);
     
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${origin}/set-password`,
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
+      email: email,
+      options: {
+        redirectTo: `${origin}/set-password`,
+      }
     });
 
-    if (resetError) {
-      console.error("Error sending password reset:", resetError);
-      throw resetError;
+    if (linkError) {
+      console.error("Error generating reset link:", linkError);
+      throw linkError;
     }
 
-    console.log("Password reset email sent successfully via Supabase");
+    const resetLink = linkData.properties.action_link;
+    console.log("Reset link generated successfully");
+
+    // Send custom welcome email via Resend
+    console.log("Sending custom welcome email to:", email);
+    
+    const emailHtml = generateWelcomeEmail(organizationName, resetLink);
+    
+    const { data: emailData, error: emailError } = await resend.emails.send({
+      from: "Paczki w Maśle <noreply@paczkiwmasle.pl>",
+      to: [email],
+      subject: `🎉 Witaj w Paczki w Maśle, ${organizationName}!`,
+      html: emailHtml,
+    });
+
+    if (emailError) {
+      console.error("Error sending email via Resend:", emailError);
+      throw emailError;
+    }
+
+    console.log("Welcome email sent successfully:", emailData);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Konto utworzone. Wysłano e-mail z linkiem do ustawienia hasła."
+        message: "Konto utworzone. Wysłano e-mail powitalny z linkiem do ustawienia hasła."
       }),
       {
         status: 200,
