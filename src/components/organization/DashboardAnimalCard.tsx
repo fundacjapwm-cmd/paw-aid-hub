@@ -101,8 +101,8 @@ export default function DashboardAnimalCard({
                 </span>
               </div>
               <Progress 
-                value={totalNeeded === 0 ? 0 : progress} 
-                className={`h-1.5 sm:h-2 ${totalNeeded === 0 ? '[&>div]:bg-muted-foreground/30' : ''}`}
+                value={progress} 
+                className={`h-1.5 sm:h-2 ${progress === 0 ? '[&>div]:bg-muted-foreground/30' : ''}`}
               />
             </div>
           </div>
