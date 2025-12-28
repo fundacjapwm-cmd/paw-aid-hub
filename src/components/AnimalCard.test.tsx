@@ -1,11 +1,9 @@
-import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+// ALL MOCKS MUST BE AT THE TOP - before any imports
+import { vi } from 'vitest';
 
-// Use vi.hoisted to ensure mocks are hoisted before any imports
-const { mockUseAuth } = vi.hoisted(() => ({
-  mockUseAuth: vi.fn(() => ({
+// Mock AuthContext FIRST - before CartProvider imports it
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
     user: { id: 'test-user', email: 'test@example.com' },
     profile: { id: 'test-user', display_name: 'Test User', role: 'USER' as const, avatar_url: null, must_change_password: false },
     session: null,
@@ -17,13 +15,8 @@ const { mockUseAuth } = vi.hoisted(() => ({
     isAdmin: false,
     isOrg: false,
     isUser: true,
-  })),
-}));
-
-// Mock AuthContext - must be before any imports that use it
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: mockUseAuth,
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Mock Supabase client
@@ -62,7 +55,11 @@ vi.mock('@/hooks/use-toast', () => ({
   toast: vi.fn(),
 }));
 
-// Import components AFTER all mocks are set up
+// NOW import everything else - after all mocks are declared
+import React from 'react';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
 import { CartProvider } from '@/contexts/CartContext';
 
