@@ -3,16 +3,16 @@ import { vi } from 'vitest';
 import React from 'react';
 
 // ============================================================================
-// JSDOM POLYFILLS FOR RADIX UI / SHADCN COMPONENTS
+// JSDOM POLYFILLS FOR RADIX UI / SHADCN / CMDK COMPONENTS
 // ============================================================================
 
-// 1. Mock ResizeObserver (required by cmdk/Radix)
+// 1. Mock ResizeObserver (required by cmdk/Radix) - MUST use stubGlobal
 class ResizeObserverMock {
   observe = vi.fn();
   unobserve = vi.fn();
   disconnect = vi.fn();
 }
-global.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 
 // 2. Mock scrollIntoView (not available in jsdom)
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -26,10 +26,19 @@ Element.prototype.hasPointerCapture = vi.fn(() => false);
 Element.prototype.setPointerCapture = vi.fn();
 Element.prototype.releasePointerCapture = vi.fn();
 
-// 4. Mock getComputedStyle for animations
+// 4. Mock IntersectionObserver
+const IntersectionObserverMock = vi.fn(() => ({
+  disconnect: vi.fn(),
+  observe: vi.fn(),
+  takeRecords: vi.fn(),
+  unobserve: vi.fn(),
+}));
+vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
+
+// 5. Mock getComputedStyle for animations
 const originalGetComputedStyle = window.getComputedStyle;
-window.getComputedStyle = (element: Element) => {
-  const style = originalGetComputedStyle(element);
+window.getComputedStyle = (elt: Element) => {
+  const style = originalGetComputedStyle(elt);
   return {
     ...style,
     getPropertyValue: (prop: string) => {
@@ -41,7 +50,7 @@ window.getComputedStyle = (element: Element) => {
   } as CSSStyleDeclaration;
 };
 
-// Mock matchMedia (required for responsive components)
+// 6. Mock matchMedia (required for responsive components)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
@@ -56,7 +65,7 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock localStorage
+// 7. Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -64,6 +73,14 @@ const localStorageMock = {
   clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// 8. Mock requestAnimationFrame
+window.requestAnimationFrame = (cb) => setTimeout(cb, 1000 / 60) as unknown as number;
+window.cancelAnimationFrame = (id) => clearTimeout(id);
+
+// ============================================================================
+// COMPONENT MOCKS
+// ============================================================================
 
 // Mock Tooltip components (avoid TooltipProvider requirement in tests)
 vi.mock('@/components/ui/tooltip', () => ({
@@ -73,7 +90,10 @@ vi.mock('@/components/ui/tooltip', () => ({
   TooltipProvider: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, null, children),
 }));
 
-// Mock Supabase client
+// ============================================================================
+// DEFAULT SUPABASE MOCK
+// ============================================================================
+
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
@@ -117,13 +137,15 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-// Mock toast
+// ============================================================================
+// TOAST MOCKS
+// ============================================================================
+
 vi.mock('@/hooks/use-toast', () => ({
   toast: vi.fn(),
   useToast: () => ({ toast: vi.fn() }),
 }));
 
-// Mock sonner toast
 vi.mock('sonner', () => ({
   toast: Object.assign(vi.fn(), {
     success: vi.fn(),
