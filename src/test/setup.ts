@@ -1,6 +1,14 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// Mock ResizeObserver (required for components using size observers)
+class ResizeObserverMock {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+global.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+
 // Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
@@ -27,6 +35,13 @@ vi.mock('@/integrations/supabase/client', () => ({
     auth: {
       getUser: vi.fn(() => Promise.resolve({ data: { user: null }, error: null })),
     },
+    // Mock Supabase realtime channel
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn().mockReturnThis(),
+      unsubscribe: vi.fn(),
+    })),
+    removeChannel: vi.fn(),
   },
 }));
 
