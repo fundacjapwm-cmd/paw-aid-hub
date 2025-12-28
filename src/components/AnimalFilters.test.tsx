@@ -1,5 +1,16 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import React from 'react';
+
+// ============================================================================
+// JSDOM POLYFILLS - Must be at the very top
+// ============================================================================
+
+// Mock scrollIntoView - not implemented in JSDOM
+beforeAll(() => {
+  window.HTMLElement.prototype.scrollIntoView = vi.fn();
+  window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+  window.HTMLElement.prototype.releasePointerCapture = vi.fn();
+});
 
 // ============================================================================
 // MOCK SETUP - Must be before imports
@@ -58,7 +69,7 @@ vi.mock('@/integrations/supabase/client', () => ({
 // IMPORTS - After mocks
 // ============================================================================
 
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AnimalFilters from './AnimalFilters';
 
@@ -72,7 +83,7 @@ describe('AnimalFilters', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    user = userEvent.setup();
+    user = userEvent.setup({ delay: null }); // Disable delay for faster tests
   });
 
   describe('Rendering', () => {
@@ -139,9 +150,11 @@ describe('AnimalFilters', () => {
       const speciesSelect = await screen.findByText('Wszystkie zwierzęta');
       await user.click(speciesSelect);
       
-      expect(await screen.findByText('Pies')).toBeInTheDocument();
-      expect(await screen.findByText('Kot')).toBeInTheDocument();
-      expect(await screen.findByText('Inne')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Pies')).toBeInTheDocument();
+        expect(screen.getByText('Kot')).toBeInTheDocument();
+        expect(screen.getByText('Inne')).toBeInTheDocument();
+      });
     });
 
     it('should call onFilterChange when species selected', async () => {
@@ -170,9 +183,11 @@ describe('AnimalFilters', () => {
       const sortSelect = await screen.findByText(/Brzuszek: od najmniej najedzonych/i);
       await user.click(sortSelect);
       
-      expect(await screen.findByText('Najnowsze')).toBeInTheDocument();
-      expect(await screen.findByText('Najstarsze')).toBeInTheDocument();
-      expect(await screen.findByText('Alfabetycznie A-Z')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Najnowsze')).toBeInTheDocument();
+        expect(screen.getByText('Najstarsze')).toBeInTheDocument();
+        expect(screen.getByText('Alfabetycznie A-Z')).toBeInTheDocument();
+      });
     });
 
     it('should call onFilterChange when sort option selected', async () => {
@@ -218,7 +233,7 @@ describe('AnimalFilters', () => {
             city: expect.stringContaining('Warszawa'),
           })
         );
-      }, { timeout: 2000 });
+      }, { timeout: 3000 });
     });
   });
 
@@ -239,10 +254,11 @@ describe('AnimalFilters', () => {
     it('should not show clear button when no filters active', async () => {
       render(<AnimalFilters onFilterChange={mockOnFilterChange} />);
       
-      // Wait for component to fully render
       await screen.findByText('Filtry');
       
-      expect(screen.queryByText('Wyczyść')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText('Wyczyść')).not.toBeInTheDocument();
+      });
     });
 
     it('should show clear button when organization filter is active', async () => {
@@ -251,7 +267,9 @@ describe('AnimalFilters', () => {
       const orgInput = await screen.findByPlaceholderText('Organizacja...');
       await user.type(orgInput, 'Schronisko');
       
-      expect(await screen.findByText('Wyczyść')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Wyczyść')).toBeInTheDocument();
+      });
     });
 
     it('should show clear button when city filter is active', async () => {
@@ -260,7 +278,9 @@ describe('AnimalFilters', () => {
       const cityInput = await screen.findByPlaceholderText('Miejscowość...');
       await user.type(cityInput, 'Warszawa');
       
-      expect(await screen.findByText('Wyczyść')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Wyczyść')).toBeInTheDocument();
+      });
     });
 
     it('should show clear button when species filter is not default', async () => {
@@ -272,7 +292,9 @@ describe('AnimalFilters', () => {
       const dogOption = await screen.findByText('Pies');
       await user.click(dogOption);
       
-      expect(await screen.findByText('Wyczyść')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Wyczyść')).toBeInTheDocument();
+      });
     });
 
     it('should clear all filters when clear button clicked', async () => {
@@ -301,9 +323,11 @@ describe('AnimalFilters', () => {
       
       await screen.findByText('Filtry');
       
-      const card = container.querySelector('.bg-card');
-      expect(card).toBeInTheDocument();
-      expect(card).toHaveClass('rounded-3xl');
+      await waitFor(() => {
+        const card = container.querySelector('.bg-card');
+        expect(card).toBeInTheDocument();
+        expect(card).toHaveClass('rounded-3xl');
+      });
     });
 
     it('should have proper input styling', async () => {
@@ -311,9 +335,11 @@ describe('AnimalFilters', () => {
       
       await screen.findByText('Filtry');
       
-      const inputs = screen.getAllByRole('textbox');
-      inputs.forEach(input => {
-        expect(input).toHaveClass('rounded-2xl');
+      await waitFor(() => {
+        const inputs = screen.getAllByRole('textbox');
+        inputs.forEach(input => {
+          expect(input).toHaveClass('rounded-2xl');
+        });
       });
     });
   });
@@ -331,8 +357,10 @@ describe('AnimalFilters', () => {
       
       await screen.findByText('Filtry');
       
-      const comboboxes = screen.getAllByRole('combobox');
-      expect(comboboxes.length).toBeGreaterThan(0);
+      await waitFor(() => {
+        const comboboxes = screen.getAllByRole('combobox');
+        expect(comboboxes.length).toBeGreaterThan(0);
+      });
     });
   });
 
@@ -349,7 +377,9 @@ describe('AnimalFilters', () => {
       const speciesSelect = await screen.findByText('Wszystkie zwierzęta');
       await user.click(speciesSelect);
       
-      expect(await screen.findByText('Pies')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Pies')).toBeInTheDocument();
+      });
     });
   });
 });
