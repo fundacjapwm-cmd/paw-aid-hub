@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search, PawPrint } from "lucide-react";
 import { AnimalWithStats } from "@/hooks/useOrgDashboard";
 import DashboardAnimalCard from "./DashboardAnimalCard";
+import OnboardingTooltip from "./OnboardingTooltip";
 
 interface DashboardAnimalListProps {
   animals: AnimalWithStats[];
@@ -12,6 +13,10 @@ interface DashboardAnimalListProps {
   onEditClick: (animal: AnimalWithStats, e: React.MouseEvent) => void;
   onDeleteClick: (animal: AnimalWithStats, e: React.MouseEvent) => void;
   onAnimalClick: (animalId: string) => void;
+  showOnboardingAnimal?: boolean;
+  showOnboardingWishlist?: boolean;
+  onboardingAnimalName?: string;
+  onDismissOnboarding?: () => void;
 }
 
 export default function DashboardAnimalList({
@@ -22,6 +27,10 @@ export default function DashboardAnimalList({
   onEditClick,
   onDeleteClick,
   onAnimalClick,
+  showOnboardingAnimal = false,
+  showOnboardingWishlist = false,
+  onboardingAnimalName,
+  onDismissOnboarding,
 }: DashboardAnimalListProps) {
   const filteredAnimals = animals.filter((animal) =>
     animal.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -45,12 +54,28 @@ export default function DashboardAnimalList({
               className="pl-9 rounded-xl sm:rounded-2xl h-9 sm:h-10 text-sm"
             />
           </div>
-          <Button onClick={onAddClick} className="rounded-xl sm:rounded-2xl gap-2 h-9 sm:h-10 px-3 sm:px-4">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline text-sm">Dodaj</span>
-          </Button>
+          <OnboardingTooltip
+            message="Dodaj pierwszego podopiecznego!"
+            show={showOnboardingAnimal}
+            position="left"
+            onDismiss={onDismissOnboarding}
+          >
+            <Button onClick={onAddClick} className="rounded-xl sm:rounded-2xl gap-2 h-9 sm:h-10 px-3 sm:px-4">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">Dodaj</span>
+            </Button>
+          </OnboardingTooltip>
         </div>
       </div>
+
+      {/* Wishlist Onboarding Tooltip */}
+      {showOnboardingWishlist && animals.length > 0 && (
+        <div className="bg-success/10 border border-success/30 rounded-xl p-4 text-center">
+          <p className="text-success font-medium">
+            🎉 Świetnie! Teraz kliknij na kartę {onboardingAnimalName || 'podopiecznego'} poniżej, aby dodać produkty do listy potrzeb!
+          </p>
+        </div>
+      )}
 
       {/* Animals List */}
       {filteredAnimals.length === 0 ? (

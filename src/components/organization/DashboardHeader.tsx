@@ -2,12 +2,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Camera, MapPin, Pencil, Mail, Phone, Globe, Hash } from "lucide-react";
 import { toast } from "sonner";
+import OnboardingTooltip from "./OnboardingTooltip";
 
 interface DashboardHeaderProps {
   organization: any;
   uploadingLogo: boolean;
   onLogoSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onEditClick: () => void;
+  showOnboardingProfile?: boolean;
+  onDismissOnboarding?: () => void;
 }
 
 export default function DashboardHeader({
@@ -15,6 +18,8 @@ export default function DashboardHeader({
   uploadingLogo,
   onLogoSelect,
   onEditClick,
+  showOnboardingProfile = false,
+  onDismissOnboarding,
 }: DashboardHeaderProps) {
   if (!organization) return null;
 
@@ -51,14 +56,21 @@ export default function DashboardHeader({
               <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground truncate">
                 {organization?.name}
               </h1>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0"
-                onClick={onEditClick}
+              <OnboardingTooltip
+                message="Uzupełnij dane organizacji!"
+                show={showOnboardingProfile}
+                position="bottom"
+                onDismiss={onDismissOnboarding}
               >
-                <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0"
+                  onClick={onEditClick}
+                >
+                  <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+              </OnboardingTooltip>
             </div>
             {organization?.description && (
               <p className="text-muted-foreground text-xs sm:text-sm mt-1 line-clamp-2">
