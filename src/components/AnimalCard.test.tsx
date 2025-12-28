@@ -1,5 +1,15 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import React from 'react';
+
+// ============================================================================
+// JSDOM POLYFILLS - Must be at the very top
+// ============================================================================
+
+beforeAll(() => {
+  window.HTMLElement.prototype.scrollIntoView = vi.fn();
+  window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+  window.HTMLElement.prototype.releasePointerCapture = vi.fn();
+});
 
 // ============================================================================
 // MOCKS - Must be declared before any imports that use them
@@ -92,8 +102,25 @@ import { BrowserRouter } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
 
 // ============================================================================
-// TEST DATA
+// TEST DATA - All wishlist items have unique IDs and product_ids
 // ============================================================================
+
+const createWishlistItem = (
+  id: string, 
+  name: string, 
+  price: number, 
+  quantity: number, 
+  bought: boolean
+) => ({
+  id,
+  name,
+  price,
+  quantity,
+  product_id: `prod-${id}`,
+  bought,
+  urgent: false,
+  image_url: '/placeholder.svg',
+});
 
 const mockAnimal = {
   id: '1',
@@ -106,8 +133,8 @@ const mockAnimal = {
   description: 'Przyjazny pies szukający domu',
   image: '/images/dog-1.jpg',
   wishlist: [
-    { id: '101', name: 'Karma dla psa', price: 49.99, quantity: 2, product_id: 'prod-101', bought: false },
-    { id: '102', name: 'Zabawka', price: 19.99, quantity: 1, product_id: 'prod-102', bought: false },
+    createWishlistItem('101', 'Karma dla psa', 49.99, 2, false),
+    createWishlistItem('102', 'Zabawka', 19.99, 1, false),
   ],
 };
 
@@ -136,55 +163,77 @@ describe('AnimalCard', () => {
   });
 
   describe('Rendering', () => {
-    it('should render animal name', () => {
+    it('should render animal name', async () => {
       renderAnimalCard();
-      expect(screen.getByText('Burek')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Burek')).toBeInTheDocument();
+      });
     });
 
-    it('should render animal age', () => {
+    it('should render animal age', async () => {
       renderAnimalCard();
-      expect(screen.getByText('3 lata')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('3 lata')).toBeInTheDocument();
+      });
     });
 
-    it('should render animal location', () => {
+    it('should render animal location', async () => {
       renderAnimalCard();
-      expect(screen.getByText('Warszawa')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Warszawa')).toBeInTheDocument();
+      });
     });
 
-    it('should render organization name as a button', () => {
+    it('should render organization name as a button', async () => {
       renderAnimalCard();
-      expect(screen.getByRole('button', { name: 'Schronisko Warszawa' })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Schronisko Warszawa' })).toBeInTheDocument();
+      });
     });
 
-    it('should render animal image with proper alt text', () => {
+    it('should render animal image with proper alt text', async () => {
       renderAnimalCard();
-      const img = screen.getByAltText('Burek - pies szukający domu');
-      expect(img).toBeInTheDocument();
-      expect(img).toHaveAttribute('src', '/images/dog-1.jpg');
+      await waitFor(() => {
+        const img = screen.getByAltText('Burek - pies szukający domu');
+        expect(img).toBeInTheDocument();
+        expect(img).toHaveAttribute('src', '/images/dog-1.jpg');
+      });
     });
 
-    it('should render wishlist items when present', () => {
+    it('should render wishlist items when present', async () => {
       renderAnimalCard();
-      expect(screen.getByText('Lista życzeń:')).toBeInTheDocument();
-      expect(screen.getByText('Karma dla psa')).toBeInTheDocument();
-      expect(screen.getByText('Zabawka')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Lista życzeń:')).toBeInTheDocument();
+        expect(screen.getByText('Karma dla psa')).toBeInTheDocument();
+        expect(screen.getByText('Zabawka')).toBeInTheDocument();
+      });
     });
 
-    it('should not render wishlist section when empty', () => {
+    it('should not render wishlist section when empty', async () => {
       renderAnimalCard(mockAnimalNoWishlist);
-      expect(screen.queryByText('Lista życzeń:')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText('Lista życzeń:')).not.toBeInTheDocument();
+      });
     });
 
-    it('should calculate age from birth_date if provided', () => {
+    it('should calculate age from birth_date if provided', async () => {
       renderAnimalCard(mockAnimalWithBirthDate);
-      const ageElement = screen.queryByText(/lat|miesi/i);
-      expect(ageElement).toBeInTheDocument();
+      await waitFor(() => {
+        const ageElement = screen.queryByText(/lat|miesi/i);
+        expect(ageElement).toBeInTheDocument();
+      });
     });
   });
 
   describe('Interactions', () => {
-    it('should navigate to animal profile on card click', () => {
+    it('should navigate to animal profile on card click', async () => {
       renderAnimalCard();
+      
+      await waitFor(() => {
+        const card = screen.getByText('Burek').closest('.group');
+        expect(card).toBeInTheDocument();
+      });
+      
       const card = screen.getByText('Burek').closest('.group');
       if (card) {
         fireEvent.click(card);
@@ -192,8 +241,13 @@ describe('AnimalCard', () => {
       }
     });
 
-    it('should navigate with organization context when fromOrganizationProfile is true', () => {
+    it('should navigate with organization context when fromOrganizationProfile is true', async () => {
       renderAnimalCard(mockAnimal, true);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Burek')).toBeInTheDocument();
+      });
+      
       const card = screen.getByText('Burek').closest('.group');
       if (card) {
         fireEvent.click(card);
@@ -207,41 +261,51 @@ describe('AnimalCard', () => {
       }
     });
 
-    it('should navigate to organization page on organization click', () => {
+    it('should navigate to organization page on organization click', async () => {
       renderAnimalCard();
-      const orgButton = screen.getByRole('button', { name: 'Schronisko Warszawa' });
+      
+      const orgButton = await screen.findByRole('button', { name: 'Schronisko Warszawa' });
       fireEvent.click(orgButton);
-      expect(mockNavigate).toHaveBeenCalledWith('/organizacje/schronisko-warszawa');
+      
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/organizacje/schronisko-warszawa');
+      });
     });
 
-    it('should render buy all button with total price', () => {
+    it('should render buy all button with total price', async () => {
       renderAnimalCard();
-      const buyAllButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
-      expect(buyAllButton).toBeInTheDocument();
-      // 49.99 * 2 + 19.99 * 1 = 119.97
-      expect(buyAllButton).toHaveTextContent('119.97');
+      
+      await waitFor(() => {
+        const buyAllButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
+        expect(buyAllButton).toBeInTheDocument();
+        // 49.99 * 2 + 19.99 * 1 = 119.97
+        expect(buyAllButton).toHaveTextContent('119.97');
+      });
     });
   });
 
   describe('Wishlist calculations', () => {
-    it('should calculate correct total wishlist cost', () => {
+    it('should calculate correct total wishlist cost', async () => {
       renderAnimalCard();
-      // Karma: 49.99 * 2 = 99.98, Zabawka: 19.99 * 1 = 19.99, Total: 119.97
-      expect(screen.getByText(/119\.97/)).toBeInTheDocument();
+      
+      await waitFor(() => {
+        // Karma: 49.99 * 2 = 99.98, Zabawka: 19.99 * 1 = 19.99, Total: 119.97
+        expect(screen.getByText(/119\.97/)).toBeInTheDocument();
+      });
     });
 
     it('should exclude bought items from total cost', async () => {
       const animalWithPartiallyBought = {
         ...mockAnimal,
         wishlist: [
-          { id: '101', name: 'Karma dla psa', price: 50.00, quantity: 1, product_id: 'prod-101', bought: true },
-          { id: '102', name: 'Zabawka', price: 20.00, quantity: 1, product_id: 'prod-102', bought: false },
+          createWishlistItem('201', 'Karma dla psa', 50.00, 1, true),  // bought
+          createWishlistItem('202', 'Zabawka', 20.00, 1, false),       // available
         ],
       };
       renderAnimalCard(animalWithPartiallyBought);
       
-      // Only Zabawka should be counted: 20.00 zł
       await waitFor(() => {
+        // Only Zabawka should be counted: 20.00 zł
         const buyButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
         expect(buyButton).toHaveTextContent('20.00');
       });
@@ -249,16 +313,20 @@ describe('AnimalCard', () => {
   });
 
   describe('Accessibility', () => {
-    it('should have accessible image alt text', () => {
+    it('should have accessible image alt text', async () => {
       renderAnimalCard();
-      const img = screen.getByRole('img');
-      expect(img).toHaveAttribute('alt');
-      expect(img.getAttribute('alt')).not.toBe('');
+      
+      await waitFor(() => {
+        const img = screen.getByRole('img');
+        expect(img).toHaveAttribute('alt');
+        expect(img.getAttribute('alt')).not.toBe('');
+      });
     });
 
-    it('should have clickable organization button', () => {
+    it('should have clickable organization button', async () => {
       renderAnimalCard();
-      const orgButton = screen.getByRole('button', { name: 'Schronisko Warszawa' });
+      
+      const orgButton = await screen.findByRole('button', { name: 'Schronisko Warszawa' });
       expect(orgButton).toBeEnabled();
     });
   });
@@ -269,29 +337,38 @@ describe('AnimalCard - Edge cases', () => {
     vi.clearAllMocks();
   });
 
-  it('should handle animal without organizationSlug', () => {
+  it('should handle animal without organizationSlug', async () => {
     const animalWithoutSlug = { ...mockAnimal, organizationSlug: undefined };
     renderAnimalCard(animalWithoutSlug);
-    const orgButton = screen.getByRole('button', { name: 'Schronisko Warszawa' });
+    
+    const orgButton = await screen.findByRole('button', { name: 'Schronisko Warszawa' });
     fireEvent.click(orgButton);
-    expect(mockNavigate).toHaveBeenCalledWith('/organizacje/schronisko-warszawa');
+    
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/organizacje/schronisko-warszawa');
+    });
   });
 
-  it('should handle wishlist items with product_id same as id', () => {
+  it('should handle wishlist items with product_id same as id', async () => {
     const animalWithIdOnlyWishlist = {
       ...mockAnimal,
-      wishlist: [{ id: '201', name: 'Produkt z product_id', price: 29.99, quantity: 1, product_id: '201', bought: false }],
+      wishlist: [
+        createWishlistItem('301', 'Produkt z product_id', 29.99, 1, false),
+      ],
     };
     renderAnimalCard(animalWithIdOnlyWishlist);
-    expect(screen.getByText('Produkt z product_id')).toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(screen.getByText('Produkt z product_id')).toBeInTheDocument();
+    });
   });
 
   it('should handle mixed bought and available items in wishlist', async () => {
     const animalWithBoughtItems = {
       ...mockAnimal,
       wishlist: [
-        { id: '301', name: 'Kupiony produkt', price: 39.99, quantity: 1, product_id: 'prod-301', bought: true },
-        { id: '302', name: 'Dostępny produkt', price: 29.99, quantity: 1, product_id: 'prod-302', bought: false },
+        createWishlistItem('401', 'Kupiony produkt', 39.99, 1, true),
+        createWishlistItem('402', 'Dostępny produkt', 29.99, 1, false),
       ],
     };
     renderAnimalCard(animalWithBoughtItems);
@@ -306,8 +383,8 @@ describe('AnimalCard - Edge cases', () => {
     const animalAllBought = {
       ...mockAnimal,
       wishlist: [
-        { id: '401', name: 'Kupiony 1', price: 19.99, quantity: 1, product_id: 'prod-401', bought: true },
-        { id: '402', name: 'Kupiony 2', price: 29.99, quantity: 1, product_id: 'prod-402', bought: true },
+        createWishlistItem('501', 'Kupiony 1', 19.99, 1, true),
+        createWishlistItem('502', 'Kupiony 2', 29.99, 1, true),
       ],
     };
     renderAnimalCard(animalAllBought);
@@ -321,8 +398,8 @@ describe('AnimalCard - Edge cases', () => {
     const animalAllBought = {
       ...mockAnimal,
       wishlist: [
-        { id: '401', name: 'Kupiony 1', price: 19.99, quantity: 1, product_id: 'prod-401', bought: true },
-        { id: '402', name: 'Kupiony 2', price: 29.99, quantity: 1, product_id: 'prod-402', bought: true },
+        createWishlistItem('601', 'Kupiony 1', 19.99, 1, true),
+        createWishlistItem('602', 'Kupiony 2', 29.99, 1, true),
       ],
     };
     renderAnimalCard(animalAllBought);
@@ -333,17 +410,20 @@ describe('AnimalCard - Edge cases', () => {
     });
   });
 
-  it('should not show wishlist section when wishlist is empty array', () => {
+  it('should not show wishlist section when wishlist is empty array', async () => {
     const animalEmptyWishlist = { ...mockAnimal, wishlist: [] };
     renderAnimalCard(animalEmptyWishlist);
-    expect(screen.queryByText('Lista życzeń:')).not.toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(screen.queryByText('Lista życzeń:')).not.toBeInTheDocument();
+    });
   });
 
   it('should handle wishlist with single item correctly', async () => {
     const animalSingleItem = {
       ...mockAnimal,
       wishlist: [
-        { id: '501', name: 'Jedyny produkt', price: 55.00, quantity: 1, product_id: 'prod-501', bought: false },
+        createWishlistItem('701', 'Jedyny produkt', 55.00, 1, false),
       ],
     };
     renderAnimalCard(animalSingleItem);
@@ -352,6 +432,23 @@ describe('AnimalCard - Edge cases', () => {
       expect(screen.getByText('Jedyny produkt')).toBeInTheDocument();
       const buyButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
       expect(buyButton).toHaveTextContent('55.00');
+    });
+  });
+
+  it('should calculate correct cost with multiple quantities', async () => {
+    const animalMultipleQuantities = {
+      ...mockAnimal,
+      wishlist: [
+        createWishlistItem('801', 'Karma', 30.00, 3, false),  // 30 * 3 = 90
+        createWishlistItem('802', 'Smaczek', 10.00, 5, false), // 10 * 5 = 50
+      ],
+    };
+    renderAnimalCard(animalMultipleQuantities);
+    
+    await waitFor(() => {
+      const buyButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
+      // Total: 90 + 50 = 140.00
+      expect(buyButton).toHaveTextContent('140.00');
     });
   });
 });
