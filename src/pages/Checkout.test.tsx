@@ -224,9 +224,17 @@ describe('CheckoutPaymentForm', () => {
   describe('Form submission', () => {
     it('should call onSubmit when form is submitted', () => {
       const onSubmit = vi.fn((e) => e.preventDefault());
-      renderForm({ onSubmit });
+      renderForm({ 
+        onSubmit,
+        customerName: 'Jan Kowalski',
+        customerEmail: 'jan@example.com',
+        acceptTerms: true,
+        acceptPrivacy: true,
+        acceptDataProcessing: true,
+        allConsentsChecked: true,
+      });
       
-      const submitButton = screen.getByRole('button', { name: /Zapłać/i });
+      const submitButton = screen.getByRole('button', { name: /Zapłać 150.00 zł/i });
       fireEvent.click(submitButton);
       
       expect(onSubmit).toHaveBeenCalled();
@@ -257,9 +265,17 @@ describe('CheckoutPaymentForm', () => {
     });
 
     it('should show loading spinner when loading', () => {
-      renderForm({ loading: true });
+      renderForm({ 
+        loading: true,
+        customerName: 'Jan Kowalski',
+        customerEmail: 'jan@example.com',
+        acceptTerms: true,
+        acceptPrivacy: true,
+        acceptDataProcessing: true,
+        allConsentsChecked: true,
+      });
       
-      expect(screen.getByText(/Przetwarzanie/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Przetwarzanie/i })).toBeInTheDocument();
     });
   });
 
