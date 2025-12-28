@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useOrgDashboard, AnimalWithStats } from "@/hooks/useOrgDashboard";
+import { useOrgOnboarding } from "@/hooks/useOrgOnboarding";
 
 export default function OrgDashboard() {
   const { user, profile } = useAuth();
@@ -52,6 +53,22 @@ export default function OrgDashboard() {
   const organization = dashboardData?.organization;
   const animals = dashboardData?.animals || [];
   const orgId = organization?.id;
+
+  // Check if any animal has wishlist items
+  const hasWishlistItems = animals.some(a => (a.wishlistStats?.totalNeeded || 0) > 0);
+
+  // Onboarding hook
+  const {
+    currentStep: onboardingStep,
+    isOnboardingActive,
+    targetAnimalName,
+    advanceStep: advanceOnboarding,
+    dismissOnboarding,
+  } = useOrgOnboarding({
+    organization,
+    animalsCount: animals.length,
+    hasWishlistItems,
+  });
 
   useEffect(() => {
     if (!user) {
@@ -265,6 +282,10 @@ export default function OrgDashboard() {
       setNewAnimalName(data.name);
       setAddAnimalStep("wishlist");
       refetch();
+      // Advance onboarding to wishlist step
+      if (onboardingStep === 'animal') {
+        advanceOnboarding(data.name);
+      }
     } catch (error: any) {
       toast.error("Błąd podczas dodawania: " + error.message);
     } finally {
@@ -374,6 +395,8 @@ export default function OrgDashboard() {
           uploadingLogo={uploadingLogo}
           onLogoSelect={handleLogoSelect}
           onEditClick={() => setEditOrgDialogOpen(true)}
+          showOnboardingProfile={isOnboardingActive && onboardingStep === 'profile'}
+          onDismissOnboarding={dismissOnboarding}
         />
 
         {/* Animals List */}
@@ -385,6 +408,10 @@ export default function OrgDashboard() {
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteClick}
           onAnimalClick={handleAnimalClick}
+          showOnboardingAnimal={isOnboardingActive && onboardingStep === 'animal'}
+          showOnboardingWishlist={isOnboardingActive && onboardingStep === 'wishlist'}
+          onboardingAnimalName={targetAnimalName || animals[0]?.name}
+          onDismissOnboarding={dismissOnboarding}
         />
       </div>
 
@@ -404,6 +431,10 @@ export default function OrgDashboard() {
               onSuccess={() => {
                 setEditOrgDialogOpen(false);
                 refetch();
+                // Advance onboarding if on profile step
+                if (onboardingStep === 'profile') {
+                  advanceOnboarding();
+                }
               }}
             />
           )}
@@ -475,6 +506,10 @@ export default function OrgDashboard() {
           if (!open) {
             // Refetch dashboard data when closing to update progress bars
             refetch();
+            // Advance onboarding if on wishlist step
+            if (onboardingStep === 'wishlist') {
+              advanceOnboarding();
+            }
           }
         }}
       >
