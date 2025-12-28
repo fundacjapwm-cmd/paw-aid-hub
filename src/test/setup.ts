@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
+import React from 'react';
 
 // Mock ResizeObserver (required for components using size observers)
 class ResizeObserverMock {
@@ -35,6 +36,14 @@ const localStorageMock = {
   clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// Mock Tooltip components (avoid TooltipProvider requirement in tests)
+vi.mock('@/components/ui/tooltip', () => ({
+  Tooltip: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, null, children),
+  TooltipTrigger: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, null, children),
+  TooltipContent: ({ children }: { children: React.ReactNode }) => React.createElement('div', { 'data-testid': 'tooltip-content' }, children),
+  TooltipProvider: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, null, children),
+}));
 
 // Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
