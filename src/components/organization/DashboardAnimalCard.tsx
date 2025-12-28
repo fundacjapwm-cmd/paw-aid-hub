@@ -105,12 +105,8 @@ export default function DashboardAnimalCard({
                 className="h-1.5 sm:h-2"
                 style={{
                   ['--progress-color' as string]: progress === 0 
-                    ? 'hsl(0, 0%, 60%)' 
-                    : progress < 50 
-                      ? `hsl(${30 + progress * 0.4}, ${70 + progress * 0.6}%, ${50 + progress * 0.1}%)`
-                      : progress < 100
-                        ? `hsl(${30 + (progress - 50) * 1.8}, ${80 - (progress - 50) * 0.4}%, ${50 - (progress - 50) * 0.1}%)`
-                        : 'hsl(142, 71%, 45%)'
+                    ? 'hsl(0, 0%, 65%)' 
+                    : `hsl(${30 + (progress * 1.12)}, ${progress * 0.71}%, ${50 - (progress * 0.05)}%)`
                 }}
               />
             </div>
