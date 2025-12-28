@@ -1,4 +1,8 @@
-// Mock useAuth - MUST be before any imports that use it
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+
+// Mock useAuth - must be before CartProvider import
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
@@ -33,12 +37,6 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import AnimalCard from './AnimalCard';
-import { CartProvider } from '@/contexts/CartContext';
-
 // Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -56,6 +54,10 @@ vi.mock('@/hooks/use-toast', () => ({
   }),
   toast: vi.fn(),
 }));
+
+// Import components AFTER all mocks are set up
+import AnimalCard from './AnimalCard';
+import { CartProvider } from '@/contexts/CartContext';
 
 const mockAnimal = {
   id: '1',
