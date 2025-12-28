@@ -1,9 +1,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+
+// Global mock MUST be before imports
+const mockChannel = {
+  on: vi.fn().mockReturnThis(),
+  subscribe: vi.fn().mockReturnThis(),
+};
+
+const mockSupabase = {
+  from: vi.fn(),
+  channel: vi.fn(() => mockChannel),
+  removeChannel: vi.fn(),
+};
+
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: mockSupabase,
+}));
+
+// Import AFTER mock setup
 import { useAnimalsWithWishlists } from './useAnimalsWithWishlists';
 
 // Helper to wait for async updates
-const waitForNextUpdate = () => new Promise(resolve => setTimeout(resolve, 0));
+const waitForNextUpdate = () => new Promise(resolve => setTimeout(resolve, 10));
 
 // Mock data
 const mockAnimals = [
@@ -92,113 +110,78 @@ const mockGalleryImages = [
   { id: 'img-2', animal_id: 'animal-1', image_url: '/gallery2.jpg', display_order: 2 },
 ];
 
-// Mock Supabase client
-const mockChannel = {
-  on: vi.fn().mockReturnThis(),
-  subscribe: vi.fn().mockReturnThis(),
+/**
+ * Recursive Mock Pattern - creates a chainable query builder
+ * Every method returns `this`, allowing any chain of calls.
+ * The builder is also thenable, so it works with async/await.
+ */
+const createMockQueryBuilder = <T>(mockData: T, mockError: Error | null = null) => {
+  const result = { data: mockData, error: mockError };
+  
+  const builder: Record<string, unknown> = {
+    // Query methods - all return this for chaining
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    neq: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    is: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    range: vi.fn().mockReturnThis(),
+    filter: vi.fn().mockReturnThis(),
+    match: vi.fn().mockReturnThis(),
+    
+    // Terminal methods - return Promise with data
+    single: vi.fn().mockResolvedValue({ 
+      data: Array.isArray(mockData) ? mockData[0] ?? null : mockData, 
+      error: mockError 
+    }),
+    maybeSingle: vi.fn().mockResolvedValue({ 
+      data: Array.isArray(mockData) ? mockData[0] ?? null : mockData, 
+      error: mockError 
+    }),
+    
+    // Make builder thenable (Promise-like)
+    then: vi.fn((resolve: (value: typeof result) => void) => {
+      return Promise.resolve(result).then(resolve);
+    }),
+    catch: vi.fn((reject: (reason: unknown) => void) => {
+      return Promise.resolve(result).catch(reject);
+    }),
+  };
+  
+  // Make all chainable methods return builder itself
+  ['select', 'eq', 'neq', 'in', 'is', 'order', 'limit', 'range', 'filter', 'match'].forEach(method => {
+    (builder[method] as ReturnType<typeof vi.fn>).mockReturnValue(builder);
+  });
+  
+  return builder;
 };
 
-const createMockQueryBuilder = (data: unknown, error: unknown = null) => ({
-  select: vi.fn().mockReturnThis(),
-  eq: vi.fn().mockReturnThis(),
-  in: vi.fn().mockReturnThis(),
-  order: vi.fn().mockReturnThis(),
-  then: vi.fn((resolve) => resolve({ data, error })),
-  // Make it thenable for async/await
-  [Symbol.toStringTag]: 'Promise',
-});
-
-let mockFromImplementation: (table: string) => ReturnType<typeof createMockQueryBuilder>;
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn((table: string) => mockFromImplementation(table)),
-    channel: vi.fn(() => mockChannel),
-    removeChannel: vi.fn(),
-  },
-}));
+/**
+ * Creates table-specific mock builders based on table name
+ */
+const createTableMock = (table: string, overrides: Record<string, unknown> = {}) => {
+  const tableData: Record<string, unknown> = {
+    animals: mockAnimals,
+    organizations: mockOrganizations,
+    animal_wishlists: mockWishlists,
+    orders: mockCompletedOrders,
+    order_items: mockOrderItems,
+    animal_images: mockGalleryImages,
+    ...overrides,
+  };
+  
+  return createMockQueryBuilder(tableData[table] ?? []);
+};
 
 describe('useAnimalsWithWishlists', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Default implementation - successful responses
-    mockFromImplementation = (table: string) => {
-      const builder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        in: vi.fn().mockReturnThis(),
-        order: vi.fn().mockReturnThis(),
-      };
-
-      // Chain the methods to return promises at the end
-      const chainWithPromise = (data: unknown) => {
-        const chain = {
-          ...builder,
-          select: vi.fn(() => ({
-            ...chain,
-            eq: vi.fn(() => Promise.resolve({ data, error: null })),
-            in: vi.fn(() => ({
-              ...chain,
-              order: vi.fn(() => Promise.resolve({ data, error: null })),
-            })),
-          })),
-        };
-        
-        // Direct promise resolution for simple queries
-        Object.defineProperty(chain, 'then', {
-          value: (resolve: (value: { data: unknown; error: null }) => void) => 
-            Promise.resolve({ data, error: null }).then(resolve),
-        });
-        
-        return chain;
-      };
-
-      switch (table) {
-        case 'animals':
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: mockAnimals, error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'organizations':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => Promise.resolve({ data: mockOrganizations, error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'animal_wishlists':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => Promise.resolve({ data: mockWishlists, error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'orders':
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: mockCompletedOrders, error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'order_items':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => ({
-                in: vi.fn(() => Promise.resolve({ data: mockOrderItems, error: null })),
-              })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'animal_images':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: mockGalleryImages, error: null })),
-              })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        default:
-          return createMockQueryBuilder(null);
-      }
-    };
+    // Setup default mock implementation
+    mockSupabase.from.mockImplementation((table: string) => createTableMock(table));
+    mockSupabase.channel.mockReturnValue(mockChannel);
   });
 
   afterEach(() => {
@@ -252,11 +235,9 @@ describe('useAnimalsWithWishlists', () => {
     const animal = result.current.animals.find(a => a.id === 'animal-1');
     
     if (animal) {
-      // product-1 should be marked as bought (exists in mockOrderItems)
       const boughtItem = animal.wishlist.find(w => w.product_id === 'product-1');
       expect(boughtItem?.bought).toBe(true);
       
-      // product-2 should not be marked as bought
       const notBoughtItem = animal.wishlist.find(w => w.product_id === 'product-2');
       expect(notBoughtItem?.bought).toBe(false);
     }
@@ -272,11 +253,9 @@ describe('useAnimalsWithWishlists', () => {
     const animal = result.current.animals.find(a => a.id === 'animal-1');
     
     if (animal) {
-      // priority 1 = urgent
       const urgentItem = animal.wishlist.find(w => w.product_id === 'product-1');
       expect(urgentItem?.urgent).toBe(true);
       
-      // priority 2 = not urgent
       const normalItem = animal.wishlist.find(w => w.product_id === 'product-2');
       expect(normalItem?.urgent).toBe(false);
     }
@@ -304,15 +283,12 @@ describe('useAnimalsWithWishlists', () => {
       await waitForNextUpdate();
     });
 
-    // animal-2 has 0% completion (no items bought), animal-1 has 50% (1 of 2 bought)
-    // So animal-2 should come first
     const animals = result.current.animals;
     
     if (animals.length >= 2) {
       const firstAnimal = animals[0];
       const secondAnimal = animals[1];
       
-      // Calculate completion percentages
       const firstCompletion = firstAnimal.wishlist.length > 0 
         ? firstAnimal.wishlist.filter(w => w.bought).length / firstAnimal.wishlist.length 
         : 1;
@@ -325,12 +301,9 @@ describe('useAnimalsWithWishlists', () => {
   });
 
   it('should handle fetch error gracefully', async () => {
-    // Override to return an error
-    mockFromImplementation = () => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ data: null, error: new Error('Database error') })),
-      })),
-    } as ReturnType<typeof createMockQueryBuilder>);
+    mockSupabase.from.mockImplementation(() => 
+      createMockQueryBuilder(null, new Error('Database error'))
+    );
 
     const { result } = renderHook(() => useAnimalsWithWishlists());
 
@@ -353,21 +326,9 @@ describe('useAnimalsWithWishlists', () => {
   });
 
   it('should handle empty animals list', async () => {
-    mockFromImplementation = (table: string) => {
-      if (table === 'animals') {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-          })),
-        } as ReturnType<typeof createMockQueryBuilder>;
-      }
-      return {
-        select: vi.fn(() => ({
-          in: vi.fn(() => Promise.resolve({ data: [], error: null })),
-          eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-        })),
-      } as ReturnType<typeof createMockQueryBuilder>;
-    };
+    mockSupabase.from.mockImplementation((table: string) => 
+      createTableMock(table, { animals: [] })
+    );
 
     const { result } = renderHook(() => useAnimalsWithWishlists());
 
@@ -385,44 +346,13 @@ describe('useAnimalsWithWishlists', () => {
       image_url: null,
     }];
 
-    mockFromImplementation = (table: string) => {
-      switch (table) {
-        case 'animals':
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: animalsWithoutImage, error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'organizations':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => Promise.resolve({ data: mockOrganizations, error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'animal_wishlists':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'orders':
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'animal_images':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-              })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        default:
-          return createMockQueryBuilder([]);
-      }
-    };
+    mockSupabase.from.mockImplementation((table: string) => 
+      createTableMock(table, { 
+        animals: animalsWithoutImage,
+        animal_wishlists: [],
+        animal_images: [],
+      })
+    );
 
     const { result } = renderHook(() => useAnimalsWithWishlists());
 
@@ -441,44 +371,14 @@ describe('useAnimalsWithWishlists', () => {
       organization_id: 'unknown-org',
     }];
 
-    mockFromImplementation = (table: string) => {
-      switch (table) {
-        case 'animals':
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: animalsWithUnknownOrg, error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'organizations':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'animal_wishlists':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'orders':
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        case 'animal_images':
-          return {
-            select: vi.fn(() => ({
-              in: vi.fn(() => ({
-                order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-              })),
-            })),
-          } as ReturnType<typeof createMockQueryBuilder>;
-        default:
-          return createMockQueryBuilder([]);
-      }
-    };
+    mockSupabase.from.mockImplementation((table: string) => 
+      createTableMock(table, { 
+        animals: animalsWithUnknownOrg,
+        organizations: [],
+        animal_wishlists: [],
+        animal_images: [],
+      })
+    );
 
     const { result } = renderHook(() => useAnimalsWithWishlists());
 
@@ -495,10 +395,24 @@ describe('useAnimalsWithWishlists', () => {
   it('should set up realtime subscription', () => {
     renderHook(() => useAnimalsWithWishlists());
 
-    // Verify channel was created and subscribed
-    const { supabase } = require('@/integrations/supabase/client');
-    expect(supabase.channel).toHaveBeenCalledWith('order_items_changes');
-    expect(mockChannel.on).toHaveBeenCalled();
+    expect(mockSupabase.channel).toHaveBeenCalledWith('order_items_changes');
+    expect(mockChannel.on).toHaveBeenCalledWith(
+      'postgres_changes',
+      expect.objectContaining({
+        event: '*',
+        schema: 'public',
+        table: 'order_items',
+      }),
+      expect.any(Function)
+    );
     expect(mockChannel.subscribe).toHaveBeenCalled();
+  });
+
+  it('should cleanup subscription on unmount', () => {
+    const { unmount } = renderHook(() => useAnimalsWithWishlists());
+
+    unmount();
+
+    expect(mockSupabase.removeChannel).toHaveBeenCalledWith(mockChannel);
   });
 });
