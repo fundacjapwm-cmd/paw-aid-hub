@@ -1,21 +1,37 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Building2, Calendar, Heart } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Search, Building2, Calendar, Heart, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminAnimals() {
   const { user, profile, loading } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "name">("newest");
   const [speciesFilter, setSpeciesFilter] = useState<string>("all");
+  const [animalToDelete, setAnimalToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: animals, isLoading } = useQuery({
     queryKey: ["admin-animals"],
@@ -45,6 +61,38 @@ export default function AdminAnimals() {
   if (!user || profile?.role !== "ADMIN") {
     return <Navigate to="/auth" replace />;
   }
+
+  const handleDeleteAnimal = async () => {
+    if (!animalToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      // Delete related data first
+      await supabase.from("animal_images").delete().eq("animal_id", animalToDelete.id);
+      await supabase.from("animal_wishlists").delete().eq("animal_id", animalToDelete.id);
+      
+      const { error } = await supabase.from("animals").delete().eq("id", animalToDelete.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Zwierzę usunięte",
+        description: `${animalToDelete.name} zostało usunięte z systemu.`,
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["admin-animals"] });
+    } catch (error) {
+      console.error("Error deleting animal:", error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć zwierzęcia. Spróbuj ponownie.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+      setAnimalToDelete(null);
+    }
+  };
 
   const filteredAndSortedAnimals = animals
     ?.filter((animal) => {
@@ -134,74 +182,107 @@ export default function AdminAnimals() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredAndSortedAnimals?.map((animal) => (
-            <Link 
-              key={animal.id} 
-              to={`/zwierze/${animal.id}`}
-              className="block"
-            >
-              <Card className="rounded-2xl hover:shadow-bubbly-lg transition-shadow cursor-pointer h-full">
-                <CardContent className="p-4">
-                  <div className="flex gap-4">
-                    {/* Animal Image */}
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                      {animal.image_url ? (
-                        <img
-                          src={animal.image_url}
-                          alt={animal.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Heart className="h-8 w-8 text-muted-foreground/50" />
-                        </div>
-                      )}
-                    </div>
+            <Card key={animal.id} className="rounded-2xl hover:shadow-bubbly-lg transition-shadow h-full">
+              <CardContent className="p-4">
+                <div className="flex gap-4">
+                  {/* Animal Image */}
+                  <Link to={`/zwierze/${animal.id}`} className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                    {animal.image_url ? (
+                      <img
+                        src={animal.image_url}
+                        alt={animal.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Heart className="h-8 w-8 text-muted-foreground/50" />
+                      </div>
+                    )}
+                  </Link>
 
-                    {/* Animal Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
+                  {/* Animal Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link to={`/zwierze/${animal.id}`} className="hover:underline">
                         <h3 className="font-semibold text-foreground truncate">
                           {animal.name}
                         </h3>
-                        <Badge variant={animal.active ? "default" : "secondary"} className="flex-shrink-0">
+                      </Link>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Badge variant={animal.active ? "default" : "secondary"}>
                           {animal.active ? "Aktywny" : "Nieaktywny"}
                         </Badge>
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                        <Badge variant="outline" className="text-xs">
-                          {animal.species}
-                        </Badge>
-                        {animal.breed && (
-                          <span className="truncate">{animal.breed}</span>
-                        )}
-                      </div>
-
-                      {/* Organization */}
-                      {animal.organizations && (
-                        <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
-                          <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
-                          <span className="truncate">{animal.organizations.name}</span>
-                        </div>
-                      )}
-
-                      {/* Created date */}
-                      <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
-                        <span>
-                          Dodano: {animal.created_at 
-                            ? format(new Date(animal.created_at), "d MMM yyyy", { locale: pl })
-                            : "—"}
-                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setAnimalToDelete({ id: animal.id, name: animal.name });
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
+
+                    <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                      <Badge variant="outline" className="text-xs">
+                        {animal.species}
+                      </Badge>
+                      {animal.breed && (
+                        <span className="truncate">{animal.breed}</span>
+                      )}
+                    </div>
+
+                    {/* Organization */}
+                    {animal.organizations && (
+                      <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
+                        <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="truncate">{animal.organizations.name}</span>
+                      </div>
+                    )}
+
+                    {/* Created date */}
+                    <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                      <span>
+                        Dodano: {animal.created_at 
+                          ? format(new Date(animal.created_at), "d MMM yyyy", { locale: pl })
+                          : "—"}
+                      </span>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!animalToDelete} onOpenChange={(open) => !open && setAnimalToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Usuń zwierzę</AlertDialogTitle>
+            <AlertDialogDescription>
+              Czy na pewno chcesz usunąć <strong>{animalToDelete?.name}</strong>? 
+              Ta operacja jest nieodwracalna i usunie również wszystkie powiązane dane (zdjęcia, wishlisty).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAnimal}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Usuwanie..." : "Usuń"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
