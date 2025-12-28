@@ -203,6 +203,20 @@ const handler = async (req: Request): Promise<Response> => {
       throw profileError;
     }
 
+    // Add user_roles entry (this is what the system actually checks for permissions)
+    const { error: userRoleError } = await supabase
+      .from('user_roles')
+      .upsert({
+        user_id: userId,
+        role: 'ORG'
+      }, { onConflict: 'user_id,role' });
+
+    if (userRoleError) {
+      console.error("Error creating user_roles record:", userRoleError);
+      throw userRoleError;
+    }
+    console.log("User role 'ORG' added successfully");
+
     // Check if organization_users record already exists
     const { data: existingOrgUser } = await supabase
       .from('organization_users')
