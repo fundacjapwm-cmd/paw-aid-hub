@@ -1,7 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
-import Navigation from './Navigation';
+// ALL MOCKS MUST BE DECLARED BEFORE ANY IMPORTS
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
+// Create mock function for useAuth that can be changed per test
+const mockSignOut = vi.fn();
+const mockUseAuth = vi.fn(() => ({
+  user: null,
+  profile: null,
+  signOut: mockSignOut,
+  loading: false,
+}));
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
@@ -13,15 +20,9 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock AuthContext
-const mockSignOut = vi.fn();
+// Mock AuthContext BEFORE any component imports
 vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: vi.fn(() => ({
-    user: null,
-    profile: null,
-    signOut: mockSignOut,
-    loading: false,
-  })),
+  useAuth: () => mockUseAuth(),
 }));
 
 // Mock CartDrawer and MobileMenu
@@ -33,9 +34,11 @@ vi.mock('@/components/MobileMenu', () => ({
   default: () => <div data-testid="mobile-menu">Menu</div>,
 }));
 
-// Import mock to change return value
-import { useAuth } from '@/contexts/AuthContext';
-const mockUseAuth = useAuth as ReturnType<typeof vi.fn>;
+// NOW import everything else - after all mocks are declared
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import Navigation from './Navigation';
 
 const renderNavigation = (route = '/') => {
   return render(

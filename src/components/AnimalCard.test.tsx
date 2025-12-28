@@ -1,21 +1,24 @@
-// ALL MOCKS MUST BE AT THE TOP - before any imports
-import { vi } from 'vitest';
+// ALL MOCKS MUST BE DECLARED BEFORE ANY IMPORTS
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock AuthContext FIRST - before CartProvider imports it
+// Create mock functions that will be used
+const mockUseAuth = vi.fn(() => ({
+  user: { id: 'test-user', email: 'test@example.com' },
+  profile: { id: 'test-user', display_name: 'Test User', role: 'USER' as const, avatar_url: null, must_change_password: false },
+  session: null,
+  loading: false,
+  signUp: vi.fn(),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+  updateProfile: vi.fn(),
+  isAdmin: false,
+  isOrg: false,
+  isUser: true,
+}));
+
+// Mock AuthContext BEFORE any component imports
 vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: { id: 'test-user', email: 'test@example.com' },
-    profile: { id: 'test-user', display_name: 'Test User', role: 'USER' as const, avatar_url: null, must_change_password: false },
-    session: null,
-    loading: false,
-    signUp: vi.fn(),
-    signIn: vi.fn(),
-    signOut: vi.fn(),
-    updateProfile: vi.fn(),
-    isAdmin: false,
-    isOrg: false,
-    isUser: true,
-  }),
+  useAuth: () => mockUseAuth(),
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
@@ -57,7 +60,6 @@ vi.mock('@/hooks/use-toast', () => ({
 
 // NOW import everything else - after all mocks are declared
 import React from 'react';
-import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
