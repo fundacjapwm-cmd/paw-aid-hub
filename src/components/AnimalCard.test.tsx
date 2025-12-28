@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
 import { CartProvider } from '@/contexts/CartContext';
+import { MockAuthProvider } from '@/test/mocks/AuthContext';
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
@@ -18,6 +19,16 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({
     toast: vi.fn(),
+  }),
+}));
+
+// Mock AuthContext to use our mock provider
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    profile: null,
+    signOut: vi.fn(),
+    loading: false,
   }),
 }));
 
