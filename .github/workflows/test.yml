@@ -51,9 +51,15 @@ jobs:
 
       - name: Run unit tests
         run: npm run test -- --run
+        env:
+          VITE_SUPABASE_URL: http://localhost:54321
+          VITE_SUPABASE_PUBLISHABLE_KEY: test-key
 
       - name: Run unit tests with coverage
         run: npm run test:coverage
+        env:
+          VITE_SUPABASE_URL: http://localhost:54321
+          VITE_SUPABASE_PUBLISHABLE_KEY: test-key
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -101,6 +107,9 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'http://localhost:54321' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'test-key' }}
 
       - name: Run E2E tests
         run: npx playwright test --project=chromium
