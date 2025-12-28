@@ -1,8 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Pencil, Trash2, PawPrint, ShoppingCart, CheckCircle, ExternalLink } from "lucide-react";
+import { Pencil, Trash2, PawPrint, ExternalLink } from "lucide-react";
 import { AnimalWithStats } from "@/hooks/useOrgDashboard";
 import { useNavigate } from "react-router-dom";
 
@@ -21,7 +20,6 @@ export default function DashboardAnimalCard({
 }: DashboardAnimalCardProps) {
   const navigate = useNavigate();
   const { totalNeeded, fulfilled, progress } = animal.wishlistStats;
-  const isComplete = progress >= 100;
 
   const handleViewProfile = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -87,28 +85,26 @@ export default function DashboardAnimalCard({
 
             {/* Wishlist Progress */}
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-[10px] sm:text-xs">
-                <span className="text-muted-foreground flex items-center gap-1.5">
-                  {isComplete ? (
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                  ) : (
-                    <ShoppingCart className="h-3 w-3" />
-                  )}
-                  <span>Lista potrzeb</span>
-                  <span className="font-medium text-foreground">
-                    {fulfilled}/{totalNeeded} ({Math.round(progress)}%)
-                  </span>
+              <div className="flex items-center justify-between text-[10px] sm:text-xs mb-1">
+                <span className="text-muted-foreground">Lista potrzeb</span>
+                <span className="font-medium text-foreground">
+                  {fulfilled}/{totalNeeded} ({Math.round(progress)}%)
                 </span>
               </div>
-              <Progress 
-                value={progress} 
-                className="h-1.5 sm:h-2"
-                style={{
-                  ['--progress-color' as string]: progress === 0 
-                    ? 'hsl(0, 0%, 65%)' 
-                    : `hsl(${30 + (progress * 1.12)}, ${progress * 0.71}%, ${50 - (progress * 0.05)}%)`
-                }}
-              />
+              <div className="w-full bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-700 bg-gradient-to-r relative overflow-hidden ${
+                    progress < 33 
+                      ? 'from-red-500 via-red-400 to-orange-400' 
+                      : progress < 66 
+                        ? 'from-orange-500 via-yellow-400 to-yellow-300'
+                        : 'from-green-500 via-emerald-400 to-green-400'
+                  }`}
+                  style={{ width: `${progress}%` }}
+                >
+                  <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
