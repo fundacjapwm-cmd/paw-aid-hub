@@ -1,7 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 
-// Mock all external dependencies FIRST
+// ============================================================================
+// MOCKS - Must be declared before any imports that use them
+// ============================================================================
+
 const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async () => {
@@ -12,19 +15,31 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+// Mock AuthContext - provides auth state to components
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: { id: 'test-user', email: 'test@example.com' },
-    profile: { id: 'test-user', display_name: 'Test User', role: 'USER', avatar_url: null },
+    profile: { 
+      id: 'test-user', 
+      display_name: 'Test User', 
+      role: 'USER' as const, 
+      avatar_url: null,
+      must_change_password: false,
+    },
+    session: null,
     loading: false,
+    signUp: vi.fn(),
+    signIn: vi.fn(),
     signOut: vi.fn(),
+    updateProfile: vi.fn(),
     isAdmin: false,
     isOrg: false,
     isUser: true,
   }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// Mock CartContext to avoid AuthContext dependency chain
+// Mock CartContext - provides cart functionality
 const mockAddToCart = vi.fn();
 const mockAddAllForAnimal = vi.fn();
 const mockMarkAnimalAsAdded = vi.fn();
@@ -41,7 +56,7 @@ vi.mock('@/contexts/CartContext', () => ({
     clearCart: vi.fn(),
     updateQuantity: vi.fn(),
     addAllForAnimal: mockAddAllForAnimal,
-    completePurchase: vi.fn(),
+    completePurchase: vi.fn().mockResolvedValue({ success: true }),
     isAnimalFullyAdded: () => false,
     markAnimalAsAdded: mockMarkAnimalAsAdded,
     isLoading: false,
@@ -49,23 +64,34 @@ vi.mock('@/contexts/CartContext', () => ({
   CartProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+// Mock toast notifications
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
   toast: vi.fn(),
 }));
 
+// Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
-      select: vi.fn(() => ({ eq: vi.fn(() => Promise.resolve({ data: [], error: null })) })),
+      select: vi.fn(() => ({ 
+        eq: vi.fn(() => Promise.resolve({ data: [], error: null })) 
+      })),
     })),
   },
 }));
 
-// NOW import components after all mocks
+// ============================================================================
+// IMPORTS - After all mocks are set up
+// ============================================================================
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
+
+// ============================================================================
+// TEST DATA
+// ============================================================================
 
 const mockAnimal = {
   id: '1',
@@ -86,6 +112,10 @@ const mockAnimal = {
 const mockAnimalWithBirthDate = { ...mockAnimal, birth_date: '2021-06-15' };
 const mockAnimalNoWishlist = { ...mockAnimal, wishlist: [] };
 
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
 const renderAnimalCard = (animal = mockAnimal, fromOrganizationProfile = false) => {
   return render(
     <BrowserRouter>
@@ -93,6 +123,10 @@ const renderAnimalCard = (animal = mockAnimal, fromOrganizationProfile = false) 
     </BrowserRouter>
   );
 };
+
+// ============================================================================
+// TESTS
+// ============================================================================
 
 describe('AnimalCard', () => {
   beforeEach(() => {
@@ -189,6 +223,7 @@ describe('AnimalCard', () => {
   describe('Wishlist calculations', () => {
     it('should calculate correct total wishlist cost', () => {
       renderAnimalCard();
+      // Karma: 49.99 * 2 = 99.98, Zabawka: 19.99 * 1 = 19.99, Total: 119.97
       expect(screen.getByText(/119\.97/)).toBeInTheDocument();
     });
   });

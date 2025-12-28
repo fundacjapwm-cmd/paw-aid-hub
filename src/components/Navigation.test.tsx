@@ -1,17 +1,20 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 
-// Create mock function for useAuth that can be changed per test
+// ============================================================================
+// MOCKS - Must be declared before any imports that use them
+// ============================================================================
+
 const mockSignOut = vi.fn();
-const mockUseAuth = vi.fn(() => ({
-  user: null,
-  profile: null,
+const mockNavigate = vi.fn();
+
+// Create configurable mock for useAuth
+let mockAuthState = {
+  user: null as { email: string; id: string } | null,
+  profile: null as { display_name: string; role: string; avatar_url: string | null } | null,
   signOut: mockSignOut,
   loading: false,
-}));
-
-// Mock useNavigate
-const mockNavigate = vi.fn();
+};
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -21,12 +24,10 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock AuthContext
 vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => mockUseAuth(),
+  useAuth: () => mockAuthState,
 }));
 
-// Mock CartContext to avoid AuthContext dependency
 vi.mock('@/contexts/CartContext', () => ({
   useCart: () => ({
     cart: [],
@@ -39,7 +40,6 @@ vi.mock('@/contexts/CartContext', () => ({
   }),
 }));
 
-// Mock CartDrawer and MobileMenu
 vi.mock('@/components/CartDrawer', () => ({
   default: () => <div data-testid="cart-drawer">Cart</div>,
 }));
@@ -48,10 +48,17 @@ vi.mock('@/components/MobileMenu', () => ({
   default: () => <div data-testid="mobile-menu">Menu</div>,
 }));
 
-// NOW import everything else - after all mocks are declared
+// ============================================================================
+// IMPORTS - After all mocks are set up
+// ============================================================================
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Navigation from './Navigation';
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
 
 const renderNavigation = (route = '/') => {
   return render(
@@ -61,15 +68,25 @@ const renderNavigation = (route = '/') => {
   );
 };
 
+// Helper to set auth state before each test
+const setAuthState = (state: Partial<typeof mockAuthState>) => {
+  mockAuthState = { ...mockAuthState, ...state };
+};
+
+// ============================================================================
+// TESTS
+// ============================================================================
+
 describe('Navigation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseAuth.mockReturnValue({
+    // Reset to default unauthenticated state
+    mockAuthState = {
       user: null,
       profile: null,
       signOut: mockSignOut,
       loading: false,
-    });
+    };
   });
 
   describe('Logo', () => {
@@ -143,11 +160,9 @@ describe('Navigation', () => {
 
   describe('Authenticated User', () => {
     beforeEach(() => {
-      mockUseAuth.mockReturnValue({
+      setAuthState({
         user: { email: 'test@example.com', id: '123' },
         profile: { display_name: 'Jan Kowalski', role: 'USER', avatar_url: null },
-        signOut: mockSignOut,
-        loading: false,
       });
     });
 
@@ -165,11 +180,9 @@ describe('Navigation', () => {
 
   describe('ORG User', () => {
     beforeEach(() => {
-      mockUseAuth.mockReturnValue({
+      setAuthState({
         user: { email: 'org@example.com', id: '456' },
         profile: { display_name: 'Organizacja', role: 'ORG', avatar_url: null },
-        signOut: mockSignOut,
-        loading: false,
       });
     });
 
@@ -182,11 +195,9 @@ describe('Navigation', () => {
 
   describe('Admin User', () => {
     beforeEach(() => {
-      mockUseAuth.mockReturnValue({
+      setAuthState({
         user: { email: 'admin@example.com', id: '789' },
         profile: { display_name: 'Admin', role: 'ADMIN', avatar_url: null },
-        signOut: mockSignOut,
-        loading: false,
       });
     });
 
@@ -198,13 +209,11 @@ describe('Navigation', () => {
   });
 
   describe('Loading State', () => {
+    beforeEach(() => {
+      setAuthState({ loading: true });
+    });
+
     it('should show loading placeholder when auth is loading', () => {
-      mockUseAuth.mockReturnValue({
-        user: null,
-        profile: null,
-        signOut: mockSignOut,
-        loading: true,
-      });
       renderNavigation();
       const loadingElement = document.querySelector('.animate-pulse');
       expect(loadingElement).toBeInTheDocument();
