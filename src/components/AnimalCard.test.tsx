@@ -1,25 +1,8 @@
-import { vi, describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 
-// ============================================================================
-// JSDOM POLYFILLS - Must be at the very top before any component imports
-// ============================================================================
-
-// Mock scrollIntoView and pointer capture - not implemented in JSDOM
-window.HTMLElement.prototype.scrollIntoView = vi.fn();
-window.HTMLElement.prototype.hasPointerCapture = vi.fn(() => false);
-window.HTMLElement.prototype.releasePointerCapture = vi.fn();
-window.HTMLElement.prototype.setPointerCapture = vi.fn();
-Element.prototype.hasPointerCapture = vi.fn(() => false);
-Element.prototype.setPointerCapture = vi.fn();
-Element.prototype.releasePointerCapture = vi.fn();
-
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+// Note: JSDOM polyfills (ResizeObserver, scrollIntoView, PointerCapture) 
+// are configured globally in src/test/setup.ts
 
 // ============================================================================
 // MOCKS - Must be declared before any imports that use them

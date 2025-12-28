@@ -2,7 +2,11 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import React from 'react';
 
-// Mock ResizeObserver (required for components using size observers)
+// ============================================================================
+// JSDOM POLYFILLS FOR RADIX UI / SHADCN COMPONENTS
+// ============================================================================
+
+// 1. Mock ResizeObserver (required by cmdk/Radix)
 class ResizeObserverMock {
   observe = vi.fn();
   unobserve = vi.fn();
@@ -10,8 +14,32 @@ class ResizeObserverMock {
 }
 global.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 
-// Mock scrollIntoView (not available in jsdom)
+// 2. Mock scrollIntoView (not available in jsdom)
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
 Element.prototype.scrollIntoView = vi.fn();
+
+// 3. Mock Pointer Capture API (required by Radix Select/Popover)
+window.HTMLElement.prototype.hasPointerCapture = vi.fn(() => false);
+window.HTMLElement.prototype.setPointerCapture = vi.fn();
+window.HTMLElement.prototype.releasePointerCapture = vi.fn();
+Element.prototype.hasPointerCapture = vi.fn(() => false);
+Element.prototype.setPointerCapture = vi.fn();
+Element.prototype.releasePointerCapture = vi.fn();
+
+// 4. Mock getComputedStyle for animations
+const originalGetComputedStyle = window.getComputedStyle;
+window.getComputedStyle = (element: Element) => {
+  const style = originalGetComputedStyle(element);
+  return {
+    ...style,
+    getPropertyValue: (prop: string) => {
+      if (prop === 'animation-duration' || prop === 'transition-duration') {
+        return '0s';
+      }
+      return style.getPropertyValue(prop);
+    },
+  } as CSSStyleDeclaration;
+};
 
 // Mock matchMedia (required for responsive components)
 Object.defineProperty(window, 'matchMedia', {
