@@ -88,19 +88,22 @@ export default function DashboardAnimalCard({
             {/* Wishlist Progress */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-[10px] sm:text-xs">
-                <span className="text-muted-foreground flex items-center gap-1">
+                <span className="text-muted-foreground flex items-center gap-1.5">
                   {isComplete ? (
                     <CheckCircle className="h-3 w-3 text-green-500" />
                   ) : (
                     <ShoppingCart className="h-3 w-3" />
                   )}
-                  <span className="hidden sm:inline">Lista potrzeb</span>
-                </span>
-                <span className="font-medium">
-                  {fulfilled}/{totalNeeded} ({Math.round(progress)}%)
+                  <span>Lista potrzeb</span>
+                  <span className="font-medium text-foreground">
+                    {fulfilled}/{totalNeeded} ({Math.round(progress)}%)
+                  </span>
                 </span>
               </div>
-              <Progress value={progress} className="h-1.5 sm:h-2" />
+              <Progress 
+                value={totalNeeded === 0 ? 0 : progress} 
+                className={`h-1.5 sm:h-2 ${totalNeeded === 0 ? '[&>div]:bg-muted-foreground/30' : ''}`}
+              />
             </div>
           </div>
         </div>
