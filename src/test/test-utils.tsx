@@ -24,13 +24,29 @@ export const defaultMockAuthValue = {
   isUser: false,
 };
 
+// Mutable auth value for tests that need to change auth state
+let currentMockAuthValue = { ...defaultMockAuthValue };
+
+// Function to set mock auth value (for tests that need to change auth state per-test)
+export const setMockAuthValue = (value: typeof defaultMockAuthValue) => {
+  currentMockAuthValue = value;
+};
+
+// Function to get current mock auth value
+export const getMockAuthValue = () => currentMockAuthValue;
+
+// Reset to default
+export const resetMockAuthValue = () => {
+  currentMockAuthValue = { ...defaultMockAuthValue };
+};
+
 // Mock for logged-in user
 export const loggedInMockAuthValue = {
   user: { id: 'test-user', email: 'test@example.com' },
   session: { access_token: 'test-token', refresh_token: 'test-refresh' },
   profile: { 
     id: 'test-user', 
-    display_name: 'Test User', 
+    display_name: 'User Test', 
     role: 'USER' as const, 
     avatar_url: null,
     must_change_password: false,
@@ -50,8 +66,11 @@ export const loggedInMockAuthValue = {
 // Mock for admin user
 export const adminMockAuthValue = {
   ...loggedInMockAuthValue,
+  user: { id: 'admin-user', email: 'admin@example.com' },
   profile: { 
-    ...loggedInMockAuthValue.profile, 
+    ...loggedInMockAuthValue.profile,
+    id: 'admin-user',
+    display_name: 'Admin User', 
     role: 'ADMIN' as const 
   },
   isAdmin: true,
@@ -61,8 +80,11 @@ export const adminMockAuthValue = {
 // Mock for org user
 export const orgMockAuthValue = {
   ...loggedInMockAuthValue,
+  user: { id: 'org-user', email: 'org@example.com' },
   profile: { 
-    ...loggedInMockAuthValue.profile, 
+    ...loggedInMockAuthValue.profile,
+    id: 'org-user',
+    display_name: 'Org User', 
     role: 'ORG' as const 
   },
   isOrg: true,
@@ -154,6 +176,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   authValue?: typeof defaultMockAuthValue;
   cartValue?: typeof defaultMockCartValue;
   initialEntries?: string[];
+  route?: string; // Shorthand for single route
 }
 
 /**
@@ -171,23 +194,32 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
  *   cartValue: { ...defaultMockCartValue, cartCount: 5 } 
  * });
  * 
- * // With specific route
- * renderWithProviders(<MyComponent />, { initialEntries: ['/zwierzeta'] });
+ * // With specific route (shorthand)
+ * renderWithProviders(<MyComponent />, { route: '/zwierzeta' });
+ * 
+ * // With specific routes (array)
+ * renderWithProviders(<MyComponent />, { initialEntries: ['/zwierzeta', '/'] });
  */
 export function renderWithProviders(
   ui: ReactElement,
   {
-    authValue = defaultMockAuthValue,
+    authValue,
     cartValue = defaultMockCartValue,
-    initialEntries = ['/'],
+    initialEntries,
+    route,
     ...renderOptions
   }: CustomRenderOptions = {}
 ) {
+  // Use route shorthand if provided, otherwise use initialEntries or default to ['/']
+  const entries = route ? [route] : (initialEntries ?? ['/']);
+  // Use current mock auth value if not explicitly provided
+  const authVal = authValue ?? getMockAuthValue();
+  
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <AllTheProviders 
-      authValue={authValue} 
+      authValue={authVal} 
       cartValue={cartValue}
-      initialEntries={initialEntries}
+      initialEntries={entries}
     >
       {children}
     </AllTheProviders>
