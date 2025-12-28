@@ -8,7 +8,6 @@ import React, { ReactElement, ReactNode } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
-import { TooltipProvider } from '@/components/ui/tooltip';
 
 // Default mock values for AuthContext
 export const defaultMockAuthValue = {
@@ -164,13 +163,11 @@ const AllTheProviders = ({
 }: AllTheProvidersProps) => {
   return (
     <MemoryRouter initialEntries={initialEntries}>
-      <TooltipProvider>
-        <MockAuthProvider value={authValue}>
-          <MockCartProvider value={cartValue}>
-            {children}
-          </MockCartProvider>
-        </MockAuthProvider>
-      </TooltipProvider>
+      <MockAuthProvider value={authValue}>
+        <MockCartProvider value={cartValue}>
+          {children}
+        </MockCartProvider>
+      </MockAuthProvider>
     </MemoryRouter>
   );
 };
