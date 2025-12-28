@@ -15,7 +15,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock AuthContext - provides auth state to components
+// Mock AuthContext
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: { id: 'test-user', email: 'test@example.com' },
@@ -39,7 +39,7 @@ vi.mock('@/contexts/AuthContext', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// Mock CartContext - provides cart functionality
+// Mock CartContext
 const mockAddToCart = vi.fn();
 const mockAddAllForAnimal = vi.fn();
 const mockMarkAnimalAsAdded = vi.fn();
@@ -66,13 +66,13 @@ vi.mock('@/contexts/CartContext', () => ({
   CartProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// Mock toast notifications
+// Mock toast
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
   toast: vi.fn(),
 }));
 
-// Mock Supabase client
+// Mock Supabase
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
@@ -84,7 +84,7 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 // ============================================================================
-// IMPORTS - After all mocks are set up
+// IMPORTS - After all mocks
 // ============================================================================
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -218,6 +218,7 @@ describe('AnimalCard', () => {
       renderAnimalCard();
       const buyAllButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
       expect(buyAllButton).toBeInTheDocument();
+      // 49.99 * 2 + 19.99 * 1 = 119.97
       expect(buyAllButton).toHaveTextContent('119.97');
     });
   });
@@ -233,15 +234,17 @@ describe('AnimalCard', () => {
       const animalWithPartiallyBought = {
         ...mockAnimal,
         wishlist: [
-          { id: '101', name: 'Karma dla psa', price: 50, quantity: 1, product_id: 'prod-101', bought: true },
-          { id: '102', name: 'Zabawka', price: 20, quantity: 1, product_id: 'prod-102', bought: false },
+          { id: '101', name: 'Karma dla psa', price: 50.00, quantity: 1, product_id: 'prod-101', bought: true },
+          { id: '102', name: 'Zabawka', price: 20.00, quantity: 1, product_id: 'prod-102', bought: false },
         ],
       };
       renderAnimalCard(animalWithPartiallyBought);
       
       // Only Zabawka should be counted: 20.00 zł
-      const buyButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
-      expect(buyButton).toHaveTextContent('20.00');
+      await waitFor(() => {
+        const buyButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
+        expect(buyButton).toHaveTextContent('20.00');
+      });
     });
   });
 
@@ -283,7 +286,7 @@ describe('AnimalCard - Edge cases', () => {
     expect(screen.getByText('Produkt z product_id')).toBeInTheDocument();
   });
 
-  it('should handle bought items in wishlist', async () => {
+  it('should handle mixed bought and available items in wishlist', async () => {
     const animalWithBoughtItems = {
       ...mockAnimal,
       wishlist: [
@@ -299,7 +302,7 @@ describe('AnimalCard - Edge cases', () => {
     });
   });
 
-  it('should show "Wszystko kupione!" when all items are bought', async () => {
+  it('should show "Wszystko kupione!" when all wishlist items are bought', async () => {
     const animalAllBought = {
       ...mockAnimal,
       wishlist: [
@@ -327,6 +330,28 @@ describe('AnimalCard - Edge cases', () => {
     await waitFor(() => {
       const buyButton = screen.getByRole('button', { name: /Wszystko kupione/i });
       expect(buyButton).toBeDisabled();
+    });
+  });
+
+  it('should not show wishlist section when wishlist is empty array', () => {
+    const animalEmptyWishlist = { ...mockAnimal, wishlist: [] };
+    renderAnimalCard(animalEmptyWishlist);
+    expect(screen.queryByText('Lista życzeń:')).not.toBeInTheDocument();
+  });
+
+  it('should handle wishlist with single item correctly', async () => {
+    const animalSingleItem = {
+      ...mockAnimal,
+      wishlist: [
+        { id: '501', name: 'Jedyny produkt', price: 55.00, quantity: 1, product_id: 'prod-501', bought: false },
+      ],
+    };
+    renderAnimalCard(animalSingleItem);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Jedyny produkt')).toBeInTheDocument();
+      const buyButton = screen.getByRole('button', { name: /Dodaj wszystko/i });
+      expect(buyButton).toHaveTextContent('55.00');
     });
   });
 });
