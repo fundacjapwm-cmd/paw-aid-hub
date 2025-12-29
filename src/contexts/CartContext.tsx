@@ -67,6 +67,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
   // Load cart from database for logged-in users
+  // Database is the source of truth - local storage is only for guests
   const loadCartFromDatabase = useCallback(async () => {
     if (!user) return;
     
@@ -80,6 +81,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       if (data && data.length > 0) {
+        // Database is the source of truth for logged-in users
         const dbCart: CartItem[] = data.map(item => ({
           productId: item.product_id,
           productName: item.product_name,
@@ -90,24 +92,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           animalName: item.animal_name || undefined,
         }));
 
-        // Merge local cart with database cart
-        const localCart = loadCartFromStorage();
-        const mergedCart = mergeCartsPreferDatabase(localCart, dbCart);
-        
-        setCart(mergedCart);
-        saveCartToStorage(mergedCart);
-        
-        // Sync merged cart back to database if there were local items
-        if (localCart.length > 0 && localCart.some(item => !dbCart.find(dbItem => 
-          dbItem.productId === item.productId && dbItem.animalId === item.animalId
-        ))) {
-          await syncCartToDatabase(mergedCart, user.id);
-        }
+        setCart(dbCart);
+        saveCartToStorage(dbCart);
       } else {
-        // No database cart, sync local cart to database
+        // No database cart - check if there's a local cart to sync (first login scenario)
         const localCart = loadCartFromStorage();
         if (localCart.length > 0) {
+          // Sync local cart to database, then use it
           await syncCartToDatabase(localCart, user.id);
+          setCart(localCart);
+        } else {
+          // Empty cart - make sure state reflects that
+          setCart([]);
+          saveCartToStorage([]);
         }
       }
     } catch (error) {
@@ -117,23 +114,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  // Merge two carts, preferring database quantities but including new local items
-  const mergeCartsPreferDatabase = (localCart: CartItem[], dbCart: CartItem[]): CartItem[] => {
-    const merged = [...dbCart];
-    
-    for (const localItem of localCart) {
-      const existsInDb = dbCart.find(dbItem => 
-        dbItem.productId === localItem.productId && 
-        dbItem.animalId === localItem.animalId
-      );
-      
-      if (!existsInDb) {
-        merged.push(localItem);
-      }
-    }
-    
-    return merged;
-  };
+  // Removed mergeCartsPreferDatabase - database is now source of truth
 
   // Sync cart to database
   const syncCartToDatabase = async (cartItems: CartItem[], userId: string) => {
