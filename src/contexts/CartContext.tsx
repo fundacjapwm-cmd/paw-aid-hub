@@ -192,11 +192,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     saveCartToStorage(cart);
     
-    // Sync to database for logged-in users
-    if (user && !isLoading) {
+    // Sync to database for logged-in users (but skip if we just cleared the cart)
+    // Only sync if cart has items OR if we're not in the middle of a sync
+    if (user && !isLoading && !isSyncing) {
       syncCartToDatabase(cart, user.id);
     }
-  }, [cart, user, isLoading]);
+  }, [cart, user, isLoading, isSyncing]);
 
   const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1, silent: boolean = false) => {
     setCart((prevCart) => {
@@ -433,20 +434,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearCart = async () => {
-    setCart([]);
-    saveCartToStorage([]); // Explicitly clear localStorage
-    
-    // Clear database cart for logged-in users
+    // Clear database FIRST for logged-in users (before state change triggers sync)
     if (user) {
       try {
-        await supabase
+        const { error } = await supabase
           .from('user_carts')
           .delete()
           .eq('user_id', user.id);
+        
+        if (error) {
+          console.error('Error clearing cart from database:', error);
+        } else {
+          console.log('Cart cleared from database for user:', user.id);
+        }
       } catch (error) {
         console.error('Error clearing cart from database:', error);
       }
     }
+    
+    // Then clear local state and storage
+    setCart([]);
+    saveCartToStorage([]);
     
     toast({
       title: "Koszyk wyczyszczony",
