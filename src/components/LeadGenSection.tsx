@@ -63,19 +63,17 @@ const LeadGenSection = () => {
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
     try {
-      // Bezpośredni zapis do bazy (bez Edge Function)
-      const { error } = await supabase
-        .from('organization_leads')
-        .insert([
-          {
-            organization_name: data.organizationName,
-            nip: data.nip || '',
-            email: data.email,
-            phone: '', // Pole telefon już nie jest zbierane
-            accepted_terms: data.acceptedTerms,
-            marketing_consent: data.marketingConsent || false
-          }
-        ]);
+      // Call edge function which saves to DB AND sends email notification
+      const { data: responseData, error } = await supabase.functions.invoke('send-lead-email', {
+        body: {
+          organizationName: data.organizationName,
+          nip: data.nip || '',
+          email: data.email,
+          phone: '',
+          acceptedTerms: data.acceptedTerms,
+          marketingConsent: data.marketingConsent || false
+        }
+      });
 
       if (error) throw error;
 
