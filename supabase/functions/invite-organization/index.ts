@@ -280,25 +280,39 @@ const handler = async (req: Request): Promise<Response> => {
     
     const emailHtml = generateWelcomeEmail(organizationName, email, tempPassword, loginUrl);
     
-    const { data: emailData, error: emailError } = await resend.emails.send({
-      from: "Paczki w Maśle <onboarding@resend.dev>",
-      to: [email],
-      subject: `🎉 Twoje konto zostało aktywowane, ${organizationName}!`,
-      html: emailHtml,
-    });
+    let emailSent = false;
+    let emailWarning = null;
+    
+    try {
+      const { data: emailData, error: emailError } = await resend.emails.send({
+        from: "Paczki w Maśle <onboarding@resend.dev>",
+        to: [email],
+        subject: `🎉 Twoje konto zostało aktywowane, ${organizationName}!`,
+        html: emailHtml,
+      });
 
-    if (emailError) {
-      console.error("Error sending email via Resend:", emailError);
-      throw emailError;
+      if (emailError) {
+        console.error("Error sending email via Resend (non-fatal):", emailError);
+        emailWarning = `Email nie został wysłany: ${emailError.message}. Zweryfikuj domenę w Resend.`;
+      } else {
+        console.log("Welcome email sent successfully:", emailData);
+        emailSent = true;
+      }
+    } catch (emailErr: any) {
+      console.error("Email sending failed (non-fatal):", emailErr);
+      emailWarning = `Email nie został wysłany. Zweryfikuj domenę w Resend.`;
     }
-
-    console.log("Welcome email sent successfully:", emailData);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         user_id: userId,
-        message: 'Konto utworzone. Wysłano e-mail z danymi logowania.'
+        email_sent: emailSent,
+        temp_password: emailSent ? null : tempPassword, // Return password if email failed
+        warning: emailWarning,
+        message: emailSent 
+          ? 'Konto utworzone. Wysłano e-mail z danymi logowania.'
+          : `Konto utworzone. Email nie został wysłany - hasło tymczasowe: ${tempPassword}`
       }),
       {
         status: 200,
