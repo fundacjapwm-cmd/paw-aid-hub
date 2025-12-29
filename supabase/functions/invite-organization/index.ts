@@ -20,22 +20,32 @@ interface InviteRequest {
   organizationId: string;
 }
 
-const generateWelcomeEmail = (organizationName: string, resetLink: string) => `
+// Generate a random password (12 characters, mix of letters and numbers)
+const generateTempPassword = (): string => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let password = '';
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
+const generateWelcomeEmail = (organizationName: string, email: string, tempPassword: string, loginUrl: string) => `
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Witamy w Paczki w Maśle!</title>
+  <title>Twoje konto zostało aktywowane!</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
     <!-- Header -->
     <tr>
-      <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); border-radius: 0 0 30px 30px;">
+      <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); border-radius: 0 0 30px 30px;">
         <img src="https://paczkiwmasle.lovable.app/logo.svg" alt="Paczki w Maśle" width="180" style="display: block; margin: 0 auto 20px;" />
         <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          🎉 Witamy w rodzinie!
+          🎉 Twoje zgłoszenie zostało zaakceptowane!
         </h1>
       </td>
     </tr>
@@ -48,18 +58,35 @@ const generateWelcomeEmail = (organizationName: string, resetLink: string) => `
         </p>
         
         <p style="font-size: 16px; color: #475569; margin: 0 0 25px; line-height: 1.7;">
-          Twoje zgłoszenie zostało <strong style="color: #16a34a;">zatwierdzone</strong>! Jesteśmy niesamowicie szczęśliwi, że dołączasz do naszej platformy. Razem pomożemy jeszcze większej liczbie zwierzaków znaleźć kochające domy.
+          Świetna wiadomość! Twoje zgłoszenie zostało <strong style="color: #16a34a;">zatwierdzone</strong>! 
+          Jesteśmy niesamowicie szczęśliwi, że dołączasz do naszej platformy. 
+          Razem pomożemy jeszcze większej liczbie zwierzaków!
         </p>
         
         <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; padding: 25px; margin: 30px 0;">
           <h2 style="color: #92400e; font-size: 16px; font-weight: 600; margin: 0 0 15px; text-transform: uppercase; letter-spacing: 0.5px;">
-            🔐 Ostatni krok
+            🔐 Twoje dane logowania
           </h2>
-          <p style="font-size: 15px; color: #78350f; margin: 0 0 20px; line-height: 1.6;">
-            Aby aktywować swoje konto, ustaw hasło klikając poniższy przycisk:
+          
+          <table style="width: 100%; margin-bottom: 20px;">
+            <tr>
+              <td style="padding: 8px 0; color: #78350f; font-size: 14px;">Email:</td>
+              <td style="padding: 8px 0; color: #1e293b; font-weight: 600; font-size: 14px;">${email}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #78350f; font-size: 14px;">Hasło tymczasowe:</td>
+              <td style="padding: 8px 0;">
+                <code style="background: #ffffff; padding: 6px 12px; border-radius: 6px; font-size: 16px; font-weight: 700; color: #1e293b; border: 2px dashed #f97316;">${tempPassword}</code>
+              </td>
+            </tr>
+          </table>
+          
+          <p style="font-size: 14px; color: #92400e; margin: 0 0 15px; line-height: 1.6;">
+            ⚠️ <strong>Ważne:</strong> Po pierwszym zalogowaniu zostaniesz poproszony o zmianę hasła na własne.
           </p>
-          <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);">
-            Ustaw hasło i zaloguj się →
+          
+          <a href="${loginUrl}" style="display: inline-block; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);">
+            Zaloguj się do panelu →
           </a>
         </div>
         
@@ -141,6 +168,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating user account for:", email);
 
+    // Generate temporary password
+    const tempPassword = generateTempPassword();
+    console.log("Generated temporary password for:", email);
+
     // Check if user already exists
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
     const existingUser = existingUsers?.users.find(u => u.email === email);
@@ -148,12 +179,13 @@ const handler = async (req: Request): Promise<Response> => {
     let userId: string;
 
     if (existingUser) {
-      console.log("User already exists, updating metadata:", existingUser.id);
+      console.log("User already exists, updating:", existingUser.id);
       
-      // Update existing user's metadata
+      // Update existing user with new password
       const { data: updateData, error: updateError } = await supabase.auth.admin.updateUserById(
         existingUser.id,
         {
+          password: tempPassword,
           user_metadata: {
             organization_id: organizationId,
             organization_name: organizationName
@@ -167,11 +199,11 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       userId = existingUser.id;
-      console.log("User updated successfully:", userId);
     } else {
-      // Create new user WITHOUT password (will be set via recovery link)
+      // Create new user WITH temporary password
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
+        password: tempPassword,
         email_confirm: true,
         user_metadata: {
           organization_id: organizationId,
@@ -188,7 +220,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("User created successfully:", userId);
     }
 
-    // Update profile (created automatically by trigger) with organization details
+    // Update profile with organization details and force password change
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
@@ -202,8 +234,9 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Error updating profile:", profileError);
       throw profileError;
     }
+    console.log("Profile updated with must_change_password: true");
 
-    // Add user_roles entry (this is what the system actually checks for permissions)
+    // Add user_roles entry
     const { error: userRoleError } = await supabase
       .from('user_roles')
       .upsert({
@@ -215,7 +248,6 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Error creating user_roles record:", userRoleError);
       throw userRoleError;
     }
-    console.log("User role 'ORG' added successfully");
 
     // Check if organization_users record already exists
     const { data: existingOrgUser } = await supabase
@@ -226,7 +258,6 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (!existingOrgUser) {
-      // Create organization_users record only if it doesn't exist
       const { error: orgUserError } = await supabase
         .from('organization_users')
         .insert({
@@ -239,39 +270,20 @@ const handler = async (req: Request): Promise<Response> => {
         console.error("Error creating organization_users record:", orgUserError);
         throw orgUserError;
       }
-    } else {
-      console.log("Organization user record already exists");
     }
 
-    // Generate password reset link
+    // Send welcome email with credentials
     const origin = req.headers.get("origin") || "https://paczkiwmasle.lovable.app";
-    console.log("Generating password reset link for:", email);
+    const loginUrl = `${origin}/auth`;
     
-    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-      type: 'recovery',
-      email: email,
-      options: {
-        redirectTo: `${origin}/set-password`,
-      }
-    });
-
-    if (linkError) {
-      console.error("Error generating reset link:", linkError);
-      throw linkError;
-    }
-
-    const resetLink = linkData.properties.action_link;
-    console.log("Reset link generated successfully");
-
-    // Send custom welcome email via Resend
-    console.log("Sending custom welcome email to:", email);
+    console.log("Sending welcome email with credentials to:", email);
     
-    const emailHtml = generateWelcomeEmail(organizationName, resetLink);
+    const emailHtml = generateWelcomeEmail(organizationName, email, tempPassword, loginUrl);
     
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: "Paczki w Maśle <noreply@paczkiwmasle.pl>",
+      from: "Paczki w Maśle <onboarding@resend.dev>",
       to: [email],
-      subject: `🎉 Witaj w Paczki w Maśle, ${organizationName}!`,
+      subject: `🎉 Twoje konto zostało aktywowane, ${organizationName}!`,
       html: emailHtml,
     });
 
@@ -285,7 +297,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Konto utworzone. Wysłano e-mail powitalny z linkiem do ustawienia hasła."
+        user_id: userId,
+        message: 'Konto utworzone. Wysłano e-mail z danymi logowania.'
       }),
       {
         status: 200,
