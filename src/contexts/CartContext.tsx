@@ -432,8 +432,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCart([]);
+    saveCartToStorage([]); // Explicitly clear localStorage
+    
+    // Clear database cart for logged-in users
+    if (user) {
+      try {
+        await supabase
+          .from('user_carts')
+          .delete()
+          .eq('user_id', user.id);
+      } catch (error) {
+        console.error('Error clearing cart from database:', error);
+      }
+    }
+    
     toast({
       title: "Koszyk wyczyszczony",
       description: "Wszystkie produkty zostały usunięte",
