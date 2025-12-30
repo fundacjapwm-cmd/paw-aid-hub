@@ -30,8 +30,19 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="border-t border-border/50 mt-8 pt-8 text-center text-muted-foreground">
+        <div className="border-t border-border/50 mt-8 pt-8 text-center text-muted-foreground space-y-2">
           <p>&copy; 2024 Pączki w Maśle. Wszystkie prawa zastrzeżone.</p>
+          <p className="text-sm">
+            Stworzone przez{" "}
+            <a 
+              href="https://magdalenaminor.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Magdalenę Minor
+            </a>
+          </p>
         </div>
       </div>
     </footer>
