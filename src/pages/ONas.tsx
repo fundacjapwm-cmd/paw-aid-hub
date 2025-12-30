@@ -6,10 +6,8 @@ import Footer from "@/components/Footer";
 // Mascots
 import greyCatSitting from "@/assets/mascots/grey-cat-sitting.png";
 import orangeCatLying from "@/assets/mascots/orange-cat-lying.png";
-import goldenDogSitting from "@/assets/mascots/golden-dog-sitting.png";
 import brownDogLying from "@/assets/mascots/brown-dog-lying.png";
-import whiteCatSitting from "@/assets/mascots/white-cat-sitting.png";
-import greyDogTall from "@/assets/mascots/grey-dog-tall.png";
+import groupMascotsHero from "@/assets/mascots/group-mascots-hero.png";
 
 const ONas = () => {
   return (
@@ -47,25 +45,12 @@ const ONas = () => {
                 </div>
               </div>
 
-              {/* Mascots Group */}
-              <div className="relative h-[400px] lg:h-[500px]">
-                {/* Grey dog in back */}
+              {/* Group mascots illustration */}
+              <div className="relative flex items-end justify-center h-[350px] lg:h-[450px]">
                 <img 
-                  src={greyDogTall} 
-                  alt="" 
-                  className="absolute left-4 lg:left-0 bottom-0 h-[80%] object-contain z-10"
-                />
-                {/* Golden dog */}
-                <img 
-                  src={goldenDogSitting} 
-                  alt="" 
-                  className="absolute right-4 lg:right-8 bottom-0 h-[70%] object-contain z-20"
-                />
-                {/* White cat in front */}
-                <img 
-                  src={whiteCatSitting} 
-                  alt="" 
-                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[50%] object-contain z-30"
+                  src={groupMascotsHero} 
+                  alt="Grupa przyjaznych psów i kotów" 
+                  className="max-h-full w-auto object-contain"
                 />
               </div>
             </div>
