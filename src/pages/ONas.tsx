@@ -1,5 +1,6 @@
-import { Heart, Users, Shield } from "lucide-react";
-import { Logo } from "@/components/Logo";
+import { Heart, Users, Shield, Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 import kittenTrain from "@/assets/about/kitten-train.png";
 import kittensBasket from "@/assets/about/kittens-basket.jpg";
@@ -9,128 +10,169 @@ const ONas = () => {
   return (
     <div className="min-h-screen bg-background">
       <main>
-        {/* Hero Section with Large Logo */}
-        <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
-          <div className="md:container md:mx-auto md:px-8 px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="mb-12 flex justify-center">
-                <div className="bg-white rounded-3xl p-12 md:p-16 shadow-xl">
-                  <Logo className="h-32 md:h-48 w-auto" />
-                </div>
+        {/* Hero Section - Full Width Image with Overlay */}
+        <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+            <img 
+              src={kittenTrain} 
+              alt="Ludzie głaszczący kociaka" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background" />
+          </div>
+          
+          <div className="relative z-10 text-center px-4 max-w-4xl mx-auto animate-fade-in">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2 mb-6">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm text-white/90 font-medium">Z miłości do zwierząt</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+              Pączki w Maśle
+            </h1>
+            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
+              Dla tych, którzy najbardziej tego potrzebują
+            </p>
+          </div>
+        </section>
+
+        {/* Stats Bar */}
+        <section className="relative z-20 -mt-16 px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 grid grid-cols-3 gap-4 md:gap-8">
+              <div className="text-center">
+                <p className="text-3xl md:text-4xl font-bold text-primary">50+</p>
+                <p className="text-xs md:text-sm text-muted-foreground mt-1">Organizacji partnerskich</p>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-                Pączki w Maśle
-              </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground">
-                Z miłości do zwierząt, dla tych którzy najbardziej tego potrzebują
-              </p>
+              <div className="text-center border-x border-border/50">
+                <p className="text-3xl md:text-4xl font-bold text-secondary">1000+</p>
+                <p className="text-xs md:text-sm text-muted-foreground mt-1">Uratowanych zwierząt</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl md:text-4xl font-bold text-accent">100%</p>
+                <p className="text-xs md:text-sm text-muted-foreground mt-1">Zaangażowania</p>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* O Nas Section */}
-        <section className="py-20">
-          <div className="md:container md:mx-auto md:max-w-7xl md:px-8 px-4">
-            <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-16">
-              O nas
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-              <div className="order-2 md:order-1">
-                <div className="prose prose-lg max-w-none">
-                  <p className="text-foreground leading-relaxed text-lg mb-6">
-                    Fundacja Pączki w Maśle powstała z miłości do zwierząt i potrzeby działania tam, gdzie jest to najbardziej potrzebne. Współpracujemy z siecią schronisk i organizacji na terenie całej Polski, prowadząc akcje ratujące bezdomne koty i psy, organizując zbiórki karmy oraz wspierając lokalne organizacje.
-                  </p>
-                  <p className="text-foreground leading-relaxed text-lg mb-6">
-                    Nasza siła to wieloletnie doświadczenie, pasja do zwierząt oraz ludzie, którzy z sercem dbają o zwierzęta w potrzebie. Wierzymy, że każde zwierzę zasługuje na ciepły dom, pełną miskę i ludzką troskę.
-                  </p>
-                  <p className="text-foreground leading-relaxed text-lg font-semibold text-primary">
-                    Dołącz do nas! Razem możemy więcej!
-                  </p>
-                </div>
+        {/* About Content - Bento Grid Style */}
+        <section className="py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {/* Main Text Card - Spans 2 columns */}
+              <div className="lg:col-span-2 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-8 md:p-10">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+                  Kim jesteśmy?
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Fundacja Pączki w Maśle powstała z miłości do zwierząt i potrzeby działania tam, 
+                  gdzie jest to najbardziej potrzebne. Współpracujemy z siecią schronisk i organizacji 
+                  na terenie całej Polski.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Nasza siła to wieloletnie doświadczenie, pasja do zwierząt oraz ludzie, 
+                  którzy z sercem dbają o zwierzęta w potrzebie.
+                </p>
               </div>
-              <div className="order-1 md:order-2">
-                <img 
-                  src={kittenTrain} 
-                  alt="Ludzie głaszczący kociaka" 
-                  className="rounded-3xl shadow-2xl w-full h-auto object-cover"
-                />
-              </div>
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
+              {/* Image Card */}
+              <div className="relative rounded-3xl overflow-hidden min-h-[250px] group">
                 <img 
                   src={kittensBasket} 
                   alt="Kocięta w koszyku" 
-                  className="rounded-3xl shadow-2xl w-full h-auto object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="text-white font-medium text-sm">Każde zwierzę zasługuje na dom</p>
+                </div>
               </div>
-              <div>
+
+              {/* Value Cards */}
+              <div className="bg-primary/10 rounded-3xl p-6 flex flex-col">
+                <div className="bg-primary rounded-2xl p-3 w-fit mb-4">
+                  <Heart className="h-6 w-6 text-white fill-white" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Miłość</h3>
+                <p className="text-sm text-muted-foreground flex-1">
+                  Każde zwierzę zasługuje na bezwarunkową miłość i troskę
+                </p>
+              </div>
+
+              <div className="bg-secondary/10 rounded-3xl p-6 flex flex-col">
+                <div className="bg-secondary rounded-2xl p-3 w-fit mb-4">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Współpraca</h3>
+                <p className="text-sm text-muted-foreground flex-1">
+                  Razem możemy więcej - łączymy siły z organizacjami
+                </p>
+              </div>
+
+              <div className="bg-accent/10 rounded-3xl p-6 flex flex-col">
+                <div className="bg-accent rounded-2xl p-3 w-fit mb-4">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Opieka</h3>
+                <p className="text-sm text-muted-foreground flex-1">
+                  Zapewniamy profesjonalną opiekę i najwyższe standardy
+                </p>
+              </div>
+
+              {/* Image Card 2 */}
+              <div className="relative rounded-3xl overflow-hidden min-h-[250px] group">
                 <img 
                   src={womanDog} 
                   alt="Kobieta przytulająca psa" 
-                  className="rounded-3xl shadow-2xl w-full h-auto object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="text-white font-medium text-sm">Miłość zmienia życie</p>
+                </div>
+              </div>
+
+              {/* Mission Card - Spans 2 columns */}
+              <div className="lg:col-span-2 bg-foreground rounded-3xl p-8 md:p-10 text-white">
+                <h2 className="text-2xl md:text-3xl font-bold mb-6">
+                  Nasza misja
+                </h2>
+                <p className="text-white/80 leading-relaxed mb-4">
+                  Wszystko zaczęło się od jednego telefonu. Bezdomność zwierzęca to problem, 
+                  który dotyka tysięcy zwierząt każdego roku. Naszym celem jest walka z tym 
+                  zjawiskiem poprzez konkretne działania.
+                </p>
+                <p className="text-white/80 leading-relaxed">
+                  Naszą misją jest nieustanna pomoc wszystkim bezbronnym zwierzętom. 
+                  Pomagamy bezdomnym czworonogom odzyskać zdrowie, siły i zaufanie do ludzi.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Nasza Misja Section */}
-        <section className="py-20 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-          <div className="md:container md:mx-auto md:px-8 px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-16">
-                Nasza misja
-              </h2>
-              
-              <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl mb-12">
-                <p className="text-foreground leading-relaxed text-lg mb-6">
-                  Wszystko zaczęło się od jednego telefonu. Bezdomność zwierzęca to problem, który dotyka tysięcy zwierząt każdego roku. Naszym celem jest walka z tym zjawiskiem poprzez konkretne działania ratujące życie i zdrowie bezdomnych czworonogów.
-                </p>
-                
-                <p className="text-foreground leading-relaxed text-lg mb-6">
-                  Nie możemy pozostać obojętni - dlatego łączymy siły z całą siecią organizacji działających na rzecz zwierząt. Naszym priorytetem jest każde zwierzę w potrzebie: od ratowania w sytuacjach zagrożenia życia, przez zapewnienie opieki weterynaryjnej, po znalezienie kochających domów.
-                </p>
-                
-                <p className="text-foreground leading-relaxed text-lg">
-                  Naszą misją jest nieustanna pomoc wszystkim bezbronnym zwierzętom. Pomagamy bezdomnym czworonogom odzyskać zdrowie, siły i zaufanie do ludzi. Każde zwierzę zasługuje na godne życie, pełne miłości i opieki - dlatego działamy, by ta wizja się spełniła.
-                </p>
-              </div>
-
-              {/* Values Grid */}
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform transition-transform duration-300 md:hover:scale-105">
-                  <div className="bg-primary rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-                    <Heart className="h-8 w-8 text-white fill-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Miłość</h3>
-                  <p className="text-muted-foreground">
-                    Każde zwierzę zasługuje na bezwarunkową miłość i troskę
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform transition-transform duration-300 md:hover:scale-105">
-                  <div className="bg-secondary rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-                    <Users className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Współpraca</h3>
-                  <p className="text-muted-foreground">
-                    Razem możemy więcej - łączymy siły z organizacjami i wolontariuszami
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-3xl p-8 shadow-lg text-center transform transition-transform duration-300 md:hover:scale-105">
-                  <div className="bg-accent rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-                    <Shield className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Opieka</h3>
-                  <p className="text-muted-foreground">
-                    Zapewniamy profesjonalną opiekę i najwyższe standardy dbania o zwierzęta
-                  </p>
-                </div>
-              </div>
+        {/* CTA Section */}
+        <section className="py-16 md:py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Dołącz do nas!
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Razem możemy więcej. Każda pomoc ma znaczenie - sprawdź jak możesz wesprzeć 
+              zwierzęta w potrzebie.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="rounded-full px-8">
+                <Link to="/zwierzeta">
+                  Zobacz zwierzęta
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="rounded-full px-8">
+                <Link to="/kontakt">
+                  Skontaktuj się
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
