@@ -34,6 +34,7 @@ import AdminDeliveries from "./pages/admin/AdminDeliveries";
 import AdminLogisticsInProgress from "./pages/admin/AdminLogisticsInProgress";
 import AdminLogisticsCompleted from "./pages/admin/AdminLogisticsCompleted";
 import AdminPartners from "./pages/admin/AdminPartners";
+import AdminErrorLogs from "./pages/admin/AdminErrorLogs";
 import OrgOrders from "./pages/OrgOrders";
 import OrgDashboard from "./pages/OrgDashboard";
 
@@ -95,6 +96,7 @@ function AppContent() {
             <Route path="statystyki-organizacji" element={<AdminOrganizationStats />} />
             <Route path="finanse" element={<AdminFinances />} />
             <Route path="logi" element={<AdminLogs />} />
+            <Route path="bledy" element={<AdminErrorLogs />} />
           </Route>
           
           {/* Organization Routes */}

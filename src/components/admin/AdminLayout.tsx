@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, Link, Outlet } from "react-router-dom";
-import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, Inbox, ShoppingCart, Boxes, Dog, Handshake } from "lucide-react";
+import { LayoutDashboard, Building2, Factory, Users, Activity, LogOut, TrendingUp, Truck, Inbox, ShoppingCart, Boxes, Dog, Handshake, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { useQuery } from "@tanstack/react-query";
@@ -60,6 +60,7 @@ const menuStructure = [
     items: [
       { title: "Wyniki Finansowe", url: "/admin/finanse", icon: TrendingUp },
       { title: "Statystyki Organizacji", url: "/admin/statystyki-organizacji", icon: TrendingUp },
+      { title: "Monitoring błędów", url: "/admin/bledy", icon: AlertTriangle },
       { title: "Logi", url: "/admin/logi", icon: Activity },
     ]
   },
