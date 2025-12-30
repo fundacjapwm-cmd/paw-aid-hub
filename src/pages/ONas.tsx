@@ -1,203 +1,194 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 
-// Illustrations
-import happyPetsHero from "@/assets/illustrations/happy-pets-hero.png";
-import petsCozy from "@/assets/illustrations/pets-cozy.png";
-import dogHeart from "@/assets/illustrations/dog-heart.png";
-import catGift from "@/assets/illustrations/cat-gift.png";
-import petsWaving from "@/assets/illustrations/pets-waving.png";
-
-// Icons
-import pawIcon from "@/assets/icons/paw-icon.png";
-import heartPawIcon from "@/assets/icons/heart-paw-icon.png";
-import giftIcon from "@/assets/icons/gift-icon.png";
-import shelterIcon from "@/assets/icons/shelter-icon.png";
+// Mascots
+import greyCatSitting from "@/assets/mascots/grey-cat-sitting.png";
+import orangeCatLying from "@/assets/mascots/orange-cat-lying.png";
+import goldenDogSitting from "@/assets/mascots/golden-dog-sitting.png";
+import brownDogLying from "@/assets/mascots/brown-dog-lying.png";
+import whiteCatSitting from "@/assets/mascots/white-cat-sitting.png";
+import greyDogTall from "@/assets/mascots/grey-dog-tall.png";
 
 const ONas = () => {
   return (
-    <div className="min-h-screen bg-[#FFF9F5]">
+    <div className="min-h-screen bg-[#FFFBF7]">
       <main>
         {/* Hero Section */}
-        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#F5E6DC] to-[#FFF9F5]">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24">
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+          {/* Background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#6B5B7A] via-[#5D5169] to-[#4A4258]" />
+          
+          {/* Decorative paw prints */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-20 left-10 w-16 h-16 bg-white rounded-full" />
+            <div className="absolute top-40 right-20 w-12 h-12 bg-white rounded-full" />
+            <div className="absolute bottom-32 left-1/4 w-8 h-8 bg-white rounded-full" />
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-20">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               {/* Text Content */}
-              <div className="text-center lg:text-left animate-fade-in">
-                <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-6">
-                  <img src={pawIcon} alt="" className="h-5 w-5" />
-                  <span className="text-sm text-primary font-medium">Z miłości do zwierząt</span>
-                </div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-                  Pączki w Maśle
+              <div className="text-center lg:text-left">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+                  Pączki<br />w Maśle
                 </h1>
-                <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
-                  Dla tych, którzy najbardziej tego potrzebują. Pomagamy zwierzętom 
-                  w schroniskach znaleźć drogę do serca ludzi.
+                <p className="text-xl md:text-2xl text-white/80 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+                  Dla tych, którzy najbardziej tego potrzebują
                 </p>
+                
+                {/* Contact info instead of stats */}
+                <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
+                  <Mail className="h-5 w-5 text-white/80" />
+                  <a 
+                    href="mailto:fundacjapwm@gmail.com" 
+                    className="text-white hover:text-white/80 transition-colors font-medium"
+                  >
+                    fundacjapwm@gmail.com
+                  </a>
+                </div>
               </div>
 
-              {/* Illustration */}
-              <div className="relative animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full blur-3xl opacity-50" />
+              {/* Mascots Group */}
+              <div className="relative h-[500px] lg:h-[600px]">
+                {/* Grey dog in back */}
                 <img 
-                  src={happyPetsHero} 
-                  alt="Szczęśliwe zwierzęta" 
-                  className="relative w-full max-w-lg mx-auto drop-shadow-2xl"
+                  src={greyDogTall} 
+                  alt="" 
+                  className="absolute left-0 bottom-0 h-[85%] object-contain drop-shadow-2xl z-10"
+                />
+                {/* Golden dog */}
+                <img 
+                  src={goldenDogSitting} 
+                  alt="" 
+                  className="absolute right-4 bottom-0 h-[75%] object-contain drop-shadow-2xl z-20"
+                />
+                {/* White cat in front */}
+                <img 
+                  src={whiteCatSitting} 
+                  alt="" 
+                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[55%] object-contain drop-shadow-2xl z-30"
+                />
+                {/* Grey cat peeking */}
+                <img 
+                  src={greyCatSitting} 
+                  alt="" 
+                  className="absolute right-0 bottom-8 h-[50%] object-contain drop-shadow-2xl z-25"
                 />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats Bar */}
-        <section className="relative z-20 -mt-8 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-xl border border-border/50 p-6 md:p-8 grid grid-cols-3 gap-4 md:gap-8">
-              <div className="text-center">
-                <p className="text-3xl md:text-4xl font-bold text-primary">50+</p>
-                <p className="text-xs md:text-sm text-muted-foreground mt-1">Organizacji partnerskich</p>
-              </div>
-              <div className="text-center border-x border-border/50">
-                <p className="text-3xl md:text-4xl font-bold text-secondary">1000+</p>
-                <p className="text-xs md:text-sm text-muted-foreground mt-1">Wspieranych zwierząt</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl md:text-4xl font-bold text-accent">100%</p>
-                <p className="text-xs md:text-sm text-muted-foreground mt-1">Zaangażowania</p>
-              </div>
-            </div>
+        {/* About Content */}
+        <section className="py-20 md:py-28 relative">
+          {/* Orange cat lying on section */}
+          <div className="absolute -top-16 right-8 md:right-20 z-20">
+            <img 
+              src={orangeCatLying} 
+              alt="" 
+              className="w-32 md:w-48 drop-shadow-lg"
+            />
           </div>
-        </section>
 
-        {/* About Content - Bento Grid Style */}
-        <section className="py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {/* Main Text Card - Spans 2 columns */}
-              <div className="lg:col-span-2 bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-border/30">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-                  Kim jesteśmy?
-                </h2>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Fundacja Pączki w Maśle powstała z miłości do zwierząt i potrzeby działania tam, 
-                  gdzie jest to najbardziej potrzebne. Współpracujemy z siecią schronisk i organizacji 
-                  na terenie całej Polski.
-                </p>
-                <p className="text-muted-foreground leading-relaxed">
-                  Nasza siła to wieloletnie doświadczenie, pasja do zwierząt oraz ludzie, 
-                  którzy z sercem dbają o zwierzęta w potrzebie.
-                </p>
-              </div>
+          <div className="max-w-5xl mx-auto px-4 md:px-8">
+            {/* Main intro */}
+            <div className="text-center mb-16 md:mb-24">
+              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-8 leading-tight">
+                Kim jesteśmy?
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                Fundacja Pączki w Maśle powstała z miłości do zwierząt i potrzeby działania tam, 
+                gdzie jest to najbardziej potrzebne. Współpracujemy z siecią schronisk i organizacji 
+                na terenie całej Polski.
+              </p>
+            </div>
 
-              {/* Illustration Card */}
-              <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-3xl p-6 flex items-center justify-center min-h-[250px]">
-                <img 
-                  src={petsCozy} 
-                  alt="Przytulone zwierzaki" 
-                  className="w-full max-w-[200px] drop-shadow-lg hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-
-              {/* Value Cards with Custom Icons */}
-              <div className="bg-white rounded-3xl p-6 flex flex-col shadow-sm border border-border/30 hover:shadow-md transition-shadow">
-                <div className="mb-4">
-                  <img src={heartPawIcon} alt="" className="h-14 w-14" />
+            {/* Bento Grid */}
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              {/* Card with dog lying on it */}
+              <div className="relative bg-[#6B5B7A] rounded-3xl p-8 md:p-10 text-white overflow-visible">
+                {/* Brown dog lying on top of card */}
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-10">
+                  <img 
+                    src={brownDogLying} 
+                    alt="" 
+                    className="w-40 md:w-56 drop-shadow-lg"
+                  />
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">Miłość</h3>
-                <p className="text-sm text-muted-foreground flex-1">
-                  Każde zwierzę zasługuje na bezwarunkową miłość i troskę
-                </p>
-              </div>
-
-              <div className="bg-white rounded-3xl p-6 flex flex-col shadow-sm border border-border/30 hover:shadow-md transition-shadow">
-                <div className="mb-4">
-                  <img src={shelterIcon} alt="" className="h-14 w-14" />
+                <div className="pt-16 md:pt-20">
+                  <h3 className="text-2xl font-bold mb-4">Nasza misja</h3>
+                  <p className="text-white/85 leading-relaxed">
+                    Wszystko zaczęło się od jednego telefonu. Naszą misją jest nieustanna pomoc 
+                    wszystkim bezbronnym zwierzętom. Pomagamy bezdomnym czworonogom odzyskać 
+                    zdrowie, siły i zaufanie do ludzi.
+                  </p>
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">Współpraca</h3>
-                <p className="text-sm text-muted-foreground flex-1">
-                  Razem możemy więcej - łączymy siły z organizacjami
-                </p>
               </div>
 
-              <div className="bg-white rounded-3xl p-6 flex flex-col shadow-sm border border-border/30 hover:shadow-md transition-shadow">
-                <div className="mb-4">
-                  <img src={giftIcon} alt="" className="h-14 w-14" />
-                </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">Pomoc</h3>
-                <p className="text-sm text-muted-foreground flex-1">
-                  Dostarczamy potrzebne produkty prosto do schronisk
-                </p>
-              </div>
-
-              {/* Illustration Card 2 */}
-              <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-3xl p-6 flex items-center justify-center min-h-[250px]">
-                <img 
-                  src={dogHeart} 
-                  alt="Piesek z sercem" 
-                  className="w-full max-w-[180px] drop-shadow-lg hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-
-              {/* Mission Card - Spans 2 columns */}
-              <div className="lg:col-span-2 bg-gradient-to-br from-primary to-primary/80 rounded-3xl p-8 md:p-10 text-white relative overflow-hidden">
-                <div className="absolute top-4 right-4 opacity-20">
-                  <img src={pawIcon} alt="" className="h-24 w-24" />
-                </div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">
-                  Nasza misja
-                </h2>
-                <p className="text-white/90 leading-relaxed mb-4">
-                  Wszystko zaczęło się od jednego telefonu. Bezdomność zwierzęca to problem, 
-                  który dotyka tysięcy zwierząt każdego roku. Naszym celem jest walka z tym 
-                  zjawiskiem poprzez konkretne działania.
-                </p>
-                <p className="text-white/90 leading-relaxed">
-                  Naszą misją jest nieustanna pomoc wszystkim bezbronnym zwierzętom. 
-                  Pomagamy bezdomnym czworonogom odzyskać zdrowie, siły i zaufanie do ludzi.
-                </p>
+              {/* Card with values */}
+              <div className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-border/40">
+                <h3 className="text-2xl font-bold text-foreground mb-6">Nasze wartości</h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3">
+                    <span className="text-2xl">💛</span>
+                    <div>
+                      <span className="font-semibold text-foreground">Miłość</span>
+                      <p className="text-sm text-muted-foreground">Każde zwierzę zasługuje na bezwarunkową troskę</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-2xl">🤝</span>
+                    <div>
+                      <span className="font-semibold text-foreground">Współpraca</span>
+                      <p className="text-sm text-muted-foreground">Razem możemy więcej - łączymy siły z organizacjami</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-2xl">🎁</span>
+                    <div>
+                      <span className="font-semibold text-foreground">Pomoc</span>
+                      <p className="text-sm text-muted-foreground">Dostarczamy potrzebne produkty prosto do schronisk</p>
+                    </div>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-20 bg-gradient-to-br from-[#F5E6DC] to-[#FFF9F5]">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-border/30">
-              <div className="grid lg:grid-cols-2 gap-8 items-center">
-                <div className="text-center lg:text-left">
-                  <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                    Dołącz do nas!
-                  </h2>
-                  <p className="text-lg text-muted-foreground mb-8">
-                    Razem możemy więcej. Każda pomoc ma znaczenie - sprawdź jak możesz wesprzeć 
-                    zwierzęta w potrzebie.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <Button asChild size="lg" className="rounded-full px-8">
-                      <Link to="/zwierzeta">
-                        Zobacz zwierzęta
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="lg" className="rounded-full px-8">
-                      <Link to="/kontakt">
-                        Skontaktuj się
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex justify-center">
-                  <img 
-                    src={petsWaving} 
-                    alt="Zwierzaki machające łapkami" 
-                    className="w-full max-w-[280px] drop-shadow-lg"
-                  />
-                </div>
-              </div>
+        <section className="py-16 md:py-20 bg-gradient-to-br from-[#F5EDE8] to-[#FFFBF7] relative overflow-hidden">
+          {/* Decorative cat */}
+          <div className="absolute bottom-0 left-8 hidden lg:block">
+            <img 
+              src={greyCatSitting} 
+              alt="" 
+              className="h-48 opacity-30"
+            />
+          </div>
+
+          <div className="max-w-3xl mx-auto px-4 text-center relative z-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Dołącz do nas!
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Razem możemy więcej. Każda pomoc ma znaczenie - sprawdź jak możesz wesprzeć 
+              zwierzęta w potrzebie.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="rounded-full px-8 bg-[#6B5B7A] hover:bg-[#5D5169]">
+                <Link to="/zwierzeta">
+                  Zobacz zwierzęta
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="rounded-full px-8">
+                <Link to="/kontakt">
+                  Skontaktuj się
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
