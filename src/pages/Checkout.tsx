@@ -29,7 +29,6 @@ const Checkout = () => {
     allConsentsChecked,
     handleSelectAll,
     handleCheckout,
-    handleTestCheckout,
   } = useCheckout();
 
   if (cart.length === 0) {
@@ -73,7 +72,6 @@ const Checkout = () => {
               allConsentsChecked={allConsentsChecked}
               onSelectAll={handleSelectAll}
               onSubmit={handleCheckout}
-              onTestSubmit={handleTestCheckout}
             />
           </div>
         </div>
