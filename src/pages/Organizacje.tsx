@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Heart, MapPin, Users, Phone, Mail, Filter, Search, X, Home } from "lucide-react";
+import { Heart, MapPin, Filter, Search, X, Home } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
@@ -10,7 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import OrganizationCardSkeleton from "@/components/OrganizationCardSkeleton";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -39,7 +38,6 @@ interface Organization {
 
 const Organizacje = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -50,29 +48,17 @@ const Organizacje = () => {
 
   useEffect(() => {
     fetchOrganizations();
-  }, [user]);
+  }, []);
 
   const fetchOrganizations = async () => {
     try {
-      let orgsData: Organization[] = [];
+      // Always use secure RPC function for public organization data
+      // This returns only non-sensitive data (no contact info, NIP, etc.)
+      const { data, error } = await supabase
+        .rpc("get_public_organizations");
 
-      if (user) {
-        // Authenticated users can see full data via RLS
-        const { data, error } = await supabase
-          .from("organizations")
-          .select("*")
-          .eq("active", true);
-
-        if (error) throw error;
-        orgsData = data || [];
-      } else {
-        // Public users use secure RPC function (no sensitive data)
-        const { data, error } = await supabase
-          .rpc("get_public_organizations");
-
-        if (error) throw error;
-        orgsData = (data || []) as Organization[];
-      }
+      if (error) throw error;
+      const orgsData = (data || []) as Organization[];
 
       // Count animals for each organization
       const orgsWithCounts = await Promise.all(
@@ -408,22 +394,6 @@ const Organizacje = () => {
                             )}
                           </div>
                         </div>
-
-                        {/* Contact Info - tylko dla zalogowanych */}
-                        {user && (
-                          <div className="space-y-2 pt-4 border-t border-border/50">
-                            {org.contact_phone && (
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <Phone className="h-4 w-4 mr-2" />
-                                {org.contact_phone}
-                              </div>
-                            )}
-                            <div className="flex items-center text-sm text-muted-foreground">
-                              <Mail className="h-4 w-4 mr-2" />
-                              {org.contact_email}
-                            </div>
-                          </div>
-                        )}
 
                         {/* CTA */}
                         <Button 
