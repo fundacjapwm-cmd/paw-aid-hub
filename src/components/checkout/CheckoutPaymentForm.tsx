@@ -93,7 +93,7 @@ export function CheckoutPaymentForm({
               disabled={!!user}
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Na ten adres otrzymasz potwierdzenie darowizny
+              Na ten adres otrzymasz potwierdzenie zamówienia
             </p>
           </div>
 
@@ -144,7 +144,7 @@ export function CheckoutPaymentForm({
                 htmlFor="acceptDataProcessing"
                 className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                Wyrażam zgodę na przetwarzanie moich danych osobowych w celu realizacji darowizny *
+                Wyrażam zgodę na przetwarzanie moich danych osobowych w celu realizacji zamówienia *
               </label>
             </div>
 

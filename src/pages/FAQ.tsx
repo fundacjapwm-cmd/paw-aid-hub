@@ -288,12 +288,12 @@ export default function FAQ() {
             <Accordion type="single" collapsible className="space-y-3">
               <AccordionItem value="item-18" className="border rounded-xl px-6 bg-muted/30">
                 <AccordionTrigger className="hover:no-underline">
-                  <span className="text-left font-semibold">Czy mogę przekazać darowiznę pieniężną zamiast kupować produkty?</span>
+                  <span className="text-left font-semibold">Czy mogę przekazać wsparcie finansowe zamiast kupować produkty?</span>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
                   Obecnie platforma skupia się na zakupie konkretnych produktów z list potrzeb, co gwarantuje, 
                   że wsparcie trafia dokładnie tam, gdzie jest najbardziej potrzebne. Jeśli chcesz przekazać 
-                  darowiznę pieniężną, skontaktuj się bezpośrednio z wybraną organizacją - ich dane znajdziesz 
+                  wsparcie finansowe bezpośrednio, skontaktuj się z wybraną organizacją - ich dane znajdziesz 
                   na ich profilu (dostępne dla zalogowanych użytkowników).
                 </AccordionContent>
               </AccordionItem>
@@ -303,9 +303,9 @@ export default function FAQ() {
                   <span className="text-left font-semibold">Czy mogę odliczyć wsparcie od podatku?</span>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
-                  Wsparcie przez naszą platformę ma charakter zakupu produktów, a nie bezpośredniej darowizny, 
+                  Wsparcie przez naszą platformę ma charakter zakupu produktów, a nie bezpośredniego przekazania środków, 
                   dlatego nie stanowi podstawy do odliczenia od podatku. Jeśli zależy Ci na odliczeniu podatkowym, 
-                  rozważ bezpośrednie przekazanie darowizny pieniężnej na konto organizacji pożytku publicznego (OPP).
+                  rozważ bezpośrednie przekazanie środków na konto organizacji pożytku publicznego (OPP).
                 </AccordionContent>
               </AccordionItem>
 
