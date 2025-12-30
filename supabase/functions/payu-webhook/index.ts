@@ -41,48 +41,81 @@ serve(async (req) => {
 
     console.log('Received PayU notification:', JSON.stringify(notification, null, 2));
 
-    // Verify signature if present
+    // SECURITY: Enforce signature verification - reject requests without valid signature
     const md5Key = Deno.env.get('PAYU_MD5_KEY');
     const signatureHeader = req.headers.get('OpenPayu-Signature') || req.headers.get('openpayu-signature');
     
-    console.log('Signature header:', signatureHeader);
-    console.log('MD5 Key present:', !!md5Key);
+    console.log('Signature header present:', !!signatureHeader);
+    console.log('MD5 Key configured:', !!md5Key);
 
-    if (signatureHeader && md5Key) {
-      try {
-        // Parse signature header: "signature=xxx;algorithm=MD5;sender=checkout"
-        const signatureParts: Record<string, string> = {};
-        signatureHeader.split(';').forEach(part => {
-          const [key, value] = part.split('=');
-          if (key && value) {
-            signatureParts[key.trim()] = value.trim();
-          }
-        });
+    // Reject if MD5 key is not configured
+    if (!md5Key) {
+      console.error('SECURITY: PAYU_MD5_KEY not configured - cannot verify webhook authenticity');
+      return new Response(
+        JSON.stringify({ error: 'Webhook verification not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-        const receivedSignature = signatureParts['signature'];
-        const algorithm = signatureParts['algorithm'] || 'MD5';
+    // Reject if signature header is missing
+    if (!signatureHeader) {
+      console.error('SECURITY: Missing OpenPayu-Signature header - rejecting request');
+      return new Response(
+        JSON.stringify({ error: 'Signature required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-        console.log('Received signature:', receivedSignature);
-        console.log('Algorithm:', algorithm);
-
-        if (algorithm === 'MD5' && receivedSignature) {
-          // PayU MD5 signature: MD5(body + secondKey)
-          const expectedSignature = await md5(body + md5Key);
-          console.log('Expected signature:', expectedSignature);
-
-          if (receivedSignature.toLowerCase() !== expectedSignature.toLowerCase()) {
-            console.error('Signature mismatch! Received:', receivedSignature, 'Expected:', expectedSignature);
-            // Log but don't reject - some PayU configurations may vary
-          } else {
-            console.log('Signature verified successfully');
-          }
+    // Parse and verify signature
+    try {
+      // Parse signature header: "signature=xxx;algorithm=MD5;sender=checkout"
+      const signatureParts: Record<string, string> = {};
+      signatureHeader.split(';').forEach(part => {
+        const [key, value] = part.split('=');
+        if (key && value) {
+          signatureParts[key.trim()] = value.trim();
         }
-      } catch (sigError) {
-        console.error('Error verifying signature:', sigError);
-        // Continue processing even if signature verification fails
+      });
+
+      const receivedSignature = signatureParts['signature'];
+      const algorithm = signatureParts['algorithm'] || 'MD5';
+
+      if (!receivedSignature) {
+        console.error('SECURITY: No signature value in header - rejecting request');
+        return new Response(
+          JSON.stringify({ error: 'Invalid signature format' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
-    } else {
-      console.log('No signature verification - header or key missing');
+
+      if (algorithm !== 'MD5') {
+        console.error('SECURITY: Unsupported algorithm:', algorithm, '- rejecting request');
+        return new Response(
+          JSON.stringify({ error: 'Unsupported signature algorithm' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // PayU MD5 signature: MD5(body + secondKey)
+      const expectedSignature = await md5(body + md5Key);
+
+      if (receivedSignature.toLowerCase() !== expectedSignature.toLowerCase()) {
+        console.error('SECURITY: Signature mismatch - rejecting request');
+        console.error('Received:', receivedSignature.substring(0, 8) + '...');
+        console.error('Expected:', expectedSignature.substring(0, 8) + '...');
+        return new Response(
+          JSON.stringify({ error: 'Invalid signature' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('Signature verified successfully');
+    } catch (sigError) {
+      console.error('SECURITY: Error verifying signature:', sigError);
+      return new Response(
+        JSON.stringify({ error: 'Signature verification failed' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const order = notification.order;
@@ -99,7 +132,42 @@ serve(async (req) => {
 
     if (!orderId) {
       console.error('No extOrderId in notification');
-      return new Response('No extOrderId', { status: 400, headers: corsHeaders });
+      return new Response(
+        JSON.stringify({ error: 'No extOrderId' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // SECURITY: Idempotency check - don't process completed orders again
+    const { data: existingOrder, error: fetchOrderError } = await supabase
+      .from('orders')
+      .select('id, payment_status')
+      .eq('id', orderId)
+      .maybeSingle();
+
+    if (fetchOrderError) {
+      console.error('Error fetching order for idempotency check:', fetchOrderError);
+      return new Response(
+        JSON.stringify({ error: 'Database error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!existingOrder) {
+      console.error('SECURITY: Order not found:', orderId, '- possible forged webhook');
+      return new Response(
+        JSON.stringify({ error: 'Order not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Skip if order is already completed - prevent duplicate processing
+    if (existingOrder.payment_status === 'completed' && status === 'COMPLETED') {
+      console.log('Order already completed, skipping duplicate webhook:', orderId);
+      return new Response(
+        JSON.stringify({ success: true, message: 'Already processed' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Map PayU status to our payment status
