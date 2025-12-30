@@ -56,15 +56,18 @@ export const useAnimalsWithWishlists = () => {
       // Fetch organizations separately
       const orgIds = animalsData?.map(a => a.organization_id).filter(Boolean) || [];
       
-      let orgsData = [];
+      // Fetch organizations using the secure RPC function (returns only public data)
+      let orgsData: { id: string; name: string; slug: string; city: string }[] = [];
       if (orgIds.length > 0) {
         const { data, error: orgsError } = await supabase
-          .from('organizations')
-          .select('id, name, slug, city')
-          .in('id', orgIds);
+          .rpc('get_public_organizations');
 
-        if (orgsError) throw orgsError;
-        orgsData = data || [];
+        if (orgsError) {
+          console.warn('Could not fetch organizations:', orgsError);
+        } else {
+          // Filter to only organizations that are referenced by animals
+          orgsData = (data || []).filter((org: any) => orgIds.includes(org.id));
+        }
       }
 
       // Create org lookup map
