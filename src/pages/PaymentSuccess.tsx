@@ -185,7 +185,7 @@ const PaymentSuccess = () => {
                   <strong>📦 Dostawa produktów:</strong> Produkty zostaną dostarczone bezpośrednio do schroniska/organizacji
                 </p>
                 <p className="text-sm">
-                  <strong>🏆 Historia:</strong> Wszystkie Twoje darowizny znajdziesz w profilu użytkownika
+                  <strong>🏆 Historia:</strong> Wszystkie Twoje zamówienia znajdziesz w profilu użytkownika
                 </p>
               </div>
             </CardContent>
@@ -198,7 +198,7 @@ const PaymentSuccess = () => {
               variant="outline"
               className="flex-1"
             >
-              Zobacz historię darowizn
+              Zobacz historię zamówień
             </Button>
             <Button
               onClick={() => navigate('/')}

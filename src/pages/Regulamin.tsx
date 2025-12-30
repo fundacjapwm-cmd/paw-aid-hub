@@ -39,8 +39,8 @@ export default function Regulamin() {
                   </li>
                   <li>
                     Fundacja pełni rolę pośrednika między osobami chcącymi wspierać zwierzęta (Użytkownikami) 
-                    a organizacjami opiekującymi się zwierzętami (Organizacjami). Fundacja nie jest stroną umowy darowizny - 
-                    świadczy usługę pośrednictwa w zakupie i dostawie produktów.
+                    a organizacjami opiekującymi się zwierzętami (Organizacjami). Fundacja świadczy usługę 
+                    pośrednictwa w zakupie i dostawie produktów.
                   </li>
                   <li>
                     Środki wpłacone przez Użytkowników przeznaczane są na zakup produktów dla zwierząt 
@@ -166,8 +166,7 @@ export default function Regulamin() {
                   <p className="text-muted-foreground leading-relaxed">
                     <strong className="text-foreground">WAŻNE:</strong> Fundacja Pączki w Maśle świadczy <strong>usługę pośrednictwa</strong>. 
                     Użytkownik zleca Fundacji zakup wybranych produktów i ich dostarczenie do Organizacji. 
-                    Fundacja nie jest stroną umowy darowizny między Użytkownikiem a Organizacją - 
-                    jest pośrednikiem realizującym zakup w imieniu Użytkownika.
+                    Fundacja jest pośrednikiem realizującym zakup w imieniu Użytkownika.
                   </p>
                 </div>
                 <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
