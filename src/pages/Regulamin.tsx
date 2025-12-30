@@ -329,9 +329,7 @@ export default function Regulamin() {
                     </ul>
                   </li>
                   <li>
-                    Płatność pokrywa koszt produktów oraz ewentualne koszty dostawy. 
-                    <strong>Fundacja nie pobiera prowizji ani wynagrodzenia za pośrednictwo</strong> - 
-                    100% środków jest przeznaczane na pomoc zwierzętom.
+                    Płatność pokrywa koszt produktów oraz koszty dostawy do Organizacji.
                   </li>
                   <li>
                     Zlecenie jest przetwarzane po otrzymaniu potwierdzenia płatności.

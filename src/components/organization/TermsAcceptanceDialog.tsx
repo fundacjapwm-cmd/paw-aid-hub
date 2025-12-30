@@ -104,8 +104,8 @@ export default function TermsAcceptanceDialog({ organizationId, onAccepted }: Te
                     <ol className="space-y-2 text-muted-foreground list-decimal ml-6 text-sm">
                       <li>Niniejszy Regulamin określa zasady korzystania z platformy internetowej Pączki w Maśle (dalej: "Platforma").</li>
                       <li>Administratorem Platformy jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą w Polsce (dalej: "Administrator", "Fundacja" lub "Pośrednik").</li>
-                      <li><strong>Fundacja jest organizacją non-profit</strong>, która pełni rolę pośrednika między osobami chcącymi wspierać zwierzęta (Użytkownikami) a organizacjami opiekującymi się zwierzętami (Organizacjami).</li>
-                      <li><strong>Fundacja nie pobiera prowizji ani opłat za pośrednictwo.</strong> 100% środków wpłaconych przez Użytkowników przeznaczane jest na zakup produktów dla zwierząt oraz pokrycie kosztów ich dostawy.</li>
+                      <li>Fundacja pełni rolę pośrednika między osobami chcącymi wspierać zwierzęta (Użytkownikami) a organizacjami opiekującymi się zwierzętami (Organizacjami).</li>
+                      <li>Środki wpłacone przez Użytkowników przeznaczane są na zakup produktów dla zwierząt oraz pokrycie kosztów ich dostawy.</li>
                       <li>Korzystanie z Platformy oznacza akceptację niniejszego Regulaminu.</li>
                     </ol>
                   </div>
@@ -172,12 +172,12 @@ export default function TermsAcceptanceDialog({ organizationId, onAccepted }: Te
                     </h2>
                     <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-3">
                       <p className="text-sm text-muted-foreground">
-                        <strong className="text-foreground">WAŻNE:</strong> Fundacja świadczy usługę pośrednictwa. Użytkownik zleca Fundacji zakup wybranych produktów i ich dostarczenie do Organizacji. Fundacja nie pobiera prowizji.
+                        <strong className="text-foreground">WAŻNE:</strong> Fundacja świadczy usługę pośrednictwa. Użytkownik zleca Fundacji zakup wybranych produktów i ich dostarczenie do Organizacji.
                       </p>
                     </div>
                     <ol className="space-y-2 text-muted-foreground list-decimal ml-6 text-sm">
                       <li>Fundacja nabywa produkty od zweryfikowanych dostawców i dostarcza je do Organizacji.</li>
-                      <li>Ceny produktów zawierają podatek VAT i koszty dostawy. Fundacja nie dolicza żadnej prowizji ani marży.</li>
+                      <li>Ceny produktów zawierają podatek VAT i koszty dostawy.</li>
                       <li>Czas realizacji wynosi standardowo 7-14 dni roboczych.</li>
                     </ol>
                   </div>
@@ -269,7 +269,6 @@ export default function TermsAcceptanceDialog({ organizationId, onAccepted }: Te
                     <ol className="space-y-2 text-muted-foreground list-decimal ml-6 text-sm">
                       <li>Płatności za usługę pośrednictwa realizowane są za pośrednictwem operatora PayU.</li>
                       <li>Kwota wpłacona przez Użytkownika pokrywa koszt produktów oraz kosztów dostawy do Organizacji.</li>
-                      <li>Fundacja jako organizacja non-profit nie pobiera wynagrodzenia za świadczone usługi pośrednictwa.</li>
                       <li>Fundacja wystawia potwierdzenie wpłaty na życzenie Użytkownika.</li>
                     </ol>
                   </div>
