@@ -33,11 +33,11 @@ const ONas = () => {
               alt=""
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/50 to-transparent" />
+            <div className="absolute inset-0 bg-foreground/60" />
           </div>
 
           {/* Decorative paws as background */}
-          <div className="absolute inset-0 z-[1] pointer-events-none opacity-20">
+          <div className="absolute inset-0 z-[1] pointer-events-none opacity-10">
             <img
               src={decorativePaws}
               alt=""
@@ -51,7 +51,7 @@ const ONas = () => {
           </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full py-16 md:py-24">
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[60vh]">
               {/* Left side - Text + CTA */}
               <div>
                 {/* Decorative wavy line */}
@@ -59,7 +59,7 @@ const ONas = () => {
                   <WavyLine variant="arrow" className="text-primary w-20 md:w-28" />
                 </div>
                 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
                   Jesteśmy dla tych,<br />którzy najbardziej<br />nas potrzebują.
                 </h1>
 
@@ -67,15 +67,15 @@ const ONas = () => {
                   <Button asChild size="lg" className="rounded-full px-8 text-base">
                     <Link to="/zwierzeta">Zobacz zwierzęta</Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base bg-background/50 backdrop-blur-sm">
+                  <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20">
                     <Link to="/organizacje">Nasze organizacje</Link>
                   </Button>
                 </div>
               </div>
 
-              {/* Right side - Large Logo */}
-              <div className="hidden lg:flex justify-center lg:justify-end">
-                <Logo className="h-32 md:h-40 lg:h-48 xl:h-56 w-auto drop-shadow-lg" />
+              {/* Right side - Large Logo centered */}
+              <div className="hidden lg:flex items-center justify-center h-full">
+                <Logo className="h-40 lg:h-48 xl:h-56 w-auto drop-shadow-lg" />
               </div>
             </div>
           </div>
