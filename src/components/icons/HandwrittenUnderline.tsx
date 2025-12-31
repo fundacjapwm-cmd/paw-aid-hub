@@ -8,58 +8,62 @@ interface HandwrittenUnderlineProps {
 const HandwrittenUnderline = ({ className }: HandwrittenUnderlineProps) => {
   return (
     <svg
-      viewBox="0 0 100 20"
+      viewBox="0 0 100 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("w-full h-5", className)}
+      className={cn("w-full h-4", className)}
       preserveAspectRatio="none"
     >
       <style>
         {`
-          .underline-path {
+          .draw-ltr {
             stroke-dasharray: 150;
             stroke-dashoffset: 150;
-            animation: drawLine 0.6s ease-out forwards;
+            animation: drawLeftToRight 0.4s ease-out forwards;
           }
-          .underline-path-1 { animation-delay: 0.3s; }
-          .underline-path-2 { animation-delay: 0.5s; }
-          .underline-path-3 { animation-delay: 0.7s; }
+          .draw-rtl {
+            stroke-dasharray: 150;
+            stroke-dashoffset: -150;
+            animation: drawRightToLeft 0.4s ease-out forwards;
+          }
+          .line-1 { animation-delay: 0.3s; }
+          .line-2 { animation-delay: 0.7s; }
+          .line-3 { animation-delay: 1.1s; }
           
-          @keyframes drawLine {
-            to {
-              stroke-dashoffset: 0;
-            }
+          @keyframes drawLeftToRight {
+            to { stroke-dashoffset: 0; }
+          }
+          @keyframes drawRightToLeft {
+            to { stroke-dashoffset: 0; }
           }
         `}
       </style>
-      {/* Main underline - organic hand-drawn feel */}
+      {/* First stroke: left to right */}
       <path
-        className="underline-path underline-path-1"
-        d="M1 7 Q 8 5, 18 8 T 38 6 Q 52 4, 65 7 T 85 5 Q 94 4, 99 6"
+        className="draw-ltr line-1"
+        d="M0 5 Q 15 3, 30 6 T 55 4 Q 75 2, 100 5"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
         fill="none"
       />
-      {/* Second pass - slightly offset like real pen stroke */}
+      {/* Second stroke: right to left */}
       <path
-        className="underline-path underline-path-2"
-        d="M2 11 Q 12 9, 25 12 T 48 10 Q 60 8, 72 11 T 92 9 Q 97 8, 99 10"
+        className="draw-rtl line-2"
+        d="M100 9 Q 80 12, 60 8 T 30 11 Q 15 13, 0 9"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="3"
         strokeLinecap="round"
         fill="none"
-        opacity="0.7"
       />
-      {/* Third accent stroke - adds natural imperfection */}
+      {/* Third stroke: left to right again */}
       <path
-        className="underline-path underline-path-3"
-        d="M3 15 Q 15 13, 28 16 T 55 14 Q 68 12, 80 15 T 97 13"
+        className="draw-ltr line-3"
+        d="M0 13 Q 20 11, 40 14 T 70 12 Q 85 10, 100 13"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="3"
         strokeLinecap="round"
         fill="none"
-        opacity="0.5"
       />
     </svg>
   );
