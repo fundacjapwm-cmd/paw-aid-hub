@@ -4,6 +4,7 @@ import heroKittens from "@/assets/about/hero-kittens.jpg";
 import womanDog from "@/assets/about/woman-dog.png";
 import decorativePaws from "@/assets/decorative-paws.png";
 import HandwrittenUnderline from "@/components/icons/HandwrittenUnderline";
+import PawPattern from "@/components/icons/PawPattern";
 import { ShelterHouseIcon, CatSterileIcon, CharityHandIcon, VaccineIcon } from "@/components/icons/ServiceIcons";
 import { HeartPawHelpIcon, GiftBoxIcon, VetCareIcon, AdoptionHomeIcon } from "@/components/icons/HelpIcons";
 import { Button } from "@/components/ui/button";
@@ -82,8 +83,11 @@ const ONas = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <main>
+    <div className="min-h-screen bg-background relative">
+      {/* Global paw pattern background */}
+      <PawPattern />
+      
+      <main className="relative z-10">
         {/* Hero Section */}
         <section className="relative min-h-[80vh] flex items-center overflow-hidden">
           {/* Background image with gradient overlay */}
@@ -133,7 +137,7 @@ const ONas = () => {
         </section>
 
         {/* Services scroll bar - heavier icons */}
-        <section className="bg-primary py-5 overflow-hidden">
+        <section className="bg-primary py-5 overflow-hidden relative z-20">
           <div className="flex animate-marquee whitespace-nowrap">
             {[...services, ...services].map((service, index) => (
               <div key={index} className="flex items-center mx-8 md:mx-10">
@@ -147,12 +151,12 @@ const ONas = () => {
         </section>
 
         {/* Kim jesteśmy Section - Simplified */}
-        <section className="py-16 md:py-24">
+        <section className="py-16 md:py-24 bg-background relative">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               {/* Left - Logo */}
               <div className="flex justify-center lg:justify-start">
-                <div className="w-full max-w-md aspect-square flex items-center justify-center bg-muted/30 rounded-[3rem] p-8">
+                <div className="w-full max-w-md aspect-square flex items-center justify-center bg-muted/50 rounded-[3rem] p-8 border border-border/30">
                   <img
                     src={logo}
                     alt="Pączki w Maśle - logo"
@@ -180,8 +184,11 @@ const ONas = () => {
           </div>
         </section>
 
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
         {/* Zakres naszych działań Section - with animated background */}
-        <section className="py-16 md:py-24 bg-muted/30">
+        <section className="py-16 md:py-24 bg-muted/40 relative">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-12 text-center lg:text-left">
               Zakres naszych działań
@@ -194,7 +201,7 @@ const ONas = () => {
                   className={`rounded-3xl p-6 transition-all duration-500 cursor-pointer ${
                     activeServiceIndex === i 
                       ? 'bg-primary text-primary-foreground shadow-lg scale-[1.02]' 
-                      : 'bg-background border border-border/50 hover:border-primary/30'
+                      : 'bg-background border border-border/50 hover:border-primary/30 shadow-sm'
                   }`}
                   onClick={() => setActiveServiceIndex(i)}
                 >
@@ -219,8 +226,11 @@ const ONas = () => {
           </div>
         </section>
 
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
         {/* Jak pomagamy zwierzętom Section - with custom graphics */}
-        <section className="py-16 md:py-24">
+        <section className="py-16 md:py-24 bg-background relative">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="text-center mb-12">
               <p className="text-primary font-medium mb-2">Krok po kroku</p>
@@ -250,8 +260,11 @@ const ONas = () => {
           </div>
         </section>
 
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
         {/* Nasza misja Section - Simplified */}
-        <section className="py-16 md:py-24 bg-muted/30">
+        <section className="py-16 md:py-24 bg-muted/40 relative">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
@@ -259,7 +272,7 @@ const ONas = () => {
               </h2>
             </div>
 
-            <div className="bg-card rounded-3xl p-6 md:p-10 shadow-card border border-border/50 max-w-3xl mx-auto">
+            <div className="bg-card rounded-3xl p-6 md:p-10 shadow-lg border border-border/50 max-w-3xl mx-auto">
               <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-4 text-center">
                 Z serca dla zwierząt
               </h3>
