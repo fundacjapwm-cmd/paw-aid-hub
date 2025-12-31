@@ -8,6 +8,7 @@ import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import Footer from "@/components/Footer";
 import LeadGenSection from "@/components/LeadGenSection";
 import { Link } from "react-router-dom";
+import PawPattern from "@/components/icons/PawPattern";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -93,9 +94,9 @@ const Zwierzeta = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <main>
-          {/* Header Section */}
+      <div className="min-h-screen bg-background relative">
+        <PawPattern />
+        <main className="relative z-10">
           <section className="py-12 md:py-20 bg-background">
             <div className="md:container md:mx-auto md:px-8 px-4">
               {/* Breadcrumbs */}
@@ -163,9 +164,9 @@ const Zwierzeta = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main>
-        {/* Header Section */}
+    <div className="min-h-screen bg-background relative">
+      <PawPattern />
+      <main className="relative z-10">
         <section className="py-12 md:py-20 bg-background">
           <div className="md:container md:mx-auto md:px-8 px-4">
             {/* Breadcrumbs */}

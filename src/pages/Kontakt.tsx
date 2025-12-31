@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import Footer from "@/components/Footer";
+import PawPattern from "@/components/icons/PawPattern";
+
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Imię jest wymagane").max(100, "Imię jest za długie"),
   email: z.string().trim().email("Nieprawidłowy adres email").max(255, "Email jest za długi"),
@@ -94,8 +96,9 @@ const Kontakt = () => {
       setIsSubmitting(false);
     }
   };
-  return <div className="min-h-screen bg-background">
-      <main>
+  return <div className="min-h-screen bg-background relative">
+      <PawPattern />
+      <main className="relative z-10">
         {/* Header Section */}
         <section className="py-12 md:py-20 bg-background">
           <div className="md:container md:mx-auto md:px-8 px-4 text-center">

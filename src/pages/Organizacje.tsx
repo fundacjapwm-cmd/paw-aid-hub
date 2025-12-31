@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import OrganizationCardSkeleton from "@/components/OrganizationCardSkeleton";
+import PawPattern from "@/components/icons/PawPattern";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -124,9 +125,9 @@ const Organizacje = () => {
   const hasActiveFilters = search !== "" || orgType !== "wszystkie" || city !== "";
   
   return (
-    <div className="min-h-screen bg-background">
-      <main>
-        {/* Header Section */}
+    <div className="min-h-screen bg-background relative">
+      <PawPattern />
+      <main className="relative z-10">
         <section className="py-12 md:py-20 bg-background">
           <div className="md:container md:mx-auto md:px-8 px-4">
             {/* Breadcrumbs */}

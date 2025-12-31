@@ -12,6 +12,8 @@ import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import PartnersCarousel from "@/components/PartnersCarousel";
 import { Link, useLocation } from "react-router-dom";
+import PawPattern from "@/components/icons/PawPattern";
+
 const Index = () => {
   const location = useLocation();
   const {
@@ -89,8 +91,9 @@ const Index = () => {
   useEffect(() => {
     setVisibleCount(4);
   }, [filters]);
-  return <div className="min-h-screen bg-background">
-      <main>
+  return <div className="min-h-screen bg-background relative">
+      <PawPattern />
+      <main className="relative z-10">
         <HeroSection />
         
         {/* Stats Section */}
