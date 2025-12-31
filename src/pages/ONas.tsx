@@ -7,6 +7,7 @@ import womanDog from "@/assets/about/woman-dog.png";
 import heroKittens from "@/assets/about/hero-kittens.jpg";
 import decorativePaws from "@/assets/decorative-paws.png";
 import WavyLine from "@/components/icons/WavyLine";
+import { ShelterHouseIcon, CatSterileIcon, CharityHandIcon, VaccineIcon } from "@/components/icons/ServiceIcons";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Heart, Package, Scissors, Stethoscope, Home, PawPrint as PawIcon } from "lucide-react";
@@ -32,11 +33,11 @@ const ONas = () => {
               alt=""
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/50 to-transparent" />
           </div>
 
           {/* Decorative paws as background */}
-          <div className="absolute inset-0 z-[1] pointer-events-none opacity-30">
+          <div className="absolute inset-0 z-[1] pointer-events-none opacity-20">
             <img
               src={decorativePaws}
               alt=""
@@ -50,28 +51,31 @@ const ONas = () => {
           </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full py-16 md:py-24">
-            <div className="max-w-2xl">
-              {/* Decorative wavy line */}
-              <div className="mb-6 md:mb-8">
-                <WavyLine variant="arrow" className="text-primary w-20 md:w-28" />
-              </div>
-              
-              {/* Large Logo */}
-              <div className="mb-6 md:mb-8">
-                <Logo className="h-24 md:h-32 lg:h-40 w-auto" />
-              </div>
-              
-              <p className="text-foreground/80 mb-8 text-lg md:text-xl lg:text-2xl max-w-lg font-medium">
-                Jesteśmy dla tych, którzy najbardziej nas potrzebują.
-              </p>
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              {/* Left side - Text + CTA */}
+              <div>
+                {/* Decorative wavy line */}
+                <div className="mb-6 md:mb-8">
+                  <WavyLine variant="arrow" className="text-primary w-20 md:w-28" />
+                </div>
+                
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+                  Jesteśmy dla tych,<br />którzy najbardziej<br />nas potrzebują.
+                </h1>
 
-              <div className="flex flex-wrap gap-4">
-                <Button asChild size="lg" className="rounded-full px-8 text-base">
-                  <Link to="/zwierzeta">Zobacz zwierzęta</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base bg-background/50 backdrop-blur-sm">
-                  <Link to="/organizacje">Nasze organizacje</Link>
-                </Button>
+                <div className="flex flex-wrap gap-4">
+                  <Button asChild size="lg" className="rounded-full px-8 text-base">
+                    <Link to="/zwierzeta">Zobacz zwierzęta</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base bg-background/50 backdrop-blur-sm">
+                    <Link to="/organizacje">Nasze organizacje</Link>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Right side - Large Logo */}
+              <div className="hidden lg:flex justify-center lg:justify-end">
+                <Logo className="h-32 md:h-40 lg:h-48 xl:h-56 w-auto drop-shadow-lg" />
               </div>
             </div>
           </div>
@@ -88,6 +92,62 @@ const ONas = () => {
                 </span>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Czym się zajmujemy Section */}
+        <section className="py-16 md:py-24 bg-muted/30">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-12 text-center lg:text-left">
+              Zakres naszych działań
+            </h2>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  Icon: ShelterHouseIcon,
+                  title: "Organizacja pomocy rzeczowej dla schronisk",
+                  desc: "Wspieramy schroniska w całej Polsce, dostarczając karmę, koce, zabawki i niezbędne akcesoria dla zwierząt."
+                },
+                {
+                  Icon: CatSterileIcon,
+                  title: "Gminna inicjatywa sterylizacji bezdomnych kotów",
+                  desc: "Prowadzimy programy sterylizacji wolno żyjących kotów, by ograniczyć bezdomność zwierząt.",
+                  featured: true
+                },
+                {
+                  Icon: CharityHandIcon,
+                  title: "Akcje społeczno-charytatywne",
+                  desc: "Organizujemy zbiórki, wydarzenia i kampanie społeczne na rzecz zwierząt potrzebujących pomocy."
+                },
+                {
+                  Icon: VaccineIcon,
+                  title: "Akcje promujące regularne szczepienia",
+                  desc: "Edukujemy opiekunów zwierząt o korzyściach regularnych szczepień i profilaktyki zdrowotnej."
+                }
+              ].map((item, i) => (
+                <div 
+                  key={i} 
+                  className={`rounded-3xl p-6 transition-all ${
+                    item.featured 
+                      ? 'bg-primary/10 border-2 border-primary/20' 
+                      : 'bg-background border border-border/50 hover:border-primary/30'
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
+                    item.featured ? 'bg-primary/20' : 'bg-muted'
+                  }`}>
+                    <item.Icon className={`w-7 h-7 ${item.featured ? 'text-primary' : 'text-primary'}`} />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2 text-lg leading-tight">
+                    {item.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
