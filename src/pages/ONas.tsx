@@ -1,6 +1,5 @@
 import Footer from "@/components/Footer";
 import LeadGenSection from "@/components/LeadGenSection";
-import { Logo } from "@/components/Logo";
 import kittenTrain from "@/assets/about/kitten-train.png";
 import kittensBasket from "@/assets/about/kittens-basket.jpg";
 import womanDog from "@/assets/about/woman-dog.png";
@@ -26,68 +25,59 @@ const ONas = () => {
       <main>
         {/* Hero Section */}
         <section className="relative min-h-[80vh] flex items-center overflow-hidden">
-          {/* Background image with overlay */}
+          {/* Background image with gradient overlay */}
           <div className="absolute inset-0 z-0">
             <img
               src={heroKittens}
               alt=""
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-foreground/60" />
+            {/* Soft dark gradient: darker on left, fading to transparent on right */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
           </div>
 
-          {/* Decorative paws as background */}
-          <div className="absolute inset-0 z-[1] pointer-events-none opacity-10">
+          {/* Decorative paws as subtle background */}
+          <div className="absolute inset-0 z-[1] pointer-events-none opacity-5">
             <img
               src={decorativePaws}
               alt=""
               className="absolute top-10 right-10 w-64 md:w-80 lg:w-96"
             />
-            <img
-              src={decorativePaws}
-              alt=""
-              className="absolute bottom-10 left-10 w-48 md:w-64 rotate-180"
-            />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full py-16 md:py-24">
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[60vh]">
-              {/* Left side - Text + CTA */}
-              <div>
-                {/* Decorative wavy line */}
-                <div className="mb-6 md:mb-8">
-                  <WavyLine variant="arrow" className="text-primary w-20 md:w-28" />
-                </div>
-                
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-                  Jesteśmy dla tych,<br />którzy najbardziej<br />nas potrzebują.
-                </h1>
-
-                <div className="flex flex-wrap gap-4">
-                  <Button asChild size="lg" className="rounded-full px-8 text-base">
-                    <Link to="/zwierzeta">Zobacz zwierzęta</Link>
-                  </Button>
-                  <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20">
-                    <Link to="/organizacje">Nasze organizacje</Link>
-                  </Button>
-                </div>
+          <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full py-20 md:py-32">
+            {/* Content - Left aligned, no logo on right */}
+            <div className="max-w-2xl">
+              {/* Decorative wavy line */}
+              <div className="mb-6">
+                <WavyLine variant="arrow" className="text-primary w-16 md:w-20" />
               </div>
+              
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight tracking-tight">
+                Jesteśmy dla tych,<br />którzy najbardziej<br />nas potrzebują.
+              </h1>
 
-              {/* Right side - Large Logo centered */}
-              <div className="hidden lg:flex items-center justify-center h-full">
-                <Logo className="h-40 lg:h-48 xl:h-56 w-auto drop-shadow-lg" />
+              <div className="flex flex-wrap gap-4">
+                {/* Primary CTA - Orange/mustard, distinct */}
+                <Button asChild size="lg" className="rounded-full px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-shadow">
+                  <Link to="/zwierzeta">Zobacz zwierzęta</Link>
+                </Button>
+                {/* Secondary CTA - Solid white with dark text for readability */}
+                <Button asChild size="lg" className="rounded-full px-8 text-base font-semibold bg-white text-foreground hover:bg-white/90 border-0 shadow-lg">
+                  <Link to="/organizacje">Nasze organizacje</Link>
+                </Button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Services scroll bar */}
-        <section className="bg-primary py-4 overflow-hidden">
+        {/* Services scroll bar - heavier icons */}
+        <section className="bg-primary py-5 overflow-hidden">
           <div className="flex animate-marquee whitespace-nowrap">
             {[...services, ...services].map((service, index) => (
-              <div key={index} className="flex items-center mx-6 md:mx-8">
-                <service.icon className="w-5 h-5 text-primary-foreground mr-2" />
-                <span className="text-primary-foreground font-medium text-sm md:text-base">
+              <div key={index} className="flex items-center mx-8 md:mx-10">
+                <service.icon className="w-6 h-6 text-primary-foreground mr-3" strokeWidth={2.5} />
+                <span className="text-primary-foreground font-semibold text-sm md:text-base">
                   {service.label}
                 </span>
               </div>
