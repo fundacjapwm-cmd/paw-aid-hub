@@ -156,14 +156,29 @@ const Navigation = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                variant="default" 
-                size="sm" 
-                className="px-5"
-                onClick={() => navigate('/auth')}
-              >
-                Zaloguj się
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    if (location.pathname === '/') {
+                      document.getElementById('dolacz')?.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      navigate('/?scroll=dolacz');
+                    }
+                  }}
+                >
+                  Załóż konto organizacji
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="px-5"
+                  onClick={() => navigate('/auth')}
+                >
+                  Zaloguj się
+                </Button>
+              </div>
             )}
             </div>
             

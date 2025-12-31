@@ -888,27 +888,42 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          billing_address: string | null
+          billing_city: string | null
+          billing_postal_code: string | null
           created_at: string | null
           display_name: string | null
+          first_name: string | null
           id: string
+          last_name: string | null
           must_change_password: boolean | null
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_postal_code?: string | null
           created_at?: string | null
           display_name?: string | null
+          first_name?: string | null
           id: string
+          last_name?: string | null
           must_change_password?: boolean | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_postal_code?: string | null
           created_at?: string | null
           display_name?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           must_change_password?: boolean | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
