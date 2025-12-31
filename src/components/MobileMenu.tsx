@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, Settings, LogOut } from 'lucide-react';
+import { Menu, Settings, LogOut, Building2 } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,6 +34,18 @@ const MobileMenu = () => {
   const handleNavigation = (path: string) => {
     navigate(path);
     setOpen(false);
+  };
+
+  const handleScrollToForm = () => {
+    setOpen(false);
+    if (location.pathname === '/') {
+      const element = document.getElementById('dolacz');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/?scroll=dolacz');
+    }
   };
 
   return (
@@ -111,9 +123,19 @@ const MobileMenu = () => {
               </button>
             </>
           ) : (
-            <Button asChild variant="default" className="w-full">
-              <Link to="/auth" onClick={() => setOpen(false)}>Zaloguj się</Link>
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button asChild variant="default" className="w-full">
+                <Link to="/auth" onClick={() => setOpen(false)}>Zaloguj się</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center gap-2"
+                onClick={handleScrollToForm}
+              >
+                <Building2 className="h-4 w-4" />
+                Załóż konto organizacji
+              </Button>
+            </div>
           )}
         </nav>
       </SheetContent>
