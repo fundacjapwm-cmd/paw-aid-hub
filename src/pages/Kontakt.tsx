@@ -97,7 +97,7 @@ const Kontakt = () => {
     }
   };
   return <div className="min-h-screen bg-background relative">
-      <PawPattern />
+      <PawPattern sparse />
       <main className="relative z-10">
         {/* Header Section */}
         <section className="py-12 md:py-20 bg-background">
