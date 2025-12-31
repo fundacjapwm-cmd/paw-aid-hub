@@ -88,8 +88,8 @@ const ONas = () => {
       <PawPattern />
       
       <main className="relative z-10">
-        {/* Hero Section */}
-        <section className="relative min-h-[80vh] flex items-center overflow-hidden">
+        {/* Hero Section - matching home page height and style */}
+        <section className="relative pt-8 pb-12 md:py-12 overflow-hidden">
           {/* Background image with gradient overlay */}
           <div className="absolute inset-0 z-0">
             <img
@@ -110,10 +110,10 @@ const ONas = () => {
             />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full py-20 md:py-32">
-            {/* Content - Left aligned, no logo on right */}
-            <div className="max-w-2xl">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white mb-8 leading-relaxed tracking-normal">
+          <div className="md:container md:mx-auto md:max-w-6xl md:px-8 relative z-10 px-4">
+            {/* Content - Left aligned, matching home page layout */}
+            <div className="max-w-2xl text-center lg:text-left">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight">
                 Jesteśmy dla tych,<br />którzy najbardziej<br />
                 nas{" "}
                 <span className="relative inline-block">
@@ -122,13 +122,17 @@ const ONas = () => {
                 </span>
               </h1>
 
-              <div className="flex flex-wrap gap-4">
-                {/* Primary CTA - Orange/mustard, distinct */}
-                <Button asChild size="lg" className="rounded-full px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-shadow">
+              <p className="text-base md:text-lg text-white/95 mb-4 md:mb-8 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
+                Fundacja Pączki w Maśle - wspieramy schroniska i organizacje w całej Polsce.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                {/* Primary CTA - matching home page style */}
+                <Button asChild size="lg" className="w-full sm:w-auto bg-accent text-white md:hover:bg-accent/90 md:hover:shadow-[0_0_30px_rgba(233,165,46,0.4)] shadow-card md:hover:-translate-y-1 transition-all duration-300 rounded-3xl px-8 h-14 text-lg font-bold md:hover:scale-105">
                   <Link to="/zwierzeta">Zobacz zwierzęta</Link>
                 </Button>
-                {/* Secondary CTA - Solid white with dark text for readability */}
-                <Button asChild size="lg" className="rounded-full px-8 text-base font-semibold bg-white text-foreground hover:bg-white/90 border-0 shadow-lg">
+                {/* Secondary CTA */}
+                <Button asChild size="lg" className="w-full sm:w-auto bg-secondary text-secondary-foreground md:hover:bg-secondary/90 md:hover:shadow-[0_0_30px_rgba(159,185,115,0.3)] shadow-card md:hover:-translate-y-1 transition-all duration-300 rounded-3xl px-8 h-14 text-lg font-bold md:hover:scale-105">
                   <Link to="/organizacje">Nasze organizacje</Link>
                 </Button>
               </div>
