@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { User, Settings, ShoppingBag, Building2, Shield, Eye, EyeOff, Trash2, Clock } from 'lucide-react';
+import { Settings, ShoppingBag, Building2, Shield, Eye, EyeOff, Trash2, Clock } from 'lucide-react';
 import { LoginHistory } from '@/components/LoginHistory';
 import { toast } from '@/hooks/use-toast';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -54,8 +54,13 @@ export default function Profile() {
   
   const [profileForm, setProfileForm] = useState({
     display_name: '',
-    avatar_url: ''
+    first_name: '',
+    last_name: '',
+    billing_address: '',
+    billing_city: '',
+    billing_postal_code: ''
   });
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -65,12 +70,35 @@ export default function Profile() {
 
   useEffect(() => {
     if (profile) {
-      setProfileForm({
-        display_name: profile.display_name || '',
-        avatar_url: profile.avatar_url || ''
-      });
+      // Profile from DB may have additional fields we need to fetch
+      fetchProfileDetails();
     }
   }, [profile]);
+
+  const fetchProfileDetails = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, billing_address, billing_city, billing_postal_code')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        setProfileForm(prev => ({
+          ...prev,
+          display_name: profile?.display_name || '',
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          billing_address: data.billing_address || '',
+          billing_city: data.billing_city || '',
+          billing_postal_code: data.billing_postal_code || ''
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching profile details:', error);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -127,18 +155,32 @@ export default function Profile() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await updateProfile(profileForm);
-    
-    if (error) {
+    try {
+      // Update profile with all fields including new billing info
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: profileForm.display_name,
+          first_name: profileForm.first_name,
+          last_name: profileForm.last_name,
+          billing_address: profileForm.billing_address,
+          billing_city: profileForm.billing_city,
+          billing_postal_code: profileForm.billing_postal_code,
+        })
+        .eq('id', user!.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Profil zaktualizowany",
+        description: "Zmiany zostały zapisane pomyślnie."
+      });
+      setIsEditingProfile(false);
+    } catch (error: any) {
       toast({
         title: "Błąd",
         description: error.message,
         variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Profil zaktualizowany",
-        description: "Zmiany zostały zapisane pomyślnie."
       });
     }
     
@@ -362,37 +404,113 @@ export default function Profile() {
 
   return (
     <div className="md:container md:mx-auto md:px-8 py-8 px-4 space-y-6">
-      {/* Profile Header */}
+      {/* Profile Header with editable fields */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={profile?.avatar_url || ''} />
-              <AvatarFallback>
-                {profile?.display_name?.charAt(0) || user.email?.charAt(0) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-2xl font-bold">
-                {profile?.display_name || user.email}
-              </h1>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant={getRoleBadgeVariant(profile?.role || 'USER')}>
-                  {getRoleLabel(profile?.role || 'USER')}
-                </Badge>
-                <span className="text-sm text-muted-foreground">{user.email}</span>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                  {profile?.display_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {profile?.display_name || user.email}
+                </h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant={getRoleBadgeVariant(profile?.role || 'USER')}>
+                    {getRoleLabel(profile?.role || 'USER')}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">{user.email}</span>
+                </div>
               </div>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsEditingProfile(!isEditingProfile)}
+            >
+              {isEditingProfile ? 'Anuluj' : 'Edytuj profil'}
+            </Button>
           </div>
         </CardHeader>
+        {isEditingProfile && (
+          <CardContent>
+            <form onSubmit={handleProfileUpdate} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="display_name">Nazwa wyświetlana</Label>
+                  <Input
+                    id="display_name"
+                    value={profileForm.display_name}
+                    onChange={(e) => setProfileForm({ ...profileForm, display_name: e.target.value })}
+                    placeholder="Twoja nazwa"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">Imię</Label>
+                  <Input
+                    id="first_name"
+                    value={profileForm.first_name}
+                    onChange={(e) => setProfileForm({ ...profileForm, first_name: e.target.value })}
+                    placeholder="Jan"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Nazwisko</Label>
+                  <Input
+                    id="last_name"
+                    value={profileForm.last_name}
+                    onChange={(e) => setProfileForm({ ...profileForm, last_name: e.target.value })}
+                    placeholder="Kowalski"
+                  />
+                </div>
+              </div>
+              
+              <Separator className="my-4" />
+              <h3 className="font-medium text-sm text-muted-foreground">Adres do płatności</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="billing_address">Adres</Label>
+                  <Input
+                    id="billing_address"
+                    value={profileForm.billing_address}
+                    onChange={(e) => setProfileForm({ ...profileForm, billing_address: e.target.value })}
+                    placeholder="ul. Przykładowa 10/5"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="billing_postal_code">Kod pocztowy</Label>
+                  <Input
+                    id="billing_postal_code"
+                    value={profileForm.billing_postal_code}
+                    onChange={(e) => setProfileForm({ ...profileForm, billing_postal_code: e.target.value })}
+                    placeholder="00-000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="billing_city">Miasto</Label>
+                  <Input
+                    id="billing_city"
+                    value={profileForm.billing_city}
+                    onChange={(e) => setProfileForm({ ...profileForm, billing_city: e.target.value })}
+                    placeholder="Warszawa"
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Zapisywanie...' : 'Zapisz zmiany'}
+              </Button>
+            </form>
+          </CardContent>
+        )}
       </Card>
 
-      <Tabs defaultValue="profile" className="space-y-4">
+      <Tabs defaultValue="orders" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Profil
-          </TabsTrigger>
           <TabsTrigger value="orders" className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4" />
             Zamówienia
@@ -412,44 +530,6 @@ export default function Profile() {
             Ustawienia
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>Informacje o profilu</CardTitle>
-              <CardDescription>
-                Zarządzaj swoimi danymi osobowymi
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleProfileUpdate} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="display_name">Nazwa wyświetlana</Label>
-                  <Input
-                    id="display_name"
-                    value={profileForm.display_name}
-                    onChange={(e) => setProfileForm({ ...profileForm, display_name: e.target.value })}
-                    placeholder="Twoja nazwa"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="avatar_url">URL awatara</Label>
-                  <Input
-                    id="avatar_url"
-                    value={profileForm.avatar_url}
-                    onChange={(e) => setProfileForm({ ...profileForm, avatar_url: e.target.value })}
-                    placeholder="https://..."
-                  />
-                </div>
-
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Zapisywanie...' : 'Zapisz zmiany'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="orders">
           <Card>

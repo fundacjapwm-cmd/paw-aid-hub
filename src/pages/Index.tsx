@@ -31,7 +31,20 @@ const Index = () => {
 
   // Handle scrolling to anchor after navigation
   useEffect(() => {
-    if (location.hash) {
+    const params = new URLSearchParams(location.search);
+    const scrollTarget = params.get('scroll');
+    
+    if (scrollTarget) {
+      const element = document.getElementById(scrollTarget);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 300);
+      }
+    } else if (location.hash) {
       const element = document.querySelector(location.hash);
       if (element) {
         setTimeout(() => {
