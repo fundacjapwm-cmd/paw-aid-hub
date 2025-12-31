@@ -35,20 +35,24 @@ const Index = () => {
     const scrollTarget = params.get('scroll');
     
     const scrollToElement = (elementId: string) => {
-      const attemptScroll = (attempts = 0) => {
+      // Wait for animals to load before scrolling to prevent layout shift
+      const waitForContentAndScroll = () => {
         const element = document.getElementById(elementId);
-        if (element) {
-          element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
+        if (!element) return;
+        
+        // Use requestAnimationFrame to ensure layout is complete
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
           });
-        } else if (attempts < 10) {
-          // Retry if element not found yet (page still loading)
-          setTimeout(() => attemptScroll(attempts + 1), 100);
-        }
+        });
       };
-      // Initial delay to let page render
-      setTimeout(() => attemptScroll(), 100);
+      
+      // Longer initial delay to let animals section render
+      setTimeout(waitForContentAndScroll, 500);
     };
     
     if (scrollTarget) {
@@ -56,7 +60,7 @@ const Index = () => {
     } else if (location.hash) {
       scrollToElement(location.hash.replace('#', ''));
     }
-  }, [location]);
+  }, [location, loading]);
 
   // Calculate wishlist progress for an animal
   const calculateProgress = (animal: any) => {
