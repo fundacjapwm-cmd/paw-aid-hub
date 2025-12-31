@@ -111,9 +111,10 @@ const ONas = () => {
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white mb-8 leading-relaxed tracking-normal">
                 Jesteśmy dla tych,<br />którzy najbardziej<br />
+                nas{" "}
                 <span className="relative inline-block">
-                  nas potrzebują.
-                  <HandwrittenUnderline className="absolute -bottom-1 left-0 w-full text-primary" />
+                  potrzebują.
+                  <HandwrittenUnderline className="absolute -bottom-2 left-0 w-full text-primary" />
                 </span>
               </h1>
 
