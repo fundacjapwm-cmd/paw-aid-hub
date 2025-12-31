@@ -13,6 +13,7 @@ import { Settings, ShoppingBag, Building2, Shield, Eye, EyeOff, Trash2, Clock } 
 import { LoginHistory } from '@/components/LoginHistory';
 import { toast } from '@/hooks/use-toast';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { profileSchema, validatePostalCode } from '@/lib/validations/profile';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,6 +61,7 @@ export default function Profile() {
     billing_city: '',
     billing_postal_code: ''
   });
+  const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({
@@ -153,6 +155,26 @@ export default function Profile() {
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setProfileErrors({});
+    
+    // Validate form data
+    const result = profileSchema.safeParse(profileForm);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setProfileErrors(errors);
+      toast({
+        title: "Błąd walidacji",
+        description: "Sprawdź poprawność wprowadzonych danych",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -479,16 +501,26 @@ export default function Profile() {
                     value={profileForm.billing_address}
                     onChange={(e) => setProfileForm({ ...profileForm, billing_address: e.target.value })}
                     placeholder="ul. Przykładowa 10/5"
+                    maxLength={200}
+                    className={profileErrors.billing_address ? 'border-destructive' : ''}
                   />
+                  {profileErrors.billing_address && (
+                    <p className="text-sm text-destructive">{profileErrors.billing_address}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="billing_postal_code">Kod pocztowy</Label>
                   <Input
                     id="billing_postal_code"
                     value={profileForm.billing_postal_code}
-                    onChange={(e) => setProfileForm({ ...profileForm, billing_postal_code: e.target.value })}
+                    onChange={(e) => setProfileForm({ ...profileForm, billing_postal_code: validatePostalCode(e.target.value) })}
                     placeholder="00-000"
+                    maxLength={6}
+                    className={profileErrors.billing_postal_code ? 'border-destructive' : ''}
                   />
+                  {profileErrors.billing_postal_code && (
+                    <p className="text-sm text-destructive">{profileErrors.billing_postal_code}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="billing_city">Miasto</Label>
@@ -497,7 +529,12 @@ export default function Profile() {
                     value={profileForm.billing_city}
                     onChange={(e) => setProfileForm({ ...profileForm, billing_city: e.target.value })}
                     placeholder="Warszawa"
+                    maxLength={100}
+                    className={profileErrors.billing_city ? 'border-destructive' : ''}
                   />
+                  {profileErrors.billing_city && (
+                    <p className="text-sm text-destructive">{profileErrors.billing_city}</p>
+                  )}
                 </div>
               </div>
 
