@@ -188,15 +188,15 @@ const ONas = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-        {/* Zakres naszych działań Section - with animated background */}
-        <section className="py-16 md:py-24 bg-muted/40 relative">
+        {/* Zakres naszych działań Section */}
+        <section className="py-16 md:py-24 bg-muted/50 relative">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-12 text-center lg:text-left">
-              Zakres naszych działań
-            </h2>
+            <div className="text-center mb-12">
+              <p className="text-primary font-medium mb-2">Nasza działalność</p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground">
+                Zakres naszych działań
+              </h2>
+            </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {scopeItems.map((item, i) => (
@@ -230,15 +230,12 @@ const ONas = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-        {/* Jak pomagamy zwierzętom Section - with custom graphics */}
+        {/* Jak pomagamy zwierzętom Section */}
         <section className="py-16 md:py-24 bg-background relative">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="text-center mb-12">
               <p className="text-primary font-medium mb-2">Krok po kroku</p>
-              <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground">
                 Jak pomagamy zwierzętom?
               </h2>
             </div>
@@ -264,14 +261,12 @@ const ONas = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-        {/* Nasza misja Section - Simplified */}
-        <section className="py-16 md:py-24 bg-muted/40 relative">
+        {/* Nasza misja Section */}
+        <section className="py-16 md:py-24 bg-muted/50 relative">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
+              <p className="text-primary font-medium mb-2">Cel naszej pracy</p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground">
                 Nasza misja
               </h2>
             </div>
