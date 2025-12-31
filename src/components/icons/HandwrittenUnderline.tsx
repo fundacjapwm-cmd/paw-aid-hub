@@ -16,53 +16,28 @@ const HandwrittenUnderline = ({ className }: HandwrittenUnderlineProps) => {
     >
       <style>
         {`
-          .draw-ltr {
-            stroke-dasharray: 150;
-            stroke-dashoffset: 150;
-            animation: drawLeftToRight 0.4s ease-out forwards;
+          .continuous-underline {
+            stroke-dasharray: 350;
+            stroke-dashoffset: 350;
+            animation: drawContinuous 1.2s ease-in-out forwards;
+            animation-delay: 0.3s;
           }
-          .draw-rtl {
-            stroke-dasharray: 150;
-            stroke-dashoffset: -150;
-            animation: drawRightToLeft 0.4s ease-out forwards;
-          }
-          .line-1 { animation-delay: 0.3s; }
-          .line-2 { animation-delay: 0.7s; }
-          .line-3 { animation-delay: 1.1s; }
           
-          @keyframes drawLeftToRight {
-            to { stroke-dashoffset: 0; }
-          }
-          @keyframes drawRightToLeft {
+          @keyframes drawContinuous {
             to { stroke-dashoffset: 0; }
           }
         `}
       </style>
-      {/* First stroke: left to right */}
+      {/* Single continuous path: left→right, right→left, left→right */}
       <path
-        className="draw-ltr line-1"
-        d="M0 5 Q 15 3, 30 6 T 55 4 Q 75 2, 100 5"
+        className="continuous-underline"
+        d="M0 5 Q 20 3, 40 6 T 80 4 Q 95 3, 100 5
+           Q 95 7, 80 9 T 40 8 Q 20 10, 0 9
+           Q 15 11, 35 14 T 70 12 Q 90 11, 100 13"
         stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="round"
-        fill="none"
-      />
-      {/* Second stroke: right to left */}
-      <path
-        className="draw-rtl line-2"
-        d="M100 9 Q 80 12, 60 8 T 30 11 Q 15 13, 0 9"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        fill="none"
-      />
-      {/* Third stroke: left to right again */}
-      <path
-        className="draw-ltr line-3"
-        d="M0 13 Q 20 11, 40 14 T 70 12 Q 85 10, 100 13"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
+        strokeLinejoin="round"
         fill="none"
       />
     </svg>
