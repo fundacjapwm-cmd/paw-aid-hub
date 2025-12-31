@@ -34,26 +34,27 @@ const Index = () => {
     const params = new URLSearchParams(location.search);
     const scrollTarget = params.get('scroll');
     
+    const scrollToElement = (elementId: string) => {
+      const attemptScroll = (attempts = 0) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        } else if (attempts < 10) {
+          // Retry if element not found yet (page still loading)
+          setTimeout(() => attemptScroll(attempts + 1), 100);
+        }
+      };
+      // Initial delay to let page render
+      setTimeout(() => attemptScroll(), 100);
+    };
+    
     if (scrollTarget) {
-      const element = document.getElementById(scrollTarget);
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }, 300);
-      }
+      scrollToElement(scrollTarget);
     } else if (location.hash) {
-      const element = document.querySelector(location.hash);
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }, 300);
-      }
+      scrollToElement(location.hash.replace('#', ''));
     }
   }, [location]);
 
