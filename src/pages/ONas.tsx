@@ -4,8 +4,9 @@ import { Logo } from "@/components/Logo";
 import kittenTrain from "@/assets/about/kitten-train.png";
 import kittensBasket from "@/assets/about/kittens-basket.jpg";
 import womanDog from "@/assets/about/woman-dog.png";
+import heroKittens from "@/assets/about/hero-kittens.jpg";
+import decorativePaws from "@/assets/decorative-paws.png";
 import WavyLine from "@/components/icons/WavyLine";
-import PawPrint from "@/components/icons/PawPrint";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Heart, Package, Scissors, Stethoscope, Home, PawPrint as PawIcon } from "lucide-react";
@@ -23,75 +24,54 @@ const ONas = () => {
     <div className="min-h-screen bg-background">
       <main>
         {/* Hero Section */}
-        <section className="relative pt-8 pb-12 md:pt-12 md:pb-20 overflow-hidden">
-          {/* Background paw decorations */}
-          <div className="absolute top-40 left-[5%] text-primary/10 hidden lg:block">
-            <PawPrint className="w-20 h-20" />
+        <section className="relative min-h-[80vh] flex items-center overflow-hidden">
+          {/* Background image with overlay */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src={heroKittens}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/60" />
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            {/* Wavy line decoration */}
-            <div className="flex justify-center mb-6 md:mb-8">
-              <WavyLine className="text-primary w-28 md:w-40" />
-            </div>
+          {/* Decorative paws as background */}
+          <div className="absolute inset-0 z-[1] pointer-events-none opacity-30">
+            <img
+              src={decorativePaws}
+              alt=""
+              className="absolute top-10 right-10 w-64 md:w-80 lg:w-96"
+            />
+            <img
+              src={decorativePaws}
+              alt=""
+              className="absolute bottom-10 left-10 w-48 md:w-64 rotate-180"
+            />
+          </div>
 
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              {/* Left side - Text content */}
-              <div className="order-2 lg:order-1">
-                {/* Decorative arrow */}
-                <div className="mb-4">
-                  <WavyLine variant="arrow" className="text-primary w-16 md:w-20" />
-                </div>
-                
-                <div className="flex justify-start mb-6">
-                  <Logo className="h-12 md:h-16" />
-                </div>
-                
-                <p className="text-muted-foreground mb-6 text-base md:text-lg max-w-md">
-                  Jesteśmy dla tych, którzy najbardziej nas potrzebują. Pomagamy zwierzętom w schroniskach znaleźć kochające domy.
-                </p>
-
-                <div className="flex flex-wrap gap-3">
-                  <Button asChild size="lg" className="rounded-full px-6">
-                    <Link to="/zwierzeta">Zobacz zwierzęta</Link>
-                  </Button>
-                  <Button asChild variant="outline" size="lg" className="rounded-full px-6">
-                    <Link to="/organizacje">Nasze organizacje</Link>
-                  </Button>
-                </div>
+          <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full py-16 md:py-24">
+            <div className="max-w-2xl">
+              {/* Decorative wavy line */}
+              <div className="mb-6 md:mb-8">
+                <WavyLine variant="arrow" className="text-primary w-20 md:w-28" />
               </div>
+              
+              {/* Large Logo */}
+              <div className="mb-6 md:mb-8">
+                <Logo className="h-24 md:h-32 lg:h-40 w-auto" />
+              </div>
+              
+              <p className="text-foreground/80 mb-8 text-lg md:text-xl lg:text-2xl max-w-lg font-medium">
+                Jesteśmy dla tych, którzy najbardziej nas potrzebują.
+              </p>
 
-              {/* Right side - Images */}
-              <div className="order-1 lg:order-2 relative">
-                <div className="flex gap-4 justify-center lg:justify-end">
-                  {/* First image - rounded rectangle */}
-                  <div className="relative w-[45%] max-w-[200px]">
-                    <div className="aspect-[3/4] rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-lg">
-                      <img
-                        src={kittenTrain}
-                        alt="Ludzie głaszczący kociaka"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Second image - with circular yellow background */}
-                  <div className="relative w-[45%] max-w-[200px] mt-8 md:mt-12">
-                    <div className="absolute -inset-4 bg-primary/20 rounded-full -z-10" />
-                    <div className="aspect-[3/4] rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-lg">
-                      <img
-                        src={womanDog}
-                        alt="Kobieta z psem"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Decorative arrow below images */}
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2">
-                  <WavyLine variant="loop" className="text-primary w-20 md:w-24" />
-                </div>
+              <div className="flex flex-wrap gap-4">
+                <Button asChild size="lg" className="rounded-full px-8 text-base">
+                  <Link to="/zwierzeta">Zobacz zwierzęta</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base bg-background/50 backdrop-blur-sm">
+                  <Link to="/organizacje">Nasze organizacje</Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -152,8 +132,8 @@ const ONas = () => {
                 </div>
                 
                 {/* Decorative paw */}
-                <div className="absolute -right-4 -top-4 text-primary/20 hidden md:block">
-                  <PawPrint className="w-16 h-16" />
+                <div className="absolute -right-8 -top-8 hidden md:block pointer-events-none opacity-40">
+                  <img src={decorativePaws} alt="" className="w-32 h-32 object-contain" />
                 </div>
               </div>
 
@@ -293,11 +273,11 @@ const ONas = () => {
         {/* CTA Section with dark background */}
         <section className="py-16 md:py-24 bg-foreground relative overflow-hidden">
           {/* Decorative paws */}
-          <div className="absolute bottom-0 left-0 text-background/10">
-            <PawPrint className="w-48 h-48 md:w-64 md:h-64" />
+          <div className="absolute bottom-0 left-0 opacity-10 pointer-events-none">
+            <img src={decorativePaws} alt="" className="w-64 md:w-96" />
           </div>
-          <div className="absolute top-10 right-10 text-background/10 hidden md:block">
-            <PawPrint className="w-24 h-24 rotate-12" />
+          <div className="absolute top-10 right-10 opacity-10 hidden md:block pointer-events-none">
+            <img src={decorativePaws} alt="" className="w-40 rotate-45" />
           </div>
 
           <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
