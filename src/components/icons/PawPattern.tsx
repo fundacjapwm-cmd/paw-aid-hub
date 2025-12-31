@@ -4,9 +4,28 @@ import pawPatternImage from "@/assets/paw-pattern.png";
 
 interface PawPatternProps {
   className?: string;
+  sparse?: boolean;
 }
 
-const PawPattern = ({ className }: PawPatternProps) => {
+const PawPattern = ({ className, sparse = false }: PawPatternProps) => {
+  if (sparse) {
+    return (
+      <div className={cn("absolute inset-0 overflow-hidden pointer-events-none", className)}>
+        {/* Fewer paw prints for smaller pages */}
+        <img 
+          src={pawPatternImage} 
+          alt="" 
+          className="absolute top-[5%] right-[3%] w-48 md:w-64 lg:w-80 opacity-80"
+        />
+        <img 
+          src={pawPatternImage} 
+          alt="" 
+          className="absolute bottom-[10%] left-[2%] w-40 md:w-56 lg:w-72 opacity-70 rotate-[-15deg]"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={cn("absolute inset-0 overflow-hidden pointer-events-none", className)}>
       {/* Large paw prints scattered across the page - more visible */}
