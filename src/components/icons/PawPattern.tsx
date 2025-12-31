@@ -9,31 +9,31 @@ interface PawPatternProps {
 const PawPattern = ({ className }: PawPatternProps) => {
   return (
     <div className={cn("absolute inset-0 overflow-hidden pointer-events-none", className)}>
-      {/* Large paw prints scattered across the page */}
+      {/* Large paw prints scattered across the page - more visible */}
       <img 
         src={pawPatternImage} 
         alt="" 
-        className="absolute top-[2%] right-[5%] w-64 md:w-80 lg:w-96 opacity-60"
+        className="absolute top-[2%] right-[5%] w-72 md:w-96 lg:w-[500px] opacity-100"
       />
       <img 
         src={pawPatternImage} 
         alt="" 
-        className="absolute top-[25%] left-[-5%] w-56 md:w-72 lg:w-80 opacity-50 -rotate-12"
+        className="absolute top-[25%] left-[-5%] w-64 md:w-80 lg:w-96 opacity-90 -rotate-12"
       />
       <img 
         src={pawPatternImage} 
         alt="" 
-        className="absolute top-[45%] right-[-8%] w-64 md:w-80 lg:w-96 opacity-55 rotate-6"
+        className="absolute top-[45%] right-[-8%] w-72 md:w-96 lg:w-[500px] opacity-95 rotate-6"
       />
       <img 
         src={pawPatternImage} 
         alt="" 
-        className="absolute top-[65%] left-[2%] w-48 md:w-64 lg:w-72 opacity-45 rotate-[-20deg]"
+        className="absolute top-[65%] left-[2%] w-56 md:w-72 lg:w-80 opacity-85 rotate-[-20deg]"
       />
       <img 
         src={pawPatternImage} 
         alt="" 
-        className="absolute top-[85%] right-[10%] w-56 md:w-72 lg:w-80 opacity-50 rotate-12"
+        className="absolute top-[85%] right-[10%] w-64 md:w-80 lg:w-96 opacity-90 rotate-12"
       />
     </div>
   );
