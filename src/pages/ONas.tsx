@@ -89,7 +89,7 @@ const ONas = () => {
       
       <main className="relative z-10">
         {/* Hero Section - matching home page height and style */}
-        <section className="relative pt-8 pb-12 md:py-12 overflow-hidden">
+        <section className="relative pt-8 pb-12 md:py-12 min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-hidden flex items-center">
           {/* Background image with gradient overlay */}
           <div className="absolute inset-0 z-0">
             <img
