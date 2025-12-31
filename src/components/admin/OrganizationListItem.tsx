@@ -3,10 +3,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Edit, Trash2, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { Organization } from '@/hooks/useAdminOrganizations';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { Link } from 'react-router-dom';
 
 interface OrganizationListItemProps {
   organization: Organization;
@@ -26,31 +27,33 @@ export function OrganizationListItem({
   onDelete,
 }: OrganizationListItemProps) {
   return (
-    <div className="flex items-center justify-between p-4 border rounded-2xl">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold">{organization.name}</h3>
-          {organization.terms_accepted_at ? (
-            <Badge variant="default" className="gap-1 bg-green-500/10 text-green-600 hover:bg-green-500/20">
-              <CheckCircle className="h-3 w-3" />
-              Regulamin zaakceptowany
-            </Badge>
-          ) : (
-            <Badge variant="secondary" className="gap-1 bg-orange-500/10 text-orange-600 hover:bg-orange-500/20">
-              <XCircle className="h-3 w-3" />
-              Brak akceptacji
-            </Badge>
+    <div className="flex items-center justify-between p-4 border rounded-2xl hover:bg-muted/30 transition-colors">
+      <Link to={`/admin/organizacje/${organization.id}`} className="flex-1 cursor-pointer">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold hover:text-primary transition-colors">{organization.name}</h3>
+            {organization.terms_accepted_at ? (
+              <Badge variant="default" className="gap-1 bg-green-500/10 text-green-600 hover:bg-green-500/20">
+                <CheckCircle className="h-3 w-3" />
+                Regulamin zaakceptowany
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="gap-1 bg-orange-500/10 text-orange-600 hover:bg-orange-500/20">
+                <XCircle className="h-3 w-3" />
+                Brak akceptacji
+              </Badge>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">{organization.contact_email}</p>
+          <p className="text-xs text-muted-foreground">Slug: {organization.slug}</p>
+          {organization.terms_accepted_at && (
+            <p className="text-xs text-green-600">
+              Zaakceptowano: {format(new Date(organization.terms_accepted_at), "d MMMM yyyy, HH:mm", { locale: pl })}
+            </p>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">{organization.contact_email}</p>
-        <p className="text-xs text-muted-foreground">Slug: {organization.slug}</p>
-        {organization.terms_accepted_at && (
-          <p className="text-xs text-green-600">
-            Zaakceptowano: {format(new Date(organization.terms_accepted_at), "d MMMM yyyy, HH:mm", { locale: pl })}
-          </p>
-        )}
-      </div>
-      <div className="flex gap-2">
+      </Link>
+      <div className="flex gap-2 ml-4">
         <Dialog>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline" onClick={() => onEdit(organization)}>

@@ -21,6 +21,7 @@ import Profile from "./pages/Profile";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminStats from "./pages/admin/AdminStats";
 import AdminOrganizations from "./pages/admin/AdminOrganizations";
+import AdminOrganizationDetails from "./pages/admin/AdminOrganizationDetails";
 import AdminProducers from "./pages/admin/AdminProducers";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminLogs from "./pages/admin/AdminLogs";
@@ -88,6 +89,7 @@ function AppContent() {
             <Route path="logistyka/dostawy" element={<AdminDeliveries />} />
             <Route path="logistyka/zakonczone" element={<AdminLogisticsCompleted />} />
             <Route path="organizacje" element={<AdminOrganizations />} />
+            <Route path="organizacje/:id" element={<AdminOrganizationDetails />} />
             <Route path="zgloszenia" element={<AdminLeads />} />
             <Route path="zwierzeta" element={<AdminAnimals />} />
             <Route path="producenci" element={<AdminProducers />} />
