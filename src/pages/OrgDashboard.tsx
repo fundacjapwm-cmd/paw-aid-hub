@@ -285,10 +285,16 @@ export default function OrgDashboard() {
         }
       }
 
-      setNewAnimalId(newAnimal.id);
-      setNewAnimalName(data.name);
-      setAddAnimalStep("wishlist");
+      // Close dialog and show success message
+      handleCloseAddDialog();
       refetch();
+      
+      // Show toast with action to add products
+      toast.success(`Dodano podopiecznego "${data.name}"`, {
+        description: "Kliknij na kartę podopiecznego aby dodać produkty do listy potrzeb",
+        duration: 6000,
+      });
+      
       // Advance onboarding to wishlist step with animal info
       if (onboardingStep === 'animal') {
         advanceOnboarding(data.name, newAnimal.id);
