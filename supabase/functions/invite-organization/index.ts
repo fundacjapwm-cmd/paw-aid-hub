@@ -285,7 +285,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     try {
       const { data: emailData, error: emailError } = await resend.emails.send({
-        from: "Paczki w Maśle <onboarding@resend.dev>",
+        from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
         to: [email],
         subject: `🎉 Twoje konto zostało aktywowane, ${organizationName}!`,
         html: emailHtml,

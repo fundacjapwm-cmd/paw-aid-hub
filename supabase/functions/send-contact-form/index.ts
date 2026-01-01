@@ -84,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send email notification to organization
     try {
       const emailResponse = await resend.emails.send({
-        from: "Pączki w Maśle <onboarding@resend.dev>",
+        from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
         to: ["fundacjapwm@gmail.com"],
         subject: `Nowa wiadomość od ${htmlEncode(name)}`,
         html: `

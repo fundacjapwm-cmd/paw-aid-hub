@@ -124,7 +124,7 @@ serve(async (req) => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: 'Darowizny dla Zwierząt <onboarding@resend.dev>',
+      from: 'Paczki w Maśle <kontakt@paczkiwmasle.pl>',
       to: [customerEmail],
       subject: `Potwierdzenie darowizny - zamówienie ${orderId.substring(0, 8).toUpperCase()}`,
       html: receiptHtml,

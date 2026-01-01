@@ -114,7 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     await resend.emails.send({
-      from: "Platforma Adopcji <onboarding@resend.dev>",
+      from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
       to: [email],
       subject: `Zaproszenie do zarządzania organizacją ${organizationName}`,
       html: emailHtml,
