@@ -38,15 +38,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     const fetchProfile = async (userId: string) => {
       try {
-        const [{ data: profileData }, { data: roleData }] = await Promise.all([
+        const [{ data: profileData }, { data: rolesData }] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', userId).single(),
-          supabase.from('user_roles').select('role').eq('user_id', userId).single()
+          supabase.from('user_roles').select('role').eq('user_id', userId)
         ]);
         
         if (mounted && profileData) {
+          // Prioritize roles: ADMIN > ORG > USER
+          const roles = rolesData?.map(r => r.role) || [];
+          let effectiveRole: 'ADMIN' | 'ORG' | 'USER' = 'USER';
+          if (roles.includes('ADMIN')) {
+            effectiveRole = 'ADMIN';
+          } else if (roles.includes('ORG')) {
+            effectiveRole = 'ORG';
+          }
+          
           setProfile({
             ...profileData,
-            role: roleData?.role || 'USER'
+            role: effectiveRole
           });
         }
       } catch (error) {
@@ -164,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Fetch profile to check must_change_password
     if (data.user && data.session) {
-      const [profileResult, roleResult] = await Promise.all([
+      const [profileResult, rolesResult] = await Promise.all([
         supabase
           .from('profiles')
           .select('*')
@@ -174,13 +183,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .from('user_roles')
           .select('role')
           .eq('user_id', data.user.id)
-          .single()
       ]);
       
       if (profileResult.data) {
+        // Prioritize roles: ADMIN > ORG > USER
+        const roles = rolesResult.data?.map(r => r.role) || [];
+        let effectiveRole: 'ADMIN' | 'ORG' | 'USER' = 'USER';
+        if (roles.includes('ADMIN')) {
+          effectiveRole = 'ADMIN';
+        } else if (roles.includes('ORG')) {
+          effectiveRole = 'ORG';
+        }
+        
         setProfile({
           ...profileResult.data,
-          role: roleResult.data?.role || 'USER'
+          role: effectiveRole
         });
       }
       
