@@ -54,6 +54,7 @@ import Regulamin from "./pages/Regulamin";
 import FAQ from "./pages/FAQ";
 import ZalozKonto from "./pages/ZalozKonto";
 import { CookieConsent } from "./components/CookieConsent";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -131,6 +132,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <AppContent />
               <CookieConsent />
             </BrowserRouter>
