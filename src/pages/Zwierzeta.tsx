@@ -17,6 +17,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import animalsHero from "@/assets/animals-hero.jpg";
 
 const Zwierzeta = () => {
   const { animals: allAnimals, loading, error } = useAnimalsWithWishlists();
@@ -167,39 +168,50 @@ const Zwierzeta = () => {
     <div className="min-h-screen bg-background relative">
       <PawPattern />
       <main className="relative z-10">
-        <section className="py-12 md:py-20 bg-background">
-          <div className="md:container md:mx-auto md:px-8 px-4">
+        {/* Hero Section with Background Image */}
+        <section 
+          className="relative pt-8 pb-32 md:pb-40 overflow-hidden"
+          style={{
+            backgroundImage: `url(${animalsHero})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
+          
+          <div className="md:container md:mx-auto md:px-8 px-4 relative z-10">
             {/* Breadcrumbs */}
             <Breadcrumb className="mb-6">
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to="/" className="flex items-center gap-1">
+                    <Link to="/" className="flex items-center gap-1 text-white/80 hover:text-white">
                       <Home className="h-4 w-4" />
                       <span className="hidden sm:inline">Strona główna</span>
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
+                <BreadcrumbSeparator className="text-white/60" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Zwierzęta</BreadcrumbPage>
+                  <BreadcrumbPage className="text-white">Zwierzęta</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="text-center">
-              <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+            <div className="text-center py-8 md:py-12">
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
                 Nasi podopieczni
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+              <p className="text-lg text-white/90 max-w-2xl mx-auto">
                 Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
               </p>
             </div>
           </div>
         </section>
 
-        {/* Filters Section */}
-        <section className="py-8 bg-muted/30">
+        {/* Filters Section - overlapping hero */}
+        <section className="relative -mt-20 md:-mt-24 pb-8">
           <div className="md:container md:mx-auto md:px-8 md:max-w-7xl px-4">
             <AnimalFilters onFilterChange={setFilters} />
           </div>
