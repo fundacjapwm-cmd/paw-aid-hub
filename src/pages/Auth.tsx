@@ -72,14 +72,30 @@ export default function Auth() {
     
     const checkUserAndRedirect = async () => {
       try {
-        // Pobierz profil, aby sprawdzić rolę i wymuszenie zmiany hasła
-        const { data: profileData, error } = await supabase
-          .from('profiles')
-          .select('must_change_password, role')
-          .eq('id', user.id)
-          .single();
+        // Pobierz profil i rolę z user_roles
+        const [{ data: profileData }, { data: roleData }] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('must_change_password')
+            .eq('id', user.id)
+            .single(),
+          supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .eq('role', 'ORG')
+            .maybeSingle()
+        ]);
         
-        if (!isMounted || error) return;
+        // Also check for ADMIN role
+        const { data: adminRoleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'ADMIN')
+          .maybeSingle();
+        
+        if (!isMounted) return;
         
         // 1. Priorytet: Wymuszona zmiana hasła
         if (profileData?.must_change_password) {
@@ -94,19 +110,15 @@ export default function Auth() {
           return;
         }
 
-        // 3. Inteligentne przekierowanie na podstawie roli
-        switch (profileData?.role) {
-          case 'ADMIN':
-            navigate('/admin', { replace: true });
-            break;
-          case 'ORG':
-            // Organizacje idą do dashboardu gdzie mogą mieć akceptację regulaminu i onboarding
-            navigate('/organizacja', { replace: true });
-            break;
-          default:
-            // Dla roli USER (Darczyńca)
-            navigate('/profil', { replace: true });
-            break;
+        // 3. Inteligentne przekierowanie na podstawie roli z user_roles
+        if (adminRoleData?.role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (roleData?.role === 'ORG') {
+          // Organizacje idą do dashboardu gdzie mogą mieć akceptację regulaminu i onboarding
+          navigate('/organizacja', { replace: true });
+        } else {
+          // Dla roli USER (Darczyńca)
+          navigate('/profil', { replace: true });
         }
       } catch (error) {
         console.error('Error checking profile:', error);
