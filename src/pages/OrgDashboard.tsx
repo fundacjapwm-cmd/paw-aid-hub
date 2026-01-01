@@ -69,6 +69,7 @@ export default function OrgDashboard() {
     advanceStep: advanceOnboarding,
     dismissOnboarding,
     clearCongratulations,
+    markProfileDone,
   } = useOrgOnboarding({
     organization,
     animalsCount: animals.length,
@@ -455,6 +456,8 @@ export default function OrgDashboard() {
               onSuccess={() => {
                 setEditOrgDialogOpen(false);
                 refetch();
+                // Mark profile as done even if not on profile step (user edited profile)
+                markProfileDone();
                 // Advance onboarding if on profile step
                 if (onboardingStep === 'profile') {
                   advanceOnboarding();
