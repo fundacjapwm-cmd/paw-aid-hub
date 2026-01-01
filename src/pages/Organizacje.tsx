@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import OrganizationCardSkeleton from "@/components/OrganizationCardSkeleton";
 import PawPattern from "@/components/icons/PawPattern";
+import HandwrittenHeart from "@/components/icons/HandwrittenHeart";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -163,9 +164,12 @@ const Organizacje = () => {
             </Breadcrumb>
 
             <div className="text-center py-8 md:py-12">
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Nasi partnerzy
-              </h1>
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+                  Nasi partnerzy
+                </h1>
+                <HandwrittenHeart className="w-8 h-8 md:w-10 md:h-10 text-primary" />
+              </div>
               <p className="text-lg text-white/90 max-w-2xl mx-auto">
                 Poznaj organizacje, które codziennie pomagają zwierzętom w potrzebie. Wspieraj ich działania!
               </p>
