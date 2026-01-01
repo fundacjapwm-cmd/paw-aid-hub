@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import LeadGenSection from "@/components/LeadGenSection";
 import { Link } from "react-router-dom";
 import PawPattern from "@/components/icons/PawPattern";
+import HandwrittenHeart from "@/components/icons/HandwrittenHeart";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -200,9 +201,12 @@ const Zwierzeta = () => {
             </Breadcrumb>
 
             <div className="text-center py-8 md:py-12">
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Nasi podopieczni
-              </h1>
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+                  Nasi podopieczni
+                </h1>
+                <HandwrittenHeart className="w-8 h-8 md:w-10 md:h-10 text-primary" />
+              </div>
               <p className="text-lg text-white/90 max-w-2xl mx-auto">
                 Każde zwierzę ma swoją unikalną historię i potrzeby. Sprawdź kto potrzebuje Twojej pomocy już dziś!
               </p>
