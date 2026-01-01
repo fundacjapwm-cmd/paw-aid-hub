@@ -236,7 +236,15 @@ const handler = async (req: Request): Promise<Response> => {
     }
     console.log("Profile updated with must_change_password: true");
 
-    // Add user_roles entry
+    // Remove USER role if exists (from handle_new_user trigger)
+    await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+      .eq('role', 'USER');
+    console.log("Removed USER role if it existed");
+
+    // Add ORG role
     const { error: userRoleError } = await supabase
       .from('user_roles')
       .upsert({
