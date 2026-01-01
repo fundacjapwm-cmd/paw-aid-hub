@@ -62,8 +62,11 @@ export default function OrgDashboard() {
     currentStep: onboardingStep,
     isOnboardingActive,
     targetAnimalName,
+    targetAnimalId,
+    showCongratulations,
     advanceStep: advanceOnboarding,
     dismissOnboarding,
+    clearCongratulations,
   } = useOrgOnboarding({
     organization,
     animalsCount: animals.length,
@@ -277,14 +280,13 @@ export default function OrgDashboard() {
         }
       }
 
-      toast.success("Podopieczny został dodany!");
       setNewAnimalId(newAnimal.id);
       setNewAnimalName(data.name);
       setAddAnimalStep("wishlist");
       refetch();
-      // Advance onboarding to wishlist step
+      // Advance onboarding to wishlist step with animal info
       if (onboardingStep === 'animal') {
-        advanceOnboarding(data.name);
+        advanceOnboarding(data.name, newAnimal.id);
       }
     } catch (error: any) {
       toast.error("Błąd podczas dodawania: " + error.message);
@@ -407,10 +409,22 @@ export default function OrgDashboard() {
           onAddClick={() => setAddAnimalDialogOpen(true)}
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteClick}
-          onAnimalClick={handleAnimalClick}
+          onAnimalClick={(animalId) => {
+            handleAnimalClick(animalId);
+            // Clear congratulations message when user clicks on an animal
+            if (showCongratulations) {
+              clearCongratulations();
+            }
+            // Advance onboarding when clicking on animal during wishlist step
+            if (onboardingStep === 'wishlist') {
+              dismissOnboarding();
+            }
+          }}
           showOnboardingAnimal={isOnboardingActive && onboardingStep === 'animal'}
           showOnboardingWishlist={isOnboardingActive && onboardingStep === 'wishlist'}
+          showCongratulations={showCongratulations}
           onboardingAnimalName={targetAnimalName || animals[0]?.name}
+          onboardingAnimalId={targetAnimalId}
           onDismissOnboarding={dismissOnboarding}
         />
       </div>

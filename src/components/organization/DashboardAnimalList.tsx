@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, PawPrint } from "lucide-react";
+import { Plus, Search, PawPrint, Sparkles, MousePointer } from "lucide-react";
 import { AnimalWithStats } from "@/hooks/useOrgDashboard";
 import DashboardAnimalCard from "./DashboardAnimalCard";
 import OnboardingTooltip from "./OnboardingTooltip";
@@ -15,7 +15,9 @@ interface DashboardAnimalListProps {
   onAnimalClick: (animalId: string) => void;
   showOnboardingAnimal?: boolean;
   showOnboardingWishlist?: boolean;
+  showCongratulations?: boolean;
   onboardingAnimalName?: string;
+  onboardingAnimalId?: string;
   onDismissOnboarding?: () => void;
 }
 
@@ -29,12 +31,19 @@ export default function DashboardAnimalList({
   onAnimalClick,
   showOnboardingAnimal = false,
   showOnboardingWishlist = false,
+  showCongratulations = false,
   onboardingAnimalName,
+  onboardingAnimalId,
   onDismissOnboarding,
 }: DashboardAnimalListProps) {
   const filteredAnimals = animals.filter((animal) =>
     animal.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Find the target animal for highlighting
+  const targetAnimal = onboardingAnimalId 
+    ? animals.find(a => a.id === onboardingAnimalId)
+    : animals[0];
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -68,12 +77,38 @@ export default function DashboardAnimalList({
         </div>
       </div>
 
-      {/* Wishlist Onboarding Tooltip */}
-      {showOnboardingWishlist && animals.length > 0 && (
-        <div className="bg-success/10 border border-success/30 rounded-xl p-4 text-center">
-          <p className="text-success font-medium">
-            🎉 Świetnie! Teraz kliknij na kartę {onboardingAnimalName || 'podopiecznego'} poniżej, aby dodać produkty do listy potrzeb!
+      {/* Congratulations Banner */}
+      {showCongratulations && onboardingAnimalName && (
+        <div className="bg-gradient-to-r from-success/20 to-emerald-500/20 border-2 border-success/40 rounded-2xl p-4 sm:p-6 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="h-6 w-6 text-success animate-pulse" />
+            <h3 className="text-lg sm:text-xl font-bold text-success">
+              🎉 Gratulacje!
+            </h3>
+            <Sparkles className="h-6 w-6 text-success animate-pulse" />
+          </div>
+          <p className="text-success/90 font-medium text-sm sm:text-base">
+            <strong>{onboardingAnimalName}</strong> został dodany!
           </p>
+        </div>
+      )}
+
+      {/* Wishlist Onboarding Instruction */}
+      {showOnboardingWishlist && animals.length > 0 && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/30 border-2 border-emerald-400/50 rounded-2xl p-4 sm:p-5 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+              <MousePointer className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="text-emerald-700 dark:text-emerald-300 font-semibold text-sm sm:text-base">
+                Kliknij na {onboardingAnimalName ? `kartę "${onboardingAnimalName}"` : 'podopiecznego'} poniżej
+              </p>
+              <p className="text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm mt-0.5">
+                aby dodać produkty do listy potrzeb!
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -89,15 +124,28 @@ export default function DashboardAnimalList({
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {filteredAnimals.map((animal) => (
-            <DashboardAnimalCard
-              key={animal.id}
-              animal={animal}
-              onEdit={onEditClick}
-              onDelete={onDeleteClick}
-              onClick={() => onAnimalClick(animal.id)}
-            />
-          ))}
+          {filteredAnimals.map((animal) => {
+            const isHighlighted = showOnboardingWishlist && 
+              (onboardingAnimalId ? animal.id === onboardingAnimalId : animal.id === targetAnimal?.id);
+            
+            return (
+              <div 
+                key={animal.id}
+                className={`transition-all duration-500 ${
+                  isHighlighted 
+                    ? 'ring-4 ring-emerald-400 ring-offset-2 rounded-2xl sm:rounded-3xl shadow-lg shadow-emerald-200 dark:shadow-emerald-900/30 animate-pulse-slow' 
+                    : ''
+                }`}
+              >
+                <DashboardAnimalCard
+                  animal={animal}
+                  onEdit={onEditClick}
+                  onDelete={onDeleteClick}
+                  onClick={() => onAnimalClick(animal.id)}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

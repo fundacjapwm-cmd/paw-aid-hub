@@ -109,6 +109,10 @@ export default {
 				'marquee': {
 					'0%': { transform: 'translateX(0%)' },
 					'100%': { transform: 'translateX(-50%)' }
+				},
+				'pulse-slow': {
+					'0%, 100%': { opacity: '1', boxShadow: '0 0 0 0 rgba(52, 211, 153, 0.4)' },
+					'50%': { opacity: '0.95', boxShadow: '0 0 0 8px rgba(52, 211, 153, 0)' }
 				}
 			},
 			animation: {
@@ -117,7 +121,8 @@ export default {
 				'bounce-gentle': 'bounce-gentle 3s ease-in-out infinite',
 				'wiggle': 'wiggle 1s ease-in-out infinite',
 				'float': 'float 3s ease-in-out infinite',
-				'marquee': 'marquee 20s linear infinite'
+				'marquee': 'marquee 20s linear infinite',
+				'pulse-slow': 'pulse-slow 2s ease-in-out infinite'
 			},
 			transitionTimingFunction: {
 				'bubbly': 'cubic-bezier(0.4, 0, 0.2, 1)'

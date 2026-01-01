@@ -6,6 +6,8 @@ interface OnboardingState {
   currentStep: OnboardingStep;
   isOnboardingActive: boolean;
   targetAnimalName?: string;
+  targetAnimalId?: string;
+  showCongratulations: boolean;
 }
 
 interface UseOrgOnboardingProps {
@@ -18,6 +20,7 @@ export function useOrgOnboarding({ organization, animalsCount, hasWishlistItems 
   const [state, setState] = useState<OnboardingState>({
     currentStep: 'complete',
     isOnboardingActive: false,
+    showCongratulations: false,
   });
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export function useOrgOnboarding({ organization, animalsCount, hasWishlistItems 
     // Check if onboarding was already dismissed
     const dismissed = localStorage.getItem(`org_onboarding_dismissed_${organization.id}`);
     if (dismissed) {
-      setState({ currentStep: 'complete', isOnboardingActive: false });
+      setState(prev => ({ ...prev, currentStep: 'complete', isOnboardingActive: false }));
       return;
     }
 
@@ -34,29 +37,38 @@ export function useOrgOnboarding({ organization, animalsCount, hasWishlistItems 
     const isProfileIncomplete = !organization.description || !organization.city || !organization.address;
     
     if (isProfileIncomplete) {
-      setState({ currentStep: 'profile', isOnboardingActive: true });
+      setState(prev => ({ ...prev, currentStep: 'profile', isOnboardingActive: true }));
     } else if (animalsCount === 0) {
-      setState({ currentStep: 'animal', isOnboardingActive: true });
+      setState(prev => ({ ...prev, currentStep: 'animal', isOnboardingActive: true }));
     } else if (!hasWishlistItems) {
-      setState({ currentStep: 'wishlist', isOnboardingActive: true });
+      // Show wishlist step only if we just added an animal (showCongratulations is true)
+      // or if there are animals but no wishlist items
+      setState(prev => ({ ...prev, currentStep: 'wishlist', isOnboardingActive: true }));
     } else {
       // Mark as complete and dismiss
       localStorage.setItem(`org_onboarding_dismissed_${organization.id}`, 'true');
-      setState({ currentStep: 'complete', isOnboardingActive: false });
+      setState(prev => ({ ...prev, currentStep: 'complete', isOnboardingActive: false }));
     }
   }, [organization, animalsCount, hasWishlistItems]);
 
-  const advanceStep = (animalName?: string) => {
+  const advanceStep = (animalName?: string, animalId?: string) => {
     setState(prev => {
       if (prev.currentStep === 'profile') {
-        return { currentStep: 'animal', isOnboardingActive: true };
+        return { ...prev, currentStep: 'animal', isOnboardingActive: true };
       }
       if (prev.currentStep === 'animal') {
-        return { currentStep: 'wishlist', isOnboardingActive: true, targetAnimalName: animalName };
+        return { 
+          ...prev, 
+          currentStep: 'wishlist', 
+          isOnboardingActive: true, 
+          targetAnimalName: animalName,
+          targetAnimalId: animalId,
+          showCongratulations: true,
+        };
       }
       if (prev.currentStep === 'wishlist' && organization) {
         localStorage.setItem(`org_onboarding_dismissed_${organization.id}`, 'true');
-        return { currentStep: 'complete', isOnboardingActive: false };
+        return { ...prev, currentStep: 'complete', isOnboardingActive: false, showCongratulations: false };
       }
       return prev;
     });
@@ -66,12 +78,17 @@ export function useOrgOnboarding({ organization, animalsCount, hasWishlistItems 
     if (organization) {
       localStorage.setItem(`org_onboarding_dismissed_${organization.id}`, 'true');
     }
-    setState({ currentStep: 'complete', isOnboardingActive: false });
+    setState({ currentStep: 'complete', isOnboardingActive: false, showCongratulations: false });
+  };
+
+  const clearCongratulations = () => {
+    setState(prev => ({ ...prev, showCongratulations: false }));
   };
 
   return {
     ...state,
     advanceStep,
     dismissOnboarding,
+    clearCongratulations,
   };
 }
