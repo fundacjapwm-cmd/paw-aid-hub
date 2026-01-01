@@ -1,9 +1,9 @@
 // Image file validation and compression utilities
 
-export const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-export const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
-export const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png'];
-const MAX_IMAGE_DIMENSION = 1920; // Max width/height for images
+export const MAX_FILE_SIZE = 500 * 1024; // 500KB - more aggressive for better performance
+export const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+export const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const MAX_IMAGE_DIMENSION = 1200; // Reduced max width/height for better compression
 
 export interface ImageValidationResult {
   valid: boolean;
@@ -24,7 +24,7 @@ export function validateImageFile(file: File): ImageValidationResult {
   if (!ALLOWED_FILE_TYPES.includes(file.type)) {
     return { 
       valid: false, 
-      error: 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG' 
+      error: 'Nieprawidłowy format pliku. Dozwolone formaty: JPG, PNG, WebP' 
     };
   }
   
@@ -33,7 +33,7 @@ export function validateImageFile(file: File): ImageValidationResult {
   if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
     return { 
       valid: false, 
-      error: 'Nieprawidłowe rozszerzenie pliku. Dozwolone: .jpg, .jpeg, .png' 
+      error: 'Nieprawidłowe rozszerzenie pliku. Dozwolone: .jpg, .jpeg, .png, .webp' 
     };
   }
   
@@ -43,33 +43,32 @@ export function validateImageFile(file: File): ImageValidationResult {
 /**
  * Loads an image file and returns an HTMLImageElement
  */
-function loadImage(file: File): Promise<HTMLImageElement> {
+function loadImage(file: File | Blob): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    const url = URL.createObjectURL(file);
     img.onload = () => {
-      URL.revokeObjectURL(img.src);
+      URL.revokeObjectURL(url);
       resolve(img);
     };
-    img.onerror = reject;
-    img.src = URL.createObjectURL(file);
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+    img.src = url;
   });
 }
 
 /**
- * Compresses an image file to fit within size limits
+ * Compresses an image file to WebP format with aggressive compression
  * @param file - The image file to compress
- * @param maxSizeBytes - Maximum file size in bytes (default: 2MB)
+ * @param maxSizeBytes - Maximum file size in bytes (default: 500KB)
  * @returns Compressed file as Blob
  */
 export async function compressImage(
   file: File, 
   maxSizeBytes: number = MAX_FILE_SIZE
 ): Promise<File> {
-  // If file is already small enough, return as-is
-  if (file.size <= maxSizeBytes) {
-    return file;
-  }
-
   const img = await loadImage(file);
   
   // Calculate new dimensions (maintain aspect ratio)
@@ -95,45 +94,33 @@ export async function compressImage(
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get canvas context');
   
+  // Use high-quality rendering
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  
   // Draw image on canvas
   ctx.drawImage(img, 0, 0, width, height);
   
-  // Try different quality levels to get under max size
-  const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-  let quality = 0.9;
+  // Try WebP first (best compression), then JPEG as fallback
   let blob: Blob | null = null;
+  let quality = 0.8;
   
-  // For PNG, we can only reduce dimensions, not quality
-  if (outputType === 'image/png') {
+  // Try WebP with progressive quality reduction
+  while (quality >= 0.4) {
     blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, 'image/png');
+      canvas.toBlob(resolve, 'image/webp', quality);
     });
     
-    // If PNG is still too large, convert to JPEG
-    if (blob && blob.size > maxSizeBytes) {
-      quality = 0.85;
-      blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob(resolve, 'image/jpeg', quality);
-      });
+    if (blob && blob.size <= maxSizeBytes) {
+      break;
     }
-  } else {
-    // For JPEG, progressively reduce quality
-    while (quality >= 0.3) {
-      blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob(resolve, 'image/jpeg', quality);
-      });
-      
-      if (blob && blob.size <= maxSizeBytes) {
-        break;
-      }
-      
-      quality -= 0.1;
-    }
+    
+    quality -= 0.1;
   }
   
   // If still too large after quality reduction, reduce dimensions further
   if (blob && blob.size > maxSizeBytes) {
-    const scaleFactor = Math.sqrt(maxSizeBytes / blob.size) * 0.9;
+    const scaleFactor = Math.sqrt(maxSizeBytes / blob.size) * 0.85;
     const newWidth = Math.round(width * scaleFactor);
     const newHeight = Math.round(height * scaleFactor);
     
@@ -142,7 +129,7 @@ export async function compressImage(
     ctx.drawImage(img, 0, 0, newWidth, newHeight);
     
     blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, 'image/jpeg', 0.8);
+      canvas.toBlob(resolve, 'image/webp', 0.7);
     });
   }
   
@@ -150,11 +137,12 @@ export async function compressImage(
     throw new Error('Failed to compress image');
   }
   
-  // Create new file with original name
-  const extension = blob.type === 'image/png' ? '.png' : '.jpg';
+  console.log(`Image compressed: ${(file.size / 1024).toFixed(1)}KB → ${(blob.size / 1024).toFixed(1)}KB (${((1 - blob.size / file.size) * 100).toFixed(0)}% reduction)`);
+  
+  // Create new file with .webp extension
   const baseName = file.name.replace(/\.[^/.]+$/, '');
   
-  return new File([blob], `${baseName}${extension}`, { type: blob.type });
+  return new File([blob], `${baseName}.webp`, { type: 'image/webp' });
 }
 
 /**
@@ -168,6 +156,6 @@ export async function validateAndCompressImage(file: File): Promise<File> {
     throw new Error(validation.error);
   }
   
-  // Then compress if needed
+  // Then compress to WebP
   return compressImage(file);
 }
