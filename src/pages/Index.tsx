@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import PartnersCarousel from "@/components/PartnersCarousel";
 import { Link, useLocation } from "react-router-dom";
 import PawPattern from "@/components/icons/PawPattern";
+import HandwrittenHeart from "@/components/icons/HandwrittenHeart";
 
 const Index = () => {
   const location = useLocation();
@@ -127,7 +128,10 @@ const Index = () => {
         <section className="py-8 md:py-12">
           <div className="md:container md:mx-auto md:max-w-6xl md:px-8 px-4">
             <div className="text-center mb-8 md:mb-12">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">Podopieczni</h2>
+              <div className="flex items-center justify-center gap-2 mb-3 md:mb-4">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">Podopieczni</h2>
+                <HandwrittenHeart className="w-8 h-8 md:w-10 md:h-10 text-primary" />
+              </div>
               <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">Poznaj zwierzęta, które czekają na Twoją pomoc. Każde z nich ma swoją historię i listę potrzeb, którą możesz spełnić jednym kliknięciem.</p>
             </div>
 
