@@ -31,7 +31,7 @@ export default function PolitykaPrywatnosci() {
                   1. Administrator danych osobowych
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Administratorem danych osobowych jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą w Polsce. 
+                  Administratorem danych osobowych jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą pod adresem: <strong>Maciejów 6, 34-325 Bierna</strong>. 
                   Możesz skontaktować się z nami pod adresem email: <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline">fundacjapwm@gmail.com</a>
                 </p>
               </div>
