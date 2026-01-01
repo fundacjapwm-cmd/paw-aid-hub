@@ -177,64 +177,44 @@ export const WishlistProductCard = ({
               </button>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
-              {/* Remove Button */}
-              {isInCart && onRemoveFromCart && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    className="h-10 w-10 rounded-full bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all shadow-bubbly"
-                    onClick={() => onRemoveFromCart(productId)}
-                    aria-label={`Usuń ${product.name} z koszyka`}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Usuń z koszyka</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-
-              {/* Add to Cart Button */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="relative">
+            {/* Action Button - Arrow when not in cart, X when in cart */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative">
+                  {isInCart && onRemoveFromCart ? (
                     <Button 
                       size="icon" 
-                      className={`h-10 w-10 rounded-full shadow-bubbly transition-all ${
-                        isInCart 
-                          ? 'bg-green-500 hover:bg-green-600' 
-                          : 'bg-primary hover:bg-primary/90'
-                      }`}
-                      onClick={() => onAddToCart(product)}
-                      disabled={isInCart}
-                      aria-label={isInCart ? `${product.name} w koszyku` : `Dodaj ${product.name} do koszyka`}
+                      className="h-10 w-10 rounded-full bg-destructive hover:bg-destructive/90 shadow-bubbly transition-all"
+                      onClick={() => onRemoveFromCart(productId)}
+                      aria-label={`Usuń ${product.name} z koszyka`}
                     >
-                      {isInCart ? (
-                        <Check className="h-5 w-5" />
-                      ) : (
-                        <ArrowRight className="h-5 w-5" />
-                      )}
+                      <X className="h-5 w-5" />
                     </Button>
-                    {cartQuantity > 0 && (
-                      <Badge 
-                        className="absolute -top-1.5 -right-1.5 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background"
-                      >
-                        {cartQuantity}
-                      </Badge>
-                    )}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">
-                    {isInCart ? `${cartQuantity} szt. w koszyku` : 'Dodaj do koszyka'}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+                  ) : (
+                    <Button 
+                      size="icon" 
+                      className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 shadow-bubbly transition-all"
+                      onClick={() => onAddToCart(product)}
+                      aria-label={`Dodaj ${product.name} do koszyka`}
+                    >
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  )}
+                  {cartQuantity > 0 && (
+                    <Badge 
+                      className="absolute -top-1.5 -right-1.5 h-5 w-5 flex items-center justify-center p-0 text-xs bg-green-500 text-white border-2 border-background"
+                    >
+                      {cartQuantity}
+                    </Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">
+                  {isInCart ? 'Usuń z koszyka' : 'Dodaj do koszyka'}
+                </p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         )}
 
@@ -336,41 +316,30 @@ export const WishlistProductCard = ({
                 </button>
               </div>
 
-              {/* Remove Button */}
-              {isInCart && onRemoveFromCart && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-9 w-9 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors shrink-0"
-                  onClick={() => onRemoveFromCart(productId)}
-                  aria-label={`Usuń ${product.name} z koszyka`}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-
-              {/* Add to Cart Button */}
+              {/* Action Button - Arrow when not in cart, X when in cart */}
               <div className="relative shrink-0">
-                <Button
-                  size="icon"
-                  className={`h-9 w-9 rounded-xl transition-all ${
-                    isInCart 
-                      ? 'bg-green-500 hover:bg-green-600 text-white' 
-                      : 'bg-primary hover:bg-primary/90 text-white shadow-bubbly hover:scale-105'
-                  }`}
-                  onClick={() => onAddToCart(product)}
-                  disabled={isInCart}
-                  aria-label={isInCart ? `${product.name} w koszyku` : `Dodaj ${product.name} do koszyka`}
-                >
-                  {isInCart ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
+                {isInCart && onRemoveFromCart ? (
+                  <Button
+                    size="icon"
+                    className="h-9 w-9 rounded-xl bg-destructive hover:bg-destructive/90 text-white transition-all"
+                    onClick={() => onRemoveFromCart(productId)}
+                    aria-label={`Usuń ${product.name} z koszyka`}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    size="icon"
+                    className="h-9 w-9 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-bubbly hover:scale-105 transition-all"
+                    onClick={() => onAddToCart(product)}
+                    aria-label={`Dodaj ${product.name} do koszyka`}
+                  >
                     <ArrowRight className="h-4 w-4" />
-                  )}
-                </Button>
+                  </Button>
+                )}
                 {cartQuantity > 0 && (
                   <Badge 
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-background rounded-full"
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-green-500 text-white border-2 border-background rounded-full"
                   >
                     {cartQuantity}
                   </Badge>
