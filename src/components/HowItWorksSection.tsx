@@ -109,20 +109,23 @@ const HowItWorksSection = () => {
 
               {/* Treść */}
               <div className="relative z-10 flex flex-col items-center text-center px-6 md:px-8 py-12 md:py-16 justify-end h-full">
-                {/* Ikona w kółku */}
-                <div className="mb-4 md:mb-6 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
-                  <step.icon className="w-10 h-10 text-primary" strokeWidth={2} />
+                {/* Białe tło o stałej wysokości */}
+                <div className="bg-white/95 backdrop-blur-sm rounded-[40px] p-6 w-full h-[220px] flex flex-col items-center justify-start">
+                  {/* Ikona w kółku */}
+                  <div className="mb-3 w-16 h-16 rounded-full bg-white border-2 border-primary/20 flex items-center justify-center shadow-lg shrink-0">
+                    <step.icon className="w-8 h-8 text-primary" strokeWidth={2} />
+                  </div>
+
+                  {/* Tytuł */}
+                  <h3 className="text-xl font-bold text-foreground mb-2">
+                    {step.title}
+                  </h3>
+
+                  {/* Opis */}
+                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+                    {step.description}
+                  </p>
                 </div>
-
-                {/* Tytuł */}
-                <h3 className="text-2xl font-bold text-white mb-3 md:mb-4">
-                  {step.title}
-                </h3>
-
-                {/* Opis */}
-                <p className="text-base md:text-lg text-white/90 leading-relaxed">
-                  {step.description}
-                </p>
               </div>
             </div>
           ))}
