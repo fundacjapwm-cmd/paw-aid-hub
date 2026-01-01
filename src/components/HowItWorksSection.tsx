@@ -2,10 +2,10 @@ import { Search, ShoppingCart, CreditCard, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import dogNose from "@/assets/how-it-works/dog-nose.png";
+import dogNose from "@/assets/how-it-works/dog-nose.webp";
 import cat from "@/assets/how-it-works/cat.jpg";
-import creditCard from "@/assets/how-it-works/credit-card.png";
-import dogBox from "@/assets/how-it-works/dog-box.png";
+import creditCard from "@/assets/how-it-works/credit-card.webp";
+import dogBox from "@/assets/how-it-works/dog-box.webp";
 
 const steps = [
   {
