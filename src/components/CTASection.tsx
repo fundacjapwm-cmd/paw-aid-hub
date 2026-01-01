@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Heart, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import ctaHelpImage from "@/assets/cta-help.png";
-import ctaFoundationImage from "@/assets/cta-foundation.png";
+import ctaHelpImage from "@/assets/cta-help.webp";
+import ctaFoundationImage from "@/assets/cta-foundation.webp";
 
 const CTASection = () => {
   return (

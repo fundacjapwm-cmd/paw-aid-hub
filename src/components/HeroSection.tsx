@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import heroCat1 from "@/assets/hero-cat1.png";
-import heroCatDog from "@/assets/hero-catdog.png";
-import heroDog1 from "@/assets/hero-dog1.png";
-import heroDog2 from "@/assets/hero-dog2.png";
+import heroCat1 from "@/assets/hero-cat1.webp";
+import heroCatDog from "@/assets/hero-catdog.webp";
+import heroDog1 from "@/assets/hero-dog1.webp";
+import heroDog2 from "@/assets/hero-dog2.webp";
 
 const HeroSection = () => {
   const navigate = useNavigate();
