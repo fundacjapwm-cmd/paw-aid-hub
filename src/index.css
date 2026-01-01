@@ -51,7 +51,7 @@ All colors MUST be HSL.
     --primary-light: 37 86% 92%;
     --secondary-light: 80 31% 88%;
     --accent-light: 24 58% 85%;
-    --hero-bg: 25 75% 32%;
+    --hero-bg: 38 81% 55%;
     --shadow-bubbly: 0 15px 35px -10px hsl(37 90% 38% / 0.25), 0 5px 15px -5px hsl(37 90% 38% / 0.1);
     --shadow-card: 0 8px 25px -5px hsl(0 0% 0% / 0.1), 0 3px 10px -3px hsl(0 0% 0% / 0.05);
     --shadow-soft: 0 4px 15px -2px hsl(0 0% 0% / 0.08);
