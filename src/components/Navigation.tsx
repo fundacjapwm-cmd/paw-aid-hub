@@ -160,13 +160,7 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => {
-                    if (location.pathname === '/') {
-                      document.getElementById('dolacz')?.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      navigate('/?scroll=dolacz');
-                    }
-                  }}
+                  onClick={() => navigate('/zaloz-konto')}
                 >
                   Załóż konto organizacji
                 </Button>

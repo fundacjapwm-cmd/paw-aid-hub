@@ -36,16 +36,9 @@ const MobileMenu = () => {
     setOpen(false);
   };
 
-  const handleScrollToForm = () => {
+  const handleNavigateToForm = () => {
     setOpen(false);
-    if (location.pathname === '/') {
-      const element = document.getElementById('dolacz');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      navigate('/?scroll=dolacz');
-    }
+    navigate('/zaloz-konto');
   };
 
   return (
@@ -130,7 +123,7 @@ const MobileMenu = () => {
               <Button 
                 variant="outline" 
                 className="w-full flex items-center gap-2"
-                onClick={handleScrollToForm}
+                onClick={handleNavigateToForm}
               >
                 <Building2 className="h-4 w-4" />
                 Załóż konto organizacji
