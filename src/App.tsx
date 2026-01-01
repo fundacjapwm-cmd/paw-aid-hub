@@ -52,6 +52,7 @@ import OrganizationPublicProfile from "./pages/OrganizationPublicProfile";
 import PolitykaPrywatnosci from "./pages/PolitykaPrywatnosci";
 import Regulamin from "./pages/Regulamin";
 import FAQ from "./pages/FAQ";
+import ZalozKonto from "./pages/ZalozKonto";
 import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ function AppContent() {
           <Route path="/prywatnosc" element={<PolitykaPrywatnosci />} />
           <Route path="/regulamin" element={<Regulamin />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/zaloz-konto" element={<ZalozKonto />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/profil" element={<Profile />} />
