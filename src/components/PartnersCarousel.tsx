@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useRef } from "react";
-
+import HandwrittenHeart from "@/components/icons/HandwrittenHeart";
 interface Partner {
   id: string;
   name: string;
@@ -75,9 +75,12 @@ const PartnersCarousel = () => {
   return (
     <section className="py-12 md:py-16 bg-muted/30">
       <div className="md:container md:mx-auto md:max-w-6xl md:px-8 px-4">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center text-foreground mb-8">
-          Partnerzy
-        </h2>
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+            Partnerzy
+          </h2>
+          <HandwrittenHeart className="w-8 h-8 md:w-10 md:h-10 text-primary" />
+        </div>
         
         <div 
           ref={scrollRef}
