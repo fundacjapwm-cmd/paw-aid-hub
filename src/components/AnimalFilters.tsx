@@ -137,7 +137,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
       {/* Organization Filter with Autocomplete */}
       <Popover open={isOrgOpen && organizationName.length >= 3 && orgSuggestions.length > 0} onOpenChange={setIsOrgOpen}>
         <PopoverTrigger asChild>
-          <button type="button" className="relative w-full text-left" role="combobox" aria-expanded={isOrgOpen && organizationName.length >= 3 && orgSuggestions.length > 0}>
+          <button type="button" className="relative w-full text-left" role="combobox" aria-label="Wyszukaj organizację" aria-expanded={isOrgOpen && organizationName.length >= 3 && orgSuggestions.length > 0}>
             <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
             <Input 
               placeholder="Organizacja..." 
@@ -212,7 +212,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
       {/* City Filter with Autocomplete */}
       <Popover open={isCityOpen && city.length >= 3 && citySuggestions.length > 0} onOpenChange={setIsCityOpen}>
         <PopoverTrigger asChild>
-          <button type="button" className="relative w-full text-left" role="combobox" aria-expanded={isCityOpen && city.length >= 3 && citySuggestions.length > 0}>
+          <button type="button" className="relative w-full text-left" role="combobox" aria-label="Wyszukaj miejscowość" aria-expanded={isCityOpen && city.length >= 3 && citySuggestions.length > 0}>
             <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
             <Input 
               placeholder="Miejscowość..." 
