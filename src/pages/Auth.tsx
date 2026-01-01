@@ -100,7 +100,8 @@ export default function Auth() {
             navigate('/admin', { replace: true });
             break;
           case 'ORG':
-            navigate('/organizacja', { replace: true });
+            // Organizacje idą do dashboardu gdzie mogą mieć akceptację regulaminu i onboarding
+            navigate('/org/dashboard', { replace: true });
             break;
           default:
             // Dla roli USER (Darczyńca)
