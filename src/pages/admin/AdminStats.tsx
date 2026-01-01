@@ -173,14 +173,14 @@ export default function AdminStats() {
       value: stats.ordersToday,
       icon: ShoppingCart,
       description: "Transakcji od darczyńców",
-      link: "/admin/zamowienia/szczegoly"
+      link: "/admin/zamowienia"
     },
     {
       title: "Kompletowane",
       value: stats.collectingOrders,
       icon: Package,
       description: "Zamówień do realizacji",
-      link: "/admin/zamowienia/kompletowane"
+      link: "/admin/logistyka/matrix"
     },
   ];
   const chartConfig = {
