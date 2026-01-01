@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import pawPatternImage from "@/assets/paw-pattern.png";
+
+const pawPatternImage = "/images/paw-pattern.png";
 
 interface PawPatternProps {
   className?: string;
