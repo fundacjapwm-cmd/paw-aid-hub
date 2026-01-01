@@ -28,57 +28,57 @@ const Navigation = () => {
           <div className="hidden lg:flex items-center space-x-6">
             <Link 
               to="/" 
-              className={`relative py-1 text-foreground hover:text-primary transition-colors font-medium ${
-                isActive('/') ? 'text-primary' : ''
+              className={`relative py-1 text-foreground hover:text-primary-dark transition-colors font-medium ${
+                isActive('/') ? 'text-primary-dark' : ''
               }`}
             >
               Strona główna
               {isActive('/') && (
-                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary/70 rounded-full" />
+                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary-dark/70 rounded-full" />
               )}
             </Link>
             <Link 
               to="/o-nas" 
-              className={`relative py-1 text-foreground hover:text-primary transition-colors font-medium ${
-                isActive('/o-nas') ? 'text-primary' : ''
+              className={`relative py-1 text-foreground hover:text-primary-dark transition-colors font-medium ${
+                isActive('/o-nas') ? 'text-primary-dark' : ''
               }`}
             >
               O nas
               {isActive('/o-nas') && (
-                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary/70 rounded-full" />
+                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary-dark/70 rounded-full" />
               )}
             </Link>
             <Link 
               to="/organizacje" 
-              className={`relative py-1 text-foreground hover:text-primary transition-colors font-medium ${
-                isActive('/organizacje') ? 'text-primary' : ''
+              className={`relative py-1 text-foreground hover:text-primary-dark transition-colors font-medium ${
+                isActive('/organizacje') ? 'text-primary-dark' : ''
               }`}
             >
               Organizacje
               {isActive('/organizacje') && (
-                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary/70 rounded-full" />
+                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary-dark/70 rounded-full" />
               )}
             </Link>
             <Link 
               to="/zwierzeta" 
-              className={`relative py-1 text-foreground hover:text-primary transition-colors font-medium ${
-                isActive('/zwierzeta') ? 'text-primary' : ''
+              className={`relative py-1 text-foreground hover:text-primary-dark transition-colors font-medium ${
+                isActive('/zwierzeta') ? 'text-primary-dark' : ''
               }`}
             >
               Zwierzęta
               {isActive('/zwierzeta') && (
-                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary/70 rounded-full" />
+                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary-dark/70 rounded-full" />
               )}
             </Link>
             <Link 
               to="/kontakt" 
-              className={`relative py-1 text-foreground hover:text-primary transition-colors font-medium ${
-                isActive('/kontakt') ? 'text-primary' : ''
+              className={`relative py-1 text-foreground hover:text-primary-dark transition-colors font-medium ${
+                isActive('/kontakt') ? 'text-primary-dark' : ''
               }`}
             >
               Kontakt
               {isActive('/kontakt') && (
-                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary/70 rounded-full" />
+                <span className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary-dark/70 rounded-full" />
               )}
             </Link>
           </div>

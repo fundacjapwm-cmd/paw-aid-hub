@@ -73,7 +73,7 @@ export const CookieConsent = () => {
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
-                <Cookie className="h-5 w-5 text-primary" />
+                <Cookie className="h-5 w-5 text-primary-dark" />
                 <CardTitle className="text-lg">Polityka cookies</CardTitle>
               </div>
               <Button
@@ -90,7 +90,7 @@ export const CookieConsent = () => {
               Używamy plików cookies, aby zapewnić najlepsze doświadczenie na naszej stronie. 
               Niezbędne cookies są wymagane do działania serwisu. Możesz dostosować swoje preferencje 
               lub zaakceptować wszystkie cookies.{' '}
-              <Link to="/prywatnosc" className="text-primary hover:underline">
+              <Link to="/prywatnosc" className="text-primary-dark hover:underline font-medium">
                 Dowiedz się więcej
               </Link>
             </CardDescription>

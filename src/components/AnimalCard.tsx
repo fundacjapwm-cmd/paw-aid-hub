@@ -222,7 +222,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
           {/* Organization - clickable */}
           <button
             onClick={handleOrganizationClick}
-            className="text-sm text-primary md:hover:text-primary/80 font-semibold transition-colors underline-offset-2 md:hover:underline"
+            className="text-sm text-primary-dark md:hover:text-primary-dark/80 font-semibold transition-colors underline-offset-2 md:hover:underline"
           >
             {animal.organization}
           </button>

@@ -18,7 +18,7 @@ const HeroSection = () => {
             <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight">
               Odmień życie<br />
               <span className="text-white/90">bezdomniaczka</span><br />
-              <span className="bg-white text-primary px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-3xl inline-block transform rotate-1 shadow-bubbly font-black text-2xl sm:text-3xl lg:text-4xl mt-2">
+              <span className="bg-white text-primary-dark px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-3xl inline-block transform rotate-1 shadow-bubbly font-black text-2xl sm:text-3xl lg:text-4xl mt-2">
                 kup mu smaczka!
               </span>
             </h1>
