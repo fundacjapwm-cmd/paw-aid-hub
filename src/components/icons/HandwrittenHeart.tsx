@@ -8,7 +8,7 @@ interface HandwrittenHeartProps {
 const HandwrittenHeart = ({ className }: HandwrittenHeartProps) => {
   return (
     <svg
-      viewBox="0 0 56 48"
+      viewBox="0 0 50 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn("w-6 h-6", className)}
@@ -27,10 +27,10 @@ const HandwrittenHeart = ({ className }: HandwrittenHeartProps) => {
           }
         `}
       </style>
-      {/* Asymmetric flowing heart with long swirl tail - like middle heart from reference */}
+      {/* Simple asymmetric heart with small swirl tail */}
       <path
         className="heart-draw"
-        d="M8 44C12 40 18 34 26 28C30 24 34 18 34 12C34 6 30 3 26 4C22 5 20 9 20 9C20 9 18 4 13 4C8 4 4 8 5 14C6 22 16 32 26 38C36 32 48 20 48 12C48 6 44 3 40 4C36 5 34 8 34 12"
+        d="M24 36C24 36 6 24 5 14C4 8 9 4 14 5C18 6 21 10 24 14C27 9 32 5 37 6C42 7 46 12 44 18C42 26 24 36 24 36C22 38 18 40 14 38"
         stroke="currentColor"
         strokeWidth="2.5"
         strokeLinecap="round"
