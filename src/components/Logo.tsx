@@ -6,6 +6,8 @@ export const Logo = ({ className }: { className?: string }) => {
     <img 
       src="/logo.svg" 
       alt="Pączki w Maśle" 
+      width={140}
+      height={56}
       className={cn("h-auto w-auto", className)}
     />
   );
