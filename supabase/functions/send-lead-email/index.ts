@@ -178,7 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
     const confirmationHtml = generateConfirmationEmail(organizationName);
     
     const { error: confirmError } = await resend.emails.send({
-      from: "Paczki w Maśle <onboarding@resend.dev>",
+      from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
       to: [email],
       subject: "📬 Otrzymaliśmy Twoje zgłoszenie!",
       html: confirmationHtml,
@@ -196,7 +196,7 @@ const handler = async (req: Request): Promise<Response> => {
     const adminHtml = generateAdminNotificationEmail(leadData);
     
     const { error: adminError } = await resend.emails.send({
-      from: "System Paczki <onboarding@resend.dev>",
+      from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
       to: ["fundacjapwm@gmail.com"],
       subject: `🔔 Nowe zgłoszenie: ${organizationName}`,
       html: adminHtml,

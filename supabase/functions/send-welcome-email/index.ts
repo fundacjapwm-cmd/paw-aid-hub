@@ -121,9 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailHtml = generateWelcomeEmail(name);
     
     const { data: emailData, error: emailError } = await resend.emails.send({
-      // Use Resend test domain until paczkiwmasle.pl is verified
-      // Change to: "Paczki w Maśle <noreply@paczkiwmasle.pl>" after domain verification
-      from: "Paczki w Maśle <onboarding@resend.dev>",
+      from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
       to: [email],
       subject: `🐾 Witaj w Paczki w Maśle, ${name}!`,
       html: emailHtml,
