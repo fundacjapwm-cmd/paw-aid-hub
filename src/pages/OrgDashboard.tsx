@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { useOrgDashboard, AnimalWithStats } from "@/hooks/useOrgDashboard";
 import { useOrgOnboarding } from "@/hooks/useOrgOnboarding";
+import { compressGalleryImage } from "@/lib/utils/imageCompression";
 
 export default function OrgDashboard() {
   const { user, profile } = useAuth();
@@ -226,13 +227,14 @@ export default function OrgDashboard() {
       let imageUrl = null;
 
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        // Compress image before upload
+        const compressedImage = await compressGalleryImage(imageFile);
+        const fileName = `${Math.random()}.webp`;
         const filePath = `animals/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('product-images')
-          .upload(filePath, imageFile);
+          .upload(filePath, compressedImage);
 
         if (uploadError) throw uploadError;
 
@@ -259,13 +261,14 @@ export default function OrgDashboard() {
       if (galleryFiles.length > 0 && newAnimal) {
         for (let i = 0; i < galleryFiles.length; i++) {
           const file = galleryFiles[i];
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${Math.random()}.${fileExt}`;
+          // Compress each gallery image
+          const compressedImage = await compressGalleryImage(file);
+          const fileName = `${Math.random()}.webp`;
           const filePath = `animals/${fileName}`;
 
           const { error: uploadError } = await supabase.storage
             .from('product-images')
-            .upload(filePath, file);
+            .upload(filePath, compressedImage);
 
           if (uploadError) continue;
 
@@ -304,13 +307,14 @@ export default function OrgDashboard() {
       let imageUrl = editingAnimal.image_url;
 
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        // Compress image before upload
+        const compressedImage = await compressGalleryImage(imageFile);
+        const fileName = `${Math.random()}.webp`;
         const filePath = `animals/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('product-images')
-          .upload(filePath, imageFile);
+          .upload(filePath, compressedImage);
 
         if (uploadError) throw uploadError;
 

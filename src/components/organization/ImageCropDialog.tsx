@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { ZoomIn, ZoomOut } from "lucide-react";
+import { compressLogoImage } from "@/lib/utils/imageCompression";
 
 interface ImageCropDialogProps {
   open: boolean;
@@ -55,7 +56,8 @@ async function getCroppedImg(
     pixelCrop.height
   );
 
-  return new Promise((resolve, reject) => {
+  // Get initial blob
+  const initialBlob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (!blob) {
         reject(new Error("Canvas is empty"));
@@ -64,6 +66,9 @@ async function getCroppedImg(
       resolve(blob);
     }, "image/jpeg", 0.95);
   });
+
+  // Compress the cropped image
+  return compressLogoImage(initialBlob);
 }
 
 export default function ImageCropDialog({
