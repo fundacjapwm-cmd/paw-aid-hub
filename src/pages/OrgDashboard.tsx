@@ -11,6 +11,7 @@ import AnimalFormDialog, { AnimalFormData } from "@/components/organization/Anim
 import AnimalDeleteDialog from "@/components/organization/AnimalDeleteDialog";
 import WishlistBuilder from "@/components/organization/WishlistBuilder";
 import TermsAcceptanceDialog from "@/components/organization/TermsAcceptanceDialog";
+import { OnboardingProgressBar } from "@/components/organization/OnboardingProgressBar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -391,6 +392,11 @@ export default function OrgDashboard() {
   return (
     <OrgLayout organizationName={organization?.name || ""}>
       <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 md:space-y-12">
+        {/* Onboarding Progress Bar */}
+        {isOnboardingActive && (
+          <OnboardingProgressBar currentStep={onboardingStep} />
+        )}
+
         {/* Organization Header */}
         <DashboardHeader
           organization={organization}
