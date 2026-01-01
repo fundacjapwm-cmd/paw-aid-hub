@@ -20,7 +20,6 @@ const ONas = () => {
     { icon: Package, label: "Karma i akcesoria" },
     { icon: Scissors, label: "Sterylizacja" },
     { icon: Stethoscope, label: "Opieka weterynaryjna" },
-    { icon: Home, label: "Adopcje" },
     { icon: PawIcon, label: "Opieka nad zwierzętami" },
   ];
 
