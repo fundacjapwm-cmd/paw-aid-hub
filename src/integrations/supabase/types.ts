@@ -1093,11 +1093,13 @@ export type Database = {
         Args: never
         Returns: {
           active: boolean
+          address: string
           city: string
           description: string
           id: string
           logo_url: string
           name: string
+          postal_code: string
           province: string
           slug: string
           website: string
