@@ -101,6 +101,8 @@ const PartnersCarousel = () => {
                     <img
                       src={partner.logo_url}
                       alt={partner.name}
+                      width={120}
+                      height={64}
                       className="h-12 md:h-16 w-auto object-contain max-w-[120px] md:max-w-[150px]"
                     />
                   ) : (
