@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Heart, MapPin, Filter, Search, X, Home } from "lucide-react";
+import { Heart, MapPin, Filter, Search, X, Home, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
@@ -19,6 +19,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import organizationsHero from "@/assets/organizations-hero.jpg";
 
 interface Organization {
@@ -47,6 +48,7 @@ const Organizacje = () => {
   const [city, setCity] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   useEffect(() => {
     fetchOrganizations();
@@ -175,148 +177,318 @@ const Organizacje = () => {
         <section className="relative -mt-20 md:-mt-24 pb-8">
           <div className="md:container md:mx-auto md:px-8 md:max-w-7xl px-4">
             <div className="bg-card rounded-3xl p-4 md:p-6 shadow-card border border-border/50">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <div className="flex items-center space-x-2">
-                  <Filter className="h-5 w-5 text-primary" />
-                  <h2 className="text-base sm:text-lg font-semibold text-foreground">Filtry</h2>
-                </div>
-                {hasActiveFilters && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleClearFilters}
-                    className="text-xs sm:text-sm"
-                  >
-                    <X className="h-4 w-4 mr-1" />
-                    Wyczyść
-                  </Button>
-                )}
+              {/* Mobile: Collapsible */}
+              <div className="md:hidden">
+                <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+                  <CollapsibleTrigger asChild>
+                    <button className="flex items-center justify-between w-full">
+                      <div className="flex items-center space-x-2">
+                        <Filter className="h-5 w-5 text-primary" />
+                        <h2 className="text-base font-semibold text-foreground">Filtry</h2>
+                        {hasActiveFilters && (
+                          <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                            Aktywne
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span className="text-sm">{isFiltersOpen ? 'Zwiń' : 'Rozwiń'}</span>
+                        {isFiltersOpen ? (
+                          <ChevronUp className="h-5 w-5" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5" />
+                        )}
+                      </div>
+                    </button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4">
+                    {hasActiveFilters && (
+                      <div className="flex justify-end mb-4">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={handleClearFilters}
+                          className="text-xs"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Wyczyść
+                        </Button>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 gap-3">
+                      {/* Search with Autocomplete */}
+                      <Popover open={isSearchOpen && search.length >= 3 && searchSuggestions.length > 0} onOpenChange={setIsSearchOpen}>
+                        <PopoverTrigger asChild>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                            <Input
+                              placeholder="Szukaj organizacji..."
+                              value={search}
+                              onChange={(e) => {
+                                setSearch(e.target.value);
+                                if (e.target.value.length >= 3) {
+                                  setIsSearchOpen(true);
+                                }
+                              }}
+                              onFocus={() => {
+                                if (search.length >= 3 && searchSuggestions.length > 0) {
+                                  setIsSearchOpen(true);
+                                }
+                              }}
+                              className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
+                            />
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[320px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
+                          <Command className="bg-popover">
+                            <CommandList className="max-h-[300px]">
+                              <CommandGroup heading="Organizacje" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
+                                {searchSuggestions.map((org) => (
+                                  <CommandItem
+                                    key={org.id}
+                                    value={org.name}
+                                    onSelect={() => {
+                                      navigate(`/organizacje/${org.slug}`);
+                                      setIsSearchOpen(false);
+                                    }}
+                                    className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
+                                  >
+                                    <div className="flex items-center gap-3 w-full">
+                                      <Avatar className="h-10 w-10 border-2 border-border">
+                                        <AvatarImage src={org.logo_url} alt={org.name} />
+                                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                          {org.name.charAt(0).toUpperCase()}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-foreground truncate">{org.name}</div>
+                                        {org.city && (
+                                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                                            <MapPin className="h-3 w-3" />
+                                            <span>{org.city}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Organization Type */}
+                      <Select value={orgType} onValueChange={setOrgType}>
+                        <SelectTrigger className="rounded-2xl border-border/50">
+                          <SelectValue placeholder="Typ organizacji" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="wszystkie">Wszystkie typy</SelectItem>
+                          <SelectItem value="fundacja">Fundacja</SelectItem>
+                          <SelectItem value="stowarzyszenie">Stowarzyszenie</SelectItem>
+                          <SelectItem value="schronisko">Schronisko</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {/* City with Autocomplete */}
+                      <Popover open={isCityOpen && city.length >= 3 && citySuggestions.length > 0} onOpenChange={setIsCityOpen}>
+                        <PopoverTrigger asChild>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                            <Input
+                              placeholder="Miasto..."
+                              value={city}
+                              onChange={(e) => {
+                                setCity(e.target.value);
+                                if (e.target.value.length >= 3) {
+                                  setIsCityOpen(true);
+                                }
+                              }}
+                              onFocus={() => {
+                                if (city.length >= 3 && citySuggestions.length > 0) {
+                                  setIsCityOpen(true);
+                                }
+                              }}
+                              className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
+                            />
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[280px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
+                          <Command className="bg-popover">
+                            <CommandList className="max-h-[250px]">
+                              <CommandGroup heading="Miasta" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
+                                {citySuggestions.map((cityName) => (
+                                  <CommandItem
+                                    key={cityName}
+                                    value={cityName}
+                                    onSelect={() => {
+                                      setCity(cityName);
+                                      setIsCityOpen(false);
+                                    }}
+                                    className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
+                                  >
+                                    <div className="flex items-center gap-2 w-full">
+                                      <MapPin className="h-4 w-4 text-primary" />
+                                      <span className="font-medium text-foreground">{cityName}</span>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                {/* Search with Autocomplete */}
-                <Popover open={isSearchOpen && search.length >= 3 && searchSuggestions.length > 0} onOpenChange={setIsSearchOpen}>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                      <Input
-                        placeholder="Szukaj organizacji..."
-                        value={search}
-                        onChange={(e) => {
-                          setSearch(e.target.value);
-                          if (e.target.value.length >= 3) {
-                            setIsSearchOpen(true);
-                          }
-                        }}
-                        onFocus={() => {
-                          if (search.length >= 3 && searchSuggestions.length > 0) {
-                            setIsSearchOpen(true);
-                          }
-                        }}
-                        className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
-                      />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[320px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
-                    <Command className="bg-popover">
-                      <CommandList className="max-h-[300px]">
-                        <CommandGroup heading="Organizacje" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
-                          {searchSuggestions.map((org) => (
-                            <CommandItem
-                              key={org.id}
-                              value={org.name}
-                              onSelect={() => {
-                                navigate(`/organizacje/${org.slug}`);
-                                setIsSearchOpen(false);
-                              }}
-                              className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
-                            >
-                              <div className="flex items-center gap-3 w-full">
-                                <Avatar className="h-10 w-10 border-2 border-border">
-                                  <AvatarImage src={org.logo_url} alt={org.name} />
-                                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                                    {org.name.charAt(0).toUpperCase()}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-foreground truncate">{org.name}</div>
-                                  {org.city && (
-                                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                                      <MapPin className="h-3 w-3" />
-                                      <span>{org.city}</span>
-                                    </div>
-                                  )}
+              {/* Desktop: Always visible */}
+              <div className="hidden md:block">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <div className="flex items-center space-x-2">
+                    <Filter className="h-5 w-5 text-primary" />
+                    <h2 className="text-base sm:text-lg font-semibold text-foreground">Filtry</h2>
+                  </div>
+                  {hasActiveFilters && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleClearFilters}
+                      className="text-xs sm:text-sm"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Wyczyść
+                    </Button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {/* Search with Autocomplete */}
+                  <Popover open={isSearchOpen && search.length >= 3 && searchSuggestions.length > 0} onOpenChange={setIsSearchOpen}>
+                    <PopoverTrigger asChild>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                        <Input
+                          placeholder="Szukaj organizacji..."
+                          value={search}
+                          onChange={(e) => {
+                            setSearch(e.target.value);
+                            if (e.target.value.length >= 3) {
+                              setIsSearchOpen(true);
+                            }
+                          }}
+                          onFocus={() => {
+                            if (search.length >= 3 && searchSuggestions.length > 0) {
+                              setIsSearchOpen(true);
+                            }
+                          }}
+                          className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
+                        />
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[320px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
+                      <Command className="bg-popover">
+                        <CommandList className="max-h-[300px]">
+                          <CommandGroup heading="Organizacje" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
+                            {searchSuggestions.map((org) => (
+                              <CommandItem
+                                key={org.id}
+                                value={org.name}
+                                onSelect={() => {
+                                  navigate(`/organizacje/${org.slug}`);
+                                  setIsSearchOpen(false);
+                                }}
+                                className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
+                              >
+                                <div className="flex items-center gap-3 w-full">
+                                  <Avatar className="h-10 w-10 border-2 border-border">
+                                    <AvatarImage src={org.logo_url} alt={org.name} />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                      {org.name.charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">{org.name}</div>
+                                    {org.city && (
+                                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                                        <MapPin className="h-3 w-3" />
+                                        <span>{org.city}</span>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
 
-                {/* Organization Type */}
-                <Select value={orgType} onValueChange={setOrgType}>
-                  <SelectTrigger className="rounded-2xl border-border/50">
-                    <SelectValue placeholder="Typ organizacji" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="wszystkie">Wszystkie typy</SelectItem>
-                    <SelectItem value="fundacja">Fundacja</SelectItem>
-                    <SelectItem value="stowarzyszenie">Stowarzyszenie</SelectItem>
-                    <SelectItem value="schronisko">Schronisko</SelectItem>
-                  </SelectContent>
-                </Select>
+                  {/* Organization Type */}
+                  <Select value={orgType} onValueChange={setOrgType}>
+                    <SelectTrigger className="rounded-2xl border-border/50">
+                      <SelectValue placeholder="Typ organizacji" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="wszystkie">Wszystkie typy</SelectItem>
+                      <SelectItem value="fundacja">Fundacja</SelectItem>
+                      <SelectItem value="stowarzyszenie">Stowarzyszenie</SelectItem>
+                      <SelectItem value="schronisko">Schronisko</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                {/* City with Autocomplete */}
-                <Popover open={isCityOpen && city.length >= 3 && citySuggestions.length > 0} onOpenChange={setIsCityOpen}>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                      <Input
-                        placeholder="Miasto..."
-                        value={city}
-                        onChange={(e) => {
-                          setCity(e.target.value);
-                          if (e.target.value.length >= 3) {
-                            setIsCityOpen(true);
-                          }
-                        }}
-                        onFocus={() => {
-                          if (city.length >= 3 && citySuggestions.length > 0) {
-                            setIsCityOpen(true);
-                          }
-                        }}
-                        className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
-                      />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[280px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
-                    <Command className="bg-popover">
-                      <CommandList className="max-h-[250px]">
-                        <CommandGroup heading="Miasta" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
-                          {citySuggestions.map((cityName) => (
-                            <CommandItem
-                              key={cityName}
-                              value={cityName}
-                              onSelect={() => {
-                                setCity(cityName);
-                                setIsCityOpen(false);
-                              }}
-                              className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
-                            >
-                              <div className="flex items-center gap-2 w-full">
-                                <MapPin className="h-4 w-4 text-primary" />
-                                <span className="font-medium text-foreground">{cityName}</span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                  {/* City with Autocomplete */}
+                  <Popover open={isCityOpen && city.length >= 3 && citySuggestions.length > 0} onOpenChange={setIsCityOpen}>
+                    <PopoverTrigger asChild>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                        <Input
+                          placeholder="Miasto..."
+                          value={city}
+                          onChange={(e) => {
+                            setCity(e.target.value);
+                            if (e.target.value.length >= 3) {
+                              setIsCityOpen(true);
+                            }
+                          }}
+                          onFocus={() => {
+                            if (city.length >= 3 && citySuggestions.length > 0) {
+                              setIsCityOpen(true);
+                            }
+                          }}
+                          className="pl-9 rounded-2xl border-2 border-border/50 focus:border-primary bg-background"
+                        />
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[280px] p-0 bg-popover border-2 border-border rounded-2xl z-[100]" align="start" sideOffset={8}>
+                      <Command className="bg-popover">
+                        <CommandList className="max-h-[250px]">
+                          <CommandGroup heading="Miasta" className="text-muted-foreground px-2 py-1.5 text-xs font-semibold">
+                            {citySuggestions.map((cityName) => (
+                              <CommandItem
+                                key={cityName}
+                                value={cityName}
+                                onSelect={() => {
+                                  setCity(cityName);
+                                  setIsCityOpen(false);
+                                }}
+                                className="cursor-pointer px-3 py-2.5 hover:bg-accent rounded-xl my-1"
+                              >
+                                <div className="flex items-center gap-2 w-full">
+                                  <MapPin className="h-4 w-4 text-primary" />
+                                  <span className="font-medium text-foreground">{cityName}</span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </div>
           </div>
