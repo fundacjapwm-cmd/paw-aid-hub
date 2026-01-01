@@ -17,9 +17,9 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 25 15% 15%;
 
-    /* Primary: Golden/Orange - darkened for WCAG AA contrast (4.5:1) */
-    --primary: 37 90% 38%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Golden/Orange - original bright color with dark text for contrast */
+    --primary: 37 86% 54%;
+    --primary-foreground: 25 20% 10%;
 
     /* Secondary: Green #9FB973 */
     --secondary: 80 31% 72%;
