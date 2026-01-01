@@ -17,26 +17,28 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 25 15% 15%;
 
-    /* Primary: Golden/Orange - original bright color with dark text for contrast */
+    /* Primary: Golden/Orange - bright color with dark text for button backgrounds */
     --primary: 37 86% 54%;
     --primary-foreground: 25 20% 10%;
+    /* Primary dark variant for text on light backgrounds (4.5:1+ contrast) */
+    --primary-dark: 30 80% 35%;
 
     /* Secondary: Green #9FB973 */
-    --secondary: 80 31% 72%;
-    --secondary-foreground: 240 10% 3.9%;
+    --secondary: 80 31% 58%;
+    --secondary-foreground: 80 40% 15%;
 
     --muted: 45 10% 95%;
-    --muted-foreground: 25 10% 45%;
+    --muted-foreground: 25 15% 38%;
 
-    /* Accent: Brick Orange #CA7244 */
-    --accent: 24 58% 55%;
-    --accent-foreground: 0 0% 98%;
+    /* Accent: Brick Orange - darkened for white text contrast */
+    --accent: 24 65% 42%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    /* Success: Green */
-    --success: 142 76% 36%;
+    /* Success: Green - darkened for white text contrast (4.5:1+) */
+    --success: 142 70% 28%;
     --success-foreground: 0 0% 100%;
 
     --border: 45 15% 90%;
@@ -49,7 +51,7 @@ All colors MUST be HSL.
     --primary-light: 37 86% 92%;
     --secondary-light: 80 31% 88%;
     --accent-light: 24 58% 85%;
-    --hero-bg: 38 81% 55%;
+    --hero-bg: 25 75% 32%;
     --shadow-bubbly: 0 15px 35px -10px hsl(37 90% 38% / 0.25), 0 5px 15px -5px hsl(37 90% 38% / 0.1);
     --shadow-card: 0 8px 25px -5px hsl(0 0% 0% / 0.1), 0 3px 10px -3px hsl(0 0% 0% / 0.05);
     --shadow-soft: 0 4px 15px -2px hsl(0 0% 0% / 0.08);

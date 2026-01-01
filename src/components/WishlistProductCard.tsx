@@ -113,7 +113,7 @@ export const WishlistProductCard = ({
           
           {/* Price - Right Top Corner */}
           <div className="text-right">
-            <div className={`font-black text-lg ${product.bought ? 'text-muted-foreground' : 'text-primary'}`}>
+            <div className={`font-black text-lg ${product.bought ? 'text-muted-foreground' : 'text-primary-dark'}`}>
               {Number(product.price).toFixed(2)} zł
             </div>
             {showSmartFill && !product.bought && neededQuantity > 1 && onSmartFill && (
@@ -164,7 +164,7 @@ export const WishlistProductCard = ({
                 onChange={handleInputChange}
                 onBlur={handleInputBlur}
                 onKeyDown={handleKeyDown}
-                className="w-10 text-center font-bold text-sm text-primary tabular-nums bg-transparent border-none outline-none focus:ring-0"
+                className="w-10 text-center font-bold text-sm text-primary-dark tabular-nums bg-transparent border-none outline-none focus:ring-0"
                 aria-label={`Ilość produktu ${product.name}`}
               />
               <button 
@@ -292,7 +292,7 @@ export const WishlistProductCard = ({
             )}
           </div>
           <div className={`text-base font-bold ${
-            product.bought ? 'text-green-600' : 'text-primary'
+            product.bought ? 'text-green-600' : 'text-primary-dark'
           }`}>
             {Number(product.price).toFixed(2)} zł
           </div>
