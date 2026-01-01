@@ -21,7 +21,7 @@ const buttonVariants = cva(
         hero: "bg-hero text-primary-foreground md:hover:shadow-bubbly md:hover:scale-105 transition-bubbly text-lg font-semibold",
         bubbly: "bg-primary text-primary-foreground md:hover:bg-accent md:hover:shadow-bubbly md:hover:scale-105 md:hover:-translate-y-1 transition-bubbly",
         light: "bg-primary-light text-primary-foreground md:hover:bg-primary md:hover:text-primary-foreground md:hover:scale-105 transition-bubbly",
-        success: "bg-green-500 text-white md:hover:bg-green-600 md:hover:shadow-bubbly md:hover:scale-105 transition-bubbly",
+        success: "bg-success text-success-foreground md:hover:bg-success/90 md:hover:shadow-bubbly md:hover:scale-105 transition-bubbly",
       },
       size: {
         default: "h-12 px-6 py-3",
