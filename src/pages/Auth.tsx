@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Heart, User, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
@@ -38,7 +40,10 @@ export default function Auth() {
     email: '',
     password: '',
     confirmPassword: '',
-    displayName: ''
+    displayName: '',
+    acceptTerms: false,
+    acceptPrivacy: false,
+    marketingConsent: false
   });
 
   // Check for password recovery from email link
@@ -142,6 +147,18 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    if (!signupForm.acceptTerms) {
+      setError('Musisz zaakceptować regulamin');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!signupForm.acceptPrivacy) {
+      setError('Musisz zaakceptować politykę prywatności');
+      setIsLoading(false);
+      return;
+    }
 
     if (signupForm.password !== signupForm.confirmPassword) {
       setError('Hasła nie są identyczne');
@@ -595,6 +612,64 @@ export default function Auth() {
                         onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
                         required
                       />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="accept-terms"
+                        checked={signupForm.acceptTerms}
+                        onCheckedChange={(checked) => 
+                          setSignupForm({ ...signupForm, acceptTerms: checked as boolean })
+                        }
+                      />
+                      <label
+                        htmlFor="accept-terms"
+                        className="text-sm leading-tight cursor-pointer"
+                      >
+                        Akceptuję{' '}
+                        <Link to="/regulamin" className="text-primary hover:underline" target="_blank">
+                          regulamin
+                        </Link>{' '}
+                        serwisu *
+                      </label>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="accept-privacy"
+                        checked={signupForm.acceptPrivacy}
+                        onCheckedChange={(checked) => 
+                          setSignupForm({ ...signupForm, acceptPrivacy: checked as boolean })
+                        }
+                      />
+                      <label
+                        htmlFor="accept-privacy"
+                        className="text-sm leading-tight cursor-pointer"
+                      >
+                        Akceptuję{' '}
+                        <Link to="/polityka-prywatnosci" className="text-primary hover:underline" target="_blank">
+                          politykę prywatności
+                        </Link>{' '}
+                        *
+                      </label>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="marketing-consent"
+                        checked={signupForm.marketingConsent}
+                        onCheckedChange={(checked) => 
+                          setSignupForm({ ...signupForm, marketingConsent: checked as boolean })
+                        }
+                      />
+                      <label
+                        htmlFor="marketing-consent"
+                        className="text-sm leading-tight cursor-pointer text-muted-foreground"
+                      >
+                        Wyrażam zgodę na otrzymywanie informacji marketingowych
+                      </label>
                     </div>
                   </div>
 
