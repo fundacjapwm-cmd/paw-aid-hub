@@ -98,6 +98,9 @@ const HowItWorksSection = () => {
                 <img 
                   src={step.image} 
                   alt={step.title}
+                  loading="lazy"
+                  width={400}
+                  height={600}
                   className="w-full h-full object-cover"
                 />
                 {/* Ciemny overlay dla czytelności */}

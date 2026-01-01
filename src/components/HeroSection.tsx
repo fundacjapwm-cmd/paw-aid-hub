@@ -54,24 +54,24 @@ const HeroSection = () => {
             <div className="space-y-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-2">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroCat1} alt="" className="w-full h-full object-cover" />
+                  <img src={heroCat1} alt="" width={244} height={244} className="w-full h-full object-cover" />
                 </div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-1">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroCatDog} alt="" className="w-full h-full object-cover" />
+                  <img src={heroCatDog} alt="" width={244} height={244} className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
             <div className="space-y-4 mt-8">
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-2">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroDog1} alt="" className="w-full h-full object-cover" />
+                  <img src={heroDog1} alt="" width={244} height={244} className="w-full h-full object-cover" />
                 </div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-1">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroDog2} alt="" className="w-full h-full object-cover" />
+                  <img src={heroDog2} alt="" width={244} height={244} className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
