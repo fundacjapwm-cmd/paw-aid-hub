@@ -109,8 +109,8 @@ const HowItWorksSection = () => {
 
               {/* Treść */}
               <div className="relative z-10 flex flex-col items-center text-center px-6 md:px-8 py-12 md:py-16 justify-end h-full">
-                {/* Ikona w kółku */}
-                <div className="mb-4 md:mb-6 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
+                {/* Ikona w kółku - stałe wymiary */}
+                <div className="mb-4 md:mb-6 w-20 h-20 min-w-[5rem] min-h-[5rem] max-w-[5rem] max-h-[5rem] rounded-full bg-white flex items-center justify-center shadow-lg aspect-square shrink-0">
                   <step.icon className="w-10 h-10 text-primary" strokeWidth={2} />
                 </div>
 
