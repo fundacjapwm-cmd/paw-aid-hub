@@ -198,7 +198,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
 
       {/* Species Filter */}
       <Select value={species} onValueChange={(value) => handleFilterChange('species', value)}>
-        <SelectTrigger className="rounded-2xl border-2 text-sm">
+        <SelectTrigger className="rounded-2xl border-2 text-sm" aria-label="Filtruj według gatunku">
           <SelectValue placeholder="Wybierz typ" />
         </SelectTrigger>
         <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">
@@ -262,7 +262,7 @@ const AnimalFilters = ({ onFilterChange }: FiltersProps) => {
 
       {/* Sort Filter */}
       <Select value={sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
-        <SelectTrigger className="rounded-2xl border-2 text-sm">
+        <SelectTrigger className="rounded-2xl border-2 text-sm" aria-label="Sortowanie listy zwierząt">
           <SelectValue placeholder="Sortowanie" />
         </SelectTrigger>
         <SelectContent className="bg-popover border-2 border-border rounded-2xl z-50">

@@ -153,6 +153,7 @@ export const WishlistProductCard = ({
                 className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 transition-all disabled:opacity-30"
                 onClick={() => onQuantityChange(productId, -1)}
                 disabled={quantity <= 1}
+                aria-label="Zmniejsz ilość"
               >
                 <Minus className="h-3.5 w-3.5" />
               </button>
@@ -164,11 +165,13 @@ export const WishlistProductCard = ({
                 onBlur={handleInputBlur}
                 onKeyDown={handleKeyDown}
                 className="w-10 text-center font-bold text-sm text-primary tabular-nums bg-transparent border-none outline-none focus:ring-0"
+                aria-label={`Ilość produktu ${product.name}`}
               />
               <button 
                 className="w-7 h-7 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 transition-all disabled:opacity-30"
                 onClick={() => onQuantityChange(productId, 1)}
                 disabled={!unlimitedQuantity && maxQuantity ? quantity >= maxQuantity : false}
+                aria-label="Zwiększ ilość"
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>
@@ -184,6 +187,7 @@ export const WishlistProductCard = ({
                     size="icon"
                     className="h-10 w-10 rounded-full bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground transition-all shadow-bubbly"
                     onClick={() => onRemoveFromCart(productId)}
+                    aria-label={`Usuń ${product.name} z koszyka`}
                   >
                     <X className="h-5 w-5" />
                   </Button>
@@ -207,6 +211,7 @@ export const WishlistProductCard = ({
                       }`}
                       onClick={() => onAddToCart(product)}
                       disabled={isInCart}
+                      aria-label={isInCart ? `${product.name} w koszyku` : `Dodaj ${product.name} do koszyka`}
                     >
                       {isInCart ? (
                         <Check className="h-5 w-5" />
@@ -307,6 +312,7 @@ export const WishlistProductCard = ({
                   className="w-7 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30 text-base font-bold"
                   onClick={() => onQuantityChange(productId, -1)}
                   disabled={quantity <= 1}
+                  aria-label="Zmniejsz ilość"
                 >
                   -
                 </button>
@@ -318,11 +324,13 @@ export const WishlistProductCard = ({
                   onBlur={handleInputBlur}
                   onKeyDown={handleKeyDown}
                   className="w-10 text-center text-sm font-bold tabular-nums bg-transparent border-none outline-none focus:ring-0"
+                  aria-label={`Ilość produktu ${product.name}`}
                 />
                 <button 
                   className="w-7 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-white rounded-md transition-all disabled:opacity-30 text-base font-bold"
                   onClick={() => onQuantityChange(productId, 1)}
                   disabled={!unlimitedQuantity && maxQuantity ? quantity >= maxQuantity : false}
+                  aria-label="Zwiększ ilość"
                 >
                   +
                 </button>
@@ -335,6 +343,7 @@ export const WishlistProductCard = ({
                   variant="ghost"
                   className="h-9 w-9 rounded-lg hover:bg-destructive hover:text-destructive-foreground transition-colors shrink-0"
                   onClick={() => onRemoveFromCart(productId)}
+                  aria-label={`Usuń ${product.name} z koszyka`}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -351,6 +360,7 @@ export const WishlistProductCard = ({
                   }`}
                   onClick={() => onAddToCart(product)}
                   disabled={isInCart}
+                  aria-label={isInCart ? `${product.name} w koszyku` : `Dodaj ${product.name} do koszyka`}
                 >
                   {isInCart ? (
                     <Check className="h-4 w-4" />

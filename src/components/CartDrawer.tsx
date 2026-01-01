@@ -26,7 +26,7 @@ const CartDrawer = () => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label={`Koszyk${cartCount > 0 ? `, ${cartCount} produktów` : ''}`}>
           <ShoppingCart className="h-5 w-5" />
           {cartCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full min-w-5 h-5 text-xs font-bold flex items-center justify-center px-1 shadow-sm">
@@ -87,6 +87,7 @@ const CartDrawer = () => {
                             size="icon"
                             className="h-8 w-8"
                             onClick={() => updateQuantity(item.productId, item.quantity - 1, item.animalId)}
+                            aria-label="Zmniejsz ilość"
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -97,6 +98,7 @@ const CartDrawer = () => {
                             className="h-8 w-8"
                             onClick={() => updateQuantity(item.productId, item.quantity + 1, item.animalId)}
                             disabled={item.maxQuantity ? item.quantity >= item.maxQuantity : false}
+                            aria-label="Zwiększ ilość"
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -108,6 +110,7 @@ const CartDrawer = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => removeFromCart(item.productId, item.animalId)}
+                          aria-label={`Usuń ${item.productName} z koszyka`}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
