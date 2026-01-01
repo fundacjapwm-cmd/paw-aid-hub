@@ -33,10 +33,20 @@ export function useOrgOnboarding({ organization, animalsCount, hasWishlistItems 
       return;
     }
 
-    // Determine onboarding step based on organization state
-    const isProfileIncomplete = !organization.description || !organization.city || !organization.address;
+    // Check if profile step was completed (saved in localStorage)
+    const profileCompleted = localStorage.getItem(`org_onboarding_profile_${organization.id}`);
     
-    if (isProfileIncomplete) {
+    // Profile is considered started if ANY of these fields has been filled
+    // (not just the initial invite data like name and email)
+    const hasProfileData = organization.description || organization.city || organization.address || organization.postal_code;
+    
+    // Determine onboarding step based on organization state
+    // Profile step is complete if:
+    // 1. User has filled some profile data (even if incomplete), OR
+    // 2. User has explicitly completed the profile step
+    const isProfileStepDone = hasProfileData || profileCompleted;
+    
+    if (!isProfileStepDone) {
       setState(prev => ({ ...prev, currentStep: 'profile', isOnboardingActive: true }));
     } else if (animalsCount === 0) {
       setState(prev => ({ ...prev, currentStep: 'animal', isOnboardingActive: true }));
@@ -54,6 +64,10 @@ export function useOrgOnboarding({ organization, animalsCount, hasWishlistItems 
   const advanceStep = (animalName?: string, animalId?: string) => {
     setState(prev => {
       if (prev.currentStep === 'profile') {
+        // Mark profile step as completed
+        if (organization) {
+          localStorage.setItem(`org_onboarding_profile_${organization.id}`, 'true');
+        }
         return { ...prev, currentStep: 'animal', isOnboardingActive: true };
       }
       if (prev.currentStep === 'animal') {
@@ -85,10 +99,18 @@ export function useOrgOnboarding({ organization, animalsCount, hasWishlistItems 
     setState(prev => ({ ...prev, showCongratulations: false }));
   };
 
+  // Mark profile step as done when user saves profile data
+  const markProfileDone = () => {
+    if (organization) {
+      localStorage.setItem(`org_onboarding_profile_${organization.id}`, 'true');
+    }
+  };
+
   return {
     ...state,
     advanceStep,
     dismissOnboarding,
     clearCongratulations,
+    markProfileDone,
   };
 }
