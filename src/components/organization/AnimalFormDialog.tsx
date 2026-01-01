@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -7,9 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Upload, Calendar as CalendarIcon, Trash2 } from "lucide-react";
+import { Upload, Calendar as CalendarIcon, Trash2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -68,6 +67,9 @@ export default function AnimalFormDialog({
   onGalleryChange,
   onRemoveGalleryImage,
 }: AnimalFormDialogProps) {
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
   const form = useForm<AnimalFormData>({
     resolver: zodResolver(animalSchema),
     defaultValues: {
@@ -133,111 +135,122 @@ export default function AnimalFormDialog({
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-              {/* Main Image Upload */}
-              <div>
-                <Label>Zdjęcie główne</Label>
-                <div className="mt-2 flex items-center gap-4">
-                  {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="h-24 w-24 object-cover rounded-2xl border"
-                    />
-                  ) : (
-                    <div className="h-24 w-24 rounded-2xl border-2 border-dashed flex items-center justify-center bg-muted">
+              {/* Main Image + Name + Species row */}
+              <div className="flex gap-6">
+                {/* Main Image Upload - clickable */}
+                <div className="shrink-0">
+                  <Label className="text-sm font-medium mb-2 block">Zdjęcie główne</Label>
+                  <input
+                    ref={mainImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={onImageChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => mainImageInputRef.current?.click()}
+                    className="h-28 w-28 rounded-2xl border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted hover:bg-muted/80 transition-colors overflow-hidden"
+                  >
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
                       <Upload className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={onImageChange}
-                      className="max-w-[200px]"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      JPG, PNG. Max 2MB
-                    </p>
-                  </div>
+                    )}
+                  </button>
+                </div>
+
+                {/* Name + Species */}
+                <div className="flex-1 space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Imię *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="np. Burek" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="species"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gatunek *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Pies">Pies</SelectItem>
+                            <SelectItem value="Kot">Kot</SelectItem>
+                            <SelectItem value="Inne">Inne</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
 
-              {/* Gallery Upload (only for add mode) */}
+              {/* Gallery Upload - 6 thumbnail slots */}
               {mode === "add" && onGalleryChange && (
                 <div>
-                  <Label>Galeria zdjęć (max 6)</Label>
-                  <div className="mt-2 space-y-3">
-                    {galleryPreviews.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {galleryPreviews.map((preview, index) => (
-                          <div key={index} className="relative">
-                            <img
-                              src={preview}
-                              alt={`Gallery ${index + 1}`}
-                              className="h-16 w-16 object-cover rounded-lg border"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => onRemoveGalleryImage?.(index)}
-                              className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-white flex items-center justify-center"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ))}
+                  <Label className="text-sm font-medium mb-2 block">Galeria zdjęć (max 6)</Label>
+                  <input
+                    ref={galleryInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={onGalleryChange}
+                    className="hidden"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {/* Render existing gallery images */}
+                    {galleryPreviews.map((preview, index) => (
+                      <div key={index} className="relative">
+                        <div className="h-16 w-16 rounded-lg border overflow-hidden">
+                          <img
+                            src={preview}
+                            alt={`Gallery ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveGalleryImage?.(index)}
+                          className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/90"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
                       </div>
-                    )}
-                    {galleryPreviews.length < 6 && (
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={onGalleryChange}
-                        className="max-w-[200px]"
-                      />
-                    )}
+                    ))}
+                    {/* Render empty slots */}
+                    {Array.from({ length: 6 - galleryPreviews.length }).map((_, index) => (
+                      <button
+                        key={`empty-${index}`}
+                        type="button"
+                        onClick={() => galleryInputRef.current?.click()}
+                        className="h-16 w-16 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted hover:bg-muted/80 transition-colors"
+                      >
+                        <Plus className="h-5 w-5 text-muted-foreground" />
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
-
-              {/* Name */}
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imię *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="np. Burek" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Species */}
-              <FormField
-                control={form.control}
-                name="species"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Gatunek *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Pies">Pies</SelectItem>
-                        <SelectItem value="Kot">Kot</SelectItem>
-                        <SelectItem value="Inne">Inne</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               {/* Birth Date */}
               <FormField
@@ -245,7 +258,7 @@ export default function AnimalFormDialog({
                 name="birth_date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Data urodzenia</FormLabel>
+                    <FormLabel>Data urodzenia (w przybliżeniu)</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -282,7 +295,7 @@ export default function AnimalFormDialog({
                 )}
               />
 
-              {/* Description */}
+              {/* Description - at the bottom */}
               <FormField
                 control={form.control}
                 name="description"
