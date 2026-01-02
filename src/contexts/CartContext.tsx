@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 
 const CART_STORAGE_KEY = 'pwm-cart';
+const CART_TIMESTAMP_KEY = 'pwm-cart-timestamp';
+const CART_EXPIRY_HOURS = 24;
 
 export interface CartItem {
   productId: string;
@@ -34,9 +36,33 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Load cart from localStorage
+// Check if cart has expired (older than 24 hours)
+const isCartExpired = (): boolean => {
+  try {
+    const timestamp = localStorage.getItem(CART_TIMESTAMP_KEY);
+    if (!timestamp) return false;
+    
+    const cartTime = new Date(timestamp).getTime();
+    const now = Date.now();
+    const hoursElapsed = (now - cartTime) / (1000 * 60 * 60);
+    
+    return hoursElapsed >= CART_EXPIRY_HOURS;
+  } catch {
+    return false;
+  }
+};
+
+// Load cart from localStorage (with expiry check)
 const loadCartFromStorage = (): CartItem[] => {
   try {
+    // Check if cart expired
+    if (isCartExpired()) {
+      console.log('Cart expired after 24h, clearing...');
+      localStorage.removeItem(CART_STORAGE_KEY);
+      localStorage.removeItem(CART_TIMESTAMP_KEY);
+      return [];
+    }
+    
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
       return JSON.parse(stored);
@@ -47,10 +73,20 @@ const loadCartFromStorage = (): CartItem[] => {
   return [];
 };
 
-// Save cart to localStorage
+// Save cart to localStorage with timestamp
 const saveCartToStorage = (cart: CartItem[]) => {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    // Only set timestamp if cart has items
+    if (cart.length > 0) {
+      // Update timestamp only if it doesn't exist (first item added)
+      if (!localStorage.getItem(CART_TIMESTAMP_KEY)) {
+        localStorage.setItem(CART_TIMESTAMP_KEY, new Date().toISOString());
+      }
+    } else {
+      // Clear timestamp when cart is empty
+      localStorage.removeItem(CART_TIMESTAMP_KEY);
+    }
   } catch (error) {
     console.error('Error saving cart to storage:', error);
   }
@@ -68,15 +104,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Load cart from database for logged-in users
   // Database is the source of truth - local storage is only for guests
+  // Also checks for 24h expiry
   const loadCartFromDatabase = useCallback(async () => {
     if (!user) return;
     
     setIsLoading(true);
     try {
+      // Calculate 24h ago
+      const expiryDate = new Date();
+      expiryDate.setHours(expiryDate.getHours() - CART_EXPIRY_HOURS);
+      const expiryTimestamp = expiryDate.toISOString();
+
       const { data, error } = await supabase
         .from('user_carts')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .gte('updated_at', expiryTimestamp);
 
       if (error) throw error;
 
