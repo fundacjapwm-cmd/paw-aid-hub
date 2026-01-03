@@ -60,6 +60,14 @@ export function AnimalWishlistCard({
 
       {/* Body - Scrollable List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {(!animal.wishlist || animal.wishlist.length === 0) ? (
+          <div className="flex flex-col items-center justify-center h-full text-center px-4 py-8">
+            <Heart className="h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-muted-foreground font-medium">
+              Lista potrzeb w trakcie tworzenia...
+            </p>
+          </div>
+        ) : (
         <TooltipProvider>
           {animal.wishlist.map((item: any) => {
             const itemInCart = isInCart(item.product_id);
@@ -93,6 +101,7 @@ export function AnimalWishlistCard({
             );
           })}
         </TooltipProvider>
+        )}
       </div>
 
       {/* Footer - Sticky Summary */}
