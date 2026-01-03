@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import heroCat1 from "@/assets/hero-cat1-optimized.webp";
-import heroCatDog from "@/assets/hero-catdog-optimized.webp";
-import heroDog1 from "@/assets/hero-dog1-optimized.webp";
-import heroDog2 from "@/assets/hero-dog2-optimized.webp";
+import heroCatBlue from "@/assets/hero/cat-blue.jpg";
+import heroDogWhite from "@/assets/hero/dog-white.jpg";
+import heroCatGreen from "@/assets/hero/cat-green.jpg";
+import heroDogPink from "@/assets/hero/dog-pink.jpg";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -54,24 +54,24 @@ const HeroSection = () => {
             <div className="space-y-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-2">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroCat1} alt="" width={244} height={244} className="w-full h-full object-cover" />
+                  <img src={heroCatBlue} alt="" width={244} height={244} className="w-full h-full object-cover object-center" loading="lazy" />
                 </div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-1">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroCatDog} alt="" width={244} height={244} className="w-full h-full object-cover" />
+                  <img src={heroDogWhite} alt="" width={244} height={244} className="w-full h-full object-cover object-center" loading="lazy" />
                 </div>
               </div>
             </div>
             <div className="space-y-4 mt-8">
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-2">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroDog1} alt="" width={244} height={244} className="w-full h-full object-cover" />
+                  <img src={heroCatGreen} alt="" width={244} height={244} className="w-full h-full object-cover object-center" loading="lazy" />
                 </div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-1">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroDog2} alt="" width={244} height={244} className="w-full h-full object-cover" />
+                  <img src={heroDogPink} alt="" width={244} height={244} className="w-full h-full object-cover object-center" loading="lazy" />
                 </div>
               </div>
             </div>
