@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import heroCatBlue from "@/assets/hero/cat-pastel.jpg";
 import heroDogWhite from "@/assets/hero/dog-white.jpg";
 import heroCatGreen from "@/assets/hero/cat-green.jpg";
-import heroDogPink from "@/assets/hero/dog-pink.jpg";
+import heroDogPink from "@/assets/hero/dog-dusty-pink.jpg";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -66,7 +66,7 @@ const HeroSection = () => {
             <div className="space-y-4 mt-8">
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform -rotate-2">
                 <div className="aspect-square rounded-2xl overflow-hidden">
-                  <img src={heroDogPink} alt="" width={244} height={244} className="w-full h-full object-cover object-[40%_center]" loading="lazy" />
+                  <img src={heroDogPink} alt="" width={244} height={244} className="w-full h-full object-cover object-[30%_center]" loading="lazy" />
                 </div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-1 transform rotate-1">
