@@ -1,4 +1,4 @@
-import { ShoppingCart, Trash2 } from "lucide-react";
+import { ShoppingCart, Trash2, Heart } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -57,9 +57,9 @@ export function OrganizationWishlistSection({
       {orgWishlist.length === 0 ? (
         <Card className="bg-white/60 border-white/50 shadow-md">
           <div className="p-12 text-center">
-            <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">
-              Organizacja nie ma jeszcze ogólnej wishlisty
+            <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-30" />
+            <p className="text-muted-foreground font-medium">
+              Lista potrzeb w trakcie tworzenia...
             </p>
           </div>
         </Card>
