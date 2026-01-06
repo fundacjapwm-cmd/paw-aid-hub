@@ -98,7 +98,7 @@ export default function FAQ() {
                 <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
                   Akceptujemy płatności elektroniczne za pośrednictwem PayU:
                   <ul className="mt-2 space-y-1 ml-5">
-                    <li>• Przelewy online (przelewy24, mBank, ING, PKO BP i inne)</li>
+                    <li>• Przelewy online (mBank, ING, PKO BP i inne)</li>
                     <li>• Karty płatnicze (Visa, Mastercard)</li>
                     <li>• BLIK</li>
                   </ul>
