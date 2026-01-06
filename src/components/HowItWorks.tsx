@@ -21,7 +21,7 @@ const HowItWorks = () => {
     {
       icon: CreditCard,
       title: "Zapłać",
-      description: "Szybki i bezpieczny przelew przez Przelewy24. BLIK, karta, przelew - wybierz co wolisz.",
+      description: "Aby proces był jak najłatwiejszy, zdecydowaliśmy się na PayU. Możesz płacić szybko i wygodnie.",
       image: creditCard,
     },
     {
