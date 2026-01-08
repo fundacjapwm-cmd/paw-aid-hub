@@ -103,7 +103,7 @@ export default function TermsAcceptanceDialog({ organizationId, onAccepted }: Te
                     </h2>
                     <ol className="space-y-2 text-muted-foreground list-decimal ml-6 text-sm">
                       <li>Niniejszy Regulamin określa zasady korzystania z platformy internetowej Pączki w Maśle (dalej: "Platforma").</li>
-                      <li>Administratorem Platformy jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą w Polsce (dalej: "Administrator", "Fundacja" lub "Pośrednik").</li>
+                      <li>Administratorem Platformy jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą pod adresem: Maciejów 6, 34-325 Bierna (KRS: 0001171916, NIP: 5532598992, REGON: 541682360) - dalej: "Administrator", "Fundacja" lub "Pośrednik".</li>
                       <li>Fundacja pełni rolę pośrednika między osobami chcącymi wspierać zwierzęta (Użytkownikami) a organizacjami opiekującymi się zwierzętami (Organizacjami).</li>
                       <li>Środki wpłacone przez Użytkowników przeznaczane są na zakup produktów dla zwierząt oraz pokrycie kosztów ich dostawy.</li>
                       <li>Korzystanie z Platformy oznacza akceptację niniejszego Regulaminu.</li>
