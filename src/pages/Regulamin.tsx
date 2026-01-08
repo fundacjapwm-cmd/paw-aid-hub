@@ -34,7 +34,9 @@ export default function Regulamin() {
                     dostępnej pod adresem www.pączkiwmaśle.pl.
                   </li>
                   <li>
-                    Administratorem Platformy jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą w Polsce 
+                    Administratorem Platformy jest <strong>Fundacja Pączki w Maśle</strong> z siedzibą pod adresem: Maciejów 6, 34-325 Bierna, 
+                    wpisana do rejestru stowarzyszeń, innych organizacji społecznych i zawodowych, fundacji oraz samodzielnych publicznych zakładów opieki zdrowotnej 
+                    Krajowego Rejestru Sądowego pod numerem <strong>KRS 0001171916</strong>, <strong>NIP 5532598992</strong>, <strong>REGON 541682360</strong> 
                     (dalej: "Administrator", "Fundacja" lub "Pośrednik").
                   </li>
                   <li>
