@@ -80,12 +80,16 @@ export function useOrgDashboard(userId: string | undefined) {
             (sum: number, item: any) => sum + (item.quantity || 0),
             0
           );
-          const fulfilled =
+          const fulfilledRaw =
             orderItems
               ?.filter((oi) => oi.animal_id === animal.id)
               .reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+          
+          // Cap fulfilled at totalNeeded for display purposes
+          // If totalNeeded is 0, show 0 fulfilled (wishlist is complete or empty)
+          const fulfilled = totalNeeded > 0 ? Math.min(fulfilledRaw, totalNeeded) : 0;
           const progress =
-            totalNeeded > 0 ? Math.min((fulfilled / totalNeeded) * 100, 100) : 0;
+            totalNeeded > 0 ? Math.min((fulfilledRaw / totalNeeded) * 100, 100) : 0;
 
           return {
             ...animal,
