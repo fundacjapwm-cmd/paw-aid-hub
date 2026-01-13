@@ -13,6 +13,7 @@ interface WishlistProductCardProps {
     price: number;
     image_url?: string;
     quantity?: number;
+    purchasedQuantity?: number;
     bought?: boolean;
   };
   quantity: number;
@@ -44,6 +45,9 @@ export const WishlistProductCard = ({
 }: WishlistProductCardProps) => {
   const productId = product.product_id || product.id;
   const neededQuantity = maxQuantity || product.quantity || 1;
+  const purchasedQty = product.purchasedQuantity || 0;
+  const totalNeeded = product.quantity || 1;
+  const hasPartialProgress = purchasedQty > 0 && !product.bought;
   const [inputValue, setInputValue] = useState(String(quantity));
 
   // Sync input value when quantity prop changes
@@ -116,6 +120,12 @@ export const WishlistProductCard = ({
             <div className={`font-black text-lg ${product.bought ? 'text-muted-foreground' : 'text-primary-dark'}`}>
               {Number(product.price).toFixed(2)} zł
             </div>
+            {/* Progress indicator for partial purchases */}
+            {hasPartialProgress && (
+              <div className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md inline-block mt-1">
+                {purchasedQty}/{totalNeeded} kupione
+              </div>
+            )}
             {showSmartFill && !product.bought && neededQuantity > 1 && onSmartFill && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -255,6 +265,12 @@ export const WishlistProductCard = ({
             }`} title={product.name}>
               {product.name}
             </p>
+            {/* Progress indicator for partial purchases */}
+            {hasPartialProgress && (
+              <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
+                {purchasedQty}/{totalNeeded} kupione
+              </span>
+            )}
             {!product.bought && showSmartFill && neededQuantity > 1 && onSmartFill && (
               <Tooltip>
                 <TooltipTrigger asChild>
