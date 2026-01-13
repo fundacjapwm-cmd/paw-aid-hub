@@ -1,40 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, Settings, LogOut, Building2, Shield } from 'lucide-react';
+import { Menu, LogOut, Building2, Shield } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useUserOrganization } from '@/hooks/useUserOrganization';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
 const MobileMenu = () => {
   const [open, setOpen] = useState(false);
-  const [hasOrganization, setHasOrganization] = useState(false);
+  const { hasOrganization } = useUserOrganization();
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
-
-  // Check if user belongs to any organization
-  useEffect(() => {
-    const checkOrganization = async () => {
-      if (!user) {
-        setHasOrganization(false);
-        return;
-      }
-
-      const { data } = await supabase
-        .from('organization_users')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      setHasOrganization(!!data);
-    };
-
-    checkOrganization();
-  }, [user]);
 
   const isActive = (path: string) => location.pathname === path;
   
