@@ -1,18 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, Settings, LogOut, Building2 } from 'lucide-react';
+import { Menu, Settings, LogOut, Building2, Shield } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
 const MobileMenu = () => {
   const [open, setOpen] = useState(false);
+  const [hasOrganization, setHasOrganization] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
+
+  // Check if user belongs to any organization
+  useEffect(() => {
+    const checkOrganization = async () => {
+      if (!user) {
+        setHasOrganization(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('organization_users')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setHasOrganization(!!data);
+    };
+
+    checkOrganization();
+  }, [user]);
 
   const isActive = (path: string) => location.pathname === path;
   
@@ -87,23 +109,24 @@ const MobileMenu = () => {
                 </div>
               </div>
               
+              {/* Show organization panel for ORG role OR any user assigned to an organization */}
+              {(profile?.role === 'ORG' || hasOrganization) && (
+                <button
+                  onClick={() => handleNavigation('/organizacja')}
+                  className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
+                >
+                  <Building2 className="h-5 w-5" />
+                  <span>Panel organizacji</span>
+                </button>
+              )}
+              
               {profile?.role === 'ADMIN' && (
                 <button
                   onClick={() => handleNavigation('/admin')}
                   className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
                 >
-                  <Settings className="h-5 w-5" />
+                  <Shield className="h-5 w-5" />
                   <span>Panel administratora</span>
-                </button>
-              )}
-              
-              {profile?.role === 'ORG' && (
-                <button
-                  onClick={() => handleNavigation('/organizacja')}
-                  className="flex items-center space-x-2 text-left text-lg font-medium transition-colors py-2 text-foreground hover:text-primary"
-                >
-                  <Settings className="h-5 w-5" />
-                  <span>Panel organizacji</span>
                 </button>
               )}
               
