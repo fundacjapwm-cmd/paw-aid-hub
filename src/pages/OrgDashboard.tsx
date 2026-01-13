@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserOrganization } from "@/hooks/useUserOrganization";
 import OrgLayout from "@/components/organization/OrgLayout";
 import OrgProfileForm from "@/components/organization/OrgProfileForm";
 import ImageCropDialog from "@/components/organization/ImageCropDialog";
@@ -21,6 +22,7 @@ import { compressGalleryImage } from "@/lib/utils/imageCompression";
 
 export default function OrgDashboard() {
   const { user, profile } = useAuth();
+  const { hasOrganization, loading: orgLoading } = useUserOrganization();
   const navigate = useNavigate();
   
   // Dialog states
@@ -76,15 +78,21 @@ export default function OrgDashboard() {
     hasWishlistItems,
   });
 
+  // Redirect logic: allow ORG role OR users assigned to an organization
   useEffect(() => {
     if (!user) {
       navigate("/auth");
       return;
     }
-    if (profile?.role !== "ORG") {
+    // Wait for organization loading to complete
+    if (orgLoading) return;
+    
+    // Allow access if user has ORG role OR is assigned to an organization
+    const canAccess = profile?.role === "ORG" || hasOrganization;
+    if (!canAccess) {
       navigate("/");
     }
-  }, [user, profile, navigate]);
+  }, [user, profile, hasOrganization, orgLoading, navigate]);
 
   // Check if terms are accepted
   useEffect(() => {
@@ -378,7 +386,9 @@ export default function OrgDashboard() {
     }
   };
 
-  if (!user || profile?.role !== "ORG") {
+  // Wait for loading or redirect if no access
+  const canAccess = profile?.role === "ORG" || hasOrganization;
+  if (!user || orgLoading || !canAccess) {
     return null;
   }
 
