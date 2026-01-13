@@ -1,40 +1,19 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Settings, Shield, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useUserOrganization } from "@/hooks/useUserOrganization";
 import CartDrawer from "@/components/CartDrawer";
 import MobileMenu from "@/components/MobileMenu";
 import { Logo } from "@/components/Logo";
 
 const Navigation = () => {
   const { user, profile, signOut, loading } = useAuth();
+  const { hasOrganization } = useUserOrganization();
   const navigate = useNavigate();
   const location = useLocation();
-  const [hasOrganization, setHasOrganization] = useState(false);
-
-  // Check if user belongs to any organization
-  useEffect(() => {
-    const checkOrganization = async () => {
-      if (!user) {
-        setHasOrganization(false);
-        return;
-      }
-
-      const { data } = await supabase
-        .from('organization_users')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      setHasOrganization(!!data);
-    };
-
-    checkOrganization();
-  }, [user]);
 
   const isActive = (path: string) => location.pathname === path;
 
