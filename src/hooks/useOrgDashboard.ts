@@ -52,50 +52,76 @@ export function useOrgDashboard(userId: string | undefined) {
         };
       }
 
-      // Get animals with wishlist data
+      // Get animals with wishlist data including product_id
       const { data: animals } = await supabase
         .from("animals")
         .select(`
           *,
-          animal_wishlists(quantity)
+          animal_wishlists(quantity, product_id)
         `)
         .eq("organization_id", orgId)
         .eq("active", true)
         .order("created_at", { ascending: false })
         .limit(6);
 
-      // Get fulfilled items for all animals
+      // Get fulfilled items for all animals - matching by product_id
       const animalIdsForOrders = animals?.map((a) => a.id) || [];
-      const { data: orderItems } = await supabase
-        .from("order_items")
-        .select("animal_id, quantity")
-        .in("animal_id", animalIdsForOrders)
-        .eq("fulfillment_status", "fulfilled");
+      
+      // Get all order_items with product_id for these animals from completed orders
+      const { data: completedOrders } = await supabase
+        .from("orders")
+        .select("id")
+        .eq("payment_status", "completed");
+      
+      const completedOrderIds = completedOrders?.map(o => o.id) || [];
+      
+      let orderItems: { animal_id: string; product_id: string; quantity: number }[] = [];
+      if (completedOrderIds.length > 0 && animalIdsForOrders.length > 0) {
+        const { data } = await supabase
+          .from("order_items")
+          .select("animal_id, product_id, quantity")
+          .in("animal_id", animalIdsForOrders)
+          .in("order_id", completedOrderIds)
+          .not("product_id", "is", null);
+        orderItems = data || [];
+      }
 
-      // Calculate stats for each animal
+      // Create a map of purchased product quantities per animal
+      const purchasedMap = new Map<string, number>();
+      orderItems.forEach(item => {
+        if (item.product_id) {
+          const key = `${item.animal_id}-${item.product_id}`;
+          purchasedMap.set(key, (purchasedMap.get(key) || 0) + item.quantity);
+        }
+      });
+
+      // Calculate stats for each animal based on wishlist items
       const animalsWithStats: AnimalWithStats[] =
         animals?.map((animal) => {
           const wishlistItems = (animal as any).animal_wishlists || [];
-          const totalNeeded = wishlistItems.reduce(
-            (sum: number, item: any) => sum + (item.quantity || 0),
-            0
-          );
-          const fulfilledRaw =
-            orderItems
-              ?.filter((oi) => oi.animal_id === animal.id)
-              .reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
           
-          // Cap fulfilled at totalNeeded for display purposes
-          // If totalNeeded is 0, show 0 fulfilled (wishlist is complete or empty)
-          const fulfilled = totalNeeded > 0 ? Math.min(fulfilledRaw, totalNeeded) : 0;
-          const progress =
-            totalNeeded > 0 ? Math.min((fulfilledRaw / totalNeeded) * 100, 100) : 0;
+          // Count total items needed from wishlist
+          const totalNeeded = wishlistItems.length;
+          
+          // Count how many wishlist items are fully bought
+          let fulfilledCount = 0;
+          wishlistItems.forEach((item: { product_id: string; quantity: number }) => {
+            const key = `${animal.id}-${item.product_id}`;
+            const purchasedQty = purchasedMap.get(key) || 0;
+            if (purchasedQty >= (item.quantity || 1)) {
+              fulfilledCount++;
+            }
+          });
+          
+          const progress = totalNeeded > 0 
+            ? Math.round((fulfilledCount / totalNeeded) * 100) 
+            : 0;
 
           return {
             ...animal,
             wishlistStats: {
               totalNeeded,
-              fulfilled,
+              fulfilled: fulfilledCount,
               progress,
             },
           };
