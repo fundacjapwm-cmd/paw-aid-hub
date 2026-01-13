@@ -1,9 +1,11 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Settings, Shield, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import CartDrawer from "@/components/CartDrawer";
 import MobileMenu from "@/components/MobileMenu";
 import { Logo } from "@/components/Logo";
@@ -12,6 +14,27 @@ const Navigation = () => {
   const { user, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [hasOrganization, setHasOrganization] = useState(false);
+
+  // Check if user belongs to any organization
+  useEffect(() => {
+    const checkOrganization = async () => {
+      if (!user) {
+        setHasOrganization(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('organization_users')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setHasOrganization(!!data);
+    };
+
+    checkOrganization();
+  }, [user]);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -120,14 +143,15 @@ const Navigation = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {profile?.role === 'ORG' ? (
-                    <>
-                      <DropdownMenuItem onClick={() => navigate('/organizacja')}>
-                        <Building2 className="mr-2 h-4 w-4" />
-                        <span>Panel Organizacji</span>
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
+                  {/* Show organization panel for ORG role OR any user assigned to an organization */}
+                  {(profile?.role === 'ORG' || hasOrganization) && (
+                    <DropdownMenuItem onClick={() => navigate('/organizacja')}>
+                      <Building2 className="mr-2 h-4 w-4" />
+                      <span>Panel Organizacji</span>
+                    </DropdownMenuItem>
+                  )}
+                  {/* Show profile/settings for non-ORG users */}
+                  {profile?.role !== 'ORG' && (
                     <>
                       <DropdownMenuItem onClick={() => navigate('/profil')}>
                         <User className="mr-2 h-4 w-4" />
