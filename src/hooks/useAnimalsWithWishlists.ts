@@ -94,7 +94,7 @@ export const useAnimalsWithWishlists = () => {
 
       if (wishlistsError) throw wishlistsError;
 
-      // Fetch all purchased items to mark as bought (only from completed orders)
+      // Fetch all purchased items with quantities to mark as bought (only from completed orders)
       // First get completed order IDs, then get order_items for those orders
       const { data: completedOrders, error: ordersError } = await supabase
         .from('orders')
@@ -105,13 +105,14 @@ export const useAnimalsWithWishlists = () => {
 
       const completedOrderIds = completedOrders?.map(o => o.id) || [];
       
-      let purchasedItems: { animal_id: string; product_id: string }[] = [];
+      let purchasedItems: { animal_id: string; product_id: string; quantity: number }[] = [];
       if (completedOrderIds.length > 0) {
         const { data: items, error: purchasedError } = await supabase
           .from('order_items')
-          .select('animal_id, product_id')
+          .select('animal_id, product_id, quantity')
           .in('animal_id', animalIds)
-          .in('order_id', completedOrderIds);
+          .in('order_id', completedOrderIds)
+          .not('product_id', 'is', null);
 
         if (purchasedError) throw purchasedError;
         purchasedItems = items || [];
@@ -126,10 +127,14 @@ export const useAnimalsWithWishlists = () => {
 
       if (galleryError) throw galleryError;
 
-      // Create a set of purchased product IDs for quick lookup
-      const purchasedSet = new Set(
-        purchasedItems?.map(item => `${item.animal_id}-${item.product_id}`) || []
-      );
+      // Create a map of purchased product quantities for quick lookup
+      const purchasedMap = new Map<string, number>();
+      purchasedItems?.forEach(item => {
+        if (item.product_id) {
+          const key = `${item.animal_id}-${item.product_id}`;
+          purchasedMap.set(key, (purchasedMap.get(key) || 0) + item.quantity);
+        }
+      });
 
       // Create gallery lookup map
       const galleryMap = new Map<string, GalleryImage[]>();
@@ -164,16 +169,21 @@ export const useAnimalsWithWishlists = () => {
           image: animal.image_url || '/placeholder.svg',
           created_at: animal.created_at || '',
           birth_date: animal.birth_date,
-          wishlist: animalWishlists.map(w => ({
-            id: w.id,
-            name: w.products?.name || '',
-            price: w.products?.price || 0,
-            urgent: w.priority === 1,
-            bought: purchasedSet.has(`${animal.id}-${w.products?.id}`),
-            product_id: w.products?.id || '',
-            quantity: w.quantity || 1,
-            image_url: w.products?.image_url || '/placeholder.svg',
-          })),
+          wishlist: animalWishlists.map(w => {
+            const key = `${animal.id}-${w.products?.id}`;
+            const purchasedQty = purchasedMap.get(key) || 0;
+            const neededQty = w.quantity || 1;
+            return {
+              id: w.id,
+              name: w.products?.name || '',
+              price: w.products?.price || 0,
+              urgent: w.priority === 1,
+              bought: purchasedQty >= neededQty,
+              product_id: w.products?.id || '',
+              quantity: neededQty,
+              image_url: w.products?.image_url || '/placeholder.svg',
+            };
+          }),
           gallery: gallery,
         };
       }) || [];
