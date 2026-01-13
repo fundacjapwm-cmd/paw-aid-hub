@@ -1,7 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserOrganization } from "@/hooks/useUserOrganization";
 import OrgLayout from "@/components/organization/OrgLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,7 +47,9 @@ interface OrgShipment {
 }
 
 export default function OrgOrders() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const { hasOrganization, organization, loading: orgLoading } = useUserOrganization();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [reportingId, setReportingId] = useState<string | null>(null);
@@ -53,24 +57,26 @@ export default function OrgOrders() {
   const [processing, setProcessing] = useState(false);
   const [expandedShipments, setExpandedShipments] = useState<Set<string>>(new Set());
 
-  const { data: orgData } = useQuery({
-    queryKey: ["user-organization", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data } = await supabase
-        .from("organization_users")
-        .select("organization_id")
-        .eq("user_id", user.id)
-        .single();
-      return data;
-    },
-    enabled: !!user?.id,
-  });
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
+    // Wait for organization loading to complete
+    if (orgLoading) return;
+
+    // Allow access if user has ORG role OR is assigned to an organization
+    const canAccess = profile?.role === "ORG" || hasOrganization;
+    if (!canAccess) {
+      navigate("/");
+    }
+  }, [user, profile, hasOrganization, orgLoading, navigate]);
 
   const { data: shipments = [], isLoading } = useQuery({
-    queryKey: ["org-orders", orgData?.organization_id],
+    queryKey: ["org-orders", organization?.organization_id],
     queryFn: async () => {
-      if (!orgData?.organization_id) return [];
+      if (!organization?.organization_id) return [];
 
       const { data, error } = await supabase
         .from('shipments')
@@ -83,7 +89,7 @@ export default function OrgOrders() {
           ordered_at,
           producers (name)
         `)
-        .eq('organization_id', orgData.organization_id)
+        .eq('organization_id', organization.organization_id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -123,7 +129,7 @@ export default function OrgOrders() {
 
       return result;
     },
-    enabled: !!orgData?.organization_id,
+    enabled: !!organization?.organization_id,
   });
 
   const getStatusDisplay = (status: string) => {
@@ -244,9 +250,15 @@ export default function OrgOrders() {
   const activeShipments = shipments.filter(s => s.status !== 'confirmed');
   const completedShipments = shipments.filter(s => s.status === 'confirmed');
 
+  // Wait for loading or redirect if no access
+  const canAccess = profile?.role === "ORG" || hasOrganization;
+  if (!user || orgLoading || !canAccess) {
+    return null;
+  }
+
   if (isLoading) {
     return (
-      <OrgLayout>
+      <OrgLayout organizationName={organization?.organization_name || ""}>
         <div className="space-y-6 p-4">
           <h1 className="text-2xl font-bold">Zamówienia</h1>
           <div className="space-y-4">
@@ -471,7 +483,7 @@ export default function OrgOrders() {
   };
 
   return (
-    <OrgLayout>
+    <OrgLayout organizationName={organization?.organization_name || ""}>
       <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto">
         <h1 className="text-xl sm:text-2xl font-bold">Zamówienia</h1>
 

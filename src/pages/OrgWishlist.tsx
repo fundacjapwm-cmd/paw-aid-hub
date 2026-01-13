@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useUserOrganization } from "@/hooks/useUserOrganization";
 import OrgLayout from "@/components/organization/OrgLayout";
 import WishlistBuilder from "@/components/organization/WishlistBuilder";
 
 export default function OrgWishlist() {
   const { user, profile } = useAuth();
+  const { hasOrganization, organization, loading: orgLoading } = useUserOrganization();
   const navigate = useNavigate();
-  const [organizationId, setOrganizationId] = useState<string | null>(null);
-  const [organizationName, setOrganizationName] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -17,38 +16,24 @@ export default function OrgWishlist() {
       return;
     }
 
-    if (profile?.role !== "ORG") {
+    // Wait for organization loading to complete
+    if (orgLoading) return;
+
+    // Allow access if user has ORG role OR is assigned to an organization
+    const canAccess = profile?.role === "ORG" || hasOrganization;
+    if (!canAccess) {
       navigate("/");
-      return;
     }
+  }, [user, profile, hasOrganization, orgLoading, navigate]);
 
-    fetchOrganization();
-  }, [user, profile, navigate]);
-
-  const fetchOrganization = async () => {
-    if (!user?.id) return;
-
-    const { data, error } = await supabase
-      .from("organization_users")
-      .select("organization_id, organizations(id, name)")
-      .eq("user_id", user.id)
-      .single();
-
-    if (error || !data) {
-      return;
-    }
-
-    const org = data.organizations as any;
-    setOrganizationId(org.id);
-    setOrganizationName(org.name);
-  };
-
-  if (!user || profile?.role !== "ORG" || !organizationId) {
+  // Wait for loading or redirect if no access
+  const canAccess = profile?.role === "ORG" || hasOrganization;
+  if (!user || orgLoading || !canAccess || !organization) {
     return null;
   }
 
   return (
-    <OrgLayout organizationName={organizationName}>
+    <OrgLayout organizationName={organization.organization_name || ""}>
       <div className="max-w-6xl mx-auto">
         <div className="mb-6 sm:mb-8 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-3 md:mb-4">
@@ -60,8 +45,8 @@ export default function OrgWishlist() {
         </div>
 
         <WishlistBuilder
-          entityId={organizationId}
-          entityName={organizationName}
+          entityId={organization.organization_id}
+          entityName={organization.organization_name || ""}
           entityType="organization"
         />
       </div>
