@@ -29,6 +29,7 @@ interface WishlistItem {
   bought?: boolean;
   product_id?: string;
   quantity: number;
+  purchasedQuantity?: number;
   image_url?: string;
 }
 
@@ -249,6 +250,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
                           price: item.price,
                           image_url: item.image_url,
                           quantity: neededQuantity,
+                          purchasedQuantity: item.purchasedQuantity || 0,
                           bought: isFullyBought,
                         }}
                         quantity={quantity}

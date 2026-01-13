@@ -188,6 +188,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
                         price: product.price,
                         image_url: product.image,
                         quantity: needed,
+                        purchasedQuantity: bought,
                         bought: isFullyBought,
                       }}
                       quantity={quantity}

@@ -9,6 +9,7 @@ export interface WishlistItem {
   bought: boolean;
   product_id: string;
   quantity: number; // Max quantity from wishlist
+  purchasedQuantity: number; // How many have been purchased
   image_url: string;
 }
 
@@ -181,6 +182,7 @@ export const useAnimalsWithWishlists = () => {
               bought: purchasedQty >= neededQty,
               product_id: w.products?.id || '',
               quantity: neededQty,
+              purchasedQuantity: Math.min(purchasedQty, neededQty), // Cap at needed
               image_url: w.products?.image_url || '/placeholder.svg',
             };
           }),
