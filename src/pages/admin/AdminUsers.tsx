@@ -18,6 +18,8 @@ interface Profile {
   role: 'USER' | 'ORG' | 'ADMIN';
   must_change_password: boolean;
   created_at: string;
+  organization_id?: string;
+  organization_name?: string;
 }
 
 interface Organization {
@@ -25,6 +27,12 @@ interface Organization {
   name: string;
   slug: string;
   contact_email: string;
+}
+
+interface OrganizationUser {
+  user_id: string;
+  organization_id: string;
+  organizations?: { name: string };
 }
 
 export default function AdminUsers() {
@@ -35,6 +43,7 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'USER' | 'ORG' | 'ADMIN'>('ALL');
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
   const [pendingRoleChanges, setPendingRoleChanges] = useState<Record<string, 'USER' | 'ORG' | 'ADMIN'>>({});
+  const [pendingOrgChanges, setPendingOrgChanges] = useState<Record<string, string | null>>({});
   const [isCreatingOrg, setIsCreatingOrg] = useState(false);
   const [newOrg, setNewOrg] = useState({
     name: '',
@@ -79,7 +88,8 @@ export default function AdminUsers() {
   }
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase
+    // Fetch profiles
+    const { data: profilesData, error: profilesError } = await supabase
       .from('profiles')
       .select(`
         id,
@@ -90,15 +100,35 @@ export default function AdminUsers() {
       `)
       .order('created_at', { ascending: false });
     
-    if (error) {
+    if (profilesError) {
       toast({
         title: "Błąd",
         description: "Nie udało się pobrać użytkowników",
         variant: "destructive"
       });
-    } else {
-      setUsers(data || []);
+      return;
     }
+
+    // Fetch organization assignments
+    const { data: orgUsersData } = await supabase
+      .from('organization_users')
+      .select(`
+        user_id,
+        organization_id,
+        organizations (name)
+      `);
+
+    // Merge organization data with profiles
+    const usersWithOrgs = (profilesData || []).map(profile => {
+      const orgUser = orgUsersData?.find(ou => ou.user_id === profile.id);
+      return {
+        ...profile,
+        organization_id: orgUser?.organization_id || undefined,
+        organization_name: (orgUser?.organizations as any)?.name || undefined
+      };
+    });
+
+    setUsers(usersWithOrgs);
   };
 
   const fetchOrganizations = async () => {
@@ -121,9 +151,20 @@ export default function AdminUsers() {
     }));
   };
 
-  const saveRoleChange = async (userId: string) => {
+  const handleOrgChange = (userId: string, orgId: string | null) => {
+    setPendingOrgChanges(prev => ({
+      ...prev,
+      [userId]: orgId
+    }));
+  };
+
+  const saveUserChanges = async (userId: string) => {
     const newRole = pendingRoleChanges[userId];
-    if (!newRole) return;
+    const newOrgId = pendingOrgChanges[userId];
+    const hasRoleChange = userId in pendingRoleChanges;
+    const hasOrgChange = userId in pendingOrgChanges;
+
+    if (!hasRoleChange && !hasOrgChange) return;
 
     const currentUser = users.find(u => u.id === userId);
     if (!currentUser) return;
@@ -131,47 +172,58 @@ export default function AdminUsers() {
     setSavingUserId(userId);
 
     try {
-      // Update role in the secure user_roles table
-      const { error: deleteError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
+      // Handle role change
+      if (hasRoleChange && newRole) {
+        const { error: deleteError } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId);
 
-      if (deleteError) throw deleteError;
+        if (deleteError) throw deleteError;
 
-      const { error: insertError } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role: newRole });
+        const { error: insertError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: newRole });
 
-      if (insertError) throw insertError;
+        if (insertError) throw insertError;
 
-      // Also update profiles.role for backwards compatibility
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ role: newRole })
+          .eq('id', userId);
 
-      if (profileError) throw profileError;
+        if (profileError) throw profileError;
+      }
 
-      // If changing to ORG role, check if user needs organization_users entry
-      if (newRole === 'ORG' && currentUser.role !== 'ORG') {
-        // Check if user already has an organization
-        const { data: existingOrgUser } = await supabase
+      // Handle organization assignment change
+      if (hasOrgChange) {
+        // First, remove existing organization assignment
+        await supabase
           .from('organization_users')
-          .select('id')
-          .eq('user_id', userId)
-          .maybeSingle();
+          .delete()
+          .eq('user_id', userId);
 
-        if (!existingOrgUser) {
-          toast({
-            title: "Uwaga",
-            description: "Użytkownik ma teraz rolę ORG. Przypisz go do organizacji aby mógł zarządzać jej panelem.",
-          });
+        // If new org is selected, create the assignment
+        if (newOrgId) {
+          const { error: orgUserError } = await supabase
+            .from('organization_users')
+            .insert({ 
+              user_id: userId, 
+              organization_id: newOrgId,
+              is_owner: true 
+            });
+
+          if (orgUserError) throw orgUserError;
         }
       }
 
-      // Clear pending change
+      // Clear pending changes
       setPendingRoleChanges(prev => {
+        const updated = { ...prev };
+        delete updated[userId];
+        return updated;
+      });
+      setPendingOrgChanges(prev => {
         const updated = { ...prev };
         delete updated[userId];
         return updated;
@@ -179,14 +231,14 @@ export default function AdminUsers() {
 
       toast({
         title: "Sukces",
-        description: "Rola została zmieniona"
+        description: "Zmiany zostały zapisane"
       });
 
       fetchUsers();
     } catch (error: any) {
       toast({
         title: "Błąd",
-        description: error.message || "Nie udało się zmienić roli",
+        description: error.message || "Nie udało się zapisać zmian",
         variant: "destructive"
       });
     }
@@ -275,7 +327,14 @@ export default function AdminUsers() {
   };
 
   const hasUnsavedChange = (userId: string) => {
-    return userId in pendingRoleChanges;
+    return userId in pendingRoleChanges || userId in pendingOrgChanges;
+  };
+
+  const getCurrentOrg = (userId: string, originalOrgId?: string) => {
+    if (userId in pendingOrgChanges) {
+      return pendingOrgChanges[userId] || '';
+    }
+    return originalOrgId || '';
   };
 
   return (
@@ -352,6 +411,12 @@ export default function AdminUsers() {
                           <Badge variant={u.role === 'ADMIN' ? 'destructive' : u.role === 'ORG' ? 'default' : 'secondary'}>
                             {u.role}
                           </Badge>
+                          {u.organization_name && (
+                            <Badge variant="outline" className="bg-background">
+                              <Building2 className="h-3 w-3 mr-1" />
+                              {u.organization_name}
+                            </Badge>
+                          )}
                           {u.must_change_password && (
                             <Badge variant="outline">Musi zmienić hasło</Badge>
                           )}
@@ -362,12 +427,12 @@ export default function AdminUsers() {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Select 
                           value={getCurrentRole(u.id, u.role)} 
                           onValueChange={(value: 'USER' | 'ORG' | 'ADMIN') => handleRoleChange(u.id, value)}
                         >
-                          <SelectTrigger className="w-32">
+                          <SelectTrigger className="w-28">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -376,10 +441,26 @@ export default function AdminUsers() {
                             <SelectItem value="ADMIN">ADMIN</SelectItem>
                           </SelectContent>
                         </Select>
+                        <Select 
+                          value={getCurrentOrg(u.id, u.organization_id)} 
+                          onValueChange={(value) => handleOrgChange(u.id, value === 'none' ? null : value)}
+                        >
+                          <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Brak organizacji" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Brak organizacji</SelectItem>
+                            {organizations.map(org => (
+                              <SelectItem key={org.id} value={org.id}>
+                                {org.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         {hasUnsavedChange(u.id) && (
                           <Button 
                             size="sm" 
-                            onClick={() => saveRoleChange(u.id)}
+                            onClick={() => saveUserChanges(u.id)}
                             disabled={savingUserId === u.id}
                           >
                             {savingUserId === u.id ? (
