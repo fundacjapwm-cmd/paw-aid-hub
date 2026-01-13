@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserOrganization } from "@/hooks/useUserOrganization";
 import OrgLayout from "@/components/organization/OrgLayout";
 import OrgProfileForm from "@/components/organization/OrgProfileForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,10 +27,10 @@ import {
 
 export default function OrgProfile() {
   const { user, profile, signOut, updateProfile } = useAuth();
+  const { hasOrganization, isOwner, organization, loading: orgLoading } = useUserOrganization();
   const navigate = useNavigate();
   const [organizationId, setOrganizationId] = useState<string | null>(null);
   const [organizationName, setOrganizationName] = useState("");
-  const [isOwner, setIsOwner] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
@@ -45,27 +46,23 @@ export default function OrgProfile() {
       return;
     }
 
-    if (profile?.role !== "ORG") {
+    // Wait for organization loading to complete
+    if (orgLoading) return;
+
+    // Allow access if user has ORG role OR is assigned to an organization
+    const canAccess = profile?.role === "ORG" || hasOrganization;
+    if (!canAccess) {
       navigate("/");
       return;
     }
 
-    fetchOrganization();
-  }, [user, profile, navigate]);
-
-  const fetchOrganization = async () => {
-    const { data: orgUser } = await supabase
-      .from("organization_users")
-      .select("organization_id, is_owner, organizations(name)")
-      .eq("user_id", user?.id)
-      .single();
-
-    if (orgUser) {
-      setOrganizationId(orgUser.organization_id);
-      setIsOwner(orgUser.is_owner || false);
-      setOrganizationName((orgUser.organizations as any).name);
+    // Set organization data from hook
+    if (organization) {
+      setOrganizationId(organization.organization_id);
+      setOrganizationName(organization.organization_name || "");
     }
-  };
+  }, [user, profile, hasOrganization, orgLoading, organization, navigate]);
+
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,7 +198,9 @@ export default function OrgProfile() {
     }
   };
 
-  if (!user || profile?.role !== "ORG") {
+  // Wait for loading or redirect if no access
+  const canAccess = profile?.role === "ORG" || hasOrganization;
+  if (!user || orgLoading || !canAccess) {
     return null;
   }
 

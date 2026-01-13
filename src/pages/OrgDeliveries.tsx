@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUserOrganization } from "@/hooks/useUserOrganization";
 import OrgLayout from "@/components/organization/OrgLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ interface Shipment {
 
 export default function OrgDeliveries() {
   const { user, profile } = useAuth();
+  const { hasOrganization, organization, loading: orgLoading } = useUserOrganization();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
@@ -46,32 +48,20 @@ export default function OrgDeliveries() {
       return;
     }
 
-    if (profile?.role !== "ORG") {
+    // Wait for organization loading to complete
+    if (orgLoading) return;
+
+    // Allow access if user has ORG role OR is assigned to an organization
+    const canAccess = profile?.role === "ORG" || hasOrganization;
+    if (!canAccess) {
       navigate("/");
-      return;
     }
-  }, [user, profile, navigate]);
-
-  const { data: orgData } = useQuery({
-    queryKey: ["organization-info", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-
-      const { data: orgUser } = await supabase
-        .from("organization_users")
-        .select("organization_id, organizations(name)")
-        .eq("user_id", user.id)
-        .single();
-
-      return orgUser;
-    },
-    enabled: !!user && profile?.role === "ORG",
-  });
+  }, [user, profile, hasOrganization, orgLoading, navigate]);
 
   const { data: shipments = [], isLoading } = useQuery({
-    queryKey: ["organization-shipments", orgData?.organization_id],
+    queryKey: ["organization-shipments", organization?.organization_id],
     queryFn: async () => {
-      if (!orgData?.organization_id) return [];
+      if (!organization?.organization_id) return [];
 
       // Get shipments for this organization
       const { data: shipmentsData, error } = await supabase
@@ -86,7 +76,7 @@ export default function OrgDeliveries() {
           confirmed_at,
           producers (name)
         `)
-        .eq("organization_id", orgData.organization_id)
+        .eq("organization_id", organization.organization_id)
         .in("status", ["shipped", "delivered"])
         .order("shipped_at", { ascending: false });
 
@@ -128,7 +118,7 @@ export default function OrgDeliveries() {
 
       return result;
     },
-    enabled: !!orgData?.organization_id,
+    enabled: !!organization?.organization_id,
   });
 
   const handleConfirmDelivery = async (shipment: Shipment) => {
@@ -177,12 +167,14 @@ export default function OrgDeliveries() {
     }
   };
 
-  if (!user || profile?.role !== "ORG") {
+  // Wait for loading or redirect if no access
+  const canAccess = profile?.role === "ORG" || hasOrganization;
+  if (!user || orgLoading || !canAccess) {
     return null;
   }
 
   return (
-    <OrgLayout organizationName={(orgData?.organizations as any)?.name || ""}>
+    <OrgLayout organizationName={organization?.organization_name || ""}>
       <div className="px-4 md:px-8 py-8 md:py-12 max-w-6xl mx-auto">
         <div className="mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
