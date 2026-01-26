@@ -20,7 +20,7 @@ const Footer = () => {
                   alt="Arquivet" 
                   className="h-8 w-auto md:h-10"
                 />
-                <span className="text-muted-foreground text-[10px] md:text-xs font-medium uppercase tracking-wide mt-1">Partner strategiczny</span>
+                <span className="text-muted-foreground text-[8px] md:text-[10px] font-medium uppercase tracking-wide mt-1">Partner strategiczny</span>
               </a>
             </div>
             <p className="text-muted-foreground max-w-md">
