@@ -37,7 +37,7 @@ const Navigation = () => {
                 alt="Arquivet" 
                 className="h-[34px] w-auto sm:h-[38px] md:h-[42px]"
               />
-              <span className="text-muted-foreground text-[2px] sm:text-[4px] font-medium uppercase tracking-wide mt-0.5">Partner strategiczny</span>
+              <span className="text-muted-foreground text-[4px] sm:text-[6px] font-medium uppercase tracking-wide mt-0.5">Partner strategiczny</span>
             </a>
           </div>
 
