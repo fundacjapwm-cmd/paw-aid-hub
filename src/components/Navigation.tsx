@@ -35,9 +35,9 @@ const Navigation = () => {
               <img 
                 src={arquivetLogo} 
                 alt="Arquivet" 
-                className="h-[28px] w-auto sm:h-[32px] md:h-[36px]"
+                className="h-[30px] w-auto sm:h-[34px] md:h-[38px]"
               />
-              <span className="text-muted-foreground text-[4px] sm:text-[6px] font-medium uppercase tracking-wide mt-0.5">Partner strategiczny</span>
+              <span className="text-muted-foreground text-[2px] sm:text-[4px] font-medium uppercase tracking-wide mt-0.5">Partner strategiczny</span>
             </a>
           </div>
 
