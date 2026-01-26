@@ -22,22 +22,22 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logos */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-4 sm:gap-6">
             <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
               <Logo className="h-10 w-auto sm:h-12 md:h-14" />
             </Link>
-            <span className="text-muted-foreground text-[10px] sm:text-xs font-medium uppercase tracking-wide">Partner strategiczny</span>
             <a 
               href="https://arquivet.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center hover:opacity-80 transition-opacity"
+              className="flex flex-col items-center hover:opacity-80 transition-opacity"
             >
               <img 
                 src={arquivetLogo} 
                 alt="Arquivet" 
                 className="h-6 w-auto sm:h-7 md:h-8"
               />
+              <span className="text-muted-foreground text-[8px] sm:text-[10px] font-medium uppercase tracking-wide mt-0.5">Partner strategiczny</span>
             </a>
           </div>
 
