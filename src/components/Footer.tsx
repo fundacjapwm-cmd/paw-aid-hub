@@ -18,7 +18,7 @@ const Footer = () => {
                 <img 
                   src={arquivetLogo} 
                   alt="Arquivet" 
-                  className="h-[38px] w-auto md:h-[46px]"
+                  className="h-[42px] w-auto md:h-[50px]"
                 />
                 <span className="text-muted-foreground text-[4px] md:text-[6px] font-medium uppercase tracking-wide mt-1">Partner strategiczny</span>
               </a>
