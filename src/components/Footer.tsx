@@ -10,8 +10,8 @@ const Footer = () => {
             <div className="flex items-center gap-6 mb-4">
               <Logo className="h-14 w-auto md:h-16" />
               <a 
-                href="https://arquivet.com" 
-                target="_blank" 
+                href="https://arquivet.pl/" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center hover:opacity-80 transition-opacity"
               >
