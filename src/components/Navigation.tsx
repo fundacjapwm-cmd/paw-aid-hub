@@ -27,8 +27,8 @@ const Navigation = () => {
               <Logo className="h-10 w-auto sm:h-12 md:h-14" />
             </Link>
             <a 
-              href="https://arquivet.com" 
-              target="_blank" 
+              href="https://arquivet.pl/" 
+              target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center hover:opacity-80 transition-opacity"
             >
