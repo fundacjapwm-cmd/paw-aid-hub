@@ -26,7 +26,7 @@ const Navigation = () => {
             <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
               <Logo className="h-10 w-auto sm:h-12 md:h-14" />
             </Link>
-            <span className="text-muted-foreground/40 text-lg font-light">×</span>
+            <span className="text-muted-foreground text-[10px] sm:text-xs font-medium uppercase tracking-wide">Partner strategiczny</span>
             <a 
               href="https://arquivet.com" 
               target="_blank" 

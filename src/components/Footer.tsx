@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-4 mb-4">
               <Logo className="h-14 w-auto md:h-16" />
-              <span className="text-muted-foreground/40 text-xl font-light">×</span>
+              <span className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Partner strategiczny</span>
               <a 
                 href="https://arquivet.com" 
                 target="_blank" 
