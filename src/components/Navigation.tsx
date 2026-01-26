@@ -8,7 +8,7 @@ import { useUserOrganization } from "@/hooks/useUserOrganization";
 import CartDrawer from "@/components/CartDrawer";
 import MobileMenu from "@/components/MobileMenu";
 import { Logo } from "@/components/Logo";
-
+import arquivetLogo from "@/assets/logo-arquivet.svg";
 const Navigation = () => {
   const { user, profile, signOut, loading } = useAuth();
   const { hasOrganization } = useUserOrganization();
@@ -21,10 +21,25 @@ const Navigation = () => {
     <nav className="bg-background/95 backdrop-blur-sm sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <Logo className="h-10 w-auto sm:h-12 md:h-14" />
-          </Link>
+          {/* Logos */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+              <Logo className="h-10 w-auto sm:h-12 md:h-14" />
+            </Link>
+            <span className="text-muted-foreground/40 text-lg font-light">×</span>
+            <a 
+              href="https://arquivet.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center hover:opacity-80 transition-opacity"
+            >
+              <img 
+                src={arquivetLogo} 
+                alt="Arquivet" 
+                className="h-6 w-auto sm:h-7 md:h-8"
+              />
+            </a>
+          </div>
 
           {/* Navigation Menu */}
           <div className="hidden lg:flex items-center space-x-6">
