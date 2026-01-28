@@ -25,7 +25,7 @@ const steps = [
   {
     icon: CreditCard,
     title: "Zapłać",
-    description: "Aby proces był jak najłatwiejszy, zdecydowaliśmy się na PayU. Możesz płacić szybko i wygodnie",
+    description: "Aby proces był jak najłatwiejszy, zdecydowaliśmy się na HotPay. Możesz płacić szybko i wygodnie",
     delay: 400,
     image: creditCard,
   },
