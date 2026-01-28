@@ -1,33 +1,70 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Minus, Plus, ShoppingCart, ImageOff } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 interface ProductDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: {
+    id: string;
     name: string;
     price: number;
     image_url?: string;
     description?: string;
   } | null;
+  animalId?: string;
+  animalName?: string;
+  maxQuantity?: number;
 }
 
 export const ProductDetailDialog = ({
   open,
   onOpenChange,
   product,
+  animalId,
+  animalName,
+  maxQuantity,
 }: ProductDetailDialogProps) => {
+  const [quantity, setQuantity] = useState(1);
+  const [imageError, setImageError] = useState(false);
+  const { addToCart } = useCart();
+
   if (!product) return null;
+
+  const handleQuantityChange = (newQuantity: number) => {
+    const max = maxQuantity || 99;
+    const clamped = Math.max(1, Math.min(newQuantity, max));
+    setQuantity(clamped);
+  };
+
+  const handleAddToCart = () => {
+    addToCart({
+      productId: product.id,
+      productName: product.name,
+      price: product.price,
+      animalId,
+      animalName,
+      maxQuantity,
+    }, quantity, true);
+    toast.success(`Dodano ${quantity}x ${product.name} do koszyka`);
+    onOpenChange(false);
+    setQuantity(1);
+  };
 
   // Format description for better readability - split on common patterns
   const formatDescription = (description: string) => {
-    // Split on common section headers
     return description
       .replace(/KOMPLETNA KARMA/g, '\n\n**KOMPLETNA KARMA**')
       .replace(/SKŁAD:|Skład:/g, '\n\n**SKŁAD:**')
@@ -41,30 +78,45 @@ export const ProductDetailDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        setQuantity(1);
+        setImageError(false);
+      }
+      onOpenChange(isOpen);
+    }}>
       <DialogContent className="max-w-lg max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="p-4 pb-0">
           <DialogTitle className="text-lg font-bold leading-tight pr-6">
             {product.name}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Szczegóły produktu {product.name}
+          </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[calc(90vh-100px)]">
+        <ScrollArea className="max-h-[calc(90vh-180px)]">
           <div className="p-4 pt-2 space-y-4">
             {/* Product Image */}
-            {product.image_url && (
-              <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-xl overflow-hidden bg-white border border-border shadow-sm">
+            <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-xl overflow-hidden bg-muted border border-border shadow-sm">
+              {product.image_url && !imageError ? (
                 <img
                   src={product.image_url}
                   alt={product.name}
                   className="w-full h-full object-contain"
+                  onError={() => setImageError(true)}
                 />
-              </div>
-            )}
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
+                  <ImageOff className="h-16 w-16 mb-2" />
+                  <span className="text-sm">Brak zdjęcia</span>
+                </div>
+              )}
+            </div>
 
             {/* Price Badge */}
             <div className="flex justify-center">
-              <Badge className="text-lg px-4 py-1.5 bg-primary text-white font-bold">
+              <Badge className="text-lg px-4 py-1.5 bg-primary text-primary-foreground font-bold">
                 {Number(product.price).toFixed(2)} zł
               </Badge>
             </div>
@@ -74,7 +126,6 @@ export const ProductDetailDialog = ({
               <div className="prose prose-sm max-w-none">
                 <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                   {formatDescription(product.description).split('\n\n').map((paragraph, idx) => {
-                    // Check if paragraph starts with **
                     if (paragraph.startsWith('**')) {
                       const headerMatch = paragraph.match(/^\*\*([^*]+)\*\*/);
                       if (headerMatch) {
@@ -103,6 +154,55 @@ export const ProductDetailDialog = ({
             )}
           </div>
         </ScrollArea>
+
+        {/* Quantity and Add to Cart - Fixed at bottom */}
+        <div className="p-4 border-t bg-background">
+          <div className="flex items-center gap-3">
+            {/* Quantity Selector */}
+            <div className="flex items-center border rounded-lg">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-r-none"
+                onClick={() => handleQuantityChange(quantity - 1)}
+                disabled={quantity <= 1}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Input
+                type="number"
+                min={1}
+                max={maxQuantity || 99}
+                value={quantity}
+                onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                className="w-14 h-10 text-center border-0 rounded-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-l-none"
+                onClick={() => handleQuantityChange(quantity + 1)}
+                disabled={maxQuantity ? quantity >= maxQuantity : false}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Add to Cart Button */}
+            <Button 
+              onClick={handleAddToCart} 
+              className="flex-1 h-10 gap-2"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Dodaj do koszyka ({(product.price * quantity).toFixed(2)} zł)
+            </Button>
+          </div>
+          {maxQuantity && (
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Maksymalna ilość: {maxQuantity}
+            </p>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
