@@ -14,7 +14,7 @@ const Footer = () => {
               </a>
               <a href="https://hotpay.pl" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center hover:opacity-80 transition-opacity">
                 <img src={hotpayLogo} alt="HotPay" className="h-[18px] w-auto md:h-[22px]" />
-                <span className="text-muted-foreground text-[6px] md:text-[7px] font-medium uppercase tracking-wide mt-1">Operator płatności</span>
+                <span className="text-muted-foreground text-[6px] md:text-[7px] font-medium uppercase tracking-wide mt-[11px] md:mt-[11px]">Operator płatności</span>
               </a>
             </div>
             <p className="text-muted-foreground max-w-md">Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów.</p>
