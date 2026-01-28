@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 
@@ -236,20 +236,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         
         if (newQuantity > maxQty) {
           if (!silent) {
-            toast({
-              title: "Limit osiągnięty",
-              description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
-              variant: "destructive",
-            });
+            toast.error(`Limit osiągnięty: maksymalna ilość to ${maxQty}`);
           }
           return prevCart;
         }
         
         if (!silent) {
-          toast({
-            title: "Zaktualizowano koszyk",
-            description: `Zwiększono ilość: ${item.productName}`,
-          });
+          toast.success(`Zaktualizowano koszyk: ${item.productName}`);
         }
         return prevCart.map((cartItem) =>
           cartItem.productId === item.productId && cartItem.animalId === item.animalId
@@ -260,20 +253,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         const maxQty = item.maxQuantity || Infinity;
         if (quantity > maxQty) {
           if (!silent) {
-            toast({
-              title: "Limit osiągnięty",
-              description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
-              variant: "destructive",
-            });
+            toast.error(`Limit osiągnięty: maksymalna ilość to ${maxQty}`);
           }
           return prevCart;
         }
         
         if (!silent) {
-          toast({
-            title: "Dodano do koszyka",
-            description: `${item.productName} - ${item.price.toFixed(2)} zł`,
-          });
+          toast.success(`Dodano do koszyka: ${item.productName} - ${item.price.toFixed(2)} zł`);
         }
         return [...prevCart, { ...item, quantity }];
       }
@@ -282,11 +268,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addAllForAnimal = (items: Omit<CartItem, 'quantity'>[], animalName: string) => {
     if (items.length === 0) {
-      toast({
-        title: "Brak produktów",
-        description: `Wszystkie produkty dla ${animalName} zostały już kupione`,
-        variant: "destructive",
-      });
+      toast.error(`Wszystkie produkty dla ${animalName} zostały już kupione`);
       return;
     }
     
@@ -323,11 +305,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       
       if (!currentUser) {
-        toast({
-          title: "Błąd",
-          description: "Musisz być zalogowany aby dokonać zakupu",
-          variant: "destructive",
-        });
+        toast.error("Musisz być zalogowany aby dokonać zakupu");
         return { success: false };
       }
 
@@ -358,10 +336,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       if (itemsError) throw itemsError;
 
-      toast({
-        title: "Zakup zakończony!",
-        description: "Dziękujemy za wsparcie zwierząt ❤️",
-      });
+      toast.success("Zakup zakończony! Dziękujemy za wsparcie zwierząt ❤️");
 
       setCart([]);
       
@@ -376,11 +351,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return { success: true, orderId: order.id };
     } catch (error) {
       console.error('Purchase error:', error);
-      toast({
-        title: "Błąd zakupu",
-        description: "Nie udało się dokończyć zakupu. Spróbuj ponownie.",
-        variant: "destructive",
-      });
+      toast.error("Błąd zakupu: nie udało się dokończyć. Spróbuj ponownie.");
       return { success: false };
     }
   };
@@ -389,11 +360,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart((prevCart) => prevCart.filter((item) => 
       !(item.productId === productId && item.animalId === animalId)
     ));
-    toast({
-      title: "Usunięto z koszyka",
-      description: "Produkt został usunięty",
-      variant: "destructive",
-    });
+    toast.error("Usunięto z koszyka");
   };
 
   const removeAllForAnimal = (animalId: string, animalName: string) => {
@@ -410,11 +377,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return newSet;
     });
     
-    toast({
-      title: `Usunięto produkty dla: ${animalName}`,
-      description: `Usunięto ${totalQuantity} produktów (${totalPrice.toFixed(2)} zł) z koszyka`,
-      variant: "destructive",
-    });
+    toast.error(`Usunięto produkty dla: ${animalName} (${totalQuantity} szt., ${totalPrice.toFixed(2)} zł)`);
   };
 
   const removeAllForOrganization = (organizationName: string) => {
@@ -426,11 +389,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
     setCart((prevCart) => prevCart.filter((item) => !(item.animalId === undefined && item.animalName?.includes(organizationName))));
     
-    toast({
-      title: `Usunięto produkty dla: ${organizationName}`,
-      description: `Usunięto ${totalQuantity} produktów (${totalPrice.toFixed(2)} zł) z koszyka`,
-      variant: "destructive",
-    });
+    toast.error(`Usunięto produkty dla: ${organizationName} (${totalQuantity} szt., ${totalPrice.toFixed(2)} zł)`);
   };
 
   const updateQuantity = (productId: string, quantity: number, animalId?: string) => {
@@ -443,11 +402,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         if (item.productId === productId && item.animalId === animalId) {
           const maxQty = item.maxQuantity;
           if (maxQty && quantity > maxQty) {
-            toast({
-              title: "Limit osiągnięty",
-              description: `Maksymalna ilość dla tego produktu to ${maxQty}`,
-              variant: "destructive",
-            });
+            toast.error(`Limit osiągnięty: maksymalna ilość to ${maxQty}`);
             return { ...item, quantity: maxQty };
           }
           return { ...item, quantity };
@@ -480,10 +435,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart([]);
     saveCartToStorage([]);
     
-    toast({
-      title: "Koszyk wyczyszczony",
-      description: "Wszystkie produkty zostały usunięte",
-    });
+    toast.success("Koszyk wyczyszczony");
   };
 
   return (
