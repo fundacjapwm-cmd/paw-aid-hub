@@ -1,32 +1,18 @@
 import { Logo } from "@/components/Logo";
 import arquivetLogo from "@/assets/logo-arquivet.svg";
-
 const Footer = () => {
-  return (
-    <footer className="bg-foreground/5 py-12">
+  return <footer className="bg-foreground/5 py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-6 mb-4">
               <Logo className="h-14 w-auto md:h-16" />
-              <a 
-                href="https://arquivet.pl/" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center hover:opacity-80 transition-opacity"
-              >
-                <img 
-                  src={arquivetLogo} 
-                  alt="Arquivet" 
-                  className="h-[42px] w-auto md:h-[50px]"
-                />
+              <a href="https://arquivet.pl/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:opacity-80 transition-opacity">
+                <img src={arquivetLogo} alt="Arquivet" className="h-[42px] w-auto md:h-[50px]" />
                 <span className="text-muted-foreground text-[6px] md:text-[8px] font-medium uppercase tracking-wide mt-1">Partner strategiczny</span>
               </a>
             </div>
-            <p className="text-muted-foreground max-w-md">
-              Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów. 
-              Każdy zakup to realna pomoc.
-            </p>
+            <p className="text-muted-foreground max-w-md">Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów.</p>
           </div>
           <div>
             <h4 className="font-semibold text-foreground mb-4">Nawigacja</h4>
@@ -50,19 +36,12 @@ const Footer = () => {
           <p>&copy; 2024 Pączki w Maśle. Wszystkie prawa zastrzeżone.</p>
           <p className="text-sm">
             Stworzone przez{" "}
-            <a 
-              href="https://magdalenaminor.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary-dark hover:underline"
-            >
+            <a href="https://magdalenaminor.com" target="_blank" rel="noopener noreferrer" className="text-primary-dark hover:underline">
               Magdalenę Minor
             </a>
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
