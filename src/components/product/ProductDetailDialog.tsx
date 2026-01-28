@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Minus, Plus, ShoppingCart, ImageOff } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { toast } from "sonner";
 
 interface ProductDetailDialogProps {
   open: boolean;
@@ -57,8 +56,7 @@ export const ProductDetailDialog = ({
       animalId,
       animalName,
       maxQuantity,
-    }, quantity, true);
-    toast.success(`Dodano ${quantity}x ${product.name} do koszyka`);
+    }, quantity, false); // Let CartContext handle the toast
     onOpenChange(false);
     setQuantity(1);
   };
