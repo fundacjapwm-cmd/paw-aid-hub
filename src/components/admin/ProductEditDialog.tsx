@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -16,7 +17,8 @@ interface Product {
   price: number;
   purchase_price?: number;
   net_price?: number;
-  species?: string | null;
+  for_dogs?: boolean;
+  for_cats?: boolean;
   producer_id: string;
   category_id: string;
   description?: string;
@@ -89,7 +91,8 @@ export default function ProductEditDialog({ product, productCategories, onClose,
         price: typeof editData.price === 'string' ? parseFloat(editData.price) : editData.price,
         purchase_price: editData.purchase_price ? (typeof editData.purchase_price === 'string' ? parseFloat(editData.purchase_price) : editData.purchase_price) : undefined,
         net_price: editData.net_price ? (typeof editData.net_price === 'string' ? parseFloat(editData.net_price) : editData.net_price) : undefined,
-        species: editData.species || null,
+        for_dogs: editData.for_dogs ?? true,
+        for_cats: editData.for_cats ?? true,
       });
       toast.success('Produkt został zaktualizowany');
       onClose();
@@ -218,22 +221,31 @@ export default function ProductEditDialog({ product, productCategories, onClose,
             </div>
           )}
 
-          {/* Species (Super Category) */}
+          {/* Species checkboxes */}
           <div>
-            <Label>Nadkategoria (gatunek)</Label>
-            <Select 
-              value={editData.species || 'all'} 
-              onValueChange={(value) => setEditData({ ...editData, species: value === 'all' ? null : value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Wybierz" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Uniwersalny (psy i koty)</SelectItem>
-                <SelectItem value="Pies">🐕 Psy</SelectItem>
-                <SelectItem value="Kot">🐱 Koty</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Nadkategoria (dla kogo)</Label>
+            <div className="flex gap-6 mt-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="for_dogs"
+                  checked={editData.for_dogs ?? true}
+                  onCheckedChange={(checked) => setEditData({ ...editData, for_dogs: checked as boolean })}
+                />
+                <label htmlFor="for_dogs" className="text-sm font-medium cursor-pointer">
+                  🐕 Psy
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="for_cats"
+                  checked={editData.for_cats ?? true}
+                  onCheckedChange={(checked) => setEditData({ ...editData, for_cats: checked as boolean })}
+                />
+                <label htmlFor="for_cats" className="text-sm font-medium cursor-pointer">
+                  🐱 Koty
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* Category */}

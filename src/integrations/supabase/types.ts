@@ -834,6 +834,8 @@ export type Database = {
           category_id: string | null
           created_at: string | null
           description: string | null
+          for_cats: boolean | null
+          for_dogs: boolean | null
           id: string
           image_url: string | null
           name: string
@@ -841,7 +843,6 @@ export type Database = {
           price: number
           producer_id: string | null
           purchase_price: number | null
-          species: string | null
           updated_at: string | null
         }
         Insert: {
@@ -849,6 +850,8 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           description?: string | null
+          for_cats?: boolean | null
+          for_dogs?: boolean | null
           id?: string
           image_url?: string | null
           name: string
@@ -856,7 +859,6 @@ export type Database = {
           price: number
           producer_id?: string | null
           purchase_price?: number | null
-          species?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -864,6 +866,8 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           description?: string | null
+          for_cats?: boolean | null
+          for_dogs?: boolean | null
           id?: string
           image_url?: string | null
           name?: string
@@ -871,7 +875,6 @@ export type Database = {
           price?: number
           producer_id?: string | null
           purchase_price?: number | null
-          species?: string | null
           updated_at?: string | null
         }
         Relationships: [
