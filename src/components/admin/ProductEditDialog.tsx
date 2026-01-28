@@ -14,6 +14,8 @@ import { validateAndCompressImage } from '@/lib/validations/imageFile';
 interface Product {
   id: string;
   name: string;
+  product_code?: string;
+  ean?: string;
   price: number;
   purchase_price?: number;
   purchase_net_price?: number;
@@ -160,6 +162,26 @@ export default function ProductEditDialog({ product, productCategories, onClose,
               onChange={(e) => setEditData({ ...editData, name: e.target.value })}
               placeholder="np. Karma dla psa"
             />
+          </div>
+
+          {/* Product codes */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Kod produktu</Label>
+              <Input
+                value={editData.product_code || ''}
+                onChange={(e) => setEditData({ ...editData, product_code: e.target.value || undefined })}
+                placeholder="np. KAR-001"
+              />
+            </div>
+            <div>
+              <Label>EAN</Label>
+              <Input
+                value={editData.ean || ''}
+                onChange={(e) => setEditData({ ...editData, ean: e.target.value || undefined })}
+                placeholder="np. 5901234123457"
+              />
+            </div>
           </div>
 
           {/* Purchase Prices */}
