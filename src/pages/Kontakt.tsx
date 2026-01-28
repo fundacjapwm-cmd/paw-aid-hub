@@ -174,9 +174,18 @@ const Kontakt = () => {
                   <h3 className="text-lg font-bold text-foreground mb-2">
                     Czekamy na Twój kontakt! 🐾
                   </h3>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-sm mb-6">
                     Razem możemy pomóc jeszcze większej liczbie zwierząt
                   </p>
+                  
+                  <div className="border-t border-border/50 pt-6">
+                    <h4 className="font-bold text-foreground mb-2">Fundacja Pączki w Maśle</h4>
+                    <div className="text-muted-foreground text-sm space-y-1">
+                      <p>NIP: 5532598992</p>
+                      <p>REGON: 541682360</p>
+                      <p>KRS: 0001171916</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
