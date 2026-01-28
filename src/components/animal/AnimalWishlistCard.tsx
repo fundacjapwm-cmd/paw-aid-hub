@@ -84,6 +84,7 @@ export function AnimalWishlistCard({
                   name: item.name,
                   price: item.price,
                   image_url: item.image_url,
+                  description: item.description,
                   quantity: neededQuantity,
                   purchasedQuantity: item.purchasedQuantity || 0,
                   bought: item.bought,

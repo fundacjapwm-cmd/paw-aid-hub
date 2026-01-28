@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ShoppingCart, Plus, Minus, X, Check, ArrowRight } from "lucide-react";
+import { ShoppingCart, Plus, Minus, X, Check, ArrowRight, Info } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { ProductDetailDialog } from "@/components/product/ProductDetailDialog";
 
 interface WishlistProductCardProps {
   product: {
@@ -12,6 +13,7 @@ interface WishlistProductCardProps {
     name: string;
     price: number;
     image_url?: string;
+    description?: string;
     quantity?: number;
     purchasedQuantity?: number;
     bought?: boolean;
@@ -49,6 +51,7 @@ export const WishlistProductCard = ({
   const totalNeeded = product.quantity || 1;
   const hasPartialProgress = purchasedQty > 0 && !product.bought;
   const [inputValue, setInputValue] = useState(String(quantity));
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
 
   // Sync input value when quantity prop changes
   useEffect(() => {
@@ -100,20 +103,27 @@ export const WishlistProductCard = ({
       <div className="flex md:hidden flex-col gap-4 p-4 bg-card rounded-3xl border border-border/50 shadow-card transition-all duration-300">
         {/* Top Row: Image + Price */}
         <div className="flex items-start justify-between gap-3">
-          {/* Image */}
-          <div className="shrink-0 relative">
+          {/* Image - clickable to open details */}
+          <button 
+            className="shrink-0 relative cursor-pointer group"
+            onClick={() => setShowDetailDialog(true)}
+            aria-label="Zobacz szczegóły produktu"
+          >
             {product.image_url ? (
               <img 
                 src={product.image_url} 
                 alt={product.name}
-                className="w-20 h-20 rounded-2xl object-cover shadow-inner bg-white"
+                className="w-20 h-20 rounded-2xl object-cover shadow-inner bg-white group-hover:ring-2 group-hover:ring-primary/30 transition-all"
               />
             ) : (
-              <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center shadow-inner">
+              <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center shadow-inner group-hover:ring-2 group-hover:ring-primary/30 transition-all">
                 <ShoppingCart className="h-8 w-8 text-muted-foreground" />
               </div>
             )}
-          </div>
+            <div className="absolute bottom-0 right-0 w-5 h-5 bg-primary/80 rounded-full flex items-center justify-center shadow-sm">
+              <Info className="h-3 w-3 text-white" />
+            </div>
+          </button>
           
           {/* Price - Right Top Corner */}
           <div className="text-right">
@@ -240,9 +250,13 @@ export const WishlistProductCard = ({
           ? 'bg-green-50 border border-green-200' 
           : 'bg-card border border-border/50 shadow-card md:hover:border-primary/30 md:hover:shadow-bubbly'
       }`}>
-        {/* Image */}
-        <div className="shrink-0">
-          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border">
+        {/* Image - clickable to open details */}
+        <button 
+          className="shrink-0 cursor-pointer group relative"
+          onClick={() => setShowDetailDialog(true)}
+          aria-label="Zobacz szczegóły produktu"
+        >
+          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border group-hover:ring-2 group-hover:ring-primary/30 transition-all">
             {product.image_url ? (
               <img 
                 src={product.image_url} 
@@ -255,7 +269,10 @@ export const WishlistProductCard = ({
               </div>
             )}
           </div>
-        </div>
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary/80 rounded-full flex items-center justify-center shadow-sm">
+            <Info className="h-2.5 w-2.5 text-white" />
+          </div>
+        </button>
 
         {/* Product Info */}
         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
@@ -365,6 +382,13 @@ export const WishlistProductCard = ({
           )}
         </div>
       </div>
+
+      {/* Product Detail Dialog */}
+      <ProductDetailDialog
+        open={showDetailDialog}
+        onOpenChange={setShowDetailDialog}
+        product={product}
+      />
     </>
   );
 };
