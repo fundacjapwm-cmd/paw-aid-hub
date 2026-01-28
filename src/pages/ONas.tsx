@@ -34,7 +34,7 @@ const ONas = () => {
   }, {
     Icon: CatSterileIcon,
     title: "Inicjatywa sterylizacji, kastracji oraz znakowania",
-    desc: "Prowadzimy programy sterylizacji wolno żyjących kotów, by ograniczyć bezdomność zwierząt."
+    desc: "Prowadzimy programy sterylizacji, kastracji oraz znakowania zwierząt w Gminie Łodygowice (w przyszłości chcemy rozszerzyć nasza działalność na teren powiatu Żywieckiego oraz sąsiednich)."
   }, {
     Icon: CharityHandIcon,
     title: "Akcje społeczno-charytatywne",
