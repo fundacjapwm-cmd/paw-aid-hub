@@ -580,7 +580,9 @@ export default function Regulamin() {
                 </ul>
               </li>
               <li>
-                Ewentualne spory będą rozstrzygane przez sąd właściwy miejscowo dla siedziby Administratora.
+                Ewentualne spory będą rozstrzygane przez sąd właściwy zgodnie z przepisami Kodeksu postępowania cywilnego. 
+                W przypadku Użytkowników będących konsumentami, właściwość sądu określa się na zasadach ogólnych, 
+                co oznacza, że konsument może wytoczyć powództwo przed sąd właściwy dla swojego miejsca zamieszkania.
               </li>
               <li>
                 Konsumenci mają prawo skorzystać z pozasądowych sposobów rozstrzygania sporów 

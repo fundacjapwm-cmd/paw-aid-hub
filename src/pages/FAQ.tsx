@@ -122,9 +122,10 @@ export default function FAQ() {
                   <span className="text-left font-semibold">Czy mogę anulować lub zmienić zamówienie?</span>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
-                  Ze względu na charakter charytatywny platformy, po dokonaniu płatności zamówienie nie może być 
-                  anulowane zgodnie z art. 38 pkt 12 ustawy o prawach konsumenta. Przed płatnością dokładnie 
-                  sprawdź wybrane produkty. W szczególnych przypadkach skontaktuj się z nami: 
+                  Jako konsument masz prawo do odstąpienia od umowy w ciągu 14 dni od złożenia zamówienia, 
+                  o ile produkty nie zostały jeszcze dostarczone do organizacji. Ze względu na zbiorczą realizację 
+                  zamówień (7-14 dni roboczych), w większości przypadków możesz skorzystać z tego prawa. 
+                  Aby anulować zamówienie, skontaktuj się z nami: 
                   <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline ml-1">
                     fundacjapwm@gmail.com
                   </a>
