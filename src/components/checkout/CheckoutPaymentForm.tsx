@@ -205,10 +205,10 @@ export function CheckoutPaymentForm({
 
           <div className="bg-secondary/50 p-4 rounded-lg">
             <p className="text-sm text-muted-foreground mb-2">
-              Płatność zostanie przetworzona przez PayU
+              Płatność zostanie przetworzona przez HotPay
             </p>
             <p className="text-sm font-medium">
-              Bezpieczna płatność zabezpieczona przez PayU
+              Bezpieczna płatność zabezpieczona przez HotPay
             </p>
           </div>
 
