@@ -114,13 +114,6 @@ export const ProductDetailDialog = ({
               )}
             </div>
 
-            {/* Price Badge */}
-            <div className="flex justify-center">
-              <Badge className="text-lg px-4 py-1.5 bg-primary text-primary-foreground font-bold">
-                {Number(product.price).toFixed(2)} zł
-              </Badge>
-            </div>
-
             {/* Description */}
             {product.description ? (
               <div className="prose prose-sm max-w-none">
