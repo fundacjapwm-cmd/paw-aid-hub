@@ -65,6 +65,9 @@ export function CheckoutOrderSummary({
               <span>Suma całkowita:</span>
               <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Ceny zawierają podatek VAT. Koszt dostawy do organizacji wliczony w cenę.
+            </p>
           </div>
         </CardContent>
       )}

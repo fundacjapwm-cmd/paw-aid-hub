@@ -218,6 +218,10 @@ export default function Regulamin() {
                   <li>
                     Fundacja potwierdza dostarczenie produktów do Organizacji i informuje o tym Użytkownika.
                   </li>
+                  <li>
+                    <strong>Ograniczenia terytorialne:</strong> Usługa pośrednictwa jest realizowana wyłącznie na terenie 
+                    Rzeczypospolitej Polskiej. Produkty są dostarczane tylko do Organizacji z siedzibą w Polsce.
+                  </li>
                 </ol>
               </div>
             </div>
@@ -440,10 +444,46 @@ export default function Regulamin() {
             </ol>
           </section>
 
-          {/* Sekcja 8 */}
+          {/* Sekcja 8 - Gwarancja i rękojmia */}
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground mb-3">
-              § 8. Odpowiedzialność
+              § 8. Gwarancja i rękojmia
+            </h2>
+            <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
+              <li>
+                <strong>Charakter usługi:</strong> Fundacja świadczy usługę pośrednictwa polegającą na zakupie produktów 
+                od dostawców i ich dostarczeniu do Organizacji. Fundacja nie jest sprzedawcą produktów w rozumieniu 
+                przepisów o rękojmi za wady fizyczne i prawne rzeczy sprzedanej.
+              </li>
+              <li>
+                <strong>Odpowiedzialność za jakość produktów:</strong> Fundacja dokłada wszelkich starań, aby produkty 
+                dostarczane do Organizacji były pełnowartościowe i zgodne z opisem. Produkty pochodzą od zweryfikowanych 
+                dostawców i objęte są gwarancją producenta (jeśli producent jej udziela).
+              </li>
+              <li>
+                <strong>Reklamacja jakości produktów:</strong> W przypadku stwierdzenia wad produktów przez Organizację, 
+                Fundacja pośredniczy w procesie reklamacyjnym u dostawcy. Organizacja powinna zgłosić wadę niezwłocznie 
+                po jej wykryciu na adres: 
+                <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium ml-1">
+                  fundacjapwm@gmail.com
+                </a>
+              </li>
+              <li>
+                <strong>Termin rozpatrzenia:</strong> Reklamacje dotyczące jakości produktów są rozpatrywane w terminie 
+                14 dni roboczych. W przypadku uznania reklamacji, Fundacja zapewni wymianę produktu lub zwrot środków.
+              </li>
+              <li>
+                <strong>Uprawnienia konsumenta:</strong> Niezależnie od powyższych postanowień, Użytkownikowi będącemu 
+                konsumentem przysługują uprawnienia wynikające z ustawy o prawach konsumenta oraz przepisów Kodeksu 
+                cywilnego dotyczących rękojmi, w zakresie w jakim mają one zastosowanie do usługi pośrednictwa.
+              </li>
+            </ol>
+          </section>
+
+          {/* Sekcja 9 - Odpowiedzialność */}
+          <section className="space-y-4">
+            <h2 className="text-2xl font-bold text-foreground mb-3">
+              § 9. Odpowiedzialność
             </h2>
             <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
               <li>
@@ -467,10 +507,10 @@ export default function Regulamin() {
             </ol>
           </section>
 
-          {/* Sekcja 9 */}
+          {/* Sekcja 10 */}
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground mb-3">
-              § 9. Dane osobowe
+              § 10. Dane osobowe
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               Szczegółowe informacje dotyczące przetwarzania danych osobowych znajdują się w 
@@ -481,10 +521,10 @@ export default function Regulamin() {
             </p>
           </section>
 
-          {/* Sekcja 10 */}
+          {/* Sekcja 11 */}
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground mb-3">
-              § 10. Własność intelektualna
+              § 11. Własność intelektualna
             </h2>
             <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
               <li>
@@ -501,10 +541,10 @@ export default function Regulamin() {
             </ol>
           </section>
 
-          {/* Sekcja 11 */}
+          {/* Sekcja 12 */}
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground mb-3">
-              § 11. Zmiany Regulaminu
+              § 12. Zmiany Regulaminu
             </h2>
             <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
               <li>
@@ -523,10 +563,10 @@ export default function Regulamin() {
             </ol>
           </section>
 
-          {/* Sekcja 12 */}
+          {/* Sekcja 13 */}
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground mb-3">
-              § 12. Postanowienia końcowe
+              § 13. Postanowienia końcowe
             </h2>
             <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
               <li>
