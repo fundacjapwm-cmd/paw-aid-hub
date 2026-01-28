@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.cleanup-expired-carts]
 verify_jwt = false
+
+[functions.import-products]
+verify_jwt = false
