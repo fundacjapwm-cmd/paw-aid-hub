@@ -842,6 +842,7 @@ export type Database = {
           net_price: number | null
           price: number
           producer_id: string | null
+          purchase_net_price: number | null
           purchase_price: number | null
           updated_at: string | null
         }
@@ -858,6 +859,7 @@ export type Database = {
           net_price?: number | null
           price: number
           producer_id?: string | null
+          purchase_net_price?: number | null
           purchase_price?: number | null
           updated_at?: string | null
         }
@@ -874,6 +876,7 @@ export type Database = {
           net_price?: number | null
           price?: number
           producer_id?: string | null
+          purchase_net_price?: number | null
           purchase_price?: number | null
           updated_at?: string | null
         }
