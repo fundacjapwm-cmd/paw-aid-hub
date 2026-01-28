@@ -114,7 +114,7 @@ async function sendConfirmationEmail(
               
               <p style="margin-top: 30px;">Produkty zostaną dostarczone do schroniska/organizacji, aby pomóc zwierzętom, które najbardziej tego potrzebują.</p>
               
-              <p><strong>Masz pytania?</strong> Skontaktuj się z nami: fundacjapwm@gmail.com</p>
+              <p><strong>Masz pytania?</strong> Skontaktuj się z nami: kontakt@paczkiwmasle.pl</p>
               
               <p>Jeszcze raz dziękujemy!<br>
               Zespół Paczki w Maśle</p>

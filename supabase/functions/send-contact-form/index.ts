@@ -86,7 +86,6 @@ const handler = async (req: Request): Promise<Response> => {
       const emailResponse = await resend.emails.send({
         from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
         to: ["kontakt@paczkiwmasle.pl"],
-        cc: ["fundacjapwm@gmail.com"],
         subject: `Nowa wiadomość od ${htmlEncode(name)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

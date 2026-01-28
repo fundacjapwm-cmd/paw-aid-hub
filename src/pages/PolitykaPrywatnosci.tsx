@@ -39,7 +39,7 @@ export default function PolitykaPrywatnosci() {
                   <p><strong>REGON:</strong> 541682360</p>
                 </div>
                 <p className="text-muted-foreground leading-relaxed mt-3">
-                  Możesz skontaktować się z nami pod adresem email: <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline">fundacjapwm@gmail.com</a>
+                  Możesz skontaktować się z nami pod adresem email: <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline">kontakt@paczkiwmasle.pl</a>
                 </p>
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function PolitykaPrywatnosci() {
                   </div>
                 </div>
                 <p className="text-muted-foreground leading-relaxed mt-4">
-                  Aby skorzystać z powyższych praw, skontaktuj się z nami: <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium">fundacjapwm@gmail.com</a>
+                  Aby skorzystać z powyższych praw, skontaktuj się z nami: <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline font-medium">kontakt@paczkiwmasle.pl</a>
                 </p>
               </div>
             </div>
@@ -404,8 +404,8 @@ export default function PolitykaPrywatnosci() {
             <div className="space-y-2 text-muted-foreground">
               <p className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-primary" />
-                <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium">
-                  fundacjapwm@gmail.com
+                <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline font-medium">
+                  kontakt@paczkiwmasle.pl
                 </a>
               </p>
               <p className="text-sm">

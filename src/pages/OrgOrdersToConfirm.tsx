@@ -198,7 +198,7 @@ export default function OrgOrdersToConfirm() {
       const { error } = await supabase.functions.invoke("send-contact-form", {
         body: {
           name: orgData?.organizations?.name || "Organizacja",
-          email: "fundacjapwm@gmail.com",
+          email: "kontakt@paczkiwmasle.pl",
           message: `ZGŁOSZENIE PROBLEMU Z ZAMÓWIENIEM\n\nNumer zamówienia: ${selectedOrder.id}\nData zamówienia: ${format(new Date(selectedOrder.created_at), "dd.MM.yyyy HH:mm", { locale: pl })}\n\nOpis problemu:\n${problemDescription}`,
         },
       });

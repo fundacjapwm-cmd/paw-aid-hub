@@ -155,8 +155,8 @@ export default function Regulamin() {
                           Administrator może zablokować dostęp do Konta.</li>
                       <li>• <strong>Prawo odwołania:</strong> Użytkownik ma prawo odwołać się od decyzji o zablokowaniu Konta 
                           w terminie 14 dni od daty blokady, przesyłając odwołanie na adres: 
-                          <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium ml-1">
-                            fundacjapwm@gmail.com
+                          <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline font-medium ml-1">
+                            kontakt@paczkiwmasle.pl
                           </a>. 
                           Administrator rozpatrzy odwołanie w ciągu 14 dni roboczych.</li>
                       <li>• W przypadku poważnych naruszeń zagrażających bezpieczeństwu Platformy lub innych użytkowników 
@@ -381,8 +381,8 @@ export default function Regulamin() {
                   <li>
                     <strong>Sposób odstąpienia:</strong> Aby skorzystać z prawa odstąpienia, Użytkownik powinien przesłać 
                     jednoznaczne oświadczenie o odstąpieniu od umowy na adres email: 
-                    <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium ml-1">
-                      fundacjapwm@gmail.com
+                    <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline font-medium ml-1">
+                      kontakt@paczkiwmasle.pl
                     </a>, podając numer zamówienia i datę jego złożenia.
                   </li>
                   <li>
@@ -422,8 +422,8 @@ export default function Regulamin() {
             <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
               <li>
                 Reklamacje dotyczące funkcjonowania Platformy lub realizacji zamówień można zgłaszać na adres: 
-                <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium ml-1">
-                  fundacjapwm@gmail.com
+                <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline font-medium ml-1">
+                  kontakt@paczkiwmasle.pl
                 </a>
               </li>
               <li>
@@ -464,8 +464,8 @@ export default function Regulamin() {
                 <strong>Reklamacja jakości produktów:</strong> W przypadku stwierdzenia wad produktów przez Organizację, 
                 Fundacja pośredniczy w procesie reklamacyjnym u dostawcy. Organizacja powinna zgłosić wadę niezwłocznie 
                 po jej wykryciu na adres: 
-                <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium ml-1">
-                  fundacjapwm@gmail.com
+                <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline font-medium ml-1">
+                  kontakt@paczkiwmasle.pl
                 </a>
               </li>
               <li>
@@ -603,8 +603,8 @@ export default function Regulamin() {
               </p>
               <p className="flex items-center gap-2 text-primary font-medium">
                 <FileText className="h-5 w-5" />
-                <a href="mailto:fundacjapwm@gmail.com" className="hover:underline">
-                  fundacjapwm@gmail.com
+                <a href="mailto:kontakt@paczkiwmasle.pl" className="hover:underline">
+                  kontakt@paczkiwmasle.pl
                 </a>
               </p>
             </div>
