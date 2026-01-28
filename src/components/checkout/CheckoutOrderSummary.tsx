@@ -61,9 +61,19 @@ export function CheckoutOrderSummary({
 
             <Separator className="my-4" />
 
-            <div className="flex justify-between items-center text-lg font-bold">
-              <span>Suma całkowita:</span>
-              <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm text-muted-foreground">
+                <span>Wartość netto:</span>
+                <span>{(cartTotal / 1.23).toFixed(2)} zł</span>
+              </div>
+              <div className="flex justify-between items-center text-sm text-muted-foreground">
+                <span>VAT (23%):</span>
+                <span>{(cartTotal - cartTotal / 1.23).toFixed(2)} zł</span>
+              </div>
+              <div className="flex justify-between items-center text-lg font-bold pt-2 border-t">
+                <span>Suma brutto:</span>
+                <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               Ceny zawierają podatek VAT. Koszt dostawy do organizacji wliczony w cenę.
