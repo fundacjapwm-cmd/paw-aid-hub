@@ -103,27 +103,20 @@ export const WishlistProductCard = ({
       <div className="flex md:hidden flex-col gap-4 p-4 bg-card rounded-3xl border border-border/50 shadow-card transition-all duration-300">
         {/* Top Row: Image + Price */}
         <div className="flex items-start justify-between gap-3">
-          {/* Image - clickable to open details */}
-          <button 
-            className="shrink-0 relative cursor-pointer group"
-            onClick={() => setShowDetailDialog(true)}
-            aria-label="Zobacz szczegóły produktu"
-          >
+          {/* Image */}
+          <div className="shrink-0">
             {product.image_url ? (
               <img 
                 src={product.image_url} 
                 alt={product.name}
-                className="w-20 h-20 rounded-2xl object-cover shadow-inner bg-white group-hover:ring-2 group-hover:ring-primary/30 transition-all"
+                className="w-20 h-20 rounded-2xl object-cover shadow-inner bg-white"
               />
             ) : (
-              <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center shadow-inner group-hover:ring-2 group-hover:ring-primary/30 transition-all">
+              <div className="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center shadow-inner">
                 <ShoppingCart className="h-8 w-8 text-muted-foreground" />
               </div>
             )}
-            <div className="absolute bottom-0 right-0 w-5 h-5 bg-primary/80 rounded-full flex items-center justify-center shadow-sm">
-              <Info className="h-3 w-3 text-white" />
-            </div>
-          </button>
+          </div>
           
           {/* Price - Right Top Corner */}
           <div className="text-right">
@@ -154,15 +147,21 @@ export const WishlistProductCard = ({
           </div>
         </div>
 
-        {/* Product Name */}
-        <h4 
-          className={`font-bold text-base leading-tight line-clamp-2 ${
-            product.bought ? 'text-muted-foreground line-through' : 'text-gray-800'
-          }`}
-          title={product.name}
+        {/* Product Name - clickable to open details */}
+        <button
+          onClick={() => setShowDetailDialog(true)}
+          className="text-left w-full"
+          aria-label="Zobacz szczegóły produktu"
         >
-          {product.name}
-        </h4>
+          <h4 
+            className={`font-bold text-base leading-tight line-clamp-2 hover:text-primary transition-colors ${
+              product.bought ? 'text-muted-foreground line-through' : 'text-gray-800'
+            }`}
+            title={product.name}
+          >
+            {product.name}
+          </h4>
+        </button>
 
         {/* Bottom Row: Counter + Action Buttons */}
         {!product.bought && (
@@ -250,13 +249,9 @@ export const WishlistProductCard = ({
           ? 'bg-green-50 border border-green-200' 
           : 'bg-card border border-border/50 shadow-card md:hover:border-primary/30 md:hover:shadow-bubbly'
       }`}>
-        {/* Image - clickable to open details */}
-        <button 
-          className="shrink-0 cursor-pointer group relative"
-          onClick={() => setShowDetailDialog(true)}
-          aria-label="Zobacz szczegóły produktu"
-        >
-          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border group-hover:ring-2 group-hover:ring-primary/30 transition-all">
+        {/* Image */}
+        <div className="shrink-0">
+          <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border">
             {product.image_url ? (
               <img 
                 src={product.image_url} 
@@ -269,19 +264,22 @@ export const WishlistProductCard = ({
               </div>
             )}
           </div>
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary/80 rounded-full flex items-center justify-center shadow-sm">
-            <Info className="h-2.5 w-2.5 text-white" />
-          </div>
-        </button>
+        </div>
 
         {/* Product Info */}
         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
           <div>
-            <p className={`text-sm font-bold leading-tight line-clamp-2 mb-1 ${
-              product.bought ? 'text-green-700 line-through' : 'text-foreground'
-            }`} title={product.name}>
-              {product.name}
-            </p>
+            <button
+              onClick={() => setShowDetailDialog(true)}
+              className="text-left w-full"
+              aria-label="Zobacz szczegóły produktu"
+            >
+              <p className={`text-sm font-bold leading-tight line-clamp-2 mb-1 hover:text-primary transition-colors ${
+                product.bought ? 'text-green-700 line-through' : 'text-foreground'
+              }`} title={product.name}>
+                {product.name}
+              </p>
+            </button>
             {/* Progress indicator for partial purchases */}
             {hasPartialProgress && (
               <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
