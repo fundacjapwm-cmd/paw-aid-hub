@@ -407,6 +407,7 @@ export default function WishlistBuilder({ entityId, entityName, entityType }: Wi
                       name: product.name,
                       price: product.price,
                       image_url: product.image_url,
+                      description: product.description,
                       quantity: currentQuantity,
                       bought: false,
                     }}

@@ -11,6 +11,7 @@ export interface WishlistItem {
   quantity: number; // Max quantity from wishlist
   purchasedQuantity: number; // How many have been purchased
   image_url: string;
+  description?: string;
 }
 
 export interface GalleryImage {
@@ -88,7 +89,8 @@ export const useAnimalsWithWishlists = () => {
             id,
             name,
             price,
-            image_url
+            image_url,
+            description
           )
         `)
         .in('animal_id', animalIds);
@@ -184,6 +186,7 @@ export const useAnimalsWithWishlists = () => {
               quantity: neededQty,
               purchasedQuantity: Math.min(purchasedQty, neededQty), // Cap at needed
               image_url: w.products?.image_url || '/placeholder.svg',
+              description: w.products?.description || '',
             };
           }),
           gallery: gallery,

@@ -82,6 +82,7 @@ export function OrganizationWishlistSection({
                         name: item.products?.name || '',
                         price: item.products?.price || 0,
                         image_url: item.products?.image_url,
+                        description: item.products?.description,
                         bought: false,
                       }}
                       quantity={quantity}
