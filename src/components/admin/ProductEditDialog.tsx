@@ -16,6 +16,7 @@ interface Product {
   price: number;
   purchase_price?: number;
   net_price?: number;
+  species?: string | null;
   producer_id: string;
   category_id: string;
   description?: string;
@@ -88,6 +89,7 @@ export default function ProductEditDialog({ product, productCategories, onClose,
         price: typeof editData.price === 'string' ? parseFloat(editData.price) : editData.price,
         purchase_price: editData.purchase_price ? (typeof editData.purchase_price === 'string' ? parseFloat(editData.purchase_price) : editData.purchase_price) : undefined,
         net_price: editData.net_price ? (typeof editData.net_price === 'string' ? parseFloat(editData.net_price) : editData.net_price) : undefined,
+        species: editData.species || null,
       });
       toast.success('Produkt został zaktualizowany');
       onClose();
@@ -215,6 +217,24 @@ export default function ProductEditDialog({ product, productCategories, onClose,
               <span className="font-semibold text-primary">{margin}%</span>
             </div>
           )}
+
+          {/* Species (Super Category) */}
+          <div>
+            <Label>Nadkategoria (gatunek)</Label>
+            <Select 
+              value={editData.species || 'all'} 
+              onValueChange={(value) => setEditData({ ...editData, species: value === 'all' ? null : value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Wybierz" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Uniwersalny (psy i koty)</SelectItem>
+                <SelectItem value="Pies">🐕 Psy</SelectItem>
+                <SelectItem value="Kot">🐱 Koty</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Category */}
           <div>
