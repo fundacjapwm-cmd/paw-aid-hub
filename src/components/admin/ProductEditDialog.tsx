@@ -15,6 +15,7 @@ interface Product {
   name: string;
   price: number;
   purchase_price?: number;
+  net_price?: number;
   producer_id: string;
   category_id: string;
   description?: string;
@@ -86,6 +87,7 @@ export default function ProductEditDialog({ product, productCategories, onClose,
         ...editData,
         price: typeof editData.price === 'string' ? parseFloat(editData.price) : editData.price,
         purchase_price: editData.purchase_price ? (typeof editData.purchase_price === 'string' ? parseFloat(editData.purchase_price) : editData.purchase_price) : undefined,
+        net_price: editData.net_price ? (typeof editData.net_price === 'string' ? parseFloat(editData.net_price) : editData.net_price) : undefined,
       });
       toast.success('Produkt został zaktualizowany');
       onClose();
@@ -158,7 +160,7 @@ export default function ProductEditDialog({ product, productCategories, onClose,
           </div>
 
           {/* Prices */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <Label>Cena zakupu (u producenta)</Label>
               <Input
@@ -170,7 +172,17 @@ export default function ProductEditDialog({ product, productCategories, onClose,
               />
             </div>
             <div>
-              <Label>Cena sprzedaży *</Label>
+              <Label>Cena netto (bez VAT)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={editData.net_price || ''}
+                onChange={(e) => setEditData({ ...editData, net_price: e.target.value ? parseFloat(e.target.value) : undefined })}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <Label>Cena brutto (z VAT) *</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -181,7 +193,23 @@ export default function ProductEditDialog({ product, productCategories, onClose,
             </div>
           </div>
           
-          {margin && (
+          {editData.net_price && editData.price && (
+            <div className="text-sm space-y-1">
+              <div>
+                <span className="text-muted-foreground">VAT: </span>
+                <span className="font-semibold">{((editData.price - editData.net_price) / editData.net_price * 100).toFixed(0)}%</span>
+                <span className="text-muted-foreground ml-2">({(editData.price - editData.net_price).toFixed(2)} zł)</span>
+              </div>
+              {margin && (
+                <div>
+                  <span className="text-muted-foreground">Marża: </span>
+                  <span className="font-semibold text-primary">{margin}%</span>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {!editData.net_price && margin && (
             <div className="text-sm">
               <span className="text-muted-foreground">Marża: </span>
               <span className="font-semibold text-primary">{margin}%</span>
