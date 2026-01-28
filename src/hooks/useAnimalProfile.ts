@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export function useAnimalProfile(id: string | undefined) {
   const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const { animals, loading } = useAnimalsWithWishlists();
-  const { toast } = useToast();
+  
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -105,7 +105,7 @@ export function useAnimalProfile(id: string | undefined) {
     
     addAllForAnimal(items, animal.name);
     
-    toast({ title: `Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}` });
+    toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
   };
 
   const handleRemoveAllFromCart = () => {

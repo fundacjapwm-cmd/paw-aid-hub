@@ -8,7 +8,7 @@ import WishlistProgressBar from "@/components/WishlistProgressBar";
 import { useState, useEffect } from "react";
 import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,7 +56,7 @@ interface AnimalCardProps {
 const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps) => {
   const { addToCart, addAllForAnimal, isAnimalFullyAdded, markAnimalAsAdded, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   
   const wishlistItems = animal.wishlist || [];
@@ -158,7 +158,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
     addAllForAnimal(items, animal.name);
     markAnimalAsAdded(String(animal.id));
     
-    toast({ title: `Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}` });
+    toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
   };
 
   const handleRemoveAll = (e: React.MouseEvent) => {
