@@ -140,7 +140,7 @@ export default function PolitykaPrywatnosci() {
                 <ul className="space-y-2 text-muted-foreground ml-4">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span><strong>Operatorzy płatności:</strong> PayU S.A. - w celu realizacji płatności</span>
+                    <span><strong>Operatorzy płatności:</strong> HotPay (ePłatności sp. z o.o. sp.k.) - w celu realizacji płatności</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
@@ -178,10 +178,10 @@ export default function PolitykaPrywatnosci() {
                 </p>
                 <div className="space-y-4">
                   <div className="bg-muted/30 rounded-xl p-4">
-                    <h3 className="font-semibold text-foreground mb-2">PayU S.A.</h3>
+                    <h3 className="font-semibold text-foreground mb-2">HotPay (ePłatności sp. z o.o. sp.k.)</h3>
                     <p className="text-sm text-muted-foreground">
-                      Operator płatności z siedzibą w Polsce (ul. Grunwaldzka 186, 60-166 Poznań). 
-                      Dane przetwarzane są na terenie EOG. PayU S.A. jest podmiotem nadzorowanym przez Komisję Nadzoru Finansowego.
+                      Operator płatności z siedzibą w Polsce (ul. 27 Stycznia 9, 34-120 Andrychów). 
+                      Dane przetwarzane są na terenie EOG. HotPay jest krajowym dostawcą usług płatniczych.
                     </p>
                   </div>
                   <div className="bg-muted/30 rounded-xl p-4">
