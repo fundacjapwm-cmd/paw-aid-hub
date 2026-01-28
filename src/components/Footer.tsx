@@ -1,5 +1,6 @@
 import { Logo } from "@/components/Logo";
 import arquivetLogo from "@/assets/logo-arquivet.svg";
+import hotpayLogo from "@/assets/logo-hotpay.png";
 const Footer = () => {
   return <footer className="bg-foreground/5 py-12">
       <div className="container mx-auto px-4">
@@ -10,6 +11,10 @@ const Footer = () => {
               <a href="https://arquivet.pl/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:opacity-80 transition-opacity">
                 <img src={arquivetLogo} alt="Arquivet" className="h-[42px] w-auto md:h-[50px]" />
                 <span className="text-muted-foreground text-[6px] md:text-[8px] font-medium uppercase tracking-wide mt-1">Partner strategiczny</span>
+              </a>
+              <a href="https://hotpay.pl" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:opacity-80 transition-opacity">
+                <img src={hotpayLogo} alt="HotPay" className="h-[28px] w-auto md:h-[34px]" />
+                <span className="text-muted-foreground text-[6px] md:text-[8px] font-medium uppercase tracking-wide mt-1">Operator płatności</span>
               </a>
             </div>
             <p className="text-muted-foreground max-w-md">Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów.</p>
