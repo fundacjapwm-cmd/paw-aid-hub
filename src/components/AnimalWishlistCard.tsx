@@ -5,7 +5,7 @@ import { ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Link } from "react-router-dom";
 import { WishlistProductCard } from "@/components/WishlistProductCard";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +41,7 @@ interface AnimalWishlistCardProps {
 
 const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
   const { addToCart, addAllForAnimal, cart: globalCart, removeFromCart, removeAllForAnimal } = useCart();
-  const { toast } = useToast();
+  
   
   // State for quantity counters - każdy produkt ma swoją ilość (domyślnie 1)
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>(
@@ -132,7 +132,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
       
       addAllForAnimal(missingItems, animal.name);
       
-      toast({ title: `Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}` });
+      toast.success(`Dodano do koszyka ${totalCount} produktów (${totalPrice.toFixed(2)} zł) dla: ${animal.name}`);
     }
   };
 
