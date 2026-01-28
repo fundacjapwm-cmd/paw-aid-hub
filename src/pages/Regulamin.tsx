@@ -146,8 +146,23 @@ export default function Regulamin() {
                     </ul>
                   </li>
                   <li>
-                    Administrator zastrzega sobie prawo do zablokowania dostępu do Platformy w przypadku 
-                    naruszenia Regulaminu.
+                    <strong>Procedura w przypadku naruszenia Regulaminu:</strong>
+                    <ul className="mt-2 ml-6 space-y-2">
+                      <li>• W przypadku stwierdzenia naruszenia Regulaminu, Administrator przesyła Użytkownikowi ostrzeżenie 
+                          na podany adres email z opisem naruszenia i wezwaniem do zaprzestania naruszeń lub złożenia wyjaśnień 
+                          w terminie 7 dni.</li>
+                      <li>• Jeśli Użytkownik nie zastosuje się do wezwania lub nie złoży wyjaśnień w wyznaczonym terminie, 
+                          Administrator może zablokować dostęp do Konta.</li>
+                      <li>• <strong>Prawo odwołania:</strong> Użytkownik ma prawo odwołać się od decyzji o zablokowaniu Konta 
+                          w terminie 14 dni od daty blokady, przesyłając odwołanie na adres: 
+                          <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium ml-1">
+                            fundacjapwm@gmail.com
+                          </a>. 
+                          Administrator rozpatrzy odwołanie w ciągu 14 dni roboczych.</li>
+                      <li>• W przypadku poważnych naruszeń zagrażających bezpieczeństwu Platformy lub innych użytkowników 
+                          (np. działania hakerskie, oszustwa), Administrator może natychmiast zablokować dostęp, 
+                          informując o tym Użytkownika wraz z uzasadnieniem.</li>
+                    </ul>
                   </li>
                 </ol>
               </div>
@@ -353,16 +368,42 @@ export default function Regulamin() {
                 <h2 className="text-2xl font-bold text-foreground mb-3">
                   § 6. Prawo odstąpienia od umowy
                 </h2>
-                <div className="bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-6">
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    <strong className="text-foreground">WAŻNE:</strong> Ze względu na specyfikę usługi pośrednictwa 
-                    (natychmiastowe rozpoczęcie realizacji zlecenia zakupu), Użytkownik nie może odstąpić od umowy 
-                    po dokonaniu płatności, zgodnie z art. 38 pkt 1 ustawy o prawach konsumenta.
-                  </p>
+                <ol className="space-y-4 text-muted-foreground list-decimal ml-6">
+                  <li>
+                    <strong>Prawo odstąpienia:</strong> Użytkownikowi będącemu konsumentem przysługuje prawo do odstąpienia 
+                    od umowy bez podania przyczyny w terminie 14 dni od dnia złożenia zamówienia, zgodnie z art. 27 ustawy 
+                    z dnia 30 maja 2014 r. o prawach konsumenta.
+                  </li>
+                  <li>
+                    <strong>Sposób odstąpienia:</strong> Aby skorzystać z prawa odstąpienia, Użytkownik powinien przesłać 
+                    jednoznaczne oświadczenie o odstąpieniu od umowy na adres email: 
+                    <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline font-medium ml-1">
+                      fundacjapwm@gmail.com
+                    </a>, podając numer zamówienia i datę jego złożenia.
+                  </li>
+                  <li>
+                    <strong>Skutki odstąpienia:</strong> W przypadku skutecznego odstąpienia od umowy, Fundacja zwróci 
+                    wszystkie otrzymane płatności w terminie 14 dni od dnia otrzymania oświadczenia o odstąpieniu, 
+                    przy użyciu takiego samego sposobu płatności, jakiego użył Użytkownik.
+                  </li>
+                  <li>
+                    <strong>Wyjątek od prawa odstąpienia:</strong> Prawo odstąpienia nie przysługuje, jeżeli produkty 
+                    zamówione przez Użytkownika zostały już dostarczone do Organizacji. W takim przypadku usługa 
+                    pośrednictwa zostaje w pełni wykonana.
+                  </li>
+                  <li>
+                    <strong>Zgoda na wcześniejsze wykonanie usługi:</strong> Składając zamówienie, Użytkownik może wyrazić 
+                    zgodę na rozpoczęcie realizacji usługi przed upływem terminu do odstąpienia. W przypadku pełnego wykonania 
+                    usługi (dostarczenia produktów do Organizacji) przed upływem 14 dni od zamówienia, Użytkownik traci prawo 
+                    do odstąpienia od umowy zgodnie z art. 38 pkt 1 ustawy o prawach konsumenta.
+                  </li>
+                </ol>
+                <div className="bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6 mt-4">
                   <p className="text-muted-foreground leading-relaxed">
-                    Przed dokonaniem płatności, Użytkownik wyraża zgodę na natychmiastowe rozpoczęcie realizacji usługi 
-                    pośrednictwa i przyjmuje do wiadomości, że traci prawo do odstąpienia od umowy z chwilą rozpoczęcia 
-                    realizacji zlecenia przez Fundację.
+                    <strong className="text-foreground">Informacja:</strong> Ze względu na specyfikę działania Platformy 
+                    (zbieranie zamówień i realizacja zbiorcza w terminie 7-14 dni roboczych), w większości przypadków 
+                    Użytkownik ma możliwość skorzystania z prawa odstąpienia przed dostarczeniem produktów do Organizacji. 
+                    Status zamówienia można sprawdzić kontaktując się z Fundacją.
                   </p>
                 </div>
               </div>
@@ -406,23 +447,22 @@ export default function Regulamin() {
             </h2>
             <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
               <li>
-                Administrator dokłada wszelkich starań, aby Platforma działała prawidłowo, jednak nie gwarantuje 
-                nieprzerwanego dostępu do Platformy.
+                Administrator dokłada wszelkich starań, aby Platforma działała prawidłowo i świadczone usługi 
+                były realizowane z należytą starannością.
               </li>
               <li>
-                Administrator nie ponosi odpowiedzialności za:
-                <ul className="mt-2 ml-6 space-y-1">
-                  <li>• Problemy techniczne po stronie Użytkownika</li>
-                  <li>• Działania osób trzecich (dostawców płatności, kurierów)</li>
-                  <li>• Sposób wykorzystania produktów przez organizacje</li>
-                </ul>
+                Administrator ponosi odpowiedzialność za niewykonanie lub nienależyte wykonanie usługi pośrednictwa 
+                na zasadach określonych w przepisach Kodeksu cywilnego.
               </li>
               <li>
-                Administrator weryfikuje organizacje przed dodaniem ich do Platformy, jednak nie ponosi 
-                odpowiedzialności za ich późniejsze działania.
+                Administrator weryfikuje Organizacje przed dodaniem ich do Platformy i dba o jakość oferowanych produktów.
               </li>
               <li>
-                Użytkownik korzysta z Platformy na własną odpowiedzialność.
+                W przypadku niedostarczenia produktów do Organizacji z winy Administratora, Użytkownikowi przysługuje 
+                prawo do zwrotu wpłaconych środków lub ponownej realizacji zamówienia.
+              </li>
+              <li>
+                Reklamacje dotyczące realizacji usługi są rozpatrywane zgodnie z § 7 Regulaminu.
               </li>
             </ol>
           </section>

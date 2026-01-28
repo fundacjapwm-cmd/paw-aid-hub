@@ -163,6 +163,57 @@ export default function PolitykaPrywatnosci() {
             </div>
           </section>
 
+          {/* Sekcja 4a - Przekazywanie danych poza EOG */}
+          <section className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Database className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-foreground mb-3">
+                  4a. Przekazywanie danych poza Europejski Obszar Gospodarczy
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  W związku z korzystaniem z usług zewnętrznych dostawców, Twoje dane osobowe mogą być przekazywane poza Europejski Obszar Gospodarczy (EOG):
+                </p>
+                <div className="space-y-4">
+                  <div className="bg-muted/30 rounded-xl p-4">
+                    <h3 className="font-semibold text-foreground mb-2">PayU S.A.</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Operator płatności z siedzibą w Polsce (ul. Grunwaldzka 186, 60-166 Poznań). 
+                      Dane przetwarzane są na terenie EOG. PayU S.A. jest podmiotem nadzorowanym przez Komisję Nadzoru Finansowego.
+                    </p>
+                  </div>
+                  <div className="bg-muted/30 rounded-xl p-4">
+                    <h3 className="font-semibold text-foreground mb-2">Resend (dostawca usług mailingowych)</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Resend, Inc. jest spółką z siedzibą w Stanach Zjednoczonych. Przekazywanie danych do USA odbywa się 
+                      na podstawie Standardowych Klauzul Umownych (SCC) zatwierdzonych przez Komisję Europejską, 
+                      zapewniających odpowiedni poziom ochrony danych osobowych.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Zakres przekazywanych danych: adres email, treść wiadomości systemowych (potwierdzenia zamówień, powiadomienia).
+                    </p>
+                  </div>
+                  <div className="bg-muted/30 rounded-xl p-4">
+                    <h3 className="font-semibold text-foreground mb-2">Lovable Cloud / Supabase (hosting i bazy danych)</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Usługi hostingowe świadczone przez Supabase Inc. (USA). Przekazywanie danych odbywa się na podstawie 
+                      Standardowych Klauzul Umownych (SCC) oraz dodatkowych zabezpieczeń technicznych (szyfrowanie end-to-end).
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Serwery zlokalizowane są w regionie EU (Frankfurt), co minimalizuje transfer danych poza EOG.
+                    </p>
+                  </div>
+                </div>
+                <p className="text-muted-foreground leading-relaxed mt-4">
+                  We wszystkich przypadkach przekazywania danych poza EOG stosujemy odpowiednie zabezpieczenia prawne 
+                  zgodne z art. 46 RODO, w tym Standardowe Klauzule Umowne zatwierdzone przez Komisję Europejską.
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* Sekcja 5 */}
           <section className="space-y-4">
             <div className="flex items-start gap-4">
@@ -264,6 +315,44 @@ export default function PolitykaPrywatnosci() {
                 <span>Ograniczenie dostępu do danych osobowych tylko do upoważnionych osób</span>
               </li>
             </ul>
+            
+            <div className="bg-green-50 dark:bg-green-950/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-6 mt-6">
+              <h3 className="font-semibold text-foreground mb-3">Bezpieczeństwo u podmiotów współpracujących</h3>
+              <p className="text-muted-foreground leading-relaxed mb-3">
+                Wszystkie podmioty przetwarzające dane osobowe na nasze zlecenie (podmioty przetwarzające) są starannie 
+                weryfikowane pod kątem stosowania odpowiednich środków bezpieczeństwa. Wymagamy od nich:
+              </p>
+              <ul className="space-y-2 text-muted-foreground ml-4">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 mt-1">✓</span>
+                  <span>Zawarcia umowy powierzenia przetwarzania danych zgodnej z art. 28 RODO</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 mt-1">✓</span>
+                  <span>Wdrożenia odpowiednich środków technicznych i organizacyjnych ochrony danych</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 mt-1">✓</span>
+                  <span>Stosowania szyfrowania danych w transmisji i w spoczynku</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 mt-1">✓</span>
+                  <span>Posiadania certyfikatów bezpieczeństwa (np. SOC 2, ISO 27001) lub równoważnych gwarancji</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 mt-1">✓</span>
+                  <span>Regularnego testowania i oceny skuteczności środków bezpieczeństwa</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 mt-1">✓</span>
+                  <span>Niezwłocznego informowania nas o wszelkich incydentach bezpieczeństwa</span>
+                </li>
+              </ul>
+              <p className="text-muted-foreground leading-relaxed mt-3">
+                Regularnie weryfikujemy zgodność podmiotów współpracujących z wymaganiami bezpieczeństwa i zastrzegamy 
+                sobie prawo do przeprowadzania audytów w tym zakresie.
+              </p>
+            </div>
           </section>
 
           {/* Sekcja 8 */}
