@@ -33,7 +33,7 @@ const ONas = () => {
     desc: "Wspieramy schroniska w całej Polsce, dostarczając karmę, koce, zabawki i niezbędne akcesoria dla zwierząt."
   }, {
     Icon: CatSterileIcon,
-    title: "Gminna inicjatywa sterylizacji bezdomnych kotów",
+    title: "Inicjatywa sterylizacji, kastracji oraz znakowania",
     desc: "Prowadzimy programy sterylizacji wolno żyjących kotów, by ograniczyć bezdomność zwierząt."
   }, {
     Icon: CharityHandIcon,
