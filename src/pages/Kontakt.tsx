@@ -165,11 +165,11 @@ const Kontakt = () => {
               </div>
 
               {/* Animal Image */}
-              <div className="space-y-8">
+              <div className="h-full">
                 {/* Happy Dog Image */}
-                <div className="bg-white rounded-3xl p-8 shadow-card text-center">
-                  <div className="mb-6 relative overflow-hidden rounded-3xl">
-                    <img src={contactDog} alt="Szczęśliwy pies" className="w-full h-auto object-cover" />
+                <div className="bg-white rounded-3xl p-6 shadow-card text-center h-full flex flex-col">
+                  <div className="mb-4 relative overflow-hidden rounded-3xl flex-1">
+                    <img src={contactDog} alt="Szczęśliwy pies" className="w-full h-full object-cover" />
                   </div>
                   <h4 className="font-bold text-foreground mb-2">Fundacja Pączki w Maśle</h4>
                   <div className="text-muted-foreground text-sm space-y-1">
