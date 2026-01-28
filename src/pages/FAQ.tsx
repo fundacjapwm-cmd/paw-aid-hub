@@ -126,8 +126,8 @@ export default function FAQ() {
                   o ile produkty nie zostały jeszcze dostarczone do organizacji. Ze względu na zbiorczą realizację 
                   zamówień (7-14 dni roboczych), w większości przypadków możesz skorzystać z tego prawa. 
                   Aby anulować zamówienie, skontaktuj się z nami: 
-                  <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline ml-1">
-                    fundacjapwm@gmail.com
+                  <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline ml-1">
+                    kontakt@paczkiwmasle.pl
                   </a>
                 </AccordionContent>
               </AccordionItem>
@@ -229,10 +229,10 @@ export default function FAQ() {
                   Aby dołączyć do platformy, wypełnij formularz zgłoszeniowy dostępny w sekcji 
                   <a href="/kontakt" className="text-primary hover:underline mx-1">Kontakt</a>
                   lub napisz bezpośrednio na adres: 
-                  <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline ml-1">
-                    fundacjapwm@gmail.com
+                  <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline ml-1">
+                    kontakt@paczkiwmasle.pl
                   </a>. 
-                  Proces weryfikacji trwa 2-5 dni roboczych. Potrzebujemy: dokumentów rejestrowych (KRS/zaświadczenie), 
+                  Proces weryfikacji trwa 2-5 dni roboczych. Potrzebujemy: dokumentów rejestrowych (KRS/zaświadczenie),
                   danych kontaktowych oraz informacji o działalności.
                 </AccordionContent>
               </AccordionItem>
@@ -328,10 +328,10 @@ export default function FAQ() {
                 <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
                   Jeśli napotkasz problemy techniczne (błędy płatności, problemy z logowaniem, błędne wyświetlanie), 
                   skontaktuj się z naszym wsparciem technicznym:
-                  <a href="mailto:fundacjapwm@gmail.com" className="text-primary hover:underline ml-1">
-                    fundacjapwm@gmail.com
+                  <a href="mailto:kontakt@paczkiwmasle.pl" className="text-primary hover:underline ml-1">
+                    kontakt@paczkiwmasle.pl
                   </a>. 
-                  Opisz dokładnie problem, dołącz zrzut ekranu jeśli to możliwe, i podaj przeglądarkę, z której 
+                  Opisz dokładnie problem, dołącz zrzut ekranu jeśli to możliwe, i podaj przeglądarkę, z której
                   korzystasz. Odpowiadamy w ciągu 24 godzin.
                 </AccordionContent>
               </AccordionItem>
@@ -349,7 +349,7 @@ export default function FAQ() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <a 
-                href="mailto:fundacjapwm@gmail.com"
+                href="mailto:kontakt@paczkiwmasle.pl"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium"
               >
                 <Mail className="h-4 w-4" />

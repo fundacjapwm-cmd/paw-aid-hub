@@ -225,7 +225,7 @@ export default function OrgOrders() {
       console.log('Problem report:', {
         shipmentId: reportingId,
         description: problemDescription,
-        to: 'fundacjapwm@gmail.com'
+        to: 'kontakt@paczkiwmasle.pl'
       });
 
       toast({
