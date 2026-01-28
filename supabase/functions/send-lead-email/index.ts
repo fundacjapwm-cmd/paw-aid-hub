@@ -197,7 +197,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     const { error: adminError } = await resend.emails.send({
       from: "Paczki w Maśle <kontakt@paczkiwmasle.pl>",
-      to: ["fundacjapwm@gmail.com"],
+      to: ["kontakt@paczkiwmasle.pl"],
+      cc: ["fundacjapwm@gmail.com"],
       subject: `🔔 Nowe zgłoszenie: ${organizationName}`,
       html: adminHtml,
     });
