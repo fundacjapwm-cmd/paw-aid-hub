@@ -6,15 +6,15 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-6 mb-4">
-              <Logo className="h-14 w-auto md:h-16" />
-              <a href="https://arquivet.pl/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:opacity-80 transition-opacity">
-                <img src={arquivetLogo} alt="Arquivet" className="h-[42px] w-auto md:h-[50px]" />
-                <span className="text-muted-foreground text-[6px] md:text-[8px] font-medium uppercase tracking-wide mt-1">Partner strategiczny</span>
+            <div className="flex items-center justify-start gap-6 mb-4">
+              <Logo className="h-12 w-auto md:h-14" />
+              <a href="https://arquivet.pl/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center hover:opacity-80 transition-opacity">
+                <img src={arquivetLogo} alt="Arquivet" className="h-[28px] w-auto md:h-[32px]" />
+                <span className="text-muted-foreground text-[6px] md:text-[7px] font-medium uppercase tracking-wide mt-1">Partner strategiczny</span>
               </a>
-              <a href="https://hotpay.pl" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:opacity-80 transition-opacity">
-                <img src={hotpayLogo} alt="HotPay" className="h-[28px] w-auto md:h-[34px]" />
-                <span className="text-muted-foreground text-[6px] md:text-[8px] font-medium uppercase tracking-wide mt-1">Operator płatności</span>
+              <a href="https://hotpay.pl" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center hover:opacity-80 transition-opacity">
+                <img src={hotpayLogo} alt="HotPay" className="h-[18px] w-auto md:h-[22px]" />
+                <span className="text-muted-foreground text-[6px] md:text-[7px] font-medium uppercase tracking-wide mt-1">Operator płatności</span>
               </a>
             </div>
             <p className="text-muted-foreground max-w-md">Platforma umożliwiająca wspieranie zwierząt i organizacji poprzez zakup potrzebnych produktów.</p>
