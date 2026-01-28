@@ -18,6 +18,7 @@ import { validateAndCompressImage } from '@/lib/validations/imageFile';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
 import ProductEditDialog from './ProductEditDialog';
+import ExcelProductImport from './ExcelProductImport';
 
 interface Producer {
   id: string;
@@ -388,8 +389,21 @@ export default function ProducersProductsTab({
 
         <Card>
           <CardHeader>
-            <CardTitle>Produkty - {producer?.name}</CardTitle>
-            <CardDescription>Dodaj nowy produkt dla tego producenta</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Produkty - {producer?.name}</CardTitle>
+                <CardDescription>Dodaj nowy produkt dla tego producenta</CardDescription>
+              </div>
+              <ExcelProductImport
+                producerId={selectedProducerId}
+                producerName={producer?.name || ''}
+                productCategories={productCategories}
+                onImportComplete={() => {
+                  // Trigger a refresh - the realtime subscription will handle it
+                  toast.info('Odświeżanie listy produktów...');
+                }}
+              />
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {/* Zdjęcie, nazwa i cena w jednym rzędzie */}
