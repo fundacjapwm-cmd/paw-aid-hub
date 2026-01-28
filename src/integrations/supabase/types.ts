@@ -834,6 +834,7 @@ export type Database = {
           category_id: string | null
           created_at: string | null
           description: string | null
+          ean: string | null
           for_cats: boolean | null
           for_dogs: boolean | null
           id: string
@@ -842,6 +843,7 @@ export type Database = {
           net_price: number | null
           price: number
           producer_id: string | null
+          product_code: string | null
           purchase_net_price: number | null
           purchase_price: number | null
           updated_at: string | null
@@ -851,6 +853,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           description?: string | null
+          ean?: string | null
           for_cats?: boolean | null
           for_dogs?: boolean | null
           id?: string
@@ -859,6 +862,7 @@ export type Database = {
           net_price?: number | null
           price: number
           producer_id?: string | null
+          product_code?: string | null
           purchase_net_price?: number | null
           purchase_price?: number | null
           updated_at?: string | null
@@ -868,6 +872,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           description?: string | null
+          ean?: string | null
           for_cats?: boolean | null
           for_dogs?: boolean | null
           id?: string
@@ -876,6 +881,7 @@ export type Database = {
           net_price?: number | null
           price?: number
           producer_id?: string | null
+          product_code?: string | null
           purchase_net_price?: number | null
           purchase_price?: number | null
           updated_at?: string | null
