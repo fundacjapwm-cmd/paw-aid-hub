@@ -334,7 +334,7 @@ export default function Regulamin() {
                 </h2>
                 <ol className="space-y-3 text-muted-foreground list-decimal ml-6">
                   <li>
-                    Platforma akceptuje płatności elektroniczne za pośrednictwem operatora płatności PayU S.A.
+                    Platforma akceptuje płatności elektroniczne za pośrednictwem operatora płatności HotPay (ePłatności sp. z o.o. sp.k.).
                   </li>
                   <li>
                     Dostępne metody płatności:

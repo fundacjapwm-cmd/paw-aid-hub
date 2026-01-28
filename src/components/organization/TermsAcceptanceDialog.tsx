@@ -267,7 +267,7 @@ export default function TermsAcceptanceDialog({ organizationId, onAccepted }: Te
                       § 5. Płatności
                     </h2>
                     <ol className="space-y-2 text-muted-foreground list-decimal ml-6 text-sm">
-                      <li>Płatności za usługę pośrednictwa realizowane są za pośrednictwem operatora PayU.</li>
+                      <li>Płatności za usługę pośrednictwa realizowane są za pośrednictwem operatora HotPay.</li>
                       <li>Kwota wpłacona przez Użytkownika pokrywa koszt produktów oraz kosztów dostawy do Organizacji.</li>
                       <li>Fundacja wystawia potwierdzenie wpłaty na życzenie Użytkownika.</li>
                     </ol>

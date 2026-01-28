@@ -346,12 +346,12 @@ describe('CheckoutPaymentForm', () => {
     });
   });
 
-  describe('PayU info', () => {
-    it('should display PayU payment info', () => {
+  describe('HotPay info', () => {
+    it('should display HotPay payment info', () => {
       renderForm();
       
-      expect(screen.getByText(/Płatność zostanie przetworzona przez PayU/i)).toBeInTheDocument();
-      expect(screen.getByText(/Bezpieczna płatność zabezpieczona przez PayU/i)).toBeInTheDocument();
+      expect(screen.getByText(/Płatność zostanie przetworzona przez HotPay/i)).toBeInTheDocument();
+      expect(screen.getByText(/Bezpieczna płatność zabezpieczona przez HotPay/i)).toBeInTheDocument();
     });
   });
 });

@@ -96,7 +96,7 @@ export default function FAQ() {
                   <span className="text-left font-semibold">Jakie metody płatności są dostępne?</span>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
-                  Akceptujemy płatności elektroniczne za pośrednictwem PayU:
+                  Akceptujemy płatności elektroniczne za pośrednictwem HotPay:
                   <ul className="mt-2 space-y-1 ml-5">
                     <li>• Przelewy online (mBank, ING, PKO BP i inne)</li>
                     <li>• Karty płatnicze (Visa, Mastercard)</li>
@@ -111,7 +111,7 @@ export default function FAQ() {
                   <span className="text-left font-semibold">Czy moje dane płatności są bezpieczne?</span>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
-                  Tak! Wszystkie płatności są obsługiwane przez PayU S.A., licencjonowanego operatora płatności. 
+                  Tak! Wszystkie płatności są obsługiwane przez HotPay, licencjonowanego operatora płatności. 
                   Nie przechowujemy danych kart płatniczych. Połączenie jest szyfrowane certyfikatem SSL. 
                   Platforma jest zgodna z wymogami RODO i PCI DSS.
                 </AccordionContent>
