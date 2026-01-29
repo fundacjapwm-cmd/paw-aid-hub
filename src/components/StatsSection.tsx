@@ -8,9 +8,10 @@ interface StatItemProps {
   label: string;
   icon: React.ReactNode;
   suffix?: string;
+  noBackground?: boolean;
 }
 
-const StatItem = ({ value, label, icon, suffix = "" }: StatItemProps) => {
+const StatItem = ({ value, label, icon, suffix = "", noBackground = false }: StatItemProps) => {
   const [displayValue, setDisplayValue] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
@@ -60,7 +61,7 @@ const StatItem = ({ value, label, icon, suffix = "" }: StatItemProps) => {
 
   return (
     <div ref={itemRef} className="flex flex-col items-center text-center px-4">
-      <div className="mb-2 md:mb-3 p-3 bg-primary/10 rounded-2xl text-primary">
+      <div className={`mb-2 md:mb-3 ${noBackground ? '' : 'p-3 bg-primary/10 rounded-2xl'} text-primary`}>
         {icon}
       </div>
       <span className="text-3xl md:text-4xl font-black text-foreground">
@@ -176,7 +177,8 @@ const StatsSection = () => {
               value={stats.totalAmount}
               label="Wsparcie przekazane"
               suffix=" zł"
-              icon={<img src={heartCoinsIcon} alt="Wsparcie" className="w-8 h-8 object-contain" />}
+              icon={<img src={heartCoinsIcon} alt="Wsparcie" className="w-12 h-12 md:w-14 md:h-14 object-contain" />}
+              noBackground
             />
             
             <StatItem
