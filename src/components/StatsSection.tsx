@@ -153,11 +153,9 @@ const StatsSection = () => {
       // Count total products delivered (sum of quantities)
       const totalProducts = orderItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
 
-      // Fetch count of active organizations using direct query
-      const { count: orgCount } = await supabase
-        .from('organizations')
-        .select('*', { count: 'exact', head: true })
-        .eq('active', true);
+      // Fetch count of active organizations using RPC function
+      const { data: orgsData } = await supabase.rpc('get_public_organizations');
+      const orgCount = orgsData?.length ?? 0;
 
       setStats({
         totalAmount: Math.round(totalAmount),
