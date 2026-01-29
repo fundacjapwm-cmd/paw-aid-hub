@@ -1,5 +1,6 @@
-import { Dog, Building2, Package } from "lucide-react";
+import { Building2, Package } from "lucide-react";
 import heartCoinsIcon from "@/assets/icons/heart-coins.png";
+import animalsPawIcon from "@/assets/icons/animals-paw.png";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -184,7 +185,8 @@ const StatsSection = () => {
             <StatItem
               value={stats.animalsHelped}
               label="Wspartych zwierząt"
-              icon={<Dog className="w-6 h-6" />}
+              icon={<img src={animalsPawIcon} alt="Zwierzęta" className="w-20 h-20 md:w-32 md:h-32 object-contain scale-150" />}
+              noBackground
             />
             
             <StatItem
