@@ -154,7 +154,7 @@ const StatsSection = () => {
       const totalProducts = orderItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
 
       // Fetch count of active organizations using direct query
-      const { count: orgCount, error: orgsError } = await supabase
+      const { count: orgCount } = await supabase
         .from('organizations')
         .select('*', { count: 'exact', head: true })
         .eq('active', true);
@@ -162,7 +162,7 @@ const StatsSection = () => {
       setStats({
         totalAmount: Math.round(totalAmount),
         animalsHelped,
-        organizations: orgCount || 0,
+        organizations: orgCount ?? 0,
         deliveredOrders: totalProducts
       });
     } catch (error) {
