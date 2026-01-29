@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -155,169 +154,167 @@ export default function AdminErrorLogs() {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Monitoring błędów</h1>
-            <p className="text-muted-foreground">
-              Śledzenie błędów w czasie rzeczywistym
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={realtimeEnabled ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setRealtimeEnabled(!realtimeEnabled)}
-            >
-              {realtimeEnabled ? (
-                <>
-                  <Bell className="w-4 h-4 mr-2" />
-                  Powiadomienia włączone
-                </>
-              ) : (
-                <>
-                  <BellOff className="w-4 h-4 mr-2" />
-                  Powiadomienia wyłączone
-                </>
-              )}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Odśwież
-            </Button>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Monitoring błędów</h1>
+          <p className="text-muted-foreground">
+            Śledzenie błędów w czasie rzeczywistym
+          </p>
         </div>
-
-        {/* Stats cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Wszystkie
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-            </CardContent>
-          </Card>
-          <Card className="border-destructive/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-destructive">
-                Krytyczne
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-destructive">{stats.critical}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Błędy
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.errors}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Ostrzeżenia
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.warnings}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="unresolved">
-              <Clock className="w-4 h-4 mr-2" />
-              Nierozwiązane
-            </TabsTrigger>
-            <TabsTrigger value="resolved">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Rozwiązane
-            </TabsTrigger>
-            <TabsTrigger value="all">Wszystkie</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={activeTab} className="mt-4">
-            {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                Ładowanie...
-              </div>
-            ) : errorLogs?.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center text-muted-foreground">
-                  <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
-                  <p>Brak błędów do wyświetlenia</p>
-                </CardContent>
-              </Card>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={realtimeEnabled ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setRealtimeEnabled(!realtimeEnabled)}
+          >
+            {realtimeEnabled ? (
+              <>
+                <Bell className="w-4 h-4 mr-2" />
+                Powiadomienia włączone
+              </>
             ) : (
-              <div className="space-y-4">
-                {errorLogs?.map((error) => (
-                  <Card key={error.id} className={error.severity === 'critical' ? 'border-destructive' : ''}>
-                    <CardContent className="py-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          {getSeverityIcon(error.severity)}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              {getSeverityBadge(error.severity)}
-                              {error.error_type && (
-                                <Badge variant="outline">{error.error_type}</Badge>
-                              )}
-                              <span className="text-xs text-muted-foreground">
-                                {format(new Date(error.created_at), 'dd MMM yyyy, HH:mm:ss', { locale: pl })}
-                              </span>
-                            </div>
-                            <p className="font-medium text-sm break-all">
-                              {error.error_message}
-                            </p>
-                            {error.url && (
-                              <p className="text-xs text-muted-foreground mt-1 truncate">
-                                URL: {error.url}
-                              </p>
-                            )}
-                            {error.error_stack && (
-                              <details className="mt-2">
-                                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-                                  Pokaż stack trace
-                                </summary>
-                                <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto max-h-40">
-                                  {error.error_stack}
-                                </pre>
-                              </details>
-                            )}
-                          </div>
-                        </div>
-                        {!error.resolved && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => resolveMutation.mutate(error.id)}
-                            disabled={resolveMutation.isPending}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Rozwiązany
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <>
+                <BellOff className="w-4 h-4 mr-2" />
+                Powiadomienia wyłączone
+              </>
             )}
-          </TabsContent>
-        </Tabs>
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Odśwież
+          </Button>
+        </div>
       </div>
-    </AdminLayout>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Wszystkie
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
+        <Card className="border-destructive/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-destructive">
+              Krytyczne
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">{stats.critical}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Błędy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.errors}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Ostrzeżenia
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.warnings}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="unresolved">
+            <Clock className="w-4 h-4 mr-2" />
+            Nierozwiązane
+          </TabsTrigger>
+          <TabsTrigger value="resolved">
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Rozwiązane
+          </TabsTrigger>
+          <TabsTrigger value="all">Wszystkie</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="mt-4">
+          {isLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Ładowanie...
+            </div>
+          ) : errorLogs?.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
+                <p>Brak błędów do wyświetlenia</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {errorLogs?.map((error) => (
+                <Card key={error.id} className={error.severity === 'critical' ? 'border-destructive' : ''}>
+                  <CardContent className="py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        {getSeverityIcon(error.severity)}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            {getSeverityBadge(error.severity)}
+                            {error.error_type && (
+                              <Badge variant="outline">{error.error_type}</Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(error.created_at), 'dd MMM yyyy, HH:mm:ss', { locale: pl })}
+                            </span>
+                          </div>
+                          <p className="font-medium text-sm break-all">
+                            {error.error_message}
+                          </p>
+                          {error.url && (
+                            <p className="text-xs text-muted-foreground mt-1 truncate">
+                              URL: {error.url}
+                            </p>
+                          )}
+                          {error.error_stack && (
+                            <details className="mt-2">
+                              <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                                Pokaż stack trace
+                              </summary>
+                              <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto max-h-40">
+                                {error.error_stack}
+                              </pre>
+                            </details>
+                          )}
+                        </div>
+                      </div>
+                      {!error.resolved && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => resolveMutation.mutate(error.id)}
+                          disabled={resolveMutation.isPending}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Rozwiązany
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
