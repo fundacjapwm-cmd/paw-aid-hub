@@ -61,7 +61,7 @@ const StatItem = ({ value, label, icon, suffix = "", noBackground = false }: Sta
 
   return (
     <div ref={itemRef} className="flex flex-col items-center text-center px-4">
-      <div className={`mb-2 md:mb-3 ${noBackground ? '' : 'p-3 bg-primary/10 rounded-2xl'} text-primary`}>
+      <div className={`${noBackground ? 'mb-0' : 'mb-2 md:mb-3 p-3 bg-primary/10 rounded-2xl'} text-primary`}>
         {icon}
       </div>
       <span className="text-3xl md:text-4xl font-black text-foreground">
@@ -177,7 +177,7 @@ const StatsSection = () => {
               value={stats.totalAmount}
               label="Wsparcie przekazane"
               suffix=" zł"
-              icon={<img src={heartCoinsIcon} alt="Wsparcie" className="w-16 h-16 md:w-24 md:h-24 object-contain" />}
+              icon={<img src={heartCoinsIcon} alt="Wsparcie" className="w-20 h-20 md:w-32 md:h-32 object-contain scale-150" />}
               noBackground
             />
             
