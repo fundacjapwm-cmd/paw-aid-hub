@@ -177,7 +177,7 @@ const StatsSection = () => {
               value={stats.totalAmount}
               label="Wsparcie przekazane"
               suffix=" zł"
-              icon={<img src={heartCoinsIcon} alt="Wsparcie" className="w-12 h-12 md:w-14 md:h-14 object-contain" />}
+              icon={<img src={heartCoinsIcon} alt="Wsparcie" className="w-10 h-10 md:w-[60px] md:h-[60px] object-contain" />}
               noBackground
             />
             
