@@ -1,4 +1,5 @@
-import { HandHeart, Dog, Building2, Package } from "lucide-react";
+import { Dog, Building2, Package } from "lucide-react";
+import heartCoinsIcon from "@/assets/icons/heart-coins.png";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -175,7 +176,7 @@ const StatsSection = () => {
               value={stats.totalAmount}
               label="Wsparcie przekazane"
               suffix=" zł"
-              icon={<HandHeart className="w-6 h-6" />}
+              icon={<img src={heartCoinsIcon} alt="Wsparcie" className="w-8 h-8 object-contain" />}
             />
             
             <StatItem
