@@ -16,15 +16,17 @@ interface StatItemProps {
 const StatItem = ({ value, label, icon, suffix = "", noBackground = false }: StatItemProps) => {
   const [displayValue, setDisplayValue] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
+  const prevValueRef = useRef(value);
 
+  // Detect when element becomes visible
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimated) {
-            setHasAnimated(true);
-            animateValue();
+          if (entry.isIntersecting) {
+            setIsVisible(true);
           }
         });
       },
@@ -40,7 +42,19 @@ const StatItem = ({ value, label, icon, suffix = "", noBackground = false }: Sta
         observer.unobserve(itemRef.current);
       }
     };
-  }, [hasAnimated]);
+  }, []);
+
+  // Animate when visible AND value changes (or first time value is non-zero)
+  useEffect(() => {
+    if (!isVisible) return;
+    
+    // Only animate if value changed or if we haven't animated yet and value > 0
+    if (value !== prevValueRef.current || (!hasAnimated && value > 0)) {
+      prevValueRef.current = value;
+      setHasAnimated(true);
+      animateValue();
+    }
+  }, [isVisible, value]);
 
   const animateValue = () => {
     const duration = 2000;
