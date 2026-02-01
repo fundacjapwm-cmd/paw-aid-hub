@@ -313,11 +313,16 @@ export default function ProducersProductsTab({
     const producer = producers.find(p => p.id === selectedProducerId);
     const producerProducts = products.filter(p => p.producer_id === selectedProducerId);
 
-    // Filter products based on search query (minimum 3 characters)
+    // Filter products based on search query (minimum 3 characters) - searches name, EAN, and product_code
     const filteredProducts = productSearchQuery.length >= 3
-      ? producerProducts.filter(p => 
-          p.name.toLowerCase().includes(productSearchQuery.toLowerCase())
-        )
+      ? producerProducts.filter(p => {
+          const query = productSearchQuery.toLowerCase();
+          return (
+            p.name.toLowerCase().includes(query) ||
+            (p.ean && p.ean.toLowerCase().includes(query)) ||
+            (p.product_code && p.product_code.toLowerCase().includes(query))
+          );
+        })
       : producerProducts;
 
     const handleBackToProducers = () => {
