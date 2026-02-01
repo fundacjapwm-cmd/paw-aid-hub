@@ -38,6 +38,12 @@ interface Product {
   name: string;
   price: number;
   purchase_price?: number;
+  purchase_net_price?: number;
+  net_price?: number;
+  product_code?: string;
+  ean?: string;
+  for_dogs?: boolean;
+  for_cats?: boolean;
   producer_id: string;
   category_id: string;
   description?: string;
