@@ -6,12 +6,6 @@ verify_jwt = false
 [functions.get-order-details]
 verify_jwt = false
 
-[functions.payu-webhook]
-verify_jwt = false
-
-[functions.create-payu-order]
-verify_jwt = false
-
 [functions.create-hotpay-order]
 verify_jwt = false
 
