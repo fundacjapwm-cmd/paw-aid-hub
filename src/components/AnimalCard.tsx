@@ -25,6 +25,7 @@ interface WishlistItem {
   id: string | number;
   name: string;
   price: number;
+  netPrice?: number;
   urgent?: boolean;
   bought?: boolean;
   product_id?: string;
@@ -123,6 +124,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
       productId,
       productName: item.name,
       price: item.price,
+      netPrice: item.netPrice,
       maxQuantity: item.quantity,
       animalId: String(animal.id),
       animalName: animal.name,
@@ -147,6 +149,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
       productId: item.product_id || String(item.id),
       productName: item.name,
       price: item.price,
+      netPrice: item.netPrice,
       maxQuantity: item.quantity, // Dodaj pełną potrzebną ilość
       animalId: String(animal.id),
       animalName: animal.name,

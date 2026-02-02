@@ -22,6 +22,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  netPrice?: number;
   image?: string;
   bought?: number;
   quantity?: number;
@@ -97,6 +98,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
         productId: product.id,
         productName: product.name,
         price: product.price,
+        netPrice: product.netPrice,
         animalId: animal.id,
         animalName: animal.name,
       },
@@ -120,6 +122,7 @@ const AnimalWishlistCard = ({ animal }: AnimalWishlistCardProps) => {
           productId: product.id,
           productName: product.name,
           price: product.price,
+          netPrice: product.netPrice,
           animalId: animal.id,
           animalName: animal.name,
           maxQuantity: missing,

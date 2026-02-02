@@ -20,6 +20,7 @@ interface ProductDetailDialogProps {
     id: string;
     name: string;
     price: number;
+    net_price?: number;
     image_url?: string;
     description?: string;
   } | null;
@@ -53,6 +54,7 @@ export const ProductDetailDialog = ({
       productId: product.id,
       productName: product.name,
       price: product.price,
+      netPrice: product.net_price,
       animalId,
       animalName,
       maxQuantity,

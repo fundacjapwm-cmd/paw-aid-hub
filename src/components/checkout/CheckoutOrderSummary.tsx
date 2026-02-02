@@ -6,6 +6,7 @@ interface CartItem {
   productId: string;
   productName: string;
   price: number;
+  netPrice?: number;
   quantity: number;
   animalName?: string;
 }
@@ -62,14 +63,35 @@ export function CheckoutOrderSummary({
             <Separator className="my-4" />
 
             <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm text-muted-foreground">
-                <span>Wartość netto:</span>
-                <span>{(cartTotal / 1.23).toFixed(2)} zł</span>
-              </div>
-              <div className="flex justify-between items-center text-sm text-muted-foreground">
-                <span>VAT (23%):</span>
-                <span>{(cartTotal - cartTotal / 1.23).toFixed(2)} zł</span>
-              </div>
+              {(() => {
+                // Calculate VAT for each item separately based on actual net prices
+                let totalNet = 0;
+                let totalVat = 0;
+                
+                cart.forEach(item => {
+                  const itemTotal = item.price * item.quantity;
+                  // Use actual net price if available, otherwise estimate based on price
+                  const itemNetPrice = item.netPrice || (item.price / 1.08); // Default to 8% VAT for food
+                  const itemNetTotal = itemNetPrice * item.quantity;
+                  const itemVat = itemTotal - itemNetTotal;
+                  
+                  totalNet += itemNetTotal;
+                  totalVat += itemVat;
+                });
+                
+                return (
+                  <>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>Wartość netto:</span>
+                      <span>{totalNet.toFixed(2)} zł</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>VAT:</span>
+                      <span>{totalVat.toFixed(2)} zł</span>
+                    </div>
+                  </>
+                );
+              })()}
               <div className="flex justify-between items-center text-lg font-bold pt-2 border-t">
                 <span>Suma brutto:</span>
                 <span className="text-primary">{cartTotal.toFixed(2)} zł</span>
