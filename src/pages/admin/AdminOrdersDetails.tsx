@@ -215,7 +215,7 @@ export default function AdminOrdersDetails() {
                       </div>
                       
                       <div className="text-sm col-span-2 md:col-span-1">
-                        <p className="text-muted-foreground text-xs">Darczyńca</p>
+                        <p className="text-muted-foreground text-xs">Kupujący</p>
                         <p className="flex items-center gap-1 font-medium">
                           <User className="h-3 w-3 text-muted-foreground" />
                           {order.customer_name || order.profiles?.display_name || "Gość"}
@@ -254,7 +254,7 @@ export default function AdminOrdersDetails() {
                       <div className="mb-4 p-3 bg-primary/5 rounded-xl border border-primary/20">
                         <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-primary">
                           <User className="h-4 w-4" />
-                          Dane darczyńcy:
+                          Dane kupującego:
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                           {order.customer_name && (
