@@ -57,12 +57,12 @@ const generateWelcomeEmail = (displayName: string) => `
         
         <div style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px;">
           <h3 style="color: #1e293b; font-size: 16px; font-weight: 600; margin: 0 0 15px;">
-            🎁 Co możesz robić jako darczyńca?
+            🎁 Co możesz robić jako kupujący?
           </h3>
           <ul style="padding-left: 20px; margin: 0; color: #475569; line-height: 2;">
             <li><strong>Przeglądaj zwierzaki</strong> – poznaj podopiecznych schronisk</li>
             <li><strong>Kupuj prezenty</strong> – wybieraj produkty z list życzeń</li>
-            <li><strong>Śledź swoje darowizny</strong> – zobacz komu pomogłeś</li>
+            <li><strong>Śledź swoje zakupy</strong> – zobacz komu pomogłeś</li>
             <li><strong>Wspieraj organizacje</strong> – każdy zakup trafia do potrzebujących</li>
           </ul>
         </div>

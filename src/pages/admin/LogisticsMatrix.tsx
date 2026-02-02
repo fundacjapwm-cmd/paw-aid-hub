@@ -380,7 +380,7 @@ export default function LogisticsMatrix() {
               Brak zamówień do realizacji
             </h3>
             <p className="text-muted-foreground text-center max-w-md">
-              Nowe zamówienia pojawią się tutaj gdy wpłyną płatności od darczyńców.
+              Nowe zamówienia pojawią się tutaj gdy wpłyną płatności od kupujących.
             </p>
           </CardContent>
         </Card>

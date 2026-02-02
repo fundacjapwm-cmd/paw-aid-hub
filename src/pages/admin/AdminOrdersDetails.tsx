@@ -152,7 +152,7 @@ export default function AdminOrdersDetails() {
       <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl p-6 border border-border/50 shadow-card">
         <h2 className="text-xl font-semibold text-foreground mb-2">Szczegóły Zamówień</h2>
         <p className="text-muted-foreground">
-          Wszystkie transakcje darczyńców - kliknij wiersz aby zobaczyć szczegóły
+          Wszystkie transakcje kupujących - kliknij wiersz aby zobaczyć szczegóły
         </p>
       </div>
 

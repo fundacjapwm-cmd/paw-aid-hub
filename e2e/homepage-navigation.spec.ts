@@ -284,7 +284,7 @@ test.describe('Homepage - Content Sections', () => {
     const hasStats = await statsSection.isVisible().catch(() => false);
     
     // Or look for numbers
-    const numbers = page.getByText(/\d+\s*(zwierząt|organizacji|darczyńców)/i);
+    const numbers = page.getByText(/\d+\s*(zwierząt|organizacji|kupujących)/i);
     const hasNumbers = await numbers.first().isVisible().catch(() => false);
     
     expect(hasStats || hasNumbers).toBeTruthy();

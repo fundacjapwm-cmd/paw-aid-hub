@@ -355,7 +355,7 @@ export default function AdminOrdersCollecting() {
           <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-xl font-semibold mb-2">Brak zamówień w kompletowaniu</h3>
           <p className="text-muted-foreground">
-            Zamówienia od darczyńców pojawią się tutaj
+            Zamówienia od kupujących pojawią się tutaj
           </p>
         </Card>
       ) : (
