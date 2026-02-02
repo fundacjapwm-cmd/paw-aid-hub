@@ -11,6 +11,7 @@ export interface CartItem {
   productId: string;
   productName: string;
   price: number;
+  netPrice?: number;
   quantity: number;
   maxQuantity?: number;
   animalId?: string;

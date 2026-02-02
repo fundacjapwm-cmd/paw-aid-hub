@@ -5,6 +5,7 @@ export interface WishlistItem {
   id: string;
   name: string;
   price: number;
+  netPrice?: number;
   urgent: boolean;
   bought: boolean;
   product_id: string;
@@ -89,6 +90,7 @@ export const useAnimalsWithWishlists = () => {
             id,
             name,
             price,
+            net_price,
             image_url,
             description
           )
@@ -180,6 +182,7 @@ export const useAnimalsWithWishlists = () => {
               id: w.id,
               name: w.products?.name || '',
               price: w.products?.price || 0,
+              netPrice: (w.products as any)?.net_price || undefined,
               urgent: w.priority === 1,
               bought: purchasedQty >= neededQty,
               product_id: w.products?.id || '',

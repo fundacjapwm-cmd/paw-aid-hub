@@ -85,6 +85,7 @@ export function useOrganizationProfile(slug: string | undefined) {
             id,
             name,
             price,
+            net_price,
             image_url
           )
         `)
@@ -122,12 +123,14 @@ export function useOrganizationProfile(slug: string | undefined) {
     const productId = product.product_id || product.id;
     const productName = product.name || product.products?.name;
     const price = product.price || product.products?.price;
+    const netPrice = product.net_price || product.products?.net_price;
     const quantity = selectedQuantities[productId] || 1;
     
     addToCart({
       productId,
       productName,
       price,
+      netPrice,
       animalId: undefined,
       animalName: `Organizacja: ${organization?.name}`,
     }, quantity);
