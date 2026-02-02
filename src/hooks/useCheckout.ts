@@ -202,7 +202,7 @@ export function useCheckout() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-payu-order', {
+      const { data, error } = await supabase.functions.invoke('create-hotpay-order', {
         body: {
           items: cart,
           customerEmail,
@@ -216,9 +216,24 @@ export function useCheckout() {
 
       if (error) throw error;
 
-      console.log('PayU order created:', data);
+      console.log('HotPay order created:', data);
       clearCart();
-      window.location.href = data.redirectUri;
+
+      // HotPay requires form POST - create and submit form
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = data.hotpayUrl;
+      
+      for (const [key, value] of Object.entries(data.hotpayParams)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = String(value);
+        form.appendChild(input);
+      }
+      
+      document.body.appendChild(form);
+      form.submit();
 
     } catch (error: any) {
       console.error('Checkout error:', error);
