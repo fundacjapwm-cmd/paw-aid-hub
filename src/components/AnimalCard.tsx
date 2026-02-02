@@ -182,7 +182,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
   return (
     <>
       <Card
-      className="group overflow-hidden bg-card transition-all duration-300 rounded-[50px] md:rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in md:hover:shadow-bubbly md:hover:-translate-y-3"
+      className="overflow-hidden bg-card rounded-[50px] md:rounded-3xl border-0 shadow-card cursor-pointer relative flex flex-col animate-fade-in"
       onClick={() => navigate(`/zwierze/${animal.id}`, { 
         state: fromOrganizationProfile ? { 
           fromOrganizationProfile: true, 
@@ -200,7 +200,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
         <img 
           src={animal.image} 
           alt={`${animal.name} - ${animal.species.toLowerCase()} szukający domu`}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover"
         />
         
         {/* Progress indicator overlay */}
@@ -212,7 +212,7 @@ const AnimalCard = ({ animal, fromOrganizationProfile = false }: AnimalCardProps
       {/* Content */}
       <div className="p-4 md:p-6 space-y-4 relative flex flex-col flex-1">
         <div>
-          <h3 className="text-xl font-bold text-foreground mb-2 transition-colors duration-300 md:group-hover:text-primary">{animal.name}</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">{animal.name}</h3>
           <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
             <div className="flex items-center space-x-1 bg-muted/50 px-2 py-1 rounded-full">
               <Calendar className="h-4 w-4" />
