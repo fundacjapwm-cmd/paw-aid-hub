@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { XCircle, RefreshCw, Home, HelpCircle } from 'lucide-react';
+import { XCircle, RefreshCw, Home, HelpCircle, Mail } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -15,8 +15,9 @@ const PaymentFailure = () => {
 
   useEffect(() => {
     // Get order ID and error details from URL params
-    const extOrderId = searchParams.get('extOrderId');
-    const error = searchParams.get('error');
+    // HotPay uses ID_ZAMOWIENIA and STATUS, PayU uses extOrderId
+    const extOrderId = searchParams.get('extOrderId') || searchParams.get('ID_ZAMOWIENIA');
+    const error = searchParams.get('error') || searchParams.get('STATUS');
     
     setOrderId(extOrderId);
     setErrorReason(error || 'Nieznany błąd');
@@ -43,6 +44,20 @@ const PaymentFailure = () => {
 
   const handleRetryPayment = () => {
     navigate('/checkout');
+  };
+
+  const getErrorMessage = (reason: string) => {
+    switch (reason) {
+      case 'CANCELLED':
+      case 'FAILURE':
+        return 'Płatność została anulowana lub odrzucona';
+      case 'TIMEOUT':
+        return 'Upłynął limit czasu na dokonanie płatności';
+      case 'REJECTED':
+        return 'Płatność została odrzucona przez bank';
+      default:
+        return 'Wystąpił problem podczas przetwarzania płatności';
+    }
   };
 
   return (
@@ -78,12 +93,7 @@ const PaymentFailure = () => {
               <Alert variant="destructive" className="mb-4">
                 <AlertTitle>Błąd płatności</AlertTitle>
                 <AlertDescription>
-                  {errorReason === 'CANCELLED' 
-                    ? 'Płatność została anulowana przez użytkownika'
-                    : errorReason === 'TIMEOUT'
-                    ? 'Upłynął limit czasu na dokonanie płatności'
-                    : 'Wystąpił problem podczas przetwarzania płatności'
-                  }
+                  {getErrorMessage(errorReason)}
                 </AlertDescription>
               </Alert>
 
@@ -93,10 +103,10 @@ const PaymentFailure = () => {
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-2">
                   <li>Niewystarczające środki na koncie</li>
-                  <li>Anulowanie płatności</li>
+                  <li>Anulowanie płatności przez użytkownika</li>
                   <li>Problem z połączeniem internetowym</li>
                   <li>Przekroczenie limitu czasu</li>
-                  <li>Błąd w systemie płatności</li>
+                  <li>Odrzucenie transakcji przez bank</li>
                 </ul>
               </div>
             </CardContent>
@@ -110,13 +120,17 @@ const PaymentFailure = () => {
                 Potrzebujesz pomocy?
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-blue-900/80 dark:text-blue-300/80">
+            <CardContent className="space-y-3 text-sm text-blue-900/80 dark:text-blue-300/80">
               <p>
                 Jeśli problem się powtarza, skontaktuj się z naszym zespołem wsparcia.
               </p>
-              <p>
-                <strong>Email:</strong> pomoc@przyklad.pl
-              </p>
+              <a 
+                href="mailto:kontakt@paczkiwmasle.pl" 
+                className="flex items-center gap-2 text-primary hover:underline font-medium"
+              >
+                <Mail className="w-4 h-4" />
+                kontakt@paczkiwmasle.pl
+              </a>
               <p>
                 Możesz również spróbować użyć innej metody płatności lub karty.
               </p>
@@ -150,7 +164,7 @@ const PaymentFailure = () => {
               Zamówienie zostało anulowane i nie zostałeś obciążony.
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Dziękujemy za chęć wsparcia zwierząt w potrzebie.
+              Dziękujemy za chęć wsparcia zwierząt w potrzebie. 🐾
             </p>
           </div>
         </div>
