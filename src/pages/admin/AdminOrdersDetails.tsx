@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Receipt, User, Search, ChevronDown, ChevronRight, Package, PawPrint, Building2, Filter } from "lucide-react";
+import { Receipt, User, Search, ChevronDown, ChevronRight, Package, PawPrint, Building2, Filter, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 
@@ -39,6 +39,8 @@ interface Order {
   user_id: string | null;
   payment_status: string | null;
   status: string | null;
+  customer_name: string | null;
+  customer_email: string | null;
   order_items: OrderItem[];
   profiles?: {
     display_name: string | null;
@@ -212,12 +214,17 @@ export default function AdminOrdersDetails() {
                         <p className="font-mono text-xs">{order.id.slice(0, 8)}</p>
                       </div>
                       
-                      <div className="text-sm">
-                        <p className="text-muted-foreground text-xs">Kupujący</p>
-                        <p className="flex items-center gap-1">
+                      <div className="text-sm col-span-2 md:col-span-1">
+                        <p className="text-muted-foreground text-xs">Darczyńca</p>
+                        <p className="flex items-center gap-1 font-medium">
                           <User className="h-3 w-3 text-muted-foreground" />
-                          {order.profiles?.display_name || "Gość"}
+                          {order.customer_name || order.profiles?.display_name || "Gość"}
                         </p>
+                        {order.customer_email && (
+                          <p className="text-xs text-muted-foreground truncate max-w-[180px]">
+                            {order.customer_email}
+                          </p>
+                        )}
                       </div>
                       
                       <div className="text-sm">
@@ -242,6 +249,35 @@ export default function AdminOrdersDetails() {
                 
                 <CollapsibleContent>
                   <div className="border-t border-border p-4 bg-muted/20">
+                    {/* Donor info section */}
+                    {(order.customer_name || order.customer_email) && (
+                      <div className="mb-4 p-3 bg-primary/5 rounded-xl border border-primary/20">
+                        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-primary">
+                          <User className="h-4 w-4" />
+                          Dane darczyńcy:
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                          {order.customer_name && (
+                            <div>
+                              <span className="text-muted-foreground">Imię i nazwisko: </span>
+                              <span className="font-medium">{order.customer_name}</span>
+                            </div>
+                          )}
+                          {order.customer_email && (
+                            <div className="flex items-center gap-1">
+                              <Mail className="h-3 w-3 text-muted-foreground" />
+                              <a 
+                                href={`mailto:${order.customer_email}`} 
+                                className="text-primary hover:underline"
+                              >
+                                {order.customer_email}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
                     <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
                       <Package className="h-4 w-4" />
                       Lista produktów w zamówieniu:

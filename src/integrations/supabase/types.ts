@@ -361,6 +361,8 @@ export type Database = {
         Row: {
           batch_order_id: string | null
           created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
           id: string
           payment_method: string | null
           payment_status: string | null
@@ -373,6 +375,8 @@ export type Database = {
         Insert: {
           batch_order_id?: string | null
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
           id?: string
           payment_method?: string | null
           payment_status?: string | null
@@ -385,6 +389,8 @@ export type Database = {
         Update: {
           batch_order_id?: string | null
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
           id?: string
           payment_method?: string | null
           payment_status?: string | null

@@ -117,6 +117,8 @@ export function useCheckout() {
           payment_method: 'test',
           status: 'confirmed',
           batch_order_id: batchOrderId,
+          customer_name: customerName,
+          customer_email: customerEmail,
         })
         .select()
         .single();
