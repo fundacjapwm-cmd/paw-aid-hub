@@ -69,12 +69,12 @@ serve(async (req) => {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Dziękujemy za Twoją darowiznę! ❤️</h1>
-              <p>Twoja wpłata została zrealizowana pomyślnie</p>
+              <h1>Dziękujemy za Twoje zakupy! ❤️</h1>
+              <p>Twoja płatność została zrealizowana pomyślnie</p>
             </div>
             <div class="content">
               <p>Cześć ${customerName}!</p>
-              <p>Twoja darowizna pomaga zwierzętom w potrzebie. Jesteśmy niezmiernie wdzięczni za Twoje wsparcie!</p>
+              <p>Dziękujemy za zakupy! Twoje wsparcie pomaga zwierzętom w potrzebie. Jesteśmy niezmiernie wdzięczni!</p>
               
               <div class="receipt">
                 <h2>Potwierdzenie zamówienia</h2>
@@ -109,14 +109,14 @@ serve(async (req) => {
               
               <p style="margin-top: 30px;">Produkty zostaną dostarczone do schroniska/organizacji, aby pomóc zwierzętom, które najbardziej tego potrzebują.</p>
               
-              <p><strong>Masz pytania?</strong> Skontaktuj się z nami odpowiadając na tego maila.</p>
+              <p><strong>Masz pytania?</strong> Skontaktuj się z nami: kontakt@paczkiwmasle.pl</p>
               
               <p>Jeszcze raz dziękujemy!<br>
-              Zespół Platformy Darowizn dla Zwierząt</p>
+              Zespół Paczki w Maśle</p>
             </div>
             <div class="footer">
               <p>Ten email został wygenerowany automatycznie po zakończeniu płatności.</p>
-              <p>© ${new Date().getFullYear()} Platforma Darowizn dla Zwierząt. Wszelkie prawa zastrzeżone.</p>
+              <p>© ${new Date().getFullYear()} Paczki w Maśle. Wszelkie prawa zastrzeżone.</p>
             </div>
           </div>
         </body>
@@ -126,7 +126,7 @@ serve(async (req) => {
     const emailResponse = await resend.emails.send({
       from: 'Paczki w Maśle <kontakt@paczkiwmasle.pl>',
       to: [customerEmail],
-      subject: `Potwierdzenie darowizny - zamówienie ${orderId.substring(0, 8).toUpperCase()}`,
+      subject: `Potwierdzenie zamówienia ${orderId.substring(0, 8).toUpperCase()}`,
       html: receiptHtml,
     });
 

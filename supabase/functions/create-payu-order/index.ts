@@ -26,120 +26,7 @@ interface CheckoutRequest {
   isGuest?: boolean;
 }
 
-// Function to send confirmation email
-async function sendConfirmationEmail(
-  customerEmail: string,
-  customerName: string,
-  orderId: string,
-  totalAmount: number,
-  items: OrderItem[]
-) {
-  try {
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-    
-    const itemsHtml = items.map(item => `
-      <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #eee;">
-          ${item.productName}${item.animalName ? ` (dla ${item.animalName})` : ''}
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">
-          ${item.quantity}
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">
-          ${item.price.toFixed(2)} zł
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">
-          ${(item.price * item.quantity).toFixed(2)} zł
-        </td>
-      </tr>
-    `).join('');
-
-    const receiptHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none; }
-            .receipt { margin: 20px 0; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th { background: #f5f5f5; padding: 12px; text-align: left; font-weight: bold; }
-            .total { font-size: 1.2em; font-weight: bold; color: #667eea; text-align: right; margin-top: 20px; padding-top: 20px; border-top: 2px solid #667eea; }
-            .footer { background: #f5f5f5; padding: 20px; text-align: center; color: #666; font-size: 0.9em; border-radius: 0 0 10px 10px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>Dziękujemy za Twoją darowiznę! ❤️</h1>
-              <p>Twoja wpłata została zrealizowana pomyślnie</p>
-            </div>
-            <div class="content">
-              <p>Cześć ${customerName}!</p>
-              <p>Twoja darowizna pomaga zwierzętom w potrzebie. Jesteśmy niezmiernie wdzięczni za Twoje wsparcie!</p>
-              
-              <div class="receipt">
-                <h2>Potwierdzenie zamówienia</h2>
-                <p><strong>Numer zamówienia:</strong> ${orderId.substring(0, 8).toUpperCase()}</p>
-                <p><strong>Data:</strong> ${new Date().toLocaleDateString('pl-PL', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</p>
-                
-                <h3>Szczegóły zamówienia:</h3>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Produkt</th>
-                      <th style="text-align: center;">Ilość</th>
-                      <th style="text-align: right;">Cena jedn.</th>
-                      <th style="text-align: right;">Razem</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${itemsHtml}
-                  </tbody>
-                </table>
-                
-                <div class="total">
-                  Suma całkowita: ${totalAmount.toFixed(2)} zł
-                </div>
-              </div>
-              
-              <p style="margin-top: 30px;">Produkty zostaną dostarczone do schroniska/organizacji, aby pomóc zwierzętom, które najbardziej tego potrzebują.</p>
-              
-              <p><strong>Masz pytania?</strong> Skontaktuj się z nami: kontakt@paczkiwmasle.pl</p>
-              
-              <p>Jeszcze raz dziękujemy!<br>
-              Zespół Paczki w Maśle</p>
-            </div>
-            <div class="footer">
-              <p>Ten email został wygenerowany automatycznie po zakończeniu płatności.</p>
-              <p>© ${new Date().getFullYear()} Paczki w Maśle. Wszelkie prawa zastrzeżone.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `;
-
-    const emailResponse = await resend.emails.send({
-      from: 'Paczki w Maśle <onboarding@resend.dev>',
-      to: [customerEmail],
-      subject: `Potwierdzenie darowizny - zamówienie ${orderId.substring(0, 8).toUpperCase()}`,
-      html: receiptHtml,
-    });
-
-    console.log('Confirmation email sent successfully:', emailResponse);
-  } catch (error) {
-    console.error('Error sending confirmation email:', error);
-  }
-}
+// Email is now sent only after payment confirmation in payu-webhook
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -269,7 +156,7 @@ serve(async (req) => {
       continueUrl: `${origin}/payment-success?extOrderId=${order.id}`,
       customerIp: (req.headers.get('x-forwarded-for') || '127.0.0.1').split(',')[0].trim(),
       merchantPosId: posId,
-      description: `Darowizna - Zamówienie ${order.id.substring(0, 8)}`,
+      description: `Zamówienie ${order.id.substring(0, 8)}`,
       currencyCode: 'PLN',
       totalAmount: Math.round(totalAmount * 100).toString(), // Convert to grosze
       buyer: {
@@ -308,14 +195,7 @@ serve(async (req) => {
         throw new Error('PayU returned 302 but no Location header');
       }
 
-      // Send confirmation email as background task
-      EdgeRuntime.waitUntil(sendConfirmationEmail(
-        customerEmail,
-        customerName,
-        order.id,
-        totalAmount,
-        items
-      ));
+      // Email is sent only after payment confirmation in payu-webhook
 
       return new Response(
         JSON.stringify({
