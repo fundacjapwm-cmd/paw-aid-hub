@@ -217,7 +217,19 @@ export default function ProducersProductsTab({
   });
 
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', purchase_price: '', category_id: '', description: '', producer_id: '', image_url: ''
+    name: '', 
+    price: '', 
+    purchase_price: '', 
+    purchase_net_price: '',
+    net_price: '',
+    product_code: '',
+    ean: '',
+    for_dogs: true,
+    for_cats: true,
+    category_id: '', 
+    description: '', 
+    producer_id: '', 
+    image_url: ''
   });
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
@@ -304,9 +316,29 @@ export default function ProducersProductsTab({
     await onCreateProduct({ 
       ...newProduct, 
       producer_id: selectedProducerId,
-      purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined
+      purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined,
+      purchase_net_price: newProduct.purchase_net_price ? parseFloat(newProduct.purchase_net_price) : undefined,
+      net_price: newProduct.net_price ? parseFloat(newProduct.net_price) : undefined,
+      product_code: newProduct.product_code || undefined,
+      ean: newProduct.ean || undefined,
+      for_dogs: newProduct.for_dogs,
+      for_cats: newProduct.for_cats,
     });
-    setNewProduct({ name: '', price: '', purchase_price: '', category_id: '', description: '', producer_id: '', image_url: '' });
+    setNewProduct({ 
+      name: '', 
+      price: '', 
+      purchase_price: '', 
+      purchase_net_price: '',
+      net_price: '',
+      product_code: '',
+      ean: '',
+      for_dogs: true,
+      for_cats: true,
+      category_id: '', 
+      description: '', 
+      producer_id: '', 
+      image_url: '' 
+    });
   };
 
   if (selectedProducerId) {
@@ -416,8 +448,8 @@ export default function ProducersProductsTab({
               />
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Zdjęcie, nazwa i cena w jednym rzędzie */}
+          <CardContent className="space-y-4">
+            {/* Zdjęcie, nazwa i kody w jednym rzędzie */}
             <div className="flex gap-3">
               {/* Zdjęcie produktu */}
               <div className="flex-shrink-0">
@@ -444,7 +476,7 @@ export default function ProducersProductsTab({
                 </div>
               </div>
 
-              {/* Nazwa i Ceny obok zdjęcia */}
+              {/* Nazwa i kody obok zdjęcia */}
               <div className="flex-1 space-y-2">
                 <div>
                   <Label>Nazwa produktu *</Label>
@@ -457,33 +489,122 @@ export default function ProducersProductsTab({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label>Cena zakupu</Label>
+                    <Label>Kod produktu</Label>
                     <Input 
-                      type="number" 
-                      step="0.01" 
-                      value={newProduct.purchase_price} 
-                      onChange={(e) => setNewProduct({ ...newProduct, purchase_price: e.target.value })} 
-                      placeholder="0.00"
+                      value={newProduct.product_code} 
+                      onChange={(e) => setNewProduct({ ...newProduct, product_code: e.target.value })} 
+                      placeholder="np. KAR-001"
                       className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>Cena sprzedaży *</Label>
+                    <Label>EAN</Label>
                     <Input 
-                      type="number" 
-                      step="0.01" 
-                      value={newProduct.price} 
-                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
-                      placeholder="0.00"
+                      value={newProduct.ean} 
+                      onChange={(e) => setNewProduct({ ...newProduct, ean: e.target.value })} 
+                      placeholder="np. 5901234123457"
                       className="mt-1"
                     />
                   </div>
                 </div>
-                {newProduct.purchase_price && newProduct.price && parseFloat(newProduct.price) > 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    Marża: {(((parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)) / parseFloat(newProduct.price)) * 100).toFixed(1)}%
-                  </div>
-                )}
+              </div>
+            </div>
+
+            {/* Ceny zakupu */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-xs uppercase tracking-wide">Ceny zakupu (od producenta)</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Netto</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.purchase_net_price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, purchase_net_price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Brutto</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.purchase_price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, purchase_price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ceny sprzedaży */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-xs uppercase tracking-wide">Ceny sprzedaży (dla klienta)</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Netto</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.net_price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, net_price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Brutto *</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Marża */}
+            {newProduct.purchase_price && newProduct.price && parseFloat(newProduct.price) > 0 && parseFloat(newProduct.purchase_price) > 0 && (
+              <div className="text-sm bg-muted/50 p-3 rounded-lg">
+                <span className="text-muted-foreground">Marża brutto: </span>
+                <span className="font-semibold text-primary">
+                  {(((parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)) / parseFloat(newProduct.price)) * 100).toFixed(1)}%
+                </span>
+                <span className="text-muted-foreground ml-2">
+                  ({(parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)).toFixed(2)} zł)
+                </span>
+              </div>
+            )}
+
+            {/* Nadkategoria (dla kogo) */}
+            <div>
+              <Label>Nadkategoria (dla kogo)</Label>
+              <div className="flex gap-6 mt-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="new_for_dogs"
+                    checked={newProduct.for_dogs}
+                    onCheckedChange={(checked) => setNewProduct({ ...newProduct, for_dogs: checked })}
+                  />
+                  <label htmlFor="new_for_dogs" className="text-sm font-medium cursor-pointer">
+                    🐕 Psy
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="new_for_cats"
+                    checked={newProduct.for_cats}
+                    onCheckedChange={(checked) => setNewProduct({ ...newProduct, for_cats: checked })}
+                  />
+                  <label htmlFor="new_for_cats" className="text-sm font-medium cursor-pointer">
+                    🐱 Koty
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -802,7 +923,7 @@ export default function ProducersProductsTab({
               </Popover>
             </div>
 
-            {/* Zdjęcie, nazwa i cena w jednym rzędzie */}
+            {/* Zdjęcie, nazwa i kody w jednym rzędzie */}
             <div className="flex gap-3">
               {/* Zdjęcie produktu */}
               <div className="flex-shrink-0">
@@ -829,7 +950,7 @@ export default function ProducersProductsTab({
                 </div>
               </div>
 
-              {/* Nazwa i Ceny obok zdjęcia */}
+              {/* Nazwa i kody obok zdjęcia */}
               <div className="flex-1 space-y-2">
                 <div>
                   <Label>Nazwa produktu *</Label>
@@ -842,33 +963,122 @@ export default function ProducersProductsTab({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label>Cena zakupu</Label>
+                    <Label>Kod produktu</Label>
                     <Input 
-                      type="number" 
-                      step="0.01" 
-                      value={newProduct.purchase_price} 
-                      onChange={(e) => setNewProduct({ ...newProduct, purchase_price: e.target.value })} 
-                      placeholder="0.00"
+                      value={newProduct.product_code} 
+                      onChange={(e) => setNewProduct({ ...newProduct, product_code: e.target.value })} 
+                      placeholder="np. KAR-001"
                       className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>Cena sprzedaży *</Label>
+                    <Label>EAN</Label>
                     <Input 
-                      type="number" 
-                      step="0.01" 
-                      value={newProduct.price} 
-                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
-                      placeholder="0.00"
+                      value={newProduct.ean} 
+                      onChange={(e) => setNewProduct({ ...newProduct, ean: e.target.value })} 
+                      placeholder="np. 5901234123457"
                       className="mt-1"
                     />
                   </div>
                 </div>
-                {newProduct.purchase_price && newProduct.price && parseFloat(newProduct.price) > 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    Marża: {(((parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)) / parseFloat(newProduct.price)) * 100).toFixed(1)}%
-                  </div>
-                )}
+              </div>
+            </div>
+
+            {/* Ceny zakupu */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-xs uppercase tracking-wide">Ceny zakupu (od producenta)</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Netto</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.purchase_net_price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, purchase_net_price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Brutto</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.purchase_price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, purchase_price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ceny sprzedaży */}
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-xs uppercase tracking-wide">Ceny sprzedaży (dla klienta)</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Netto</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.net_price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, net_price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label>Brutto *</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={newProduct.price} 
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Marża */}
+            {newProduct.purchase_price && newProduct.price && parseFloat(newProduct.price) > 0 && parseFloat(newProduct.purchase_price) > 0 && (
+              <div className="text-sm bg-muted/50 p-3 rounded-lg">
+                <span className="text-muted-foreground">Marża brutto: </span>
+                <span className="font-semibold text-primary">
+                  {(((parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)) / parseFloat(newProduct.price)) * 100).toFixed(1)}%
+                </span>
+                <span className="text-muted-foreground ml-2">
+                  ({(parseFloat(newProduct.price) - parseFloat(newProduct.purchase_price)).toFixed(2)} zł)
+                </span>
+              </div>
+            )}
+
+            {/* Nadkategoria (dla kogo) */}
+            <div>
+              <Label>Nadkategoria (dla kogo)</Label>
+              <div className="flex gap-6 mt-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="quick_for_dogs"
+                    checked={newProduct.for_dogs}
+                    onCheckedChange={(checked) => setNewProduct({ ...newProduct, for_dogs: checked })}
+                  />
+                  <label htmlFor="quick_for_dogs" className="text-sm font-medium cursor-pointer">
+                    🐕 Psy
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="quick_for_cats"
+                    checked={newProduct.for_cats}
+                    onCheckedChange={(checked) => setNewProduct({ ...newProduct, for_cats: checked })}
+                  />
+                  <label htmlFor="quick_for_cats" className="text-sm font-medium cursor-pointer">
+                    🐱 Koty
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -919,9 +1129,29 @@ export default function ProducersProductsTab({
                 await onCreateProduct({ 
                   ...newProduct, 
                   producer_id: newProduct.producer_id,
-                  purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined
+                  purchase_price: newProduct.purchase_price ? parseFloat(newProduct.purchase_price) : undefined,
+                  purchase_net_price: newProduct.purchase_net_price ? parseFloat(newProduct.purchase_net_price) : undefined,
+                  net_price: newProduct.net_price ? parseFloat(newProduct.net_price) : undefined,
+                  product_code: newProduct.product_code || undefined,
+                  ean: newProduct.ean || undefined,
+                  for_dogs: newProduct.for_dogs,
+                  for_cats: newProduct.for_cats,
                 });
-                setNewProduct({ name: '', price: '', purchase_price: '', category_id: '', description: '', producer_id: '', image_url: '' });
+                setNewProduct({ 
+                  name: '', 
+                  price: '', 
+                  purchase_price: '', 
+                  purchase_net_price: '',
+                  net_price: '',
+                  product_code: '',
+                  ean: '',
+                  for_dogs: true,
+                  for_cats: true,
+                  category_id: '', 
+                  description: '', 
+                  producer_id: '', 
+                  image_url: '' 
+                });
               }} 
               className="w-full"
               disabled={!newProduct.producer_id || !newProduct.name || !newProduct.price || !newProduct.image_url || uploadingImage}
