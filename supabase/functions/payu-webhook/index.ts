@@ -304,7 +304,7 @@ serve(async (req) => {
         // Send confirmation email
         try {
           const buyerEmail = order.buyer?.email;
-          const buyerName = order.buyer?.firstName || 'Darczyńca';
+          const buyerName = order.buyer?.firstName || 'Kliencie';
           
           if (buyerEmail) {
             console.log('Sending confirmation email to:', buyerEmail);
