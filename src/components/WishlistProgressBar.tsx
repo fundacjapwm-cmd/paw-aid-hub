@@ -5,6 +5,8 @@ interface WishlistItem {
   urgent?: boolean;
   bought?: boolean;
   product_id?: string;
+  quantity?: number;
+  purchasedQuantity?: number;
 }
 
 interface WishlistProgressBarProps {
@@ -13,9 +15,17 @@ interface WishlistProgressBarProps {
 }
 
 const WishlistProgressBar = ({ wishlist, compact = false }: WishlistProgressBarProps) => {
-  const boughtCount = wishlist.filter(item => item.bought).length;
-  const totalCount = wishlist.length;
-  const progressPercent = totalCount > 0 ? Math.round((boughtCount / totalCount) * 100) : 0;
+  // Calculate progress based on actual quantities purchased vs needed
+  // This gives a more accurate "belly full" percentage
+  const totalNeeded = wishlist.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const totalPurchased = wishlist.reduce((sum, item) => {
+    const purchased = item.purchasedQuantity || 0;
+    const needed = item.quantity || 1;
+    // Cap at needed to prevent overflow (e.g., 10 purchased when only 5 needed)
+    return sum + Math.min(purchased, needed);
+  }, 0);
+  
+  const progressPercent = totalNeeded > 0 ? Math.round((totalPurchased / totalNeeded) * 100) : 0;
   
   // Dynamic gradient based on progress (red → yellow → green)
   const getProgressGradient = (percent: number) => {
@@ -40,7 +50,7 @@ const WishlistProgressBar = ({ wishlist, compact = false }: WishlistProgressBarP
         </div>
       </div>
       <p className="text-xs text-muted-foreground mt-1">
-        {boughtCount} z {totalCount} produktów zakupionych
+        {totalPurchased} z {totalNeeded} produktów zakupionych
       </p>
     </div>
   );
