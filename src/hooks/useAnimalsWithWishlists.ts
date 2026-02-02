@@ -236,8 +236,9 @@ export const useAnimalsWithWishlists = () => {
   useEffect(() => {
     fetchAnimals();
 
-    // Set up realtime subscription for order_items changes
-    const channel = supabase
+    // Set up realtime subscription for order_items AND orders changes
+    // We need to listen to orders table because payment_status changes there
+    const orderItemsChannel = supabase
       .channel('order_items_changes')
       .on(
         'postgres_changes',
@@ -247,14 +248,33 @@ export const useAnimalsWithWishlists = () => {
           table: 'order_items'
         },
         () => {
-          // Refetch animals when orders change
+          // Refetch animals when order items change
           fetchAnimals();
         }
       )
       .subscribe();
 
+    const ordersChannel = supabase
+      .channel('orders_status_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders'
+        },
+        (payload) => {
+          // Refetch animals when payment_status changes to 'completed'
+          if (payload.new && (payload.new as any).payment_status === 'completed') {
+            fetchAnimals();
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(orderItemsChannel);
+      supabase.removeChannel(ordersChannel);
     };
   }, []);
 
