@@ -101,7 +101,7 @@ serve(async (req) => {
       }
     }
 
-    // Create order in database
+    // Create order in database with customer details
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -109,7 +109,9 @@ serve(async (req) => {
         total_amount: totalAmount,
         status: 'pending',
         payment_status: 'pending',
-        payment_method: 'hotpay'
+        payment_method: 'hotpay',
+        customer_name: customerName,
+        customer_email: customerEmail
       })
       .select()
       .single();
