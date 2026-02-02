@@ -458,18 +458,60 @@ export default function LogisticsMatrix() {
                         </Badge>
                       </div>
 
-                      {/* Products list */}
-                      <div className="flex flex-wrap gap-1">
-                        {order.items.slice(0, 6).map((item, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {item.productName} x{item.quantity}
-                          </Badge>
-                        ))}
-                        {order.items.length > 6 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{order.items.length - 6} więcej
-                          </Badge>
+                      {/* Products list - grouped by recipient */}
+                      <div className="mt-4 space-y-3 border-t pt-4">
+                        {/* For Organization (items without animal) */}
+                        {order.items.some(item => !item.animalName) && (
+                          <div>
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                              Dla organizacji:
+                            </p>
+                            <ul className="space-y-1">
+                              {order.items
+                                .filter(item => !item.animalName)
+                                .map((item, idx) => (
+                                  <li key={idx} className="flex items-center justify-between text-sm">
+                                    <span className="text-foreground">{item.productName}</span>
+                                    <span className="font-medium text-muted-foreground">x{item.quantity}</span>
+                                  </li>
+                                ))}
+                            </ul>
+                          </div>
                         )}
+
+                        {/* For Animals (items with animal name) */}
+                        {order.items.some(item => item.animalName) && (
+                          <div>
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                              Dla podopiecznych:
+                            </p>
+                            <ul className="space-y-1">
+                              {order.items
+                                .filter(item => item.animalName)
+                                .map((item, idx) => (
+                                  <li key={idx} className="flex items-center justify-between text-sm">
+                                    <span className="text-foreground">
+                                      {item.productName}
+                                      <span className="text-muted-foreground ml-1">
+                                        → {item.animalName}
+                                      </span>
+                                    </span>
+                                    <span className="font-medium text-muted-foreground">x{item.quantity}</span>
+                                  </li>
+                                ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Summary */}
+                        <div className="flex items-center justify-between pt-3 border-t border-dashed text-sm">
+                          <span className="text-muted-foreground">
+                            Łącznie: <span className="font-semibold text-foreground">{order.itemCount} szt.</span>
+                          </span>
+                          <span className="font-bold text-primary">
+                            {order.totalValue.toFixed(2)} zł
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
