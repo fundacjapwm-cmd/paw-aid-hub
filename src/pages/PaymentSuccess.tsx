@@ -17,7 +17,7 @@ const PaymentSuccess = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        // Get order ID from URL params (PayU sends it as extOrderId)
+        // Get order ID from URL params (HotPay/PayU sends it as extOrderId)
         const orderId = searchParams.get('extOrderId');
         
         if (!orderId) {
