@@ -172,7 +172,7 @@ export default function AdminStats() {
       title: "Zamówienia dziś",
       value: stats.ordersToday,
       icon: ShoppingCart,
-      description: "Transakcji od darczyńców",
+      description: "Transakcji od kupujących",
       link: "/admin/zamowienia"
     },
     {

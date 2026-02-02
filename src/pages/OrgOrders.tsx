@@ -508,7 +508,7 @@ export default function OrgOrders() {
                     Brak aktywnych zamówień
                   </h3>
                   <p className="text-muted-foreground text-center max-w-md">
-                    Zamówienia pojawią się tutaj gdy darczyńcy kupią produkty z Twojej listy potrzeb.
+                    Zamówienia pojawią się tutaj gdy kupujący kupią produkty z Twojej listy potrzeb.
                   </p>
                 </CardContent>
               </Card>

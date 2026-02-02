@@ -117,7 +117,7 @@ export default function Auth() {
           // Organizacje idą do dashboardu gdzie mogą mieć akceptację regulaminu i onboarding
           navigate('/organizacja', { replace: true });
         } else {
-          // Dla roli USER (Darczyńca)
+          // Dla roli USER (Kupujący)
           navigate('/profil', { replace: true });
         }
       } catch (error) {
