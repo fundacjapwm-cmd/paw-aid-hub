@@ -12,9 +12,10 @@ interface WishlistItem {
 interface WishlistProgressBarProps {
   wishlist: WishlistItem[];
   compact?: boolean;
+  minimal?: boolean;
 }
 
-const WishlistProgressBar = ({ wishlist, compact = false }: WishlistProgressBarProps) => {
+const WishlistProgressBar = ({ wishlist, compact = false, minimal = false }: WishlistProgressBarProps) => {
   // Calculate progress based on actual quantities purchased vs needed
   // This gives a more accurate "belly full" percentage
   const totalNeeded = wishlist.reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -33,6 +34,18 @@ const WishlistProgressBar = ({ wishlist, compact = false }: WishlistProgressBarP
     if (percent < 66) return 'from-orange-500 via-yellow-400 to-yellow-300';
     return 'from-green-500 via-emerald-400 to-green-400';
   };
+
+  // Minimal version - just a thin bar without text
+  if (minimal) {
+    return (
+      <div className="w-full bg-black/20 backdrop-blur-sm rounded-full h-1.5 overflow-hidden">
+        <div 
+          className={`h-1.5 rounded-full transition-all duration-700 bg-gradient-to-r ${getProgressGradient(progressPercent)}`}
+          style={{ width: `${Math.max(progressPercent, 5)}%` }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={`bg-white/95 backdrop-blur-sm rounded-2xl p-${compact ? '3' : '4'} shadow-soft`}>

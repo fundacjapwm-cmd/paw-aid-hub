@@ -87,27 +87,23 @@ export function OtherAnimalsSection({
                   className="overflow-hidden bg-card rounded-2xl border-0 shadow-card cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg animate-fade-in"
                   onClick={() => handleAnimalClick(animal.id)}
                 >
-                  {/* Image with progress overlay */}
-                  <div className="relative aspect-square overflow-hidden">
+                  {/* Image */}
+                  <div className="relative aspect-square overflow-hidden rounded-t-2xl">
                     <img
                       src={animal.image || '/placeholder.svg'}
                       alt={animal.name}
                       className="w-full h-full object-cover"
                     />
-                    
-                    {/* Progress indicator overlay */}
-                    {animal.wishlist && animal.wishlist.length > 0 && (
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <WishlistProgressBar wishlist={animal.wishlist} compact />
-                      </div>
-                    )}
                   </div>
 
-                  {/* Name only */}
-                  <div className="p-2 text-center">
-                    <h3 className="text-sm font-semibold text-foreground truncate">
+                  {/* Name and minimal progress bar */}
+                  <div className="p-2 space-y-1.5">
+                    <h3 className="text-sm font-semibold text-foreground truncate text-center">
                       {animal.name}
                     </h3>
+                    {animal.wishlist && animal.wishlist.length > 0 && (
+                      <WishlistProgressBar wishlist={animal.wishlist} minimal />
+                    )}
                   </div>
                 </Card>
               </CarouselItem>
