@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, PawPrint } from "lucide-react";
+import { PawPrint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -9,7 +9,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import WishlistProgressBar from "@/components/WishlistProgressBar";
 
@@ -63,78 +62,59 @@ export function OtherAnimalsSection({
       <div className="md:container md:mx-auto md:max-w-7xl md:px-8 px-4">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <PawPrint className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+            <PawPrint className="h-5 w-5 text-primary" />
+            <h2 className="text-xl md:text-2xl font-bold text-foreground">
               Inne zwierzaki z {organizationName}
             </h2>
-            <PawPrint className="h-6 w-6 text-primary" />
+            <PawPrint className="h-5 w-5 text-primary" />
           </div>
-          <p className="text-muted-foreground">
-            Poznaj innych podopiecznych tej organizacji
-          </p>
         </div>
 
         <Carousel
           opts={{
             align: "start",
-            loop: otherAnimals.length > 3,
+            loop: otherAnimals.length > 5,
           }}
           className="w-full"
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {otherAnimals.map((animal) => {
-              const ageDisplay = animal.birth_date 
-                ? calculateAnimalAge(animal.birth_date)?.displayText 
-                : animal.age;
-
-              return (
-                <CarouselItem 
-                  key={animal.id} 
-                  className="pl-2 md:pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+          <CarouselContent className="-ml-2 md:-ml-3">
+            {otherAnimals.map((animal) => (
+              <CarouselItem 
+                key={animal.id} 
+                className="pl-2 md:pl-3 basis-[22%] sm:basis-[20%] md:basis-[18%] lg:basis-[14%]"
+              >
+                <Card
+                  className="overflow-hidden bg-card rounded-2xl border-0 shadow-card cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg animate-fade-in"
+                  onClick={() => handleAnimalClick(animal.id)}
                 >
-                  <Card
-                    className="overflow-hidden bg-card rounded-3xl border-0 shadow-card cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg"
-                    onClick={() => handleAnimalClick(animal.id)}
-                  >
-                    {/* Image */}
-                    <div className="relative aspect-square overflow-hidden">
-                      <img
-                        src={animal.image || '/placeholder.svg'}
-                        alt={animal.name}
-                        className="w-full h-full object-cover"
-                      />
-                      
-                      {/* Progress indicator overlay */}
-                      {animal.wishlist && animal.wishlist.length > 0 && (
-                        <div className="absolute bottom-3 left-3 right-3">
-                          <WishlistProgressBar wishlist={animal.wishlist} compact />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4">
-                      <h3 className="text-lg font-bold text-foreground mb-1">
-                        {animal.name}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="bg-muted/50 px-2 py-0.5 rounded-full">
-                          {animal.species}
-                        </span>
-                        {ageDisplay && (
-                          <span className="bg-muted/50 px-2 py-0.5 rounded-full">
-                            {ageDisplay}
-                          </span>
-                        )}
+                  {/* Image with progress overlay */}
+                  <div className="relative aspect-square overflow-hidden">
+                    <img
+                      src={animal.image || '/placeholder.svg'}
+                      alt={animal.name}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Progress indicator overlay */}
+                    {animal.wishlist && animal.wishlist.length > 0 && (
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <WishlistProgressBar wishlist={animal.wishlist} compact />
                       </div>
-                    </div>
-                  </Card>
-                </CarouselItem>
-              );
-            })}
+                    )}
+                  </div>
+
+                  {/* Name only */}
+                  <div className="p-2 text-center">
+                    <h3 className="text-sm font-semibold text-foreground truncate">
+                      {animal.name}
+                    </h3>
+                  </div>
+                </Card>
+              </CarouselItem>
+            ))}
           </CarouselContent>
           
-          {!isMobile && otherAnimals.length > 4 && (
+          {!isMobile && otherAnimals.length > 6 && (
             <>
               <CarouselPrevious className="hidden md:flex -left-4 bg-white shadow-bubbly border-0" />
               <CarouselNext className="hidden md:flex -right-4 bg-white shadow-bubbly border-0" />
@@ -143,10 +123,11 @@ export function OtherAnimalsSection({
         </Carousel>
 
         {/* View all link */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-6">
           <Button
             variant="outline"
-            className="rounded-full px-6"
+            size="sm"
+            className="rounded-full px-5"
             onClick={() => navigate(`/organizacje/${organizationSlug}#animals`)}
           >
             Zobacz wszystkich podopiecznych
