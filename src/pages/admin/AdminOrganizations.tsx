@@ -18,7 +18,6 @@ export default function AdminOrganizations() {
     createOrganization,
     updateOrganization,
     deleteOrganization,
-    toggleTermsAcceptance,
   } = useAdminOrganizations();
 
   if (authLoading) {
@@ -53,7 +52,6 @@ export default function AdminOrganizations() {
                 onEditChange={setEditingOrg}
                 onSave={updateOrganization}
                 onDelete={deleteOrganization}
-                onToggleTermsAcceptance={toggleTermsAcceptance}
               />
             ))}
           </div>
