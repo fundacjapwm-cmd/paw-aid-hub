@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAnimalsWithWishlists } from "@/hooks/useAnimalsWithWishlists";
 import { toast } from "sonner";
@@ -12,6 +12,25 @@ export function useAnimalProfile(id: string | undefined) {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const animal = animals.find(a => a.id === id);
+
+  // Get other animals from the same organization
+  const otherAnimalsFromOrg = useMemo(() => {
+    if (!animal || !animal.organization_id) return [];
+    
+    return animals
+      .filter(a => a.organization_id === animal.organization_id && a.id !== id)
+      .map(a => ({
+        id: a.id,
+        name: a.name,
+        species: a.species,
+        age: a.age,
+        birth_date: a.birth_date,
+        image: a.image,
+        organization: a.organization,
+        organizationSlug: a.organizationSlug,
+        wishlist: a.wishlist,
+      }));
+  }, [animals, animal, id]);
 
   // Initialize quantities when animal loads
   useEffect(() => {
@@ -164,5 +183,6 @@ export function useAnimalProfile(id: string | undefined) {
     isInCart,
     getCartQuantity,
     removeFromCart,
+    otherAnimalsFromOrg,
   };
 }
