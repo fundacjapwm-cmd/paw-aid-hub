@@ -167,34 +167,6 @@ export function useAdminOrganizations() {
     }
   };
 
-  const toggleTermsAcceptance = async (org: Organization) => {
-    const newTermsAcceptedAt = org.terms_accepted_at ? null : new Date().toISOString();
-    
-    const { error } = await supabase
-      .from('organizations')
-      .update({
-        terms_accepted_at: newTermsAcceptedAt,
-        terms_accepted_by: newTermsAcceptedAt ? user?.id : null
-      })
-      .eq('id', org.id);
-
-    if (error) {
-      toast({
-        title: "Błąd",
-        description: "Nie udało się zmienić statusu akceptacji",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Sukces",
-        description: newTermsAcceptedAt 
-          ? "Regulamin został oznaczony jako zaakceptowany" 
-          : "Akceptacja regulaminu została cofnięta"
-      });
-      fetchOrganizations();
-    }
-  };
-
   return {
     user,
     isAdmin,
@@ -208,6 +180,5 @@ export function useAdminOrganizations() {
     createOrganization,
     updateOrganization,
     deleteOrganization,
-    toggleTermsAcceptance,
   };
 }

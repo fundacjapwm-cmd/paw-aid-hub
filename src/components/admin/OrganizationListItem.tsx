@@ -16,7 +16,6 @@ interface OrganizationListItemProps {
   onEditChange: (org: Organization) => void;
   onSave: () => void;
   onDelete: (id: string) => void;
-  onToggleTermsAcceptance?: (org: Organization) => void;
 }
 
 export function OrganizationListItem({
@@ -26,7 +25,6 @@ export function OrganizationListItem({
   onEditChange,
   onSave,
   onDelete,
-  onToggleTermsAcceptance,
 }: OrganizationListItemProps) {
   return (
     <div className="flex items-center justify-between p-4 border rounded-2xl hover:bg-muted/30 transition-colors">
@@ -35,28 +33,12 @@ export function OrganizationListItem({
           <div className="flex items-center gap-2">
             <h3 className="font-semibold hover:text-primary transition-colors">{organization.name}</h3>
             {organization.terms_accepted_at ? (
-              <Badge 
-                variant="default" 
-                className="gap-1 bg-green-500/10 text-green-600 hover:bg-green-500/20 cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleTermsAcceptance?.(organization);
-                }}
-              >
+              <Badge variant="default" className="gap-1 bg-green-500/10 text-green-600">
                 <CheckCircle className="h-3 w-3" />
                 Regulamin zaakceptowany
               </Badge>
             ) : (
-              <Badge 
-                variant="secondary" 
-                className="gap-1 bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleTermsAcceptance?.(organization);
-                }}
-              >
+              <Badge variant="secondary" className="gap-1 bg-orange-500/10 text-orange-600">
                 <XCircle className="h-3 w-3" />
                 Brak akceptacji
               </Badge>
