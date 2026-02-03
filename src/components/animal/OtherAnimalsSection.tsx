@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Heart, PawPrint } from "lucide-react";
+import { PawPrint } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -9,6 +10,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { calculateAnimalAge } from "@/lib/utils/ageCalculator";
 
 interface OtherAnimal {
   id: string;
@@ -29,13 +31,8 @@ interface OtherAnimalsSectionProps {
   organizationSlug?: string;
 }
 
-// Circular progress ring component
-function ProgressRing({ progress, size = 40 }: { progress: number; size?: number }) {
-  const strokeWidth = 3;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (progress / 100) * circumference;
-  
+// Paw progress indicator with percentage
+function PawProgress({ progress }: { progress: number }) {
   const getColor = (percent: number) => {
     if (percent < 33) return '#ef4444';
     if (percent < 66) return '#f97316';
@@ -43,39 +40,19 @@ function ProgressRing({ progress, size = 40 }: { progress: number; size?: number
   };
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg className="transform -rotate-90" width={size} height={size}>
-        {/* Background circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="rgba(255,255,255,0.3)"
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        {/* Progress circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={getColor(progress)}
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-all duration-500"
-        />
-      </svg>
-      {/* Center content */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Heart 
-          className="w-4 h-4 text-white drop-shadow-sm" 
-          fill={progress > 0 ? getColor(progress) : 'transparent'}
-          strokeWidth={2}
-        />
+    <div className="flex items-center gap-1 bg-white/95 backdrop-blur-sm rounded-full px-2 py-1 shadow-sm">
+      <div 
+        className="relative"
+        style={{ color: getColor(progress) }}
+      >
+        <PawPrint className="w-4 h-4" fill="currentColor" />
       </div>
+      <span 
+        className="text-xs font-bold"
+        style={{ color: getColor(progress) }}
+      >
+        {progress}%
+      </span>
     </div>
   );
 }
@@ -89,7 +66,6 @@ export function OtherAnimalsSection({
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  // Filter out the current animal
   const otherAnimals = animals.filter(a => a.id !== currentAnimalId);
 
   if (otherAnimals.length === 0) {
@@ -118,7 +94,7 @@ export function OtherAnimalsSection({
   };
 
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-b from-muted/20 to-muted/40">
+    <section className="py-12 md:py-16 bg-muted/30">
       <div className="md:container md:mx-auto md:max-w-7xl md:px-8 px-4">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -137,59 +113,61 @@ export function OtherAnimalsSection({
           }}
           className="w-full"
         >
-          <CarouselContent className="-ml-3 md:-ml-4">
+          <CarouselContent className="-ml-2 md:-ml-3">
             {otherAnimals.map((animal) => {
               const progress = calculateProgress(animal.wishlist || []);
-              
+              const ageDisplay = animal.birth_date 
+                ? calculateAnimalAge(animal.birth_date)?.displayText 
+                : animal.age;
+
               return (
                 <CarouselItem 
                   key={animal.id} 
-                  className="pl-3 md:pl-4 basis-[28%] sm:basis-[22%] md:basis-[18%] lg:basis-[14%]"
+                  className="pl-2 md:pl-3 basis-[45%] sm:basis-[30%] md:basis-[22%] lg:basis-[18%]"
                 >
-                  <div
-                    className="group cursor-pointer text-center"
+                  <Card
+                    className="overflow-hidden bg-card rounded-2xl border-0 shadow-card cursor-pointer"
                     onClick={() => handleAnimalClick(animal.id)}
                   >
-                    {/* Circular avatar with progress ring overlay */}
-                    <div className="relative mx-auto mb-2 w-20 h-20 md:w-24 md:h-24">
-                      {/* Main image - circular */}
-                      <div className="w-full h-full rounded-full overflow-hidden border-3 border-white shadow-lg">
-                        <img
-                          src={animal.image || '/placeholder.svg'}
-                          alt={animal.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                    {/* Image with paw progress overlay */}
+                    <div className="relative aspect-square overflow-hidden">
+                      <img
+                        src={animal.image || '/placeholder.svg'}
+                        alt={animal.name}
+                        className="w-full h-full object-cover"
+                      />
                       
-                      {/* Progress ring badge */}
+                      {/* Paw progress badge */}
                       {animal.wishlist && animal.wishlist.length > 0 && (
-                        <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-md">
-                          <ProgressRing progress={progress} size={32} />
+                        <div className="absolute bottom-2 right-2">
+                          <PawProgress progress={progress} />
                         </div>
                       )}
-                      
-                      {/* Decorative paw */}
-                      <div className="absolute -top-1 -left-1 bg-primary/90 rounded-full p-1.5 shadow-sm">
-                        <PawPrint className="w-3 h-3 text-white" />
-                      </div>
                     </div>
 
-                    {/* Name */}
-                    <h3 className="text-sm font-bold text-foreground truncate px-1">
-                      {animal.name}
-                    </h3>
-                    
-                    {/* Species tag */}
-                    <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                      {animal.species}
-                    </span>
-                  </div>
+                    {/* Info section */}
+                    <div className="p-3 space-y-1">
+                      <h3 className="text-sm font-bold text-foreground truncate">
+                        {animal.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="bg-muted/60 px-2 py-0.5 rounded-full">
+                          {animal.species}
+                        </span>
+                        {ageDisplay && (
+                          <span className="truncate">
+                            {ageDisplay}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
                 </CarouselItem>
               );
             })}
           </CarouselContent>
           
-          {!isMobile && otherAnimals.length > 6 && (
+          {!isMobile && otherAnimals.length > 5 && (
             <>
               <CarouselPrevious className="hidden md:flex -left-4 bg-white shadow-bubbly border-0" />
               <CarouselNext className="hidden md:flex -right-4 bg-white shadow-bubbly border-0" />
@@ -202,10 +180,9 @@ export function OtherAnimalsSection({
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full px-6 border-primary/30 text-primary hover:bg-primary/5"
+            className="rounded-full px-6"
             onClick={() => navigate(`/organizacje/${organizationSlug}#animals`)}
           >
-            <PawPrint className="w-4 h-4 mr-2" />
             Zobacz wszystkich podopiecznych
           </Button>
         </div>
