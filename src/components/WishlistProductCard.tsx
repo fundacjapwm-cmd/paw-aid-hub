@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ShoppingCart, Plus, Minus, X, Check, ArrowRight, Info } from "lucide-react";
+import { ShoppingCart, Plus, Minus, X, Check, Info } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { ProductDetailDialog } from "@/components/product/ProductDetailDialog";
@@ -216,7 +216,7 @@ export const WishlistProductCard = ({
                       onClick={() => onAddToCart(product)}
                       aria-label={`Dodaj ${product.name} do koszyka`}
                     >
-                      <ArrowRight className="h-5 w-5" />
+                      <ShoppingCart className="h-5 w-5" />
                     </Button>
                   )}
                   {cartQuantity > 0 && (
@@ -365,7 +365,7 @@ export const WishlistProductCard = ({
                     onClick={() => onAddToCart(product)}
                     aria-label={`Dodaj ${product.name} do koszyka`}
                   >
-                    <ArrowRight className="h-4 w-4" />
+                    <ShoppingCart className="h-4 w-4" />
                   </Button>
                 )}
                 {cartQuantity > 0 && (
