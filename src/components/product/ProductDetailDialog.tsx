@@ -98,12 +98,12 @@ export const ProductDetailDialog = ({
         <ScrollArea className="max-h-[calc(90vh-180px)]">
           <div className="p-4 pt-2 space-y-4">
             {/* Product Image */}
-            <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-xl overflow-hidden bg-muted border border-border shadow-sm">
+            <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-xl overflow-hidden bg-muted border border-border shadow-sm flex items-center justify-center">
               {product.image_url && typeof product.image_url === 'string' && product.image_url.trim() !== '' && !imageError ? (
                 <img
                   src={product.image_url}
                   alt={product.name}
-                  className="w-full h-full object-contain"
+                  className="max-w-full max-h-full object-contain"
                   loading="eager"
                   onError={() => setImageError(true)}
                   onLoad={(e) => {
