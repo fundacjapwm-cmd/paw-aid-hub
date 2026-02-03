@@ -6,6 +6,8 @@ import { useAnimalProfile } from "@/hooks/useAnimalProfile";
 import { AnimalInfoCard } from "@/components/animal/AnimalInfoCard";
 import { AnimalWishlistCard } from "@/components/animal/AnimalWishlistCard";
 import { AnimalImageLightbox } from "@/components/animal/AnimalImageLightbox";
+import { OtherAnimalsSection } from "@/components/animal/OtherAnimalsSection";
+import Footer from "@/components/Footer";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,6 +48,7 @@ const AnimalProfile = () => {
     isInCart,
     getCartQuantity,
     removeFromCart,
+    otherAnimalsFromOrg,
   } = useAnimalProfile(id);
 
   if (loading) {
@@ -144,6 +147,16 @@ const AnimalProfile = () => {
           </div>
         </main>
 
+        {/* Other animals from the same organization */}
+        {otherAnimalsFromOrg && otherAnimalsFromOrg.length > 0 && id && (
+          <OtherAnimalsSection
+            animals={otherAnimalsFromOrg}
+            currentAnimalId={id}
+            organizationName={animal.organization}
+            organizationSlug={animal.organizationSlug}
+          />
+        )}
+
         <AnimalImageLightbox
           open={lightboxOpen}
           onOpenChange={setLightboxOpen}
@@ -154,6 +167,8 @@ const AnimalProfile = () => {
           onNext={handleNextImage}
         />
       </div>
+
+      <Footer />
     </>
   );
 };
