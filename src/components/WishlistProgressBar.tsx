@@ -35,14 +35,27 @@ const WishlistProgressBar = ({ wishlist, compact = false, minimal = false }: Wis
     return 'from-green-500 via-emerald-400 to-green-400';
   };
 
-  // Minimal version - just a thin bar without text
+  // Minimal version - text with gradient fill effect
   if (minimal) {
+    const getProgressColor = (percent: number) => {
+      if (percent < 33) return '#ef4444'; // red-500
+      if (percent < 66) return '#f97316'; // orange-500
+      return '#22c55e'; // green-500
+    };
+
     return (
-      <div className="w-full bg-black/20 backdrop-blur-sm rounded-full h-1.5 overflow-hidden">
-        <div 
-          className={`h-1.5 rounded-full transition-all duration-700 bg-gradient-to-r ${getProgressGradient(progressPercent)}`}
-          style={{ width: `${Math.max(progressPercent, 5)}%` }}
-        />
+      <div className="relative text-center py-1">
+        <span 
+          className="text-xs font-semibold"
+          style={{
+            background: `linear-gradient(to right, ${getProgressColor(progressPercent)} ${progressPercent}%, #d1d5db ${progressPercent}%)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Brzuszek {progressPercent}%
+        </span>
       </div>
     );
   }
