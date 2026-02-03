@@ -99,12 +99,20 @@ export const ProductDetailDialog = ({
           <div className="p-4 pt-2 space-y-4">
             {/* Product Image */}
             <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-xl overflow-hidden bg-muted border border-border shadow-sm">
-              {product.image_url && !imageError ? (
+              {product.image_url && typeof product.image_url === 'string' && product.image_url.trim() !== '' && !imageError ? (
                 <img
                   src={product.image_url}
                   alt={product.name}
                   className="w-full h-full object-contain"
+                  loading="eager"
                   onError={() => setImageError(true)}
+                  onLoad={(e) => {
+                    // Ensure image actually loaded with content
+                    const img = e.target as HTMLImageElement;
+                    if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+                      setImageError(true);
+                    }
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
