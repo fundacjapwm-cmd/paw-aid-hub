@@ -23,6 +23,8 @@ interface CheckoutPaymentFormProps {
   setAcceptPrivacy: (value: boolean) => void;
   acceptDataProcessing: boolean;
   setAcceptDataProcessing: (value: boolean) => void;
+  acceptWithdrawalWaiver: boolean;
+  setAcceptWithdrawalWaiver: (value: boolean) => void;
   newsletter: boolean;
   setNewsletter: (value: boolean) => void;
   allConsentsChecked: boolean;
@@ -47,6 +49,8 @@ export function CheckoutPaymentForm({
   setAcceptPrivacy,
   acceptDataProcessing,
   setAcceptDataProcessing,
+  acceptWithdrawalWaiver,
+  setAcceptWithdrawalWaiver,
   newsletter,
   setNewsletter,
   allConsentsChecked,
@@ -149,6 +153,18 @@ export function CheckoutPaymentForm({
             </div>
 
             <div className="flex items-start space-x-2">
+              <Checkbox
+                id="acceptWithdrawalWaiver"
+                checked={acceptWithdrawalWaiver}
+                onCheckedChange={(checked) => setAcceptWithdrawalWaiver(checked as boolean)}
+                required
+              />
+              <label
+                htmlFor="acceptWithdrawalWaiver"
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                <strong>Wyrażam zgodę na rozpoczęcie realizacji usługi przed upływem 14-dniowego terminu odstąpienia od umowy</strong> i przyjmuję do wiadomości, że po dostarczeniu produktów do Organizacji utracę prawo do odstąpienia (art. 38 pkt 1 ustawy o prawach konsumenta) *
+              </label>
               <Checkbox
                 id="acceptTerms"
                 checked={acceptTerms}

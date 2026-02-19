@@ -24,6 +24,8 @@ const Checkout = () => {
     setAcceptPrivacy,
     acceptDataProcessing,
     setAcceptDataProcessing,
+    acceptWithdrawalWaiver,
+    setAcceptWithdrawalWaiver,
     newsletter,
     setNewsletter,
     allConsentsChecked,
@@ -67,6 +69,8 @@ const Checkout = () => {
               setAcceptPrivacy={setAcceptPrivacy}
               acceptDataProcessing={acceptDataProcessing}
               setAcceptDataProcessing={setAcceptDataProcessing}
+              acceptWithdrawalWaiver={acceptWithdrawalWaiver}
+              setAcceptWithdrawalWaiver={setAcceptWithdrawalWaiver}
               newsletter={newsletter}
               setNewsletter={setNewsletter}
               allConsentsChecked={allConsentsChecked}
