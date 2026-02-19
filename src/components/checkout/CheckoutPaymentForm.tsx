@@ -163,7 +163,7 @@ export function CheckoutPaymentForm({
                 htmlFor="acceptWithdrawalWaiver"
                 className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                <strong>Wyrażam zgodę na rozpoczęcie realizacji usługi przed upływem 14-dniowego terminu odstąpienia od umowy</strong> i przyjmuję do wiadomości, że po dostarczeniu produktów do Organizacji utracę prawo do odstąpienia (art. 38 pkt 1 ustawy o prawach konsumenta) *
+                <strong>Wyrażam zgodę na wykonanie usługi przed upływem ustawowego prawa do odstąpienia</strong> *
               </label>
               <Checkbox
                 id="acceptTerms"
