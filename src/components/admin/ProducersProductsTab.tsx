@@ -229,7 +229,10 @@ export default function ProducersProductsTab({
     category_id: '', 
     description: '', 
     producer_id: '', 
-    image_url: ''
+    image_url: '',
+    is_portion_sale: false,
+    total_weight_kg: '',
+    portion_size_kg: '',
   });
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
@@ -313,6 +316,16 @@ export default function ProducersProductsTab({
       toast.error('Zdjęcie produktu jest wymagane');
       return;
     }
+    // Calculate portion prices if portion sale is enabled
+    const portionData: any = {};
+    if (newProduct.is_portion_sale && newProduct.total_weight_kg && newProduct.portion_size_kg) {
+      const ratio = parseFloat(newProduct.portion_size_kg) / parseFloat(newProduct.total_weight_kg);
+      if (newProduct.purchase_net_price) portionData.portion_purchase_net_price = parseFloat((parseFloat(newProduct.purchase_net_price) * ratio).toFixed(2));
+      if (newProduct.purchase_price) portionData.portion_purchase_price = parseFloat((parseFloat(newProduct.purchase_price) * ratio).toFixed(2));
+      if (newProduct.net_price) portionData.portion_net_price = parseFloat((parseFloat(newProduct.net_price) * ratio).toFixed(2));
+      if (newProduct.price) portionData.portion_price = parseFloat((parseFloat(newProduct.price) * ratio).toFixed(2));
+    }
+
     await onCreateProduct({ 
       ...newProduct, 
       producer_id: selectedProducerId,
@@ -323,6 +336,10 @@ export default function ProducersProductsTab({
       ean: newProduct.ean || undefined,
       for_dogs: newProduct.for_dogs,
       for_cats: newProduct.for_cats,
+      is_portion_sale: newProduct.is_portion_sale,
+      total_weight_kg: newProduct.total_weight_kg ? parseFloat(newProduct.total_weight_kg) : null,
+      portion_size_kg: newProduct.portion_size_kg ? parseFloat(newProduct.portion_size_kg) : null,
+      ...portionData,
     });
     setNewProduct({ 
       name: '', 
@@ -337,7 +354,10 @@ export default function ProducersProductsTab({
       category_id: '', 
       description: '', 
       producer_id: '', 
-      image_url: '' 
+      image_url: '',
+      is_portion_sale: false,
+      total_weight_kg: '',
+      portion_size_kg: '',
     });
   };
 
@@ -633,6 +653,72 @@ export default function ProducersProductsTab({
               />
             </div>
 
+            {/* Sprzedaż na kg */}
+            <div className="space-y-3 border rounded-lg p-4 bg-muted/30">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="new_is_portion_sale"
+                  checked={newProduct.is_portion_sale}
+                  onCheckedChange={(checked) => setNewProduct({ ...newProduct, is_portion_sale: checked })}
+                />
+                <label htmlFor="new_is_portion_sale" className="text-sm font-medium cursor-pointer">
+                  📦 Sprzedaż na kg (podział worka)
+                </label>
+              </div>
+              {newProduct.is_portion_sale && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label>Waga całości (kg)</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={newProduct.total_weight_kg} 
+                        onChange={(e) => setNewProduct({ ...newProduct, total_weight_kg: e.target.value })} 
+                        placeholder="np. 10"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Porcja sprzedaży (kg)</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={newProduct.portion_size_kg} 
+                        onChange={(e) => setNewProduct({ ...newProduct, portion_size_kg: e.target.value })} 
+                        placeholder="np. 1"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                  {newProduct.total_weight_kg && newProduct.portion_size_kg && parseFloat(newProduct.total_weight_kg) > 0 && parseFloat(newProduct.portion_size_kg) > 0 && (
+                    <div className="text-sm bg-background p-3 rounded-lg space-y-1">
+                      <p className="font-medium text-muted-foreground text-xs uppercase tracking-wide">Wyliczone ceny za {newProduct.portion_size_kg} kg:</p>
+                      {(() => {
+                        const ratio = parseFloat(newProduct.portion_size_kg) / parseFloat(newProduct.total_weight_kg);
+                        return (
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {newProduct.purchase_net_price && (
+                              <div>Zakup netto: <span className="font-semibold">{(parseFloat(newProduct.purchase_net_price) * ratio).toFixed(2)} zł</span></div>
+                            )}
+                            {newProduct.purchase_price && (
+                              <div>Zakup brutto: <span className="font-semibold">{(parseFloat(newProduct.purchase_price) * ratio).toFixed(2)} zł</span></div>
+                            )}
+                            {newProduct.net_price && (
+                              <div>Sprzedaż netto: <span className="font-semibold">{(parseFloat(newProduct.net_price) * ratio).toFixed(2)} zł</span></div>
+                            )}
+                            {newProduct.price && (
+                              <div>Sprzedaż brutto: <span className="font-semibold text-primary">{(parseFloat(newProduct.price) * ratio).toFixed(2)} zł</span></div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <Button onClick={handleCreateProduct} disabled={uploadingImage} className="w-full">
               {uploadingImage ? 'Przesyłanie...' : 'Dodaj produkt'}
             </Button>
@@ -692,9 +778,17 @@ export default function ProducersProductsTab({
                       </div>
                     )}
                     <div className="flex-1">
-                      <h3 className="font-semibold">{product.name}</h3>
-                      <div className="flex gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">{product.name}</h3>
+                        {(product as any).is_portion_sale && (
+                          <Badge variant="secondary" className="text-xs">📦 {(product as any).portion_size_kg} kg</Badge>
+                        )}
+                      </div>
+                      <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
                         <span>Sprzedaż: {product.price} zł</span>
+                        {(product as any).is_portion_sale && (product as any).portion_price && (
+                          <span className="text-primary">za {(product as any).portion_size_kg} kg: {(product as any).portion_price} zł</span>
+                        )}
                         {product.purchase_price && (
                           <>
                             <span>Zakup: {product.purchase_price} zł</span>
@@ -1150,7 +1244,10 @@ export default function ProducersProductsTab({
                   category_id: '', 
                   description: '', 
                   producer_id: '', 
-                  image_url: '' 
+                  image_url: '',
+                  is_portion_sale: false,
+                  total_weight_kg: '',
+                  portion_size_kg: '',
                 });
               }} 
               className="w-full"

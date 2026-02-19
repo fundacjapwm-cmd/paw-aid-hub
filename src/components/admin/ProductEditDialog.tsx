@@ -26,6 +26,13 @@ interface Product {
   category_id: string;
   description?: string;
   image_url?: string;
+  is_portion_sale?: boolean;
+  total_weight_kg?: number;
+  portion_size_kg?: number;
+  portion_price?: number;
+  portion_net_price?: number;
+  portion_purchase_price?: number;
+  portion_purchase_net_price?: number;
 }
 
 interface ProductCategory {
@@ -89,6 +96,17 @@ export default function ProductEditDialog({ product, productCategories, onClose,
     }
 
     try {
+      // Calculate portion prices if portion sale is enabled
+      const portionData: any = {};
+      if (editData.is_portion_sale && editData.total_weight_kg && editData.portion_size_kg) {
+        const ratio = editData.portion_size_kg / editData.total_weight_kg;
+        const price = typeof editData.price === 'string' ? parseFloat(editData.price) : editData.price;
+        if (editData.purchase_net_price) portionData.portion_purchase_net_price = parseFloat(((typeof editData.purchase_net_price === 'string' ? parseFloat(editData.purchase_net_price) : editData.purchase_net_price) * ratio).toFixed(2));
+        if (editData.purchase_price) portionData.portion_purchase_price = parseFloat(((typeof editData.purchase_price === 'string' ? parseFloat(editData.purchase_price) : editData.purchase_price) * ratio).toFixed(2));
+        if (editData.net_price) portionData.portion_net_price = parseFloat(((typeof editData.net_price === 'string' ? parseFloat(editData.net_price) : editData.net_price) * ratio).toFixed(2));
+        if (price) portionData.portion_price = parseFloat((price * ratio).toFixed(2));
+      }
+
       await onUpdate({
         ...editData,
         price: typeof editData.price === 'string' ? parseFloat(editData.price) : editData.price,
@@ -97,6 +115,10 @@ export default function ProductEditDialog({ product, productCategories, onClose,
         net_price: editData.net_price ? (typeof editData.net_price === 'string' ? parseFloat(editData.net_price) : editData.net_price) : undefined,
         for_dogs: editData.for_dogs ?? true,
         for_cats: editData.for_cats ?? true,
+        is_portion_sale: editData.is_portion_sale ?? false,
+        total_weight_kg: editData.total_weight_kg || null,
+        portion_size_kg: editData.portion_size_kg || null,
+        ...portionData,
       });
       toast.success('Produkt został zaktualizowany');
       onClose();
@@ -301,6 +323,71 @@ export default function ProductEditDialog({ product, productCategories, onClose,
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Sprzedaż na kg */}
+          <div className="space-y-3 border rounded-lg p-4 bg-muted/30">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="edit_is_portion_sale"
+                checked={editData.is_portion_sale ?? false}
+                onCheckedChange={(checked) => setEditData({ ...editData, is_portion_sale: checked as boolean })}
+              />
+              <label htmlFor="edit_is_portion_sale" className="text-sm font-medium cursor-pointer">
+                📦 Sprzedaż na kg (podział worka)
+              </label>
+            </div>
+            {editData.is_portion_sale && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Waga całości (kg)</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={editData.total_weight_kg || ''}
+                      onChange={(e) => setEditData({ ...editData, total_weight_kg: e.target.value ? parseFloat(e.target.value) : undefined })}
+                      placeholder="np. 10"
+                    />
+                  </div>
+                  <div>
+                    <Label>Porcja sprzedaży (kg)</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={editData.portion_size_kg || ''}
+                      onChange={(e) => setEditData({ ...editData, portion_size_kg: e.target.value ? parseFloat(e.target.value) : undefined })}
+                      placeholder="np. 1"
+                    />
+                  </div>
+                </div>
+                {editData.total_weight_kg && editData.portion_size_kg && editData.total_weight_kg > 0 && editData.portion_size_kg > 0 && (
+                  <div className="text-sm bg-background p-3 rounded-lg space-y-1">
+                    <p className="font-medium text-muted-foreground text-xs uppercase tracking-wide">Wyliczone ceny za {editData.portion_size_kg} kg:</p>
+                    {(() => {
+                      const ratio = editData.portion_size_kg! / editData.total_weight_kg!;
+                      const price = typeof editData.price === 'string' ? parseFloat(editData.price) : editData.price;
+                      return (
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          {editData.purchase_net_price && (
+                            <div>Zakup netto: <span className="font-semibold">{((typeof editData.purchase_net_price === 'string' ? parseFloat(editData.purchase_net_price) : editData.purchase_net_price) * ratio).toFixed(2)} zł</span></div>
+                          )}
+                          {editData.purchase_price && (
+                            <div>Zakup brutto: <span className="font-semibold">{((typeof editData.purchase_price === 'string' ? parseFloat(editData.purchase_price) : editData.purchase_price) * ratio).toFixed(2)} zł</span></div>
+                          )}
+                          {editData.net_price && (
+                            <div>Sprzedaż netto: <span className="font-semibold">{((typeof editData.net_price === 'string' ? parseFloat(editData.net_price) : editData.net_price) * ratio).toFixed(2)} zł</span></div>
+                          )}
+                          {price && (
+                            <div>Sprzedaż brutto: <span className="font-semibold text-primary">{(price * ratio).toFixed(2)} zł</span></div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Description */}
