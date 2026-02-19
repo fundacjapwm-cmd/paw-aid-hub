@@ -391,15 +391,11 @@ export default function Regulamin() {
                     przy użyciu takiego samego sposobu płatności, jakiego użył Użytkownik.
                   </li>
                   <li>
-                    <strong>Wyjątek od prawa odstąpienia:</strong> Prawo odstąpienia nie przysługuje, jeżeli produkty 
-                    zamówione przez Użytkownika zostały już dostarczone do Organizacji. W takim przypadku usługa 
-                    pośrednictwa zostaje w pełni wykonana.
-                  </li>
-                  <li>
-                    <strong>Zgoda na wcześniejsze wykonanie usługi:</strong> Składając zamówienie, Użytkownik może wyrazić 
-                    zgodę na rozpoczęcie realizacji usługi przed upływem terminu do odstąpienia. W przypadku pełnego wykonania 
-                    usługi (dostarczenia produktów do Organizacji) przed upływem 14 dni od zamówienia, Użytkownik traci prawo 
-                    do odstąpienia od umowy zgodnie z art. 38 pkt 1 ustawy o prawach konsumenta.
+                    <strong>Zgoda na wcześniejsze wykonanie usługi:</strong> Przed złożeniem zamówienia Użytkownik 
+                    może wyrazić zgodę na rozpoczęcie realizacji usługi przed upływem 14-dniowego terminu do odstąpienia 
+                    od umowy, poprzez zaznaczenie odpowiedniego pola w formularzu zamówienia. W przypadku wyrażenia takiej 
+                    zgody i pełnego wykonania usługi (dostarczenia produktów do Organizacji) przed upływem tego terminu, 
+                    Użytkownik traci prawo do odstąpienia od umowy zgodnie z art. 38 pkt 1 ustawy o prawach konsumenta.
                   </li>
                 </ol>
                 <div className="bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6 mt-4">

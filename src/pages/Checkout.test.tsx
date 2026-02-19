@@ -31,6 +31,8 @@ describe('CheckoutPaymentForm', () => {
     setAcceptPrivacy: vi.fn(),
     acceptDataProcessing: false,
     setAcceptDataProcessing: vi.fn(),
+    acceptWithdrawalWaiver: false,
+    setAcceptWithdrawalWaiver: vi.fn(),
     newsletter: false,
     setNewsletter: vi.fn(),
     allConsentsChecked: false,
