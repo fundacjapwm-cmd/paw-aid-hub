@@ -1206,6 +1206,60 @@ export default function ProducersProductsTab({
               />
             </div>
 
+            {/* Sprzedaż na kg */}
+            <div className="space-y-3 border rounded-lg p-4 bg-muted/30">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="quick_is_portion_sale"
+                  checked={newProduct.is_portion_sale}
+                  onCheckedChange={(checked) => setNewProduct({ ...newProduct, is_portion_sale: checked })}
+                />
+                <label htmlFor="quick_is_portion_sale" className="text-sm font-medium cursor-pointer">
+                  📦 Sprzedaż na kg (podział worka)
+                </label>
+              </div>
+              {newProduct.is_portion_sale && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label>Waga całości (kg)</Label>
+                      <Input 
+                        type="number" step="0.1" 
+                        value={newProduct.total_weight_kg} 
+                        onChange={(e) => setNewProduct({ ...newProduct, total_weight_kg: e.target.value })} 
+                        placeholder="np. 10" className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Porcja sprzedaży (kg)</Label>
+                      <Input 
+                        type="number" step="0.1" 
+                        value={newProduct.portion_size_kg} 
+                        onChange={(e) => setNewProduct({ ...newProduct, portion_size_kg: e.target.value })} 
+                        placeholder="np. 1" className="mt-1"
+                      />
+                    </div>
+                  </div>
+                  {newProduct.total_weight_kg && newProduct.portion_size_kg && parseFloat(newProduct.total_weight_kg) > 0 && parseFloat(newProduct.portion_size_kg) > 0 && (
+                    <div className="text-sm bg-background p-3 rounded-lg space-y-1">
+                      <p className="font-medium text-muted-foreground text-xs uppercase tracking-wide">Wyliczone ceny za {newProduct.portion_size_kg} kg:</p>
+                      {(() => {
+                        const ratio = parseFloat(newProduct.portion_size_kg) / parseFloat(newProduct.total_weight_kg);
+                        return (
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {newProduct.purchase_net_price && <div>Zakup netto: <span className="font-semibold">{(parseFloat(newProduct.purchase_net_price) * ratio).toFixed(2)} zł</span></div>}
+                            {newProduct.purchase_price && <div>Zakup brutto: <span className="font-semibold">{(parseFloat(newProduct.purchase_price) * ratio).toFixed(2)} zł</span></div>}
+                            {newProduct.net_price && <div>Sprzedaż netto: <span className="font-semibold">{(parseFloat(newProduct.net_price) * ratio).toFixed(2)} zł</span></div>}
+                            {newProduct.price && <div>Sprzedaż brutto: <span className="font-semibold text-primary">{(parseFloat(newProduct.price) * ratio).toFixed(2)} zł</span></div>}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <Button 
               onClick={async () => {
                 if (!newProduct.producer_id) {
@@ -1220,6 +1274,14 @@ export default function ProducersProductsTab({
                   toast.error('Wypełnij wszystkie wymagane pola');
                   return;
                 }
+                const portionData: any = {};
+                if (newProduct.is_portion_sale && newProduct.total_weight_kg && newProduct.portion_size_kg) {
+                  const ratio = parseFloat(newProduct.portion_size_kg) / parseFloat(newProduct.total_weight_kg);
+                  if (newProduct.purchase_net_price) portionData.portion_purchase_net_price = parseFloat((parseFloat(newProduct.purchase_net_price) * ratio).toFixed(2));
+                  if (newProduct.purchase_price) portionData.portion_purchase_price = parseFloat((parseFloat(newProduct.purchase_price) * ratio).toFixed(2));
+                  if (newProduct.net_price) portionData.portion_net_price = parseFloat((parseFloat(newProduct.net_price) * ratio).toFixed(2));
+                  if (newProduct.price) portionData.portion_price = parseFloat((parseFloat(newProduct.price) * ratio).toFixed(2));
+                }
                 await onCreateProduct({ 
                   ...newProduct, 
                   producer_id: newProduct.producer_id,
@@ -1230,6 +1292,10 @@ export default function ProducersProductsTab({
                   ean: newProduct.ean || undefined,
                   for_dogs: newProduct.for_dogs,
                   for_cats: newProduct.for_cats,
+                  is_portion_sale: newProduct.is_portion_sale,
+                  total_weight_kg: newProduct.total_weight_kg ? parseFloat(newProduct.total_weight_kg) : null,
+                  portion_size_kg: newProduct.portion_size_kg ? parseFloat(newProduct.portion_size_kg) : null,
+                  ...portionData,
                 });
                 setNewProduct({ 
                   name: '', 
