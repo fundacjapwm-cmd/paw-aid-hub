@@ -17,16 +17,15 @@ export function useCheckout() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [acceptDataProcessing, setAcceptDataProcessing] = useState(false);
-  const [acceptWithdrawalWaiver, setAcceptWithdrawalWaiver] = useState(false);
+  
   const [newsletter, setNewsletter] = useState(false);
 
-  const allConsentsChecked = acceptDataProcessing && acceptTerms && acceptPrivacy && acceptWithdrawalWaiver && newsletter;
+  const allConsentsChecked = acceptDataProcessing && acceptTerms && acceptPrivacy && newsletter;
 
   const handleSelectAll = (checked: boolean) => {
     setAcceptDataProcessing(checked);
     setAcceptTerms(checked);
     setAcceptPrivacy(checked);
-    setAcceptWithdrawalWaiver(checked);
     setNewsletter(checked);
   };
 
@@ -190,7 +189,6 @@ export function useCheckout() {
         acceptTerms,
         acceptPrivacy,
         acceptDataProcessing,
-        acceptWithdrawalWaiver,
         newsletter,
       });
     } catch (error) {
@@ -271,8 +269,6 @@ export function useCheckout() {
     setAcceptPrivacy,
     acceptDataProcessing,
     setAcceptDataProcessing,
-    acceptWithdrawalWaiver,
-    setAcceptWithdrawalWaiver,
     newsletter,
     setNewsletter,
     allConsentsChecked,

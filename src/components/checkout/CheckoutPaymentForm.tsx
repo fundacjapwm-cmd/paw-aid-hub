@@ -23,14 +23,11 @@ interface CheckoutPaymentFormProps {
   setAcceptPrivacy: (value: boolean) => void;
   acceptDataProcessing: boolean;
   setAcceptDataProcessing: (value: boolean) => void;
-  acceptWithdrawalWaiver: boolean;
-  setAcceptWithdrawalWaiver: (value: boolean) => void;
   newsletter: boolean;
   setNewsletter: (value: boolean) => void;
   allConsentsChecked: boolean;
   onSelectAll: (checked: boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
-  
 }
 
 export function CheckoutPaymentForm({
@@ -49,14 +46,11 @@ export function CheckoutPaymentForm({
   setAcceptPrivacy,
   acceptDataProcessing,
   setAcceptDataProcessing,
-  acceptWithdrawalWaiver,
-  setAcceptWithdrawalWaiver,
   newsletter,
   setNewsletter,
   allConsentsChecked,
   onSelectAll,
   onSubmit,
-  
 }: CheckoutPaymentFormProps) {
   return (
     <Card className="md:sticky md:top-24">
@@ -154,18 +148,6 @@ export function CheckoutPaymentForm({
 
             <div className="flex items-start space-x-2">
               <Checkbox
-                id="acceptWithdrawalWaiver"
-                checked={acceptWithdrawalWaiver}
-                onCheckedChange={(checked) => setAcceptWithdrawalWaiver(checked as boolean)}
-                required
-              />
-              <label
-                htmlFor="acceptWithdrawalWaiver"
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                <strong>Wyrażam zgodę na wykonanie usługi przed upływem ustawowego prawa do odstąpienia od umowy</strong> *
-              </label>
-              <Checkbox
                 id="acceptTerms"
                 checked={acceptTerms}
                 onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
@@ -220,11 +202,11 @@ export function CheckoutPaymentForm({
           <Separator className="my-6" />
 
           <div className="bg-secondary/50 p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">
-              Płatność zostanie przetworzona przez HotPay
-            </p>
             <p className="text-sm font-medium">
               Bezpieczna płatność zabezpieczona przez HotPay
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Dokonując płatności wyrażasz zgodę na wykonanie usługi przed upływem ustawowego prawa do odstąpienia od umowy.
             </p>
           </div>
 
