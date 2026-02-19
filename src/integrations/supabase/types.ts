@@ -845,13 +845,20 @@ export type Database = {
           for_dogs: boolean | null
           id: string
           image_url: string | null
+          is_portion_sale: boolean | null
           name: string
           net_price: number | null
+          portion_net_price: number | null
+          portion_price: number | null
+          portion_purchase_net_price: number | null
+          portion_purchase_price: number | null
+          portion_size_kg: number | null
           price: number
           producer_id: string | null
           product_code: string | null
           purchase_net_price: number | null
           purchase_price: number | null
+          total_weight_kg: number | null
           updated_at: string | null
         }
         Insert: {
@@ -864,13 +871,20 @@ export type Database = {
           for_dogs?: boolean | null
           id?: string
           image_url?: string | null
+          is_portion_sale?: boolean | null
           name: string
           net_price?: number | null
+          portion_net_price?: number | null
+          portion_price?: number | null
+          portion_purchase_net_price?: number | null
+          portion_purchase_price?: number | null
+          portion_size_kg?: number | null
           price: number
           producer_id?: string | null
           product_code?: string | null
           purchase_net_price?: number | null
           purchase_price?: number | null
+          total_weight_kg?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -883,13 +897,20 @@ export type Database = {
           for_dogs?: boolean | null
           id?: string
           image_url?: string | null
+          is_portion_sale?: boolean | null
           name?: string
           net_price?: number | null
+          portion_net_price?: number | null
+          portion_price?: number | null
+          portion_purchase_net_price?: number | null
+          portion_purchase_price?: number | null
+          portion_size_kg?: number | null
           price?: number
           producer_id?: string | null
           product_code?: string | null
           purchase_net_price?: number | null
           purchase_price?: number | null
+          total_weight_kg?: number | null
           updated_at?: string | null
         }
         Relationships: [

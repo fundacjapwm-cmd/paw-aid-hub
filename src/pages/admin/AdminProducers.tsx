@@ -257,7 +257,14 @@ export default function AdminProducers() {
         description: newProduct.description || null,
         image_url: newProduct.image_url || null,
         category_id: newProduct.category_id,
-        producer_id: newProduct.producer_id
+        producer_id: newProduct.producer_id,
+        is_portion_sale: newProduct.is_portion_sale ?? false,
+        total_weight_kg: newProduct.total_weight_kg || null,
+        portion_size_kg: newProduct.portion_size_kg || null,
+        portion_price: newProduct.portion_price || null,
+        portion_net_price: newProduct.portion_net_price || null,
+        portion_purchase_price: newProduct.portion_purchase_price || null,
+        portion_purchase_net_price: newProduct.portion_purchase_net_price || null,
       });
 
     if (error) {
@@ -294,7 +301,14 @@ export default function AdminProducers() {
         image_url: editingProduct.image_url || null,
         category_id: editingProduct.category_id,
         producer_id: editingProduct.producer_id,
-        active: editingProduct.active
+        active: editingProduct.active,
+        is_portion_sale: editingProduct.is_portion_sale ?? false,
+        total_weight_kg: editingProduct.total_weight_kg || null,
+        portion_size_kg: editingProduct.portion_size_kg || null,
+        portion_price: editingProduct.portion_price || null,
+        portion_net_price: editingProduct.portion_net_price || null,
+        portion_purchase_price: editingProduct.portion_purchase_price || null,
+        portion_purchase_net_price: editingProduct.portion_purchase_net_price || null,
       })
       .eq('id', editingProduct.id);
 
