@@ -163,7 +163,7 @@ export function CheckoutPaymentForm({
                 htmlFor="acceptWithdrawalWaiver"
                 className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                <strong>Wyrażam zgodę na wykonanie usługi przed upływem ustawowego prawa do odstąpienia</strong> *
+                <strong>Wyrażam zgodę na wykonanie usługi przed upływem ustawowego prawa do odstąpienia od umowy</strong> *
               </label>
               <Checkbox
                 id="acceptTerms"
