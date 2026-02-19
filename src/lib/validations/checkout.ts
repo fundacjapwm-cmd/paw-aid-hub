@@ -7,7 +7,7 @@ export const checkoutSchema = z.object({
   acceptTerms: z.boolean().refine(val => val === true, 'Musisz zaakceptować regulamin'),
   acceptPrivacy: z.boolean().refine(val => val === true, 'Musisz zaakceptować politykę prywatności'),
   acceptDataProcessing: z.boolean().refine(val => val === true, 'Musisz wyrazić zgodę na przetwarzanie danych'),
-  acceptWithdrawalWaiver: z.boolean().refine(val => val === true, 'Musisz wyrazić zgodę na rozpoczęcie realizacji usługi'),
+  
   newsletter: z.boolean().optional(),
 });
 
